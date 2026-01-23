@@ -10,9 +10,12 @@
   },
   "dependencies": {
     "@google/genai": "^1.38.0",
+    "@revenuecat/purchases-js": "^1.24.3",
     "firebase": "^12.8.0",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "react-dom": "^19.2.3",
+    "react-native-purchases": "^9.7.1",
+    "react-native-purchases-ui": "^9.7.1"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

@@ -12,10 +12,16 @@ import CommunitySupport from './views/CommunitySupport';
 import DesktopWorkspace from './views/DesktopWorkspace';
 import Projects from './views/Projects';
 import Auth from './views/Auth';
+import Paywall from './components/Paywall';
+import { useRevenueCat } from './src/hooks/useRevenueCat';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.Dashboard);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
+  
+  // RevenueCat Integration
+  const { isPro, currentOffering, purchasePackage, loading: rcLoading } = useRevenueCat();
 
   // Check for existing session
   useEffect(() => {
@@ -30,33 +36,32 @@ const App: React.FC = () => {
     setIsAuthenticated(false);
   };
 
+  const handleRestrictedAccess = (view: View) => {
+    // Example: Restrict 'Desktop' and 'Build' to Pro users
+    if ((view === View.Desktop || view === View.Build) && !isPro) {
+      setShowPaywall(true);
+    } else {
+      setCurrentView(view);
+    }
+  };
+
   const renderView = () => {
     switch (currentView) {
-      case View.Dashboard:
-        return <Dashboard />;
-      case View.Projects:
-        return <Projects />;
-      case View.Editor:
-        return <CodeEditor />;
-      case View.Desktop:
-        return <DesktopWorkspace />;
-      case View.Design:
-        return <DesignStudio />;
-      case View.Build:
-        return <BuildSystem />;
-      case View.Analytics:
-        return <Analytics />;
-      case View.Marketplace:
-        return <Marketplace />;
-      case View.Infrastructure:
-        return <Infrastructure />;
-      case View.Support:
-        return <CommunitySupport />;
+      case View.Dashboard: return <Dashboard />;
+      case View.Projects: return <Projects />;
+      case View.Editor: return <CodeEditor />;
+      case View.Desktop: return <DesktopWorkspace />;
+      case View.Design: return <DesignStudio />;
+      case View.Build: return <BuildSystem />;
+      case View.Analytics: return <Analytics />;
+      case View.Marketplace: return <Marketplace />;
+      case View.Infrastructure: return <Infrastructure />;
+      case View.Support: return <CommunitySupport />;
       case View.Settings:
         return (
           <div className="flex-1 p-8 bg-zinc-950 text-white">
             <h1 className="text-2xl font-bold mb-6">Settings</h1>
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 max-w-2xl">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 max-w-2xl mb-6">
                 <h3 className="text-lg font-medium mb-4">Account</h3>
                 <div className="flex items-center justify-between mb-6">
                    <div>
@@ -71,17 +76,27 @@ const App: React.FC = () => {
                     </button>
                 </div>
             </div>
-          </div>
-        );
-      default:
-        return (
-          <div className="flex-1 flex items-center justify-center bg-zinc-950 text-zinc-500">
-            <div className="text-center">
-              <span className="material-symbols-rounded text-6xl mb-4">construction</span>
-              <p>This module is under development.</p>
+            
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 max-w-2xl">
+                <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
+                  Subscription 
+                  {isPro && <span className="text-xs bg-indigo-500 text-white px-2 py-0.5 rounded">PRO</span>}
+                </h3>
+                <p className="text-sm text-zinc-400 mb-4">
+                  {isPro ? "You have full access to TheMAG.dev Pro features." : "Upgrade to unlock Build Systems and Desktop Workspace."}
+                </p>
+                {!isPro && (
+                  <button 
+                    onClick={() => setShowPaywall(true)}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors"
+                  >
+                    Upgrade Now
+                  </button>
+                )}
             </div>
           </div>
         );
+      default: return null;
     }
   };
 
@@ -92,10 +107,17 @@ const App: React.FC = () => {
   return (
     <AppLayout 
       currentView={currentView} 
-      onChangeView={setCurrentView}
+      onChangeView={handleRestrictedAccess}
       user={{ name: 'John Doe', avatar: 'JD' }}
     >
         {renderView()}
+        {showPaywall && (
+          <Paywall 
+            packages={currentOffering} 
+            onPurchase={purchasePackage}
+            onClose={() => setShowPaywall(false)} 
+          />
+        )}
     </AppLayout>
   );
 };
