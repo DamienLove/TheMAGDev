@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "947338942541",
+    "project_id": "themagdev-a4363",
+    "storage_bucket": "themagdev-a4363.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:947338942541:android:ac85f00703a4cc224b2404",
+        "android_client_info": {
+          "package_name": "TheMAG.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "947338942541-t2fedjjm9q9qr4mvqq8n5o1qvlj69eq7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB25fRxh7-lBWIbWMwzr-EEJs20Nss8Ous"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "947338942541-t2fedjjm9q9qr4mvqq8n5o1qvlj69eq7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
