@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SDK Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1e2229",
+                        "border-dark": "#324467",
+                        "text-secondary": "#92a4c9",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-white overflow-hidden">
+<div class="relative flex h-full min-h-screen w-full flex-col group/design-root overflow-y-auto pb-[280px]">
+<!-- Top App Bar -->
+<div class="sticky top-0 z-30 flex items-center bg-background-dark/95 backdrop-blur-sm p-4 pb-2 justify-between border-b border-white/5">
+<div class="flex items-center gap-3">
+<button class="text-white md:hidden">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="text-white text-xl font-bold leading-tight tracking-[-0.015em]">SDK Manager</h2>
+</div>
+<div class="flex items-center justify-end gap-2">
+<button class="flex items-center justify-center rounded-full h-10 w-10 bg-surface-dark text-white hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">search</span>
+</button>
+</div>
+</div>
+<!-- Scrollable Platform Tabs -->
+<div class="sticky top-[60px] z-20 bg-background-dark pb-1 shadow-lg shadow-black/20">
+<div class="flex border-b border-border-dark px-4 overflow-x-auto no-scrollbar gap-6">
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-primary text-white pb-[13px] pt-4 min-w-[60px] whitespace-nowrap" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Android</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-text-secondary hover:text-white pb-[13px] pt-4 min-w-[60px] whitespace-nowrap" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">iOS</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-text-secondary hover:text-white pb-[13px] pt-4 min-w-[60px] whitespace-nowrap" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Windows</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-text-secondary hover:text-white pb-[13px] pt-4 min-w-[60px] whitespace-nowrap" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Mac</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-text-secondary hover:text-white pb-[13px] pt-4 min-w-[60px] whitespace-nowrap" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Linux</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-text-secondary hover:text-white pb-[13px] pt-4 min-w-[60px] whitespace-nowrap" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Web</p>
+</a>
+</div>
+</div>
+<!-- Segmented Control -->
+<div class="flex px-4 py-4 bg-background-dark">
+<div class="flex h-10 flex-1 items-center justify-center rounded-lg bg-surface-dark p-1">
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md px-2 has-[:checked]:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-white text-text-secondary text-sm font-medium leading-normal transition-all">
+<span class="truncate">SDK Platforms</span>
+<input checked="" class="invisible w-0" name="view-toggle" type="radio" value="platforms"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md px-2 has-[:checked]:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-white text-text-secondary text-sm font-medium leading-normal transition-all">
+<span class="truncate">SDK Tools</span>
+<input class="invisible w-0" name="view-toggle" type="radio" value="tools"/>
+</label>
+</div>
+</div>
+<!-- List Content -->
+<div class="flex flex-col px-4 gap-3 bg-background-dark min-h-[500px]">
+<!-- List Item 1: Installed (Active) -->
+<div class="relative overflow-hidden rounded-xl bg-primary/10 border border-primary/30 p-4 transition-all active:scale-[0.99]">
+<div class="flex items-start gap-4">
+<div class="flex pt-1">
+<input checked="" class="h-5 w-5 rounded border-border-dark border-2 bg-transparent text-primary checked:bg-primary checked:border-primary focus:ring-0 focus:ring-offset-0 focus:outline-none cursor-pointer" type="checkbox"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<h3 class="text-white text-base font-bold truncate">Android 14.0 (UpsideDownCake)</h3>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="inline-flex items-center rounded-md bg-green-500/10 px-2 py-1 text-xs font-medium text-green-400 ring-1 ring-inset ring-green-500/20">Installed</span>
+<span class="text-text-secondary text-xs">API 34</span>
+<span class="text-text-secondary text-xs">•</span>
+<span class="text-text-secondary text-xs">Rev 2</span>
+</div>
+</div>
+<div class="shrink-0 flex flex-col gap-2">
+<button class="flex h-8 w-8 items-center justify-center rounded-full text-text-secondary hover:bg-white/10 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- List Item 2: Update Available -->
+<div class="relative overflow-hidden rounded-xl bg-surface-dark border border-transparent hover:border-border-dark p-4 transition-all active:scale-[0.99]">
+<div class="flex items-start gap-4">
+<div class="flex pt-1">
+<input class="h-5 w-5 rounded border-border-dark border-2 bg-transparent text-primary checked:bg-primary checked:border-primary focus:ring-0 focus:ring-offset-0 focus:outline-none cursor-pointer" type="checkbox"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<h3 class="text-white text-base font-medium truncate">Android 13.0 (Tiramisu)</h3>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="inline-flex items-center rounded-md bg-amber-500/10 px-2 py-1 text-xs font-medium text-amber-400 ring-1 ring-inset ring-amber-500/20">Update Available</span>
+<span class="text-text-secondary text-xs">API 33</span>
+</div>
+</div>
+<div class="shrink-0">
+<button class="flex h-8 w-8 items-center justify-center rounded-full text-primary bg-primary/10 hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+</div>
+</div>
+</div>
+<!-- List Item 3: Not Installed -->
+<div class="relative overflow-hidden rounded-xl bg-surface-dark border border-transparent hover:border-border-dark p-4 transition-all active:scale-[0.99]">
+<div class="flex items-start gap-4">
+<div class="flex pt-1">
+<input class="h-5 w-5 rounded border-border-dark border-2 bg-transparent text-primary checked:bg-primary checked:border-primary focus:ring-0 focus:ring-offset-0 focus:outline-none cursor-pointer" type="checkbox"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<h3 class="text-text-secondary text-base font-normal truncate">Android 12.0 (S)</h3>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="text-text-secondary text-xs">Not Installed</span>
+<span class="text-text-secondary text-xs">•</span>
+<span class="text-text-secondary text-xs">API 32</span>
+</div>
+</div>
+<div class="shrink-0">
+<button class="flex h-8 w-8 items-center justify-center rounded-full text-text-secondary hover:bg-white/10 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">download_for_offline</span>
+</button>
+</div>
+</div>
+</div>
+<!-- List Item 4: Not Installed -->
+<div class="relative overflow-hidden rounded-xl bg-surface-dark border border-transparent hover:border-border-dark p-4 transition-all active:scale-[0.99]">
+<div class="flex items-start gap-4">
+<div class="flex pt-1">
+<input class="h-5 w-5 rounded border-border-dark border-2 bg-transparent text-primary checked:bg-primary checked:border-primary focus:ring-0 focus:ring-offset-0 focus:outline-none cursor-pointer" type="checkbox"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<h3 class="text-text-secondary text-base font-normal truncate">Android 11.0 (R)</h3>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="text-text-secondary text-xs">Not Installed</span>
+<span class="text-text-secondary text-xs">•</span>
+<span class="text-text-secondary text-xs">API 30</span>
+</div>
+</div>
+<div class="shrink-0">
+<button class="flex h-8 w-8 items-center justify-center rounded-full text-text-secondary hover:bg-white/10 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">download_for_offline</span>
+</button>
+</div>
+</div>
+</div>
+<!-- List Item 5: Not Installed -->
+<div class="relative overflow-hidden rounded-xl bg-surface-dark border border-transparent hover:border-border-dark p-4 transition-all active:scale-[0.99]">
+<div class="flex items-start gap-4">
+<div class="flex pt-1">
+<input class="h-5 w-5 rounded border-border-dark border-2 bg-transparent text-primary checked:bg-primary checked:border-primary focus:ring-0 focus:ring-offset-0 focus:outline-none cursor-pointer" type="checkbox"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<h3 class="text-text-secondary text-base font-normal truncate">Android 10.0 (Q)</h3>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="text-text-secondary text-xs">Not Installed</span>
+<span class="text-text-secondary text-xs">•</span>
+<span class="text-text-secondary text-xs">API 29</span>
+</div>
+</div>
+<div class="shrink-0">
+<button class="flex h-8 w-8 items-center justify-center rounded-full text-text-secondary hover:bg-white/10 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">download_for_offline</span>
+</button>
+</div>
+</div>
+</div>
+<div class="h-10"></div>
+</div>
+<!-- Detail Overlay (Bottom Sheet) - Simulating Active State for Selected Item -->
+<!-- Fixed position above the progress footer -->
+<div class="fixed bottom-[80px] left-2 right-2 z-40">
+<!-- Sheet Container -->
+<div class="bg-surface-dark rounded-2xl shadow-2xl border border-border-dark flex flex-col max-h-[40vh]">
+<!-- Handle -->
+<div class="w-full flex justify-center pt-3 pb-1">
+<div class="w-12 h-1.5 bg-border-dark rounded-full"></div>
+</div>
+<!-- Header -->
+<div class="px-5 pt-2 pb-4 border-b border-border-dark flex justify-between items-start">
+<div>
+<h3 class="text-white text-lg font-bold">Android 14.0 (API 34)</h3>
+<p class="text-text-secondary text-xs mt-1">Details &amp; Properties</p>
+</div>
+<button class="text-text-secondary hover:text-white">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Scrollable Content -->
+<div class="p-5 overflow-y-auto space-y-4">
+<!-- Property Row -->
+<div class="flex flex-col gap-1">
+<span class="text-text-secondary text-xs font-bold uppercase tracking-wider">Local Path</span>
+<div class="flex items-center justify-between bg-background-dark/50 p-3 rounded-lg border border-white/5">
+<code class="text-white text-xs font-mono break-all truncate">/usr/local/android/sdk/platforms/android-34</code>
+<button class="text-primary hover:text-white ml-2">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+</div>
+</div>
+<!-- Stats Grid -->
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-1">
+<span class="text-text-secondary text-xs font-bold uppercase tracking-wider">Disk Size</span>
+<p class="text-white text-sm font-medium">145 MB</p>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-text-secondary text-xs font-bold uppercase tracking-wider">Source</span>
+<p class="text-white text-sm font-medium">Google Repository</p>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-text-secondary text-xs font-bold uppercase tracking-wider">Release Date</span>
+<p class="text-white text-sm font-medium">Oct 4, 2023</p>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-text-secondary text-xs font-bold uppercase tracking-wider">Dependencies</span>
+<p class="text-white text-sm font-medium">SDK Tools v34.0.0</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Global Progress Footer (Fixed) -->
+<div class="fixed bottom-0 left-0 right-0 z-50 bg-background-dark border-t border-border-dark pb-safe">
+<!-- Progress Bar Strip -->
+<div class="w-full h-1 bg-surface-dark">
+<div class="h-full bg-primary w-[45%] rounded-r-full shadow-[0_0_10px_rgba(19,91,236,0.5)]"></div>
+</div>
+<!-- Content -->
+<div class="px-4 py-3 flex items-center justify-between gap-4">
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-1">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+<p class="text-white text-sm font-bold truncate">Downloading 2 items...</p>
+</div>
+<p class="text-text-secondary text-xs font-mono">45% • 12 MB/s • 2m remaining</p>
+</div>
+<div class="shrink-0">
+<button class="h-9 px-4 rounded-lg bg-surface-dark border border-border-dark text-white text-sm font-medium hover:bg-white/5 transition-colors">
+                        Cancel All
+                    </button>
+</div>
+</div>
+<!-- Safe Area Spacer for iOS Home Indicator -->
+<div class="h-4 w-full bg-background-dark"></div>
+</div>
+</div>
+</body></html>

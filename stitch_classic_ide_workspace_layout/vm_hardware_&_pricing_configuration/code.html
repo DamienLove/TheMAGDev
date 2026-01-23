@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VM Hardware Configuration</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding for horizontal scroll areas */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white h-screen overflow-hidden flex flex-col antialiased selection:bg-primary/30">
+<!-- Top App Bar -->
+<header class="shrink-0 flex items-center justify-between p-4 bg-background-dark border-b border-gray-800/50 z-20">
+<h2 class="text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1">Configure Environment</h2>
+<button class="flex items-center justify-center rounded-full hover:bg-gray-800 transition-colors p-2 -mr-2">
+<span class="text-primary text-base font-bold leading-normal tracking-[0.015em]">Save</span>
+</button>
+</header>
+<!-- Main Content (Scrollable) -->
+<main class="flex-1 overflow-y-auto w-full pb-40 bg-[#101623]">
+<!-- Environment Presets -->
+<section class="mt-6">
+<h4 class="text-[#90a4cb] text-xs font-bold leading-normal tracking-widest px-4 mb-3 uppercase">Environment Presets</h4>
+<div class="flex gap-3 px-4 overflow-x-auto no-scrollbar pb-2">
+<!-- Preset: Lightweight -->
+<button class="group flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#222f49] hover:bg-[#2d3b55] active:bg-[#1a2336] pl-3 pr-4 transition-all border border-transparent hover:border-gray-600">
+<span class="material-symbols-outlined text-gray-300 group-hover:text-white text-[20px]">code</span>
+<p class="text-gray-300 group-hover:text-white text-sm font-medium whitespace-nowrap">Lightweight</p>
+</button>
+<!-- Preset: Power User (Selected) -->
+<button class="relative flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary/10 pl-3 pr-4 border border-primary/50 shadow-[0_0_15px_rgba(13,89,242,0.15)]">
+<span class="material-symbols-outlined text-primary text-[20px]">smartphone</span>
+<p class="text-white text-sm font-bold whitespace-nowrap">Power User</p>
+<!-- Active Indicator -->
+<div class="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+</button>
+<!-- Preset: Build Server -->
+<button class="group flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#222f49] hover:bg-[#2d3b55] active:bg-[#1a2336] pl-3 pr-4 transition-all border border-transparent hover:border-gray-600">
+<span class="material-symbols-outlined text-gray-300 group-hover:text-white text-[20px]">dns</span>
+<p class="text-gray-300 group-hover:text-white text-sm font-medium whitespace-nowrap">Build Server</p>
+</button>
+</div>
+</section>
+<div class="h-px bg-gray-800/50 mx-4 my-6"></div>
+<!-- Hardware Specs -->
+<section>
+<div class="flex items-center justify-between px-4 mb-4">
+<h4 class="text-[#90a4cb] text-xs font-bold leading-normal tracking-widest uppercase">Hardware Specs</h4>
+<button class="text-primary text-xs font-medium hover:underline">Reset to default</button>
+</div>
+<!-- Slider: vCPU -->
+<div class="mb-6 px-4">
+<div class="flex items-end justify-between mb-3">
+<label class="text-white text-base font-medium">vCPU Cores</label>
+<span class="text-primary font-mono text-lg font-bold bg-primary/10 px-2 rounded">8</span>
+</div>
+<div class="relative h-8 flex items-center group cursor-pointer">
+<!-- Track Background -->
+<div class="w-full h-1.5 bg-[#222f49] rounded-full overflow-hidden">
+<!-- Active Track -->
+<div class="h-full bg-gradient-to-r from-blue-600 to-primary rounded-full relative w-[25%]"></div>
+</div>
+<!-- Thumb -->
+<div class="absolute h-6 w-6 bg-white rounded-full border-[3px] border-primary shadow-lg flex items-center justify-center left-[25%] -translate-x-1/2 transition-transform active:scale-110">
+<div class="w-1.5 h-1.5 bg-primary rounded-full"></div>
+</div>
+</div>
+<div class="flex justify-between text-[#56688a] text-xs font-mono mt-1 px-1 select-none">
+<span>1</span>
+<span>4</span>
+<span class="text-white font-bold">8</span>
+<span>16</span>
+<span>32</span>
+</div>
+</div>
+<!-- Slider: RAM -->
+<div class="mb-6 px-4">
+<div class="flex items-end justify-between mb-3">
+<label class="text-white text-base font-medium">Memory (RAM)</label>
+<span class="text-primary font-mono text-lg font-bold bg-primary/10 px-2 rounded">16 GB</span>
+</div>
+<div class="relative h-8 flex items-center group cursor-pointer">
+<div class="w-full h-1.5 bg-[#222f49] rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-blue-600 to-primary rounded-full relative w-[18%]"></div>
+</div>
+<div class="absolute h-6 w-6 bg-white rounded-full border-[3px] border-primary shadow-lg flex items-center justify-center left-[18%] -translate-x-1/2 transition-transform active:scale-110">
+<div class="w-1.5 h-1.5 bg-primary rounded-full"></div>
+</div>
+</div>
+<div class="flex justify-between text-[#56688a] text-xs font-mono mt-1 px-1 select-none">
+<span>2GB</span>
+<span class="text-white font-bold">16GB</span>
+<span>64GB</span>
+<span>128GB</span>
+</div>
+</div>
+<!-- Slider: Storage -->
+<div class="mb-8 px-4">
+<div class="flex items-end justify-between mb-3">
+<label class="text-white text-base font-medium">NVMe Storage</label>
+<span class="text-primary font-mono text-lg font-bold bg-primary/10 px-2 rounded">50 GB</span>
+</div>
+<div class="relative h-8 flex items-center group cursor-pointer">
+<div class="w-full h-1.5 bg-[#222f49] rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-blue-600 to-primary rounded-full relative w-[40%]"></div>
+</div>
+<div class="absolute h-6 w-6 bg-white rounded-full border-[3px] border-primary shadow-lg flex items-center justify-center left-[40%] -translate-x-1/2 transition-transform active:scale-110">
+<div class="w-1.5 h-1.5 bg-primary rounded-full"></div>
+</div>
+</div>
+<div class="flex justify-between text-[#56688a] text-xs font-mono mt-1 px-1 select-none">
+<span>10GB</span>
+<span>100GB</span>
+<span>1TB</span>
+</div>
+</div>
+<!-- GPU Toggle Card -->
+<div class="px-4">
+<div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#1a2333] to-[#151b28] border border-[#2e3c54] p-4 shadow-sm">
+<!-- Background Glow -->
+<div class="absolute top-0 right-0 -mt-8 -mr-8 w-24 h-24 bg-primary/10 blur-2xl rounded-full pointer-events-none"></div>
+<div class="flex items-center justify-between relative z-10">
+<div class="flex flex-col gap-1 pr-4">
+<div class="flex items-center gap-2">
+<span class="text-white font-bold text-base">GPU Acceleration</span>
+<!-- Info Tooltip Trigger -->
+<button class="text-[#56688a] hover:text-[#90a4cb] transition-colors">
+<span class="material-symbols-outlined text-[18px]">help</span>
+</button>
+</div>
+<p class="text-[#90a4cb] text-sm leading-snug">
+                                NVIDIA T4 instance. Recommended for Android Emulators &amp; ML tasks.
+                            </p>
+</div>
+<!-- Switch Component -->
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-12 h-7 bg-[#314368] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer peer-checked:after:translate-x-5 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary shadow-inner"></div>
+</label>
+</div>
+<!-- Active State Detail -->
+<div class="mt-3 pt-3 border-t border-gray-700/50 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+<span class="text-xs text-green-400 font-medium tracking-wide">DRIVER VERSION 535.104.05 INSTALLED</span>
+</div>
+</div>
+</div>
+<!-- Additional Info Section (Map/Region) -->
+<div class="px-4 mt-6 grid grid-cols-2 gap-3">
+<div class="p-3 bg-[#161e2e] rounded-lg border border-[#222f49] flex flex-col gap-1">
+<span class="text-[#56688a] text-xs font-bold uppercase">Region</span>
+<div class="flex items-center gap-2 text-white">
+<span class="material-symbols-outlined text-[18px] text-primary">public</span>
+<span class="text-sm font-medium">us-east-1</span>
+</div>
+</div>
+<div class="p-3 bg-[#161e2e] rounded-lg border border-[#222f49] flex flex-col gap-1">
+<span class="text-[#56688a] text-xs font-bold uppercase">OS Image</span>
+<div class="flex items-center gap-2 text-white">
+<span class="material-symbols-outlined text-[18px] text-primary">terminal</span>
+<span class="text-sm font-medium">Ubuntu 22.04</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Sticky Pricing Footer -->
+<footer class="absolute bottom-0 w-full z-30">
+<!-- Gradient fade above footer -->
+<div class="h-8 w-full bg-gradient-to-b from-transparent to-[#101623]"></div>
+<div class="bg-[#151b28]/95 backdrop-blur-xl border-t border-[#2e3c54] p-5 pb-8 shadow-[0_-5px_20px_rgba(0,0,0,0.4)]">
+<div class="flex flex-col gap-4 max-w-lg mx-auto">
+<div class="flex items-center justify-between">
+<!-- Price Info -->
+<div class="flex flex-col">
+<div class="flex items-baseline gap-1.5">
+<h3 class="text-3xl font-bold text-white tracking-tight">$0.12</h3>
+<span class="text-[#90a4cb] text-sm font-medium">/ hour</span>
+</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="material-symbols-outlined text-[#56688a] text-[14px]">savings</span>
+<p class="text-[#56688a] text-xs font-medium">Capped at ~$86/mo</p>
+</div>
+</div>
+<!-- Action Button -->
+<button class="flex items-center gap-2 bg-primary hover:bg-blue-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-[0_4px_14px_rgba(13,89,242,0.4)] transition-all active:scale-95 active:shadow-none">
+<span>Deploy</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

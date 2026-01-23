@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IDE Branding Concepts</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-white overflow-x-hidden">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root">
+<!-- Sticky Header -->
+<div class="sticky top-0 z-50 flex items-center bg-background-dark/90 backdrop-blur-md p-4 pb-2 justify-between border-b border-white/5">
+<div class="text-white flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-white/10 cursor-pointer">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</div>
+<h2 class="text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">IDE Identity V1.0</h2>
+<div class="flex w-12 items-center justify-end">
+<button class="flex size-12 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-white/10 text-white min-w-0 p-0">
+<span class="material-symbols-outlined text-[24px]">more_vert</span>
+</button>
+</div>
+</div>
+<div class="pb-24"> <!-- Bottom padding for FAB -->
+<!-- Concept 1: Nexus IDE -->
+<div class="flex flex-col border-b border-white/5 pb-6">
+<h2 class="text-white tracking-light text-[28px] font-bold leading-tight px-4 text-left pb-2 pt-6">01. Nexus IDE</h2>
+<div class="flex gap-3 px-4 pb-4 flex-wrap">
+<div class="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#232f48] border border-white/10 pl-3 pr-3">
+<p class="text-white text-xs font-medium leading-normal tracking-wide uppercase">Geometric</p>
+</div>
+<div class="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#232f48] border border-white/10 pl-3 pr-3">
+<p class="text-white text-xs font-medium leading-normal tracking-wide uppercase">Connectivity</p>
+</div>
+</div>
+<div class="flex overflow-x-auto gap-4 px-4 pb-2 hide-scrollbar snap-x snap-mandatory">
+<!-- Variant 1: Hero -->
+<div class="flex flex-col gap-3 min-w-[240px] snap-center">
+<div class="w-full bg-center bg-no-repeat aspect-[4/3] bg-cover rounded-xl border-2 border-primary shadow-[0_0_15px_rgba(19,91,236,0.3)] relative overflow-hidden group" data-alt="Geometric blue cube made of interconnected glowing nodes" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCSb-FeqyM8N3t1L-5qNhBEF_qsJBQ8CfUtBUPyNSLWWRqUAVYxevj55wVRNBdSJzXd0Mi21xyL-oDV3_aozM2btEJSQaVpThpc0HQnTrUyIb5bYEd6QCro1vRNsQ_BGu6KrBpfDYAPUhrxgQlUPxzO_5lcPUvmjierkIU3y5cxA649RVwrBujkmaHVv4ka_qwVN4smoq7fZcm2V-s_idc4m3Hwi4ylUE9lhdcY1YL2TpkzOxMkVsvYIGbZQampQSdOW9cuUnYi8Yze");'>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
+<span class="bg-primary text-white text-[10px] font-bold px-2 py-1 rounded">HERO</span>
+</div>
+</div>
+<div>
+<p class="text-white text-base font-bold leading-normal">Full Color</p>
+<p class="text-[#92a4c9] text-sm font-normal leading-normal">Main branding</p>
+</div>
+</div>
+<!-- Variant 2: Monochrome -->
+<div class="flex flex-col gap-3 min-w-[180px] snap-center">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl border border-white/10" data-alt="White wireframe cube logo on dark background" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDLzelDbEVNBUT-Se4zJJANx2nFe--JGblhHHFYLkblPC4RL4aTD1QNOyW-FSYRU9R3eAMsd2mfIrCYfveDeWf72kZGOe6sIFE9Ip3Fi7hAyX8KypAzwpK-UVotfle4FkuGuHZkH-WC2my8q1JD9-nrTSkYh9DdmHzH67e-uU4Y1Z-UtfTX_xinXRu_I2WGqqcUlqZatw7Q9b9uKJy3jc5TGUZ17lvEDLemNwqDDl46HQbWtoGeACqB_BpptWwny4N6FiEZwVp6dPvQ");'></div>
+<div>
+<p class="text-white text-base font-medium leading-normal">Monochrome</p>
+<p class="text-[#92a4c9] text-sm font-normal leading-normal">Wireframe</p>
+</div>
+</div>
+<!-- Variant 3: Icon -->
+<div class="flex flex-col gap-3 min-w-[140px] snap-center">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl border border-white/10" data-alt="Minimalist geometric cube app icon" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCqlUVDi1WlWJt5s1gEPOYzbfuxkYYOGJUsxNoCaX4AzH_3q3oGZMmXezEnyNC9xRInKjnLA7IOlLCG7GjvZwZdxJNjes3mvzZRkmQNl3fldK2rN19m3_bD6L9BiCJDb5bNv0JFeloDKBLKQP99JD2aL7IIHAytI4S1AJxg0LAkVc2dXS90-wmuQH6DAVxWYUXKmCRrdwlUJG2g54awkJu55qvn4dTNPgU3x_0inAyZhBCuS81kLB_r-X2CPvci3GZXe7X9BIaw_dr_");'></div>
+<div>
+<p class="text-white text-base font-medium leading-normal">Icon Only</p>
+<p class="text-[#92a4c9] text-sm font-normal leading-normal">App icon</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Concept 2: OmniBuild -->
+<div class="flex flex-col border-b border-white/5 pb-6">
+<h2 class="text-white tracking-light text-[28px] font-bold leading-tight px-4 text-left pb-2 pt-6">02. OmniBuild</h2>
+<div class="flex gap-3 px-4 pb-4 flex-wrap">
+<div class="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#232f48] border border-white/10 pl-3 pr-3">
+<p class="text-white text-xs font-medium leading-normal tracking-wide uppercase">Global</p>
+</div>
+<div class="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#232f48] border border-white/10 pl-3 pr-3">
+<p class="text-white text-xs font-medium leading-normal tracking-wide uppercase">Structural</p>
+</div>
+</div>
+<div class="flex overflow-x-auto gap-4 px-4 pb-2 hide-scrollbar snap-x snap-mandatory">
+<div class="flex flex-col gap-3 min-w-[240px] snap-center">
+<div class="w-full bg-center bg-no-repeat aspect-[4/3] bg-cover rounded-xl border border-white/10 hover:border-primary/50 transition-colors" data-alt="Blue digital globe wrapped in coding brackets" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAVpqferkmtUDe0LHckouAfNfKfENHfB4s9ngz3G1vSjqJzDXnwkW0tA6CG_-byhBOmPmzwwGnAvfdZ2vLZcE34dNi29Vqm22Y5GJEg0UpEc2vyHDf0cvaqe14dlLKNBU17mS041exEW5tqz3dIS20TqAciowJvntY1ybHS8xDKcgQBPg7N70tf406egGyNd6N6WwnXgmP4_SjMsmQJRmzKp8HJc760zUOStShp9ww9jQ0Mv8zGfdvVaKEIOKPWHLc0YAjECgKaWdCC");'></div>
+<div>
+<p class="text-white text-base font-bold leading-normal">Full Color</p>
+<p class="text-[#92a4c9] text-sm font-normal leading-normal">Main branding</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 min-w-[180px] snap-center">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl border border-white/10" data-alt="Line art globe structure" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDnd78j2N8KpiaoxrjiTDpL43ygOOhf8RUWPzvHF3t8QCzkMbdUWcqhK8v17wIbjVSC6HY-Zl_X5lLzdbCOu3R8kwM3rL8iU_1daJzvlx9AfCHt5X7-dhnnjSV317fkhgcD7NFSfcIvHiXq3lUMlhx31JCtfbXcRbZ3W4ePT6yckeHob-uu7_RN8KxKL4Dvbx0Ixw_C6NphWNjbbUeuLZO1J0-ZB09FNDEUJlhc-gymQ7TnmLUpyN2tC9hS9dC8MMVDu3sR9Y1i-nWA");'></div>
+<div>
+<p class="text-white text-base font-medium leading-normal">Monochrome</p>
+<p class="text-[#92a4c9] text-sm font-normal leading-normal">Wireframe</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 min-w-[140px] snap-center">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl border border-white/10" data-alt="Simplified bracket globe icon" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA6k76Bn0kLrhJljqdwsanVlPRYR3Fl7ul6S41a-e9JQKV8Exo9rbIBt-l-v2H4m6nfTT76g9pLZI1Cm4fD4Yu052vjwmcwhQeFtSuwbygNNZ8tknLROExx39pV96eipEilKgV3FSMd3WTvzxlNZUlKcnqGv2_nMKoOznfkEoIQWlLBFVWgpoblk79UX2LZiiTMwkYqky8vqdwjembdlT1zFg64lbLfmDjIs7Rz_DrzX-bRvMt6QYP5AERQlQ_sA2DDX8cCbM5m-4mv");'></div>
+<div>
+<p class="text-white text-base font-medium leading-normal">Icon Only</p>
+<p class="text-[#92a4c9] text-sm font-normal leading-normal">App icon</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Concept 3: Prism Code -->
+<div class="flex flex-col border-b border-white/5 pb-6">
+<h2 class="text-white tracking-light text-[28px] font-bold leading-tight px-4 text-left pb-2 pt-6">03. Prism Code</h2>
+<div class="flex gap-3 px-4 pb-4 flex-wrap">
+<div class="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#232f48] border border-white/10 pl-3 pr-3">
+<p class="text-white text-xs font-medium leading-normal tracking-wide uppercase">Minimalist</p>
+</div>
+<div class="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#232f48] border border-white/10 pl-3 pr-3">
+<p class="text-white text-xs font-medium leading-normal tracking-wide uppercase">Spectrum</p>
+</div>
+</div>
+<div class="flex overflow-x-auto gap-4 px-4 pb-2 hide-scrollbar snap-x snap-mandatory">
+<div class="flex flex-col gap-3 min-w-[240px] snap-center">
+<div class="w-full bg-center bg-no-repeat aspect-[4/3] bg-cover rounded-xl border border-white/10 hover:border-primary/50 transition-colors" data-alt="Prism refracting light into a rainbow spectrum of colors" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA3r15oSto4S0yePpCmYX6h4Vtc-1shvgvk_GvgGefeBe0kOUDKfU-rtdPO_x52k7wPb2ZkmqWDpe94enjITAtNOsenQ9_8_a9jgX8UX0mmRef0TJETeiriAhx9K3ItlTdYwbHV23_V0Gu2z3os_qcmDdI2YJhuQA8EmT5ra5U46fxALV9gbGJSqmWKlqobzGuqW8kUyR_PGaCyV-ERHX-sWYFvVK1_ZrqTggd178Pa6mVoO54u07GF0PwFVnW7PM9_rRxFckV1yLjR");'></div>
+<div>
+<p class="text-white text-base font-bold leading-normal">Full Color</p>
+<p class="text-[#92a4c9] text-sm font-normal leading-normal">Main branding</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 min-w-[180px] snap-center">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl border border-white/10" data-alt="Minimalist triangle outline with light beam" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCTFZyAjwgZzCjPpKx7lJnS3PdpM5FLHT0UbTmFB6qI7mLyPIX4Dyy2Clr1CdQ8BHxP_VL2sfKIRHdEGPxb-VHXjUeQ0lqlye7prkgk13_mHk1eUvOeab7Tw1x-XlA6GAMe1NHhli2DK-wR4yq4wwRqdnN0LzPS_aBxJoPdhs_ozdqIehO5Ys5ZcucsVb4xwt2FhZKZh_8xEemqqa2cw2GDcs-nxnGnb8xMpfbptUodBJl_CXmrrwZ5IWmFkTypileaHNZKgS94t9k1");'></div>
+<div>
+<p class="text-white text-base font-medium leading-normal">Monochrome</p>
+<p class="text-[#92a4c9] text-sm font-normal leading-normal">Wireframe</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 min-w-[140px] snap-center">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl border border-white/10" data-alt="Abstract triangle prism app icon" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDds9pnMGURb9tQPfOF62Rks3G3LjkKsIzucvH8IOZKO0ldf5FX0e1nX49TZfHghMfxyhvl0VY6T6lm7ocWPKwndJRqkA8reM1v1kZdhXrnRSnmNhWi9vKAxiFkoLaOeaynoBV40x9Bw-Ivmol-AObQ-lN66xAa8BU8ozy_Sb2lyIwxwoECSw4oIm1me8iWRS66aZ6wqOnV3Nmn_tuTxqnLQRwH-QrYY8fjcHOHHQDRpt7o2pRVzxKvjDY0TkJI9otL66DpCmPFMmR0");'></div>
+<div>
+<p class="text-white text-base font-medium leading-normal">Icon Only</p>
+<p class="text-[#92a4c9] text-sm font-normal leading-normal">App icon</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Concept 4: Synapse -->
+<div class="flex flex-col pb-6">
+<h2 class="text-white tracking-light text-[28px] font-bold leading-tight px-4 text-left pb-2 pt-6">04. Synapse</h2>
+<div class="flex gap-3 px-4 pb-4 flex-wrap">
+<div class="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#232f48] border border-white/10 pl-3 pr-3">
+<p class="text-white text-xs font-medium leading-normal tracking-wide uppercase">Organic</p>
+</div>
+<div class="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#232f48] border border-white/10 pl-3 pr-3">
+<p class="text-white text-xs font-medium leading-normal tracking-wide uppercase">Intelligence</p>
+</div>
+</div>
+<div class="flex overflow-x-auto gap-4 px-4 pb-2 hide-scrollbar snap-x snap-mandatory">
+<div class="flex flex-col gap-3 min-w-[240px] snap-center">
+<div class="w-full bg-center bg-no-repeat aspect-[4/3] bg-cover rounded-xl border border-white/10 hover:border-primary/50 transition-colors" data-alt="Glowing blue brain circuit network visualization" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBjP1F7g2kvDWz_qN4XRq7SJpm6D78sPrUy9Y-0IEoQRE6gxzssVHo1i3bapwOS0smFU-Cx4bSzykE3HTDUZm-4YVBK9VL9iN5iv7_hzxdEa9g2jwW9K01YO9py6cIlwT3HCVULvt69jNdTFcfwm4WSrLUdY_4bUo9pUc1aZlahQ0OalTkFjulBJ8gdzMOVey93uKWxeuIkKYXlrXosFaowEqohiXOY34DIS4RSkKOSFYqLqG0jM6dIYg-AgY8-58nPss_jSv61Lmhk");'></div>
+<div>
+<p class="text-white text-base font-bold leading-normal">Full Color</p>
+<p class="text-[#92a4c9] text-sm font-normal leading-normal">Main branding</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 min-w-[180px] snap-center">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl border border-white/10" data-alt="Abstract neural network line art" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCUkXdcSxBXqkArGOdxEzXCpapP0ReD7RK9iSxTYuRKOFsz_TNn1ZfKEXeVUKFDkk7T3_hCIVQUiKXCSqTCRihPA0MmyapmgJgH46ITlBTcyX1WIv0kJAIAvblTOZKGFLRuSUR2MRA280gqM7gLyLrfwIH28sSoML_me8MKHAo7A0QLW2GZi5G8fsYlUCAJFoJJ8OdumgvFz2oESgZdbArTLaIXVHMCXy7cW4MnVUkPUDvnVF0r38Qqh7d4frOypvQ0JiqGb8yu5i4t");'></div>
+<div>
+<p class="text-white text-base font-medium leading-normal">Monochrome</p>
+<p class="text-[#92a4c9] text-sm font-normal leading-normal">Wireframe</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 min-w-[140px] snap-center">
+<div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl border border-white/10" data-alt="Brain node icon" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA4PCgaO837bfROc9i2g4kebuF1vPDzB-zFQUXsQ_vH28nEP2wLsg6Q54_VotirC3qRt9SjZTUldEfXqDNdy_fkhV7sLbS8aXNS0JX6h9aOIR_eRfdfJHF--9W5iwk-FMnht-erEDY8bHaYVD84-LVVMo7hoSiv_GicdLsuCYJPtfwYA8LBQvwb6NqK18_NYlLeJOtJJGLn2Vzay8ph61su7w2Nci4fbNlrD4NMnD_0JtbBvhk2hl8VFVsR9If337dV7MuVUOdcHiAW");'></div>
+<div>
+<p class="text-white text-base font-medium leading-normal">Icon Only</p>
+<p class="text-[#92a4c9] text-sm font-normal leading-normal">App icon</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- FAB for Voting -->
+<button class="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary shadow-[0_4px_20px_rgba(19,91,236,0.5)] active:scale-95 transition-transform hover:bg-primary/90 text-white">
+<span class="material-symbols-outlined text-[28px]">how_to_vote</span>
+</button>
+</div>
+</body></html>

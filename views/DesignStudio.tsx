@@ -1,113 +1,370 @@
-import React from 'react';
+import React, { useState } from 'react';
+
+type DeviceType = 'iPhone 14' | 'Pixel 7' | 'iPad';
+type Tool = 'select' | 'pan' | 'zoom';
+
+interface CanvasElement {
+  id: string;
+  name: string;
+  type: 'input' | 'button' | 'container' | 'text' | 'icon';
+}
 
 const DesignStudio: React.FC = () => {
+  const [device, setDevice] = useState<DeviceType>('iPhone 14');
+  const [selectedElement, setSelectedElement] = useState('Email Input');
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [activeTool, setActiveTool] = useState<Tool>('select');
+  const [zoom, setZoom] = useState(100);
+  const [isExporting, setIsExporting] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [cornerRadius, setCornerRadius] = useState(8);
+  const [previewMode, setPreviewMode] = useState(false);
+
+  const canvasElements: CanvasElement[] = [
+    { id: 'logo', name: 'App Logo', type: 'icon' },
+    { id: 'title', name: 'Title Text', type: 'text' },
+    { id: 'email', name: 'Email Input', type: 'input' },
+    { id: 'password', name: 'Password Input', type: 'input' },
+    { id: 'submit', name: 'Submit Button', type: 'button' },
+  ];
+
+  const handleExport = () => {
+    setIsExporting(true);
+    setTimeout(() => {
+      setIsExporting(false);
+      setShowExportModal(true);
+    }, 1500);
+  };
+
+  const handleZoom = (direction: 'in' | 'out') => {
+    setZoom(prev => direction === 'in' ? Math.min(200, prev + 25) : Math.max(50, prev - 25));
+  };
+
   return (
-    <div className="flex-1 flex bg-slate-950 h-full overflow-hidden">
-      {/* Toolbar */}
-      <div className="w-14 bg-slate-900 border-r border-slate-800 flex flex-col items-center py-4 gap-4">
-        <button className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded"><span className="material-symbols-rounded">near_me</span></button>
-        <button className="p-2 text-indigo-400 bg-slate-800 rounded"><span className="material-symbols-rounded">rectangle</span></button>
-        <button className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded"><span className="material-symbols-rounded">title</span></button>
-        <button className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded"><span className="material-symbols-rounded">palette</span></button>
-        <div className="h-px w-8 bg-slate-700 my-2"></div>
-        <button className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded"><span className="material-symbols-rounded">hand_gesture</span></button>
-      </div>
-
-      {/* Layers Panel */}
-      <div className="w-56 bg-slate-900 border-r border-slate-800 flex flex-col">
-        <div className="p-3 border-b border-slate-800 text-xs font-bold text-slate-400">LAYERS</div>
-        <div className="flex-1 overflow-y-auto p-2">
-          <div className="flex items-center gap-2 p-1.5 bg-indigo-500/10 text-indigo-300 rounded text-sm mb-1">
-            <span className="material-symbols-rounded text-[16px]">smartphone</span>
-            iPhone 14 Pro
-          </div>
-          <div className="pl-4 flex flex-col gap-1">
-            <div className="flex items-center gap-2 p-1.5 text-slate-400 hover:text-white text-sm cursor-pointer">
-              <span className="material-symbols-rounded text-[16px]">menu</span>
-              Navbar
-            </div>
-            <div className="flex items-center gap-2 p-1.5 text-slate-400 hover:text-white text-sm cursor-pointer">
-              <span className="material-symbols-rounded text-[16px]">image</span>
-              Hero Image
-            </div>
-            <div className="flex items-center gap-2 p-1.5 text-slate-400 hover:text-white text-sm cursor-pointer">
-              <span className="material-symbols-rounded text-[16px]">smart_button</span>
-              CTA Button
-            </div>
-          </div>
+    <div className="flex-1 flex flex-col bg-zinc-950 overflow-hidden font-sans">
+      {/* Designer Toolbar */}
+      <header className="h-12 bg-zinc-900 border-b border-zinc-800 flex items-center justify-between px-4 shrink-0">
+        <div className="flex items-center gap-4">
+           <div className="flex items-center gap-2">
+              <span className="material-symbols-rounded text-indigo-500">grid_view</span>
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">Visual Studio</span>
+           </div>
+           <div className="h-4 w-px bg-zinc-800"></div>
+           <div className="flex bg-zinc-950 p-1 rounded-lg border border-zinc-800">
+              {(['iPhone 14', 'Pixel 7', 'iPad'] as DeviceType[]).map(d => (
+                 <button 
+                  key={d}
+                  onClick={() => setDevice(d)}
+                  className={`px-3 py-1 rounded text-[10px] font-bold transition-all flex items-center gap-1.5 ${device === d ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-400'}`}
+                 >
+                    <span className="material-symbols-rounded text-sm">
+                      {d === 'iPhone 14' ? 'smartphone' : d === 'Pixel 7' ? 'android' : 'tablet'}
+                    </span>
+                    {d}
+                 </button>
+              ))}
+           </div>
         </div>
-      </div>
-
-      {/* Canvas Area */}
-      <div className="flex-1 bg-slate-950 relative overflow-hidden flex items-center justify-center bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px]">
-        {/* Mock Interface on Canvas */}
-        <div className="w-[375px] h-[700px] bg-white rounded-[40px] border-8 border-slate-800 shadow-2xl relative overflow-hidden flex flex-col">
-          <div className="absolute top-0 w-full h-8 bg-black/5 z-20 flex justify-center">
-            <div className="w-24 h-6 bg-black rounded-b-xl"></div>
-          </div>
-          
-          <div className="flex-1 bg-slate-50 p-6 flex flex-col justify-center items-center gap-6">
-            <div className="w-24 h-24 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-2xl shadow-xl"></div>
-            <h1 className="text-2xl font-bold text-slate-900 text-center">Welcome to Nexus</h1>
-            <p className="text-slate-500 text-center text-sm">Design, code, and deploy in one seamless environment.</p>
-            <button className="w-full py-3 bg-slate-900 text-white rounded-xl font-medium shadow-lg mt-4">Get Started</button>
-          </div>
-          
-          <div className="h-16 border-t border-slate-200 flex justify-around items-center px-4">
-            <div className="w-6 h-6 rounded-full bg-slate-300"></div>
-            <div className="w-6 h-6 rounded-full bg-indigo-500"></div>
-            <div className="w-6 h-6 rounded-full bg-slate-300"></div>
-          </div>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className={`p-1.5 rounded transition-colors ${isDarkMode ? 'text-amber-400' : 'text-zinc-500 hover:text-zinc-400'}`}
+          >
+            <span className="material-symbols-rounded text-lg">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+          </button>
+          <button
+            onClick={handleExport}
+            disabled={isExporting}
+            className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded text-[10px] font-bold uppercase tracking-wider transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2"
+          >
+            {isExporting ? (
+              <>
+                <span className="material-symbols-rounded text-sm animate-spin">refresh</span>
+                Exporting...
+              </>
+            ) : (
+              'Export Schema'
+            )}
+          </button>
         </div>
+      </header>
 
-        {/* Selection Box */}
-        <div className="absolute border-2 border-indigo-500 w-[385px] h-[710px] rounded-[44px] pointer-events-none">
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-500 text-white text-[10px] px-2 py-0.5 rounded">375 x 812</div>
-        </div>
-      </div>
-
-      {/* Properties Panel */}
-      <div className="w-64 bg-slate-900 border-l border-slate-800 flex flex-col">
-        <div className="p-3 border-b border-slate-800 flex justify-between items-center">
-          <span className="text-xs font-bold text-slate-400">DESIGN</span>
-          <span className="text-xs font-bold text-indigo-400 cursor-pointer">PROTOTYPE</span>
-        </div>
-        <div className="p-4 space-y-6 overflow-y-auto">
-          {/* Section: Layout */}
-          <div>
-            <h4 className="text-xs font-bold text-slate-500 mb-3">Layout</h4>
-            <div className="grid grid-cols-2 gap-2 mb-2">
-              <div className="flex items-center gap-2 bg-slate-800 p-1.5 rounded">
-                <span className="text-slate-500 text-xs">X</span>
-                <span className="text-white text-sm">420</span>
+      {/* Export Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setShowExportModal(false)}>
+          <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="size-12 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                <span className="material-symbols-rounded text-emerald-500 text-2xl">check_circle</span>
               </div>
-              <div className="flex items-center gap-2 bg-slate-800 p-1.5 rounded">
-                <span className="text-slate-500 text-xs">Y</span>
-                <span className="text-white text-sm">128</span>
+              <div>
+                <h2 className="text-lg font-bold text-white">Export Complete</h2>
+                <p className="text-xs text-zinc-400">Your design has been exported successfully</p>
               </div>
             </div>
-          </div>
-
-          {/* Section: Fill */}
-          <div>
-            <h4 className="text-xs font-bold text-slate-500 mb-3">Fill</h4>
-            <div className="flex items-center justify-between bg-slate-800 p-2 rounded">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-white border border-slate-600"></div>
-                <span className="text-white text-sm">#FFFFFF</span>
+            <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-zinc-400">Generated Files</span>
+                <span className="text-xs text-emerald-400">3 files</span>
               </div>
-              <span className="text-slate-400 text-xs">100%</span>
+              <div className="space-y-2 text-xs font-mono">
+                <div className="flex items-center gap-2 text-zinc-300">
+                  <span className="material-symbols-rounded text-blue-400 text-sm">code</span>
+                  LoginScreen.tsx
+                </div>
+                <div className="flex items-center gap-2 text-zinc-300">
+                  <span className="material-symbols-rounded text-purple-400 text-sm">css</span>
+                  LoginScreen.module.css
+                </div>
+                <div className="flex items-center gap-2 text-zinc-300">
+                  <span className="material-symbols-rounded text-yellow-400 text-sm">data_object</span>
+                  LoginScreen.types.ts
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setShowExportModal(false)} className="flex-1 px-4 py-2 bg-zinc-800 text-zinc-300 rounded-lg hover:bg-zinc-700 transition-colors text-sm">
+                Close
+              </button>
+              <button onClick={() => setShowExportModal(false)} className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors text-sm font-medium">
+                Open in Editor
+              </button>
             </div>
           </div>
-
-          {/* Section: Export */}
-          <div className="pt-4 border-t border-slate-800">
-            <button className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm flex items-center justify-center gap-2 transition-colors">
-              <span className="material-symbols-rounded text-sm">code</span>
-              Export to React
-            </button>
-          </div>
         </div>
+      )}
+
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Side: Component Library */}
+        <aside className="w-64 bg-zinc-900 border-r border-zinc-800 flex flex-col shrink-0">
+           <div className="h-9 px-4 flex items-center border-b border-zinc-800/50">
+              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Artifact Library</span>
+           </div>
+           <div className="flex-1 overflow-y-auto p-2 space-y-4">
+              <div>
+                 <h4 className="px-2 mb-2 text-[9px] font-bold text-zinc-600 uppercase tracking-tight">Standard Inputs</h4>
+                 <div className="space-y-1">
+                    {['Text Field', 'Secure Input', 'Dropdown', 'Switch'].map(item => (
+                       <div key={item} className="flex items-center gap-3 p-2 hover:bg-zinc-800 rounded-lg cursor-grab group transition-colors">
+                          <div className="size-8 rounded bg-zinc-950 border border-zinc-800 flex items-center justify-center text-zinc-500 group-hover:text-indigo-400 transition-colors">
+                             <span className="material-symbols-rounded text-lg">
+                                {item === 'Text Field' ? 'text_fields' : item === 'Secure Input' ? 'lock' : item === 'Dropdown' ? 'list' : 'toggle_on'}
+                             </span>
+                          </div>
+                          <span className="text-xs text-zinc-300 font-medium">{item}</span>
+                          <span className="ml-auto material-symbols-rounded text-zinc-700 text-sm group-hover:text-zinc-500">drag_indicator</span>
+                       </div>
+                    ))}
+                 </div>
+              </div>
+              <div>
+                 <h4 className="px-2 mb-2 text-[9px] font-bold text-zinc-600 uppercase tracking-tight">Containers</h4>
+                 <div className="space-y-1">
+                    {['Layout Card', 'Scroll Surface', 'Grid System'].map(item => (
+                       <div key={item} className="flex items-center gap-3 p-2 hover:bg-zinc-800 rounded-lg cursor-grab group transition-colors">
+                          <div className="size-8 rounded bg-zinc-950 border border-zinc-800 flex items-center justify-center text-zinc-500 group-hover:text-indigo-400 transition-colors">
+                             <span className="material-symbols-rounded text-lg">
+                                {item === 'Layout Card' ? 'web_asset' : item === 'Scroll Surface' ? 'vertical_align_center' : 'grid_on'}
+                             </span>
+                          </div>
+                          <span className="text-xs text-zinc-300 font-medium">{item}</span>
+                          <span className="ml-auto material-symbols-rounded text-zinc-700 text-sm group-hover:text-zinc-500">drag_indicator</span>
+                       </div>
+                    ))}
+                 </div>
+              </div>
+           </div>
+        </aside>
+
+        {/* Center: Canvas Area */}
+        <main className="flex-1 bg-zinc-950 relative overflow-auto flex items-center justify-center p-12 dot-pattern">
+           <style>{`
+             .dot-pattern {
+               background-image: radial-gradient(#27272a 1px, transparent 1px);
+               background-size: 24px 24px;
+             }
+           `}</style>
+           
+           {/* Canvas Controls */}
+           <div className="absolute top-6 left-6 flex flex-col gap-2 bg-zinc-900/80 backdrop-blur p-1 rounded-lg border border-zinc-800 shadow-xl">
+              <button
+                onClick={() => setActiveTool('select')}
+                className={`size-8 flex items-center justify-center rounded transition-all ${activeTool === 'select' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'}`}
+                title="Select Tool (V)"
+              >
+                 <span className="material-symbols-rounded text-lg">near_me</span>
+              </button>
+              <button
+                onClick={() => setActiveTool('pan')}
+                className={`size-8 flex items-center justify-center rounded transition-all ${activeTool === 'pan' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'}`}
+                title="Pan Tool (H)"
+              >
+                 <span className="material-symbols-rounded text-lg">pan_tool</span>
+              </button>
+              <div className="h-px bg-zinc-700 my-1"></div>
+              <button
+                onClick={() => handleZoom('in')}
+                className="size-8 flex items-center justify-center rounded text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors"
+                title="Zoom In"
+              >
+                 <span className="material-symbols-rounded text-lg">zoom_in</span>
+              </button>
+              <button
+                onClick={() => handleZoom('out')}
+                className="size-8 flex items-center justify-center rounded text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors"
+                title="Zoom Out"
+              >
+                 <span className="material-symbols-rounded text-lg">zoom_out</span>
+              </button>
+              <div className="text-[9px] text-center text-zinc-400 font-mono">{zoom}%</div>
+           </div>
+
+           {/* Device Frame */}
+           <div className={`relative bg-black rounded-[40px] border-[8px] border-zinc-800 shadow-[0_0_100px_rgba(0,0,0,0.5)] transition-all overflow-hidden ${
+              device === 'iPhone 14' ? 'w-[320px] h-[650px]' : 
+              device === 'Pixel 7' ? 'w-[340px] h-[680px]' : 'w-[700px] h-[500px]'
+           }`}>
+              <div className={`w-full h-full flex flex-col ${isDarkMode ? 'bg-zinc-950' : 'bg-zinc-50'}`}>
+                 {/* Status Bar */}
+                 <div className="h-10 flex items-center justify-between px-8 shrink-0">
+                    <span className={`text-[10px] font-bold ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>9:41</span>
+                    <div className={`flex gap-1 ${isDarkMode ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                       <span className="material-symbols-rounded text-[14px]">signal_cellular_alt</span>
+                       <span className="material-symbols-rounded text-[14px]">wifi</span>
+                       <span className="material-symbols-rounded text-[14px]">battery_full</span>
+                    </div>
+                 </div>
+
+                 {/* Mock UI Content */}
+                 <div className="flex-1 flex flex-col px-6 pt-12 gap-6">
+                    <div className="size-16 rounded-2xl bg-indigo-600/20 flex items-center justify-center self-center mb-4">
+                       <span className="material-symbols-rounded text-indigo-500 text-3xl">deployed_code</span>
+                    </div>
+                    <div className="text-center">
+                       <h3 className={`text-xl font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>Nexus Gateway</h3>
+                       <p className={`text-[10px] ${isDarkMode ? 'text-zinc-500' : 'text-zinc-400'}`}>Authentication Service v2.4</p>
+                    </div>
+                    
+                    <div className="relative group cursor-pointer mt-4">
+                       <div className="absolute -inset-1 border-2 border-indigo-500 rounded-lg shadow-[0_0_15px_rgba(99,102,241,0.3)] pointer-events-none z-10 animate-pulse">
+                          <div className="absolute -top-3 left-2 bg-indigo-500 text-white text-[8px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider shadow-sm">
+                             {selectedElement}
+                          </div>
+                          <div className="absolute -right-1.5 -bottom-1.5 size-3 bg-indigo-500 rounded-full border-2 border-zinc-950"></div>
+                       </div>
+                       <div className={`w-full rounded-lg px-4 py-3 text-xs font-medium border ${
+                          isDarkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-200' : 'bg-white border-zinc-200 text-zinc-800'
+                       }`}>
+                          developer@enterprise.cloud
+                       </div>
+                    </div>
+
+                    <div className={`w-full rounded-lg px-4 py-3 text-xs border ${
+                       isDarkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-600' : 'bg-white border-zinc-200 text-zinc-300'
+                    }`}>
+                       ••••••••••••
+                    </div>
+
+                    <button className="w-full bg-indigo-600 py-3 rounded-lg text-white text-xs font-bold shadow-lg shadow-indigo-500/20 mt-2">
+                       Establish Session
+                    </button>
+                 </div>
+              </div>
+           </div>
+        </main>
+
+        {/* Right Side: Inspector Panel */}
+        <aside className="w-72 bg-zinc-900 border-l border-zinc-800 flex flex-col shrink-0">
+           <div className="h-9 px-4 flex items-center border-b border-zinc-800/50">
+              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Property Inspector</span>
+           </div>
+           <div className="flex-1 overflow-y-auto p-4 space-y-6">
+              <div className="space-y-4">
+                 <div className="flex items-center gap-2 text-indigo-400">
+                    <span className="material-symbols-rounded text-lg">token</span>
+                    <span className="text-xs font-bold uppercase tracking-tight">Identity: {selectedElement}</span>
+                 </div>
+                 
+                 <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                       <label className="text-[9px] font-bold text-zinc-600 uppercase tracking-wider">Width</label>
+                       <div className="flex items-center bg-zinc-950 border border-zinc-800 rounded px-2 py-1.5 text-[10px] text-zinc-300 font-mono">
+                          <span className="flex-1 text-zinc-400">100%</span>
+                          <span className="material-symbols-rounded text-[14px]">lock</span>
+                       </div>
+                    </div>
+                    <div className="space-y-1">
+                       <label className="text-[9px] font-bold text-zinc-600 uppercase tracking-wider">Height</label>
+                       <div className="flex items-center bg-zinc-950 border border-zinc-800 rounded px-2 py-1.5 text-[10px] text-zinc-300 font-mono">
+                          <span className="flex-1 text-zinc-400">48px</span>
+                          <span className="material-symbols-rounded text-[14px]">edit</span>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div className="space-y-2">
+                    <label className="text-[9px] font-bold text-zinc-600 uppercase tracking-wider">Appearance & Styling</label>
+                    <div className="p-3 bg-zinc-950 border border-zinc-800 rounded-lg space-y-4">
+                       <div className="flex items-center justify-between">
+                          <span className="text-[10px] text-zinc-400">Background</span>
+                          <div className="flex items-center gap-2">
+                             <div className="size-3 rounded-full bg-zinc-800 border border-zinc-700"></div>
+                             <span className="text-[10px] font-mono text-zinc-300">#18181B</span>
+                          </div>
+                       </div>
+                       <div className="space-y-2">
+                          <div className="flex justify-between text-[10px]">
+                             <span className="text-zinc-400">Corner Radius</span>
+                             <span className="text-zinc-200">{cornerRadius}px</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="24"
+                            value={cornerRadius}
+                            onChange={(e) => setCornerRadius(parseInt(e.target.value))}
+                            className="w-full accent-indigo-500 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+                          />
+                       </div>
+                    </div>
+                 </div>
+
+                 <div className="space-y-2 pt-4 border-t border-zinc-800">
+                    <label className="text-[9px] font-bold text-zinc-600 uppercase tracking-wider">Interaction Logic</label>
+                    <div className="space-y-2">
+                       <div className="flex items-center justify-between p-2 bg-zinc-800/50 rounded border border-zinc-800/50 group cursor-pointer hover:border-indigo-500/50 transition-colors">
+                          <div className="flex items-center gap-2">
+                             <span className="material-symbols-rounded text-sm text-zinc-500">bolt</span>
+                             <span className="text-[10px] text-zinc-300 font-medium tracking-tight">OnValueChanged</span>
+                          </div>
+                          <span className="material-symbols-rounded text-[14px] text-zinc-600">navigate_next</span>
+                       </div>
+                       <div className="flex items-center justify-between p-2 bg-zinc-800/50 rounded border border-zinc-800/50 group cursor-pointer hover:border-indigo-500/50 transition-colors">
+                          <div className="flex items-center gap-2">
+                             <span className="material-symbols-rounded text-sm text-zinc-500">security</span>
+                             <span className="text-[10px] text-zinc-300 font-medium tracking-tight">ValidateInput</span>
+                          </div>
+                          <span className="material-symbols-rounded text-[14px] text-zinc-600">navigate_next</span>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+           
+           <div className="p-4 border-t border-zinc-800 bg-zinc-950 flex gap-2">
+              <button className="flex-1 py-2 bg-zinc-800 hover:bg-zinc-700 rounded text-[10px] font-bold text-zinc-400 hover:text-zinc-200 uppercase tracking-widest transition-all flex items-center justify-center gap-1">
+                <span className="material-symbols-rounded text-sm">account_tree</span>
+                Inspect Tree
+              </button>
+              <button
+                onClick={() => setPreviewMode(!previewMode)}
+                className={`flex-1 py-2 rounded text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-1 ${previewMode ? 'bg-emerald-600 text-white' : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200'}`}
+              >
+                <span className="material-symbols-rounded text-sm">{previewMode ? 'stop' : 'play_arrow'}</span>
+                {previewMode ? 'Stop' : 'Preview'}
+              </button>
+           </div>
+        </aside>
       </div>
     </div>
   );

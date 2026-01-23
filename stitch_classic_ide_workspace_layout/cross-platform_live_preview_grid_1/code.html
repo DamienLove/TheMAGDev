@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cross-Platform Live Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-white font-display overflow-x-hidden flex flex-col">
+<!-- Top Navigation -->
+<header class="sticky top-0 z-50 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<!-- Main Header -->
+<div class="flex items-center px-4 py-3 justify-between">
+<button class="text-slate-900 dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Live Preview</h2>
+<div class="flex w-auto items-center justify-end gap-2">
+<div class="flex items-center gap-1.5 px-2 py-1 bg-green-500/10 rounded-full border border-green-500/20">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+</span>
+<p class="text-green-600 dark:text-green-400 text-xs font-bold uppercase tracking-wider">Synced</p>
+</div>
+</div>
+</div>
+<!-- Toolbar Controls -->
+<div class="flex justify-between items-center gap-2 px-4 pb-3 pt-1">
+<div class="flex gap-2">
+<button class="p-2 text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary active:bg-slate-200 dark:active:bg-slate-800 rounded-lg transition-all" title="Refresh All">
+<span class="material-symbols-outlined">autorenew</span>
+</button>
+<button class="p-2 text-primary bg-primary/10 rounded-lg border border-primary/20 transition-all" title="Inspect Mode Active">
+<span class="material-symbols-outlined fill">visibility</span>
+</button>
+<button class="p-2 text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary active:bg-slate-200 dark:active:bg-slate-800 rounded-lg transition-all" title="Network Conditions">
+<span class="material-symbols-outlined">signal_wifi_off</span>
+</button>
+</div>
+<button class="flex items-center justify-center rounded-lg h-9 bg-[#135bec] hover:bg-blue-600 text-white gap-2 text-xs font-bold leading-normal tracking-wide px-3 shadow-lg shadow-blue-900/20 transition-colors">
+<span class="material-symbols-outlined text-[18px]">signal_cellular_alt</span>
+<span>4G LTE</span>
+</button>
+</div>
+</header>
+<!-- Main Content Grid -->
+<main class="flex-1 flex flex-col p-4 gap-6 pb-24">
+<div class="flex items-center justify-between">
+<h3 class="text-slate-900 dark:text-white tracking-tight text-xl font-bold leading-tight">Device Grid</h3>
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded">3 Active</span>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<!-- Android Device Preview -->
+<div class="flex flex-col gap-3 group">
+<div class="relative w-full aspect-[9/18] bg-[#000] border border-slate-600 dark:border-slate-700 rounded-[1.5rem] p-[2px] shadow-2xl transition-transform duration-300 group-hover:-translate-y-1">
+<!-- Bezel -->
+<div class="w-full h-full rounded-[1.3rem] overflow-hidden bg-slate-900 relative">
+<!-- Camera -->
+<div class="absolute top-3 left-1/2 -translate-x-1/2 w-3 h-3 bg-black rounded-full z-20 ring-1 ring-slate-800"></div>
+<!-- Screen -->
+<div class="w-full h-full bg-cover bg-center opacity-90 group-hover:opacity-100 transition-opacity" data-alt="Mobile application interface showing charts and graphs" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBb5jFYnLJZi4uCwSCCC-YB-vnh_okDM0DkeQDt-rQGtvvqx7jweROsX9v6aQ3nWcFwf5hxsNEorKa8dz-wM8gaflLavLvrl_rcaRjwiZr4WxwWUP1CfyOpmVGje7zxHftvfyPVk1QOxS-s0ct8VVbIJsKT15VUuyM6HaAinEyN0ee_Zimkp410LGKOs5RlBw9BPsc9ZdZybdsbrNfAWdRd5tnrwK-wDYn6V_j7j46v0jaqCxabI-AYXpRkeAeKoqQC-MM7C-dDF88p');">
+<!-- Touch Interaction Sync Indicator -->
+<div class="absolute top-[40%] left-[60%] -translate-x-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-1">
+<div class="w-8 h-8 rounded-full border-2 border-primary/50 bg-primary/20 flex items-center justify-center animate-pulse shadow-[0_0_15px_rgba(19,91,236,0.5)]">
+<div class="w-2 h-2 bg-primary rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-center">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-slate-400">android</span>
+<p class="text-slate-900 dark:text-white text-sm font-bold tracking-tight">Pixel 7</p>
+</div>
+<p class="text-slate-500 dark:text-[#92a4c9] text-xs font-normal">Android 13</p>
+</div>
+</div>
+<!-- iOS Device Preview -->
+<div class="flex flex-col gap-3 group">
+<div class="relative w-full aspect-[9/18] bg-[#000] border border-slate-600 dark:border-slate-700 rounded-[2rem] p-[2px] shadow-2xl transition-transform duration-300 group-hover:-translate-y-1">
+<!-- Bezel -->
+<div class="w-full h-full rounded-[1.8rem] overflow-hidden bg-slate-900 relative">
+<!-- Dynamic Island -->
+<div class="absolute top-2 left-1/2 -translate-x-1/2 w-[30%] h-[24px] bg-black rounded-full z-20"></div>
+<!-- Screen -->
+<div class="w-full h-full bg-cover bg-center opacity-90 group-hover:opacity-100 transition-opacity" data-alt="Mobile application settings screen in light mode" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAoRhfU3_QtJ5RHCsBfGJ0cdGUy415Uo9M27eOnpig3s21ASMrPqGZ_RyGdR0TomqDzMBC2R4ZBHqJLe3wmVdnhxEjgT0WroJr6gpo1-KFwjVwgT3J5Y9UTvADSMOv4PgDwj_zWwE1rJqt3Yai48yhvfA0da0QB6s-ibxIQvyuNI8XoLJrOmJiubCBPB6HV5RZU1XGiuMBnewFzAeocGO_BlK8vPZSEnlHdY4Lrq2CBSq9J6b6jaHq_weuWb5A6hWRvLmy27mLyW37c'); filter: hue-rotate(180deg) invert(0.9);">
+<!-- Ghost Touch Interaction (Synced) -->
+<div class="absolute top-[40%] left-[60%] -translate-x-1/2 -translate-y-1/2 z-30 opacity-60">
+<div class="w-6 h-6 rounded-full border border-slate-400 bg-slate-500/30 flex items-center justify-center">
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-center">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-slate-400">smartphone</span>
+<p class="text-slate-900 dark:text-white text-sm font-bold tracking-tight">iPhone 14</p>
+</div>
+<p class="text-slate-500 dark:text-[#92a4c9] text-xs font-normal">iOS 16</p>
+</div>
+</div>
+<!-- Desktop Preview (Spans Full Width) -->
+<div class="col-span-2 mt-4 flex flex-col gap-3 group">
+<div class="relative w-full aspect-[16/10] bg-[#192233] border border-slate-600 dark:border-slate-700 rounded-lg shadow-2xl overflow-hidden transition-transform duration-300 group-hover:scale-[1.01]">
+<!-- Window Bar -->
+<div class="h-7 bg-[#0f1521] border-b border-slate-700 flex items-center px-3 gap-2 w-full">
+<div class="flex gap-1.5">
+<div class="w-2.5 h-2.5 rounded-full bg-[#FF5F56]"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-[#27C93F]"></div>
+</div>
+<div class="flex-1 text-center">
+<div class="inline-flex items-center px-2 py-0.5 rounded bg-slate-800/50 text-[10px] text-slate-400 font-mono tracking-wide">
+<span class="material-symbols-outlined text-[10px] mr-1">lock</span>
+                                localhost:3000
+                            </div>
+</div>
+<div class="w-8"></div> <!-- Spacer for balance -->
+</div>
+<!-- Viewport -->
+<div class="w-full h-full relative bg-cover bg-center" data-alt="Desktop dashboard interface showing analytics data table" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBOMP-3OUMkVuvFqktLvidfkMviDt6ZBW-4rawPHF3uZQvMRdvMYk4f9srO2kd1GaBV4q0j5gnI1uL7CTBOBFEcLsf4uQCQTL-milZdZDSFem14tXxxHANo7NLALrUfc5H797jTCZA4FSFkUcKCqIZmJQEDSrmVk48_ZyRk2pCx-jw9bTaX4OMFS16Ax_M0Ue4U3I_KQahnaEn3RCx9rhs8tepMx24EkUwJjHs2GUT5XhYxq34HdwoYOb2F1GyX36jn_6O3ulZr516r');">
+<!-- Cursor Interaction (Synced) -->
+<div class="absolute top-[40%] left-[60%] -translate-x-1 -translate-y-1 z-30 transition-all duration-300 ease-out">
+<span class="material-symbols-outlined text-black drop-shadow-md text-2xl fill" style="text-shadow: 0 2px 4px rgba(0,0,0,0.2);">arrow_selector_tool</span>
+<div class="absolute top-full left-1/2 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded ml-2 mt-1 whitespace-nowrap shadow-sm">
+                                You
+                            </div>
+</div>
+</div>
+</div>
+<div class="flex justify-between items-center px-1">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-slate-400">laptop_mac</span>
+<p class="text-slate-900 dark:text-white text-sm font-bold tracking-tight">macOS Ventura</p>
+</div>
+<p class="text-slate-500 dark:text-[#92a4c9] text-xs font-normal">Chrome · 1920x1080</p>
+</div>
+<button class="text-primary hover:text-blue-400 text-xs font-bold uppercase tracking-wide transition-colors">Open in Browser</button>
+</div>
+</div>
+</div>
+<div class="h-10"></div> <!-- Bottom Spacer -->
+</main>
+<!-- FAB: Console Logs -->
+<div class="fixed bottom-6 right-6 z-40">
+<button class="group flex items-center justify-center size-14 rounded-full bg-primary text-white shadow-[0_8px_30px_rgb(19,91,236,0.4)] hover:scale-110 hover:shadow-[0_8px_35px_rgb(19,91,236,0.6)] transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined text-2xl group-hover:rotate-180 transition-transform duration-500">terminal</span>
+<span class="absolute right-0 top-0 -mr-1 -mt-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold ring-2 ring-[#101622]">3</span>
+</button>
+</div>
+</body></html>

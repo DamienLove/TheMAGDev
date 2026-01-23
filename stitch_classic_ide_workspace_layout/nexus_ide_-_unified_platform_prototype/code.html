@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Nexus IDE - Unified Platform Prototype</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- React & Router -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/history@5/umd/history.development.js"></script>
+    <script src="https://unpkg.com/react-router@6.3.0/umd/react-router.development.js"></script>
+    <script src="https://unpkg.com/react-router-dom@6.3.0/umd/react-router-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "primary-dark": "#0e45b5",
+                        "secondary": "#db2777",
+                        "accent-teal": "#00d1b2",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "background-darker": "#0b0f17",
+                        "surface-dark": "#1e293b",
+                        "surface-lighter": "#232730",
+                        "surface-highlight": "#252f42",
+                        "border-dark": "#324467",
+                        "text-secondary": "#92a4c9",
+                        "neon-green": "#39ff14",
+                        "neon-blue": "#00f3ff",
+                        "neon-purple": "#a855f7",
+                        "neon-orange": "#fa6238",
+                        "ai-accent": "#8b5cf6",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                        "mono": ["JetBrains Mono", "Fira Code", "monospace"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; min-height: 100vh; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1; }
+        
+        /* Glass Effect */
+        .glass-panel {
+            background: rgba(21, 27, 43, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-300">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { createRoot } = ReactDOM;
+        const { MemoryRouter, Routes, Route, Link, useNavigate, useLocation } = ReactRouterDOM;
+
+        // --- Common Components ---
+
+        const NavButton = ({ to, icon, label, isActive }) => (
+            <Link to={to} className={`flex flex-col items-center gap-1 p-2 transition-colors ${isActive ? 'text-primary' : 'text-slate-400 hover:text-white'}`}>
+                <span className={`material-symbols-outlined text-2xl ${isActive ? 'fill' : ''}`}>{icon}</span>
+                {label && <span className="text-[10px] font-medium">{label}</span>}
+            </Link>
+        );
+
+        const ScreenWrapper = ({ children, title, showBack = true }) => {
+            const navigate = useNavigate();
+            return (
+                <div className="relative flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark overflow-hidden max-w-md mx-auto border-x border-slate-200 dark:border-slate-800 shadow-2xl">
+                    {children}
+                </div>
+            );
+        };
+
+        const HomeMenu = () => {
+            const screens = [
+                { path: "/splash", title: "Splash Screen", icon: "rocket_launch" },
+                { path: "/login", title: "Login", icon: "login" },
+                { path: "/landing", title: "Landing Page", icon: "web" },
+                { path: "/home", title: "Mobile Dashboard", icon: "dashboard" },
+                { path: "/marketplace", title: "Extensions", icon: "storefront" },
+                { path: "/editor", title: "Code Editor", icon: "code" },
+                { path: "/debugger", title: "Debugger", icon: "bug_report" },
+                { path: "/pr-review", title: "PR Review", icon: "rate_review" },
+                { path: "/firebase", title: "Firebase Ops", icon: "local_fire_department" },
+                { path: "/infrastructure", title: "Infrastructure", icon: "dns" },
+                { path: "/ai-hub", title: "AI Engine", icon: "smart_toy" },
+                { path: "/community", title: "Community", icon: "forum" },
+            ];
+
+            return (
+                <ScreenWrapper title="Nexus IDE">
+                    <div className="p-6">
+                        <div className="flex items-center justify-center mb-8">
+                            <div className="w-16 h-16 bg-primary/20 rounded-xl flex items-center justify-center text-primary mb-4">
+                                <span className="material-symbols-outlined text-4xl">deployed_code</span>
+                            </div>
+                        </div>
+                        <h1 className="text-2xl font-bold text-center mb-2">Nexus IDE Prototypes</h1>
+                        <p className="text-center text-slate-500 mb-8 text-sm">Select a module to preview</p>
+                        
+                        <div className="grid grid-cols-2 gap-3">
+                            {screens.map(s => (
+                                <Link key={s.path} to={s.path} className="flex flex-col items-center justify-center p-4 bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 hover:border-primary transition-all group">
+                                    <span className="material-symbols-outlined text-3xl mb-2 text-slate-400 group-hover:text-primary">{s.icon}</span>
+                                    <span className="text-xs font-medium text-center">{s.title}</span>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                </ScreenWrapper>
+            );
+        };
+
+        // --- Extracted Screen Components (Simplified for brevity, preserving structure) ---
+
+        // Screen 8: Splash
+        const SplashScreen = () => (
+            <div className="relative flex h-screen w-full flex-col items-center justify-between overflow-hidden bg-background-light dark:bg-background-dark">
+                <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-primary/20 blur-[80px] rounded-full pointer-events-none"></div>
+                <div className="h-10"></div>
+                <div className="z-10 flex flex-col items-center justify-center w-full max-w-xs px-6 flex-1">
+                    <div className="flex flex-col items-center gap-6 mb-12 animate-pulse-slow">
+                        <div className="w-24 h-24 bg-center bg-no-repeat bg-contain rounded-xl shadow-2xl shadow-primary/20 ring-1 ring-white/10 flex items-center justify-center bg-surface-dark">
+                             <span className="material-symbols-outlined text-6xl text-primary">deployed_code</span>
+                        </div>
+                        <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">Nexus IDE</h1>
+                    </div>
+                    <div className="w-full flex flex-col gap-4">
+                        <div className="rounded-full bg-slate-200 dark:bg-[#324467] overflow-hidden">
+                            <div className="h-1.5 rounded-full bg-primary shadow-[0_0_15px_rgba(19,91,236,0.6)] relative overflow-hidden" style={{width: "65%"}}></div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <p className="text-slate-500 dark:text-[#92a4c9] text-sm font-medium">Loading LLM Modules...</p>
+                            <span className="text-xs text-primary font-mono">65%</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="z-10 pb-8 w-full flex flex-col items-center gap-1 opacity-60">
+                    <Link to="/login" className="text-primary text-sm font-bold mb-4">Tap to Continue</Link>
+                    <p className="text-slate-500 text-xs font-normal tracking-widest uppercase">v2.4.0-beta</p>
+                </div>
+            </div>
+        );
+
+        // Screen 11: Login
+        const LoginScreen = () => (
+            <div className="bg-background-light dark:bg-background-dark min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                    <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary/10 blur-[120px]"></div>
+                </div>
+                <div className="relative z-10 w-full max-w-[400px] bg-white dark:bg-surface-dark rounded-2xl shadow-xl border border-gray-200 dark:border-white/5 overflow-hidden flex flex-col">
+                    <div className="pt-8 pb-4 px-6 flex flex-col items-center text-center">
+                        <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center shadow-lg shadow-primary/30 mb-5">
+                            <span className="material-symbols-outlined text-white text-4xl">deployed_code</span>
+                        </div>
+                        <h1 className="text-gray-900 dark:text-white text-3xl font-bold tracking-tight mb-2">Welcome back</h1>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm font-normal">Code anywhere, deploy everywhere.</p>
+                    </div>
+                    <form className="px-6 pb-8 flex flex-col gap-4">
+                        <div className="space-y-4">
+                            <div className="relative">
+                                <span className="material-symbols-outlined absolute left-3 top-3 text-gray-400">mail</span>
+                                <input className="block w-full rounded-lg border-0 py-3 pl-10 text-gray-900 dark:text-white bg-slate-50 dark:bg-black/20 ring-1 ring-inset ring-gray-300 dark:ring-white/10 focus:ring-2 focus:ring-primary" placeholder="name@company.com" type="email"/>
+                            </div>
+                            <div className="relative">
+                                <span className="material-symbols-outlined absolute left-3 top-3 text-gray-400">lock</span>
+                                <input className="block w-full rounded-lg border-0 py-3 pl-10 text-gray-900 dark:text-white bg-slate-50 dark:bg-black/20 ring-1 ring-inset ring-gray-300 dark:ring-white/10 focus:ring-2 focus:ring-primary" placeholder="••••••••" type="password"/>
+                            </div>
+                        </div>
+                        <Link to="/home" className="mt-2 w-full flex items-center justify-center rounded-lg bg-primary py-3 px-4 text-sm font-bold text-white shadow-lg shadow-primary/30 hover:bg-blue-600 transition-all">Log In</Link>
+                    </form>
+                    <div className="bg-gray-50 dark:bg-black/20 px-6 py-4 text-center border-t border-gray-200 dark:border-white/5">
+                        <Link to="/" className="text-xs text-gray-500">Back to Menu</Link>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // Screen 1: Marketplace
+        const MarketplaceScreen = () => (
+            <ScreenWrapper>
+                <div className="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-50">
+                    <Link to="/home" className="text-slate-900 dark:text-white flex size-12 shrink-0 items-center"><span className="material-symbols-outlined">arrow_back</span></Link>
+                    <h2 className="text-slate-900 dark:text-white text-lg font-bold flex-1 text-center">Marketplace</h2>
+                    <div className="w-12"></div>
+                </div>
+                <div className="px-4 py-3">
+                    <div className="flex h-12 w-full items-center rounded-lg bg-slate-200 dark:bg-[#232f48] px-4 gap-2">
+                        <span className="material-symbols-outlined text-slate-400">search</span>
+                        <input className="bg-transparent border-none w-full text-sm outline-none placeholder:text-slate-400" placeholder="Search extensions..." />
+                    </div>
+                </div>
+                <div className="px-4 py-4 space-y-4">
+                    <h3 className="text-slate-900 dark:text-white text-lg font-bold">Trending</h3>
+                    {[
+                        { name: "Flutter DevTools", author: "Google", icon: "flutter_dash", color: "bg-orange-500" },
+                        { name: "Prisma ORM", author: "Prisma Inc.", icon: "database", color: "bg-purple-600" },
+                        { name: "Dracula Theme", author: "Zeno Rocha", icon: "palette", color: "bg-teal-500" },
+                    ].map((item, i) => (
+                        <div key={i} className="flex items-start gap-4 p-4 rounded-xl bg-white dark:bg-[#1a2333] border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <div className={`size-16 rounded-xl ${item.color} flex items-center justify-center flex-shrink-0 text-white shadow-lg`}>
+                                <span className="material-symbols-outlined text-3xl">{item.icon}</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h4 className="text-slate-900 dark:text-white font-bold">{item.name}</h4>
+                                <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">by {item.author}</p>
+                                <div className="flex items-center justify-between mt-4">
+                                    <button className="bg-primary text-white text-xs font-bold py-1.5 px-5 rounded-lg">Install</button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <BottomNav active="extensions" />
+            </ScreenWrapper>
+        );
+
+        // Screen 2: Firebase Dashboard
+        const FirebaseScreen = () => (
+            <ScreenWrapper>
+                <header className="flex items-center justify-between p-4 pb-2 bg-background-light dark:bg-background-dark z-10 sticky top-0">
+                    <div className="flex items-center gap-3">
+                        <Link to="/home" className="text-slate-500"><span className="material-symbols-outlined">arrow_back</span></Link>
+                        <div className="flex flex-col">
+                            <h2 className="text-slate-900 dark:text-white text-lg font-bold">Production-App</h2>
+                            <span className="text-xs text-text-secondary font-medium">firebase-proj-88a2</span>
+                        </div>
+                    </div>
+                    <span className="material-symbols-outlined text-slate-500">settings</span>
+                </header>
+                <div className="grid grid-cols-2 gap-3 px-4 pt-4">
+                    <div className="flex flex-col gap-1 p-4 rounded-xl bg-white dark:bg-[#1E293B] shadow-sm border border-slate-100 dark:border-white/5">
+                        <p className="text-slate-500 text-xs font-bold uppercase">Active Users</p>
+                        <div className="flex items-baseline gap-2 mt-1">
+                            <h3 className="text-slate-900 dark:text-white text-2xl font-bold">1,240</h3>
+                            <span className="text-emerald-500 text-xs font-bold">+12%</span>
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-1 p-4 rounded-xl bg-white dark:bg-[#1E293B] shadow-sm border border-slate-100 dark:border-white/5">
+                        <p className="text-slate-500 text-xs font-bold uppercase">Health</p>
+                        <h3 className="text-slate-900 dark:text-white text-2xl font-bold">99.9%</h3>
+                    </div>
+                </div>
+                <div className="px-4 pt-6 pb-2">
+                    <h3 className="text-slate-900 dark:text-white text-lg font-bold mb-3">Database Usage</h3>
+                    <div className="p-5 rounded-xl bg-white dark:bg-[#1E293B] shadow-sm border border-slate-100 dark:border-white/5">
+                        <div className="flex justify-between items-end mb-4">
+                            <div>
+                                <p className="text-3xl font-bold text-slate-900 dark:text-white">1.2k</p>
+                                <p className="text-xs text-text-secondary mt-1">Reads / min</p>
+                            </div>
+                            <div className="flex gap-2 text-xs text-text-secondary">
+                                <span className="material-symbols-outlined text-emerald-500 text-sm">trending_up</span> Normal
+                            </div>
+                        </div>
+                        <div className="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                            <div className="bg-primary h-full rounded-full" style={{width: "45%"}}></div>
+                        </div>
+                    </div>
+                </div>
+                <BottomNav active="ops" />
+            </ScreenWrapper>
+        );
+
+        // Screen 15: Editor
+        const EditorScreen = () => (
+            <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white h-screen w-full overflow-hidden flex flex-col relative max-w-md mx-auto border-x border-slate-800">
+                <header className="flex items-center bg-[#111722] p-4 pb-2 justify-between border-b border-[#324467] shrink-0 z-20">
+                    <div className="flex items-center gap-3">
+                        <Link to="/home" className="text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-[#232f48]"><span className="material-symbols-outlined">arrow_back</span></Link>
+                        <div className="flex flex-col">
+                            <h2 className="text-white text-lg font-bold">OmniApp</h2>
+                            <div className="flex items-center gap-1 text-[#92a4c9] text-xs font-medium"><span className="material-symbols-outlined text-[14px]">call_split</span> main</div>
+                        </div>
+                    </div>
+                    <div className="flex items-center justify-end gap-3">
+                        <button className="size-9 flex items-center justify-center rounded-lg bg-[#232f48] text-green-400"><span className="material-symbols-outlined text-[20px]">play_arrow</span></button>
+                    </div>
+                </header>
+                <main className="flex-1 relative bg-[#0d1117] overflow-hidden flex">
+                    <div className="w-12 bg-[#0d1117] flex flex-col items-end pt-4 pr-3 text-[#324467] font-mono text-xs select-none border-r border-[#324467]/30">
+                        {Array.from({length: 20}, (_, i) => <div key={i}>{i+1}</div>)}
+                    </div>
+                    <div className="flex-1 p-4 font-mono text-xs leading-6 text-gray-300 overflow-auto no-scrollbar whitespace-pre">
+                        <span className="text-[#ff7b72]">import</span> {'{ AuthService }'} <span className="text-[#ff7b72]">from</span> <span className="text-[#a5d6ff]">'./auth'</span>;{'\n'}
+                        <span className="text-[#ff7b72]">export class</span> <span className="text-[#d2a8ff]">Login</span> {'{'}{'\n'}
+                        {'  '}<span className="text-[#d2a8ff]">async</span> <span className="text-[#d2a8ff]">handle</span>(req, res) {'{'}{'\n'}
+                        {'    '}<span className="text-[#ff7b72]">try</span> {'{'}{'\n'}
+                        {'      '}const {'{ email }'} = req.body;{'\n'}
+                        {'      '}const token = <span className="text-[#ff7b72]">await</span> auth.<span className="text-[#d2a8ff]">login</span>(email);{'\n'}
+                        {'      '}<span className="text-[#ff7b72]">return</span> res.<span className="text-[#d2a8ff]">json</span>({'{'} token {'}'});{'\n'}
+                        {'    '} {'}'} <span className="text-[#ff7b72]">catch</span> (e) {'{'}{'\n'}
+                        {'      '}console.<span className="text-[#d2a8ff]">error</span>(e);{'\n'}
+                        {'    '} {'}'}{'\n'}
+                        {'  '} {'}'}{'\n'}
+                        {'}'}
+                    </div>
+                </main>
+                <BottomNav active="code" />
+            </div>
+        );
+
+        // Screen 18: Landing Page
+        const LandingScreen = () => (
+            <div className="bg-background-dark min-h-screen text-white font-display overflow-x-hidden flex flex-col">
+                <header className="flex items-center p-4 justify-between">
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center size-8 rounded-lg bg-gradient-to-br from-primary to-secondary"><span className="material-symbols-outlined text-[20px]">terminal</span></div>
+                        <h2 className="font-bold text-xl">Flux</h2>
+                    </div>
+                    <Link to="/login" className="text-sm font-bold hover:text-primary">Login</Link>
+                </header>
+                <main className="flex-1 flex flex-col items-center pt-10 px-6 text-center">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-5">
+                        <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span></span>
+                        <span className="text-xs font-medium text-gray-300 uppercase">v2.0 Live</span>
+                    </div>
+                    <h1 className="text-[40px] leading-[1.1] font-bold tracking-tight mb-4">Code Anywhere.<br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Build Everything.</span></h1>
+                    <p className="text-gray-400 text-lg mb-8 max-w-[320px]">The first true cross-platform IDE in your browser.</p>
+                    <Link to="/home" className="w-full max-w-sm rounded-xl h-14 bg-gradient-to-r from-primary to-secondary text-white text-lg font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-900/40">
+                        Start Coding Free <span className="material-symbols-outlined">arrow_forward</span>
+                    </Link>
+                </main>
+            </div>
+        );
+
+        // Screen 26: Community
+        const CommunityScreen = () => (
+            <ScreenWrapper>
+                <header className="sticky top-0 z-30 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-gray-200 dark:border-white/10 px-4 py-3 flex justify-between items-center">
+                    <div>
+                        <h2 className="text-xl font-bold leading-tight">Community</h2>
+                        <p className="text-xs text-gray-500">Unified Hub</p>
+                    </div>
+                    <Link to="/home" className="material-symbols-outlined text-gray-400">close</Link>
+                </header>
+                <div className="p-4 space-y-4">
+                    <div className="relative flex items-center bg-white dark:bg-surface-dark rounded-xl shadow-sm p-3">
+                        <span className="material-symbols-outlined text-purple-500 mr-2">search</span>
+                        <input className="bg-transparent w-full text-sm outline-none placeholder-gray-500" placeholder="Search discussions..." />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        {['Help Center', 'Showcase', 'Q&A Hub', 'Tutorials'].map((l, i) => (
+                            <div key={i} className="p-3 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 shadow-sm hover:border-primary cursor-pointer transition-colors">
+                                <span className={`material-symbols-outlined mb-2 ${['text-blue-500', 'text-orange-500', 'text-green-500', 'text-pink-500'][i]}`}>
+                                    {['help', 'view_quilt', 'forum', 'school'][i]}
+                                </span>
+                                <span className="block text-sm font-bold">{l}</span>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="bg-gradient-to-br from-indigo-600 to-purple-700 p-5 rounded-xl text-white shadow-lg relative overflow-hidden">
+                        <h3 className="font-bold text-lg mb-1">Stuck on a bug?</h3>
+                        <p className="text-xs opacity-90 mb-3">Ask our AI agent for instant fixes.</p>
+                        <button className="bg-white text-indigo-700 px-4 py-2 rounded-lg text-xs font-bold shadow-sm">Start Chat</button>
+                    </div>
+                </div>
+                <BottomNav active="community" />
+            </ScreenWrapper>
+        );
+
+        // Screen 32: AI Hub
+        const AiHubScreen = () => (
+            <ScreenWrapper>
+                <header className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800">
+                    <div className="flex items-center gap-3">
+                        <Link to="/home" className="material-symbols-outlined">arrow_back</Link>
+                        <h1 className="text-xl font-bold">AI Engine Hub</h1>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 rounded-full border border-green-500/20">
+                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        <span className="text-xs font-semibold text-green-500">Online</span>
+                    </div>
+                </header>
+                <div className="p-4 space-y-6">
+                    <div className="bg-white dark:bg-surface-dark rounded-xl p-4 border border-primary/30 relative overflow-hidden">
+                        <div className="flex items-start gap-4 mb-4">
+                            <div className="size-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shrink-0">
+                                <span className="material-symbols-outlined">smart_toy</span>
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-base">Llama-3-8b</h4>
+                                <span className="text-slate-500 text-xs font-mono">Local • 8k ctx</span>
+                            </div>
+                        </div>
+                        <div className="bg-slate-50 dark:bg-[#151920] rounded-lg p-3 border border-slate-100 dark:border-slate-800">
+                            <div className="flex justify-between text-[10px] font-bold uppercase text-slate-500 mb-1">
+                                <span>VRAM Usage</span>
+                                <span>5.8GB / 16GB</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div className="h-full bg-primary w-[36%] rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Prompt Templates</h3>
+                        <div className="flex flex-col gap-2">
+                            {['Bug Analysis', 'Refactoring', 'Unit Tests'].map((t, i) => (
+                                <div key={i} className="flex items-center justify-between p-3 bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 hover:border-primary cursor-pointer">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`size-9 rounded-lg flex items-center justify-center ${['bg-orange-500/10 text-orange-500', 'bg-blue-500/10 text-blue-500', 'bg-purple-500/10 text-purple-500'][i]}`}>
+                                            <span className="material-symbols-outlined text-sm">{['bug_report', 'code', 'quiz'][i]}</span>
+                                        </div>
+                                        <span className="text-sm font-bold">{t}</span>
+                                    </div>
+                                    <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </ScreenWrapper>
+        );
+
+        // Screen 23: Infrastructure
+        const InfrastructureScreen = () => (
+            <ScreenWrapper>
+                <header className="flex items-center px-4 py-3 justify-between border-b border-gray-200 dark:border-gray-800">
+                    <Link to="/home" className="material-symbols-outlined">arrow_back</Link>
+                    <h2 className="text-lg font-bold">Infrastructure</h2>
+                    <span className="material-symbols-outlined">more_vert</span>
+                </header>
+                <div className="p-4 space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-white dark:bg-surface-dark p-4 rounded-xl border border-gray-200 dark:border-gray-800">
+                            <p className="text-[11px] text-gray-500 uppercase font-bold">Cost</p>
+                            <p className="text-2xl font-bold mt-1">$42.50</p>
+                        </div>
+                        <div className="bg-white dark:bg-surface-dark p-4 rounded-xl border border-gray-200 dark:border-gray-800">
+                            <p className="text-[11px] text-gray-500 uppercase font-bold">Status</p>
+                            <p className="text-base font-bold mt-2 text-emerald-500 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-500"></span> Active</p>
+                        </div>
+                    </div>
+                    <div className="bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="size-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary">
+                                <span className="material-symbols-outlined text-[20px]">settings_system_daydream</span>
+                            </div>
+                            <span className="font-semibold text-sm">VM Config</span>
+                        </div>
+                        <div className="space-y-4">
+                            <div>
+                                <div className="flex justify-between mb-2 text-xs font-medium text-gray-500"><span>vCPU</span><span>4 Cores</span></div>
+                                <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden"><div className="h-full bg-primary w-1/4"></div></div>
+                            </div>
+                            <div>
+                                <div className="flex justify-between mb-2 text-xs font-medium text-gray-500"><span>RAM</span><span>16 GB</span></div>
+                                <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden"><div className="h-full bg-primary w-1/4"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <BottomNav active="ops" />
+            </ScreenWrapper>
+        );
+
+        // Placeholder for Home/Dashboard (combining simplified elements)
+        const HomeScreen = () => (
+            <ScreenWrapper title="Dashboard" showBack={false}>
+                <header className="flex items-center justify-between p-4 bg-background-light dark:bg-background-dark sticky top-0 z-20">
+                    <div className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-2xl">menu</span>
+                        <h2 className="text-xl font-bold">Dashboard</h2>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-surface-dark border border-slate-700 overflow-hidden">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuKVxFmYk_dqzqVbhXzgaxF95ioeCWRuLL7P2awCWtmNv1JU8ztY5TNMIoOA-YYStyw1kv5P1zXdU27mkVqJU881mMRBEH3e0D1cGUZ92PdXPXkyXFPd3Qr4BPgKJ_pSbtK6wUewm4Krd7pe7FKD7fo1zpHjo_V8CaphrffqKotZr17tGlPdKqQJYbUitO269obqyxMnDxCVqvhwdgA8UQui-WFMc8n6T4WXBtCCOrYwQGea9kHk76xTM4uOYOScdV_AQM5Cdtto1d" alt="User" />
+                    </div>
+                </header>
+                <div className="p-4 space-y-4">
+                    <div className="p-5 rounded-2xl bg-gradient-to-br from-primary to-purple-600 text-white shadow-lg relative overflow-hidden">
+                        <div className="relative z-10">
+                            <p className="text-purple-100 text-xs font-bold uppercase mb-1">Project Health</p>
+                            <h3 className="text-3xl font-bold">98.5%</h3>
+                            <p className="text-xs text-purple-100 mt-2">All systems operational</p>
+                        </div>
+                        <span className="material-symbols-outlined absolute -right-4 -bottom-4 text-[100px] opacity-10">health_and_safety</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <Link to="/marketplace" className="p-4 bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 hover:border-primary transition-colors">
+                            <span className="material-symbols-outlined text-orange-500 mb-2">extension</span>
+                            <h4 className="font-bold text-sm">Extensions</h4>
+                        </Link>
+                        <Link to="/editor" className="p-4 bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 hover:border-primary transition-colors">
+                            <span className="material-symbols-outlined text-blue-500 mb-2">code</span>
+                            <h4 className="font-bold text-sm">Editor</h4>
+                        </Link>
+                        <Link to="/infrastructure" className="p-4 bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 hover:border-primary transition-colors">
+                            <span className="material-symbols-outlined text-purple-500 mb-2">dns</span>
+                            <h4 className="font-bold text-sm">Infra</h4>
+                        </Link>
+                        <Link to="/ai-hub" className="p-4 bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 hover:border-primary transition-colors">
+                            <span className="material-symbols-outlined text-green-500 mb-2">smart_toy</span>
+                            <h4 className="font-bold text-sm">AI Hub</h4>
+                        </Link>
+                    </div>
+                </div>
+                <BottomNav active="home" />
+            </ScreenWrapper>
+        );
+
+        // Bottom Navigation Component
+        const BottomNav = ({ active }) => {
+            const navItems = [
+                { id: 'home', icon: 'home', label: 'Home', to: '/home' },
+                { id: 'code', icon: 'code', label: 'Editor', to: '/editor' },
+                { id: 'ops', icon: 'hub', label: 'Ops', to: '/firebase' },
+                { id: 'community', icon: 'forum', label: 'Chat', to: '/community' },
+            ];
+
+            return (
+                <div className="fixed bottom-0 w-full max-w-md bg-white dark:bg-surface-dark border-t border-slate-200 dark:border-slate-800 pb-safe pt-2 px-6 z-50 h-16 flex justify-between items-center left-1/2 -translate-x-1/2">
+                    {navItems.map(item => (
+                        <Link key={item.id} to={item.to} className={`flex flex-col items-center gap-1 ${active === item.id ? 'text-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}>
+                            <span className={`material-symbols-outlined ${active === item.id ? 'fill' : ''}`}>{item.icon}</span>
+                            <span className="text-[10px] font-medium">{item.label}</span>
+                        </Link>
+                    ))}
+                </div>
+            );
+        };
+
+        const DebuggerScreen = () => (
+            <div className="bg-background-light dark:bg-background-dark font-display antialiased overflow-hidden h-screen flex flex-col text-slate-900 dark:text-white max-w-md mx-auto border-x border-slate-800">
+                <header className="shrink-0 flex items-center px-4 py-3 justify-between border-b border-gray-200 dark:border-white/5 z-20">
+                    <Link to="/home" className="material-symbols-outlined">arrow_back</Link>
+                    <div className="flex flex-col items-center">
+                        <h2 className="text-base font-bold">Thread: Main</h2>
+                        <span className="text-amber-500 text-xs font-medium uppercase">[Paused]</span>
+                    </div>
+                    <span className="material-symbols-outlined">settings</span>
+                </header>
+                <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+                    <section className="h-[40%] flex flex-col border-b border-gray-200 dark:border-white/10 shrink-0">
+                        <div className="px-4 py-2 bg-gray-50 dark:bg-white/5 flex justify-between items-center">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Call Stack</h4>
+                        </div>
+                        <div className="flex-1 overflow-y-auto">
+                            <div className="flex items-center gap-3 px-4 py-3 bg-primary/10 border-l-4 border-primary">
+                                <span className="material-symbols-outlined text-primary">terminal</span>
+                                <div><p className="text-sm font-bold text-primary">main()</p><p className="text-xs text-slate-500">index.js:15</p></div>
+                            </div>
+                            <div className="flex items-center gap-3 px-4 py-3">
+                                <span className="material-symbols-outlined text-slate-500">code</span>
+                                <div><p className="text-sm font-medium">fetchData()</p><p className="text-xs text-slate-500">api.js:42</p></div>
+                            </div>
+                        </div>
+                    </section>
+                    <section className="flex-1 bg-white dark:bg-surface-dark p-4">
+                        <div className="flex border-b border-slate-700 mb-4 pb-2 gap-4 text-sm font-medium text-slate-400">
+                            <span className="text-primary border-b-2 border-primary pb-2 -mb-2.5">Variables</span>
+                            <span>Watch</span>
+                            <span>Console</span>
+                        </div>
+                        <div className="font-mono text-sm space-y-2">
+                            <div className="flex gap-2"><span className="text-purple-400">localScope:</span><span className="text-slate-500">Object {'{...}'}</span></div>
+                            <div className="flex gap-2"><span className="text-purple-400">currentUser:</span><span className="text-slate-500">Object</span></div>
+                            <div className="pl-4 text-xs text-slate-400">id: <span className="text-orange-400">4021</span></div>
+                            <div className="pl-4 text-xs text-slate-400">name: <span className="text-green-400">"Alex Dev"</span></div>
+                        </div>
+                    </section>
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-surface-dark p-2 rounded-full border border-white/10 shadow-xl">
+                        <button className="p-2 bg-primary rounded-full text-white"><span className="material-symbols-outlined">play_arrow</span></button>
+                        <button className="p-2 text-slate-400 hover:text-white"><span className="material-symbols-outlined">redo</span></button>
+                        <button className="p-2 text-slate-400 hover:text-white"><span className="material-symbols-outlined">arrow_downward</span></button>
+                    </div>
+                </main>
+            </div>
+        );
+
+        const PRReviewScreen = () => (
+            <div className="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display text-white overflow-hidden max-w-md mx-auto border-x border-slate-800">
+                <header className="flex items-center justify-between bg-surface-dark p-4 border-b border-border-dark shrink-0">
+                    <Link to="/home" className="material-symbols-outlined">arrow_back</Link>
+                    <div className="text-center">
+                        <h2 className="text-base font-bold">PR #842: Refactor Auth</h2>
+                        <p className="text-xs text-slate-500">feature/auth-v2 • 3m ago</p>
+                    </div>
+                    <span className="material-symbols-outlined">view_sidebar</span>
+                </header>
+                <main className="flex-1 overflow-y-auto bg-[#0d1117] font-mono text-sm">
+                    <div className="p-4 border-b border-slate-800 bg-surface-dark">
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="material-symbols-outlined text-slate-500 text-sm">description</span>
+                            <span className="text-xs font-bold text-slate-300">src/auth/LoginController.ts</span>
+                        </div>
+                        <div className="flex gap-2">
+                            <span className="bg-red-500/20 text-red-400 text-[10px] px-1 rounded">- 14</span>
+                            <span className="bg-green-500/20 text-green-400 text-[10px] px-1 rounded">+ 14</span>
+                        </div>
+                    </div>
+                    <div className="text-slate-400 p-2 leading-6">
+                        <div className="flex"><span className="w-6 text-slate-600 text-right mr-2">11</span> <span>  /**</span></div>
+                        <div className="flex"><span className="w-6 text-slate-600 text-right mr-2">12</span> <span>   * Auth user creds</span></div>
+                        <div className="flex bg-red-900/20 border-l-2 border-red-500"><span className="w-6 text-red-500/50 text-right mr-2">13</span> <span className="text-red-300">- const user = await auth.login(e, p);</span></div>
+                        <div className="flex bg-green-900/20 border-l-2 border-green-500"><span className="w-6 text-green-500/50 text-right mr-2">13</span> <span className="text-green-300">+ const {'{ user }'} = await auth.loginV2(creds);</span></div>
+                    </div>
+                    <div className="mx-4 my-2 bg-surface-dark border border-slate-700 rounded-lg p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="w-5 h-5 rounded-full bg-blue-500"></div>
+                            <span className="text-xs font-bold">Alex Chen</span>
+                            <span className="text-[10px] text-slate-500">2m ago</span>
+                        </div>
+                        <p className="text-xs text-slate-300">Good catch moving to V2. Check token expiry.</p>
+                    </div>
+                </main>
+                <div className="p-4 bg-surface-dark border-t border-slate-800">
+                    <button className="w-full bg-primary hover:bg-blue-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2">
+                        <span className="material-symbols-outlined">merge</span> Merge Pull Request
+                    </button>
+                </div>
+            </div>
+        );
+
+        // --- Main App Component ---
+
+        const App = () => {
+            return (
+                <MemoryRouter>
+                    <Routes>
+                        <Route path="/" element={<HomeMenu />} />
+                        <Route path="/splash" element={<SplashScreen />} />
+                        <Route path="/login" element={<LoginScreen />} />
+                        <Route path="/landing" element={<LandingScreen />} />
+                        <Route path="/home" element={<HomeScreen />} />
+                        <Route path="/marketplace" element={<MarketplaceScreen />} />
+                        <Route path="/firebase" element={<FirebaseScreen />} />
+                        <Route path="/editor" element={<EditorScreen />} />
+                        <Route path="/community" element={<CommunityScreen />} />
+                        <Route path="/infrastructure" element={<InfrastructureScreen />} />
+                        <Route path="/ai-hub" element={<AiHubScreen />} />
+                        <Route path="/debugger" element={<DebuggerScreen />} />
+                        <Route path="/pr-review" element={<PRReviewScreen />} />
+                    </Routes>
+                </MemoryRouter>
+            );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

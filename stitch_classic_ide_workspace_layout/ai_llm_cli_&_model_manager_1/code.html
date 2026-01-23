@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unified AI Engine Hub</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "primary-dark": "#0e45b5",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1a1d24",
+                        "surface-darker": "#151920",
+                        "terminal-bg": "#0c0e12",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["Space Grotesk", "monospace"] 
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>.scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }input[type=range] {
+            -webkit-appearance: none; 
+            width: 100%; 
+            background: transparent; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #135bec;
+            cursor: pointer;
+            margin-top: -7px; 
+            box-shadow: 0 0 0 4px rgba(19, 91, 236, 0.2);
+            border: 2px solid #1a1d24;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #334155;
+            border-radius: 2px;
+        }
+        input[type=range]:focus::-webkit-slider-thumb {
+            box-shadow: 0 0 0 6px rgba(19, 91, 236, 0.3);
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display h-screen flex flex-col overflow-hidden selection:bg-primary selection:text-white">
+<header class="shrink-0 flex items-center justify-between p-4 bg-background-light dark:bg-background-dark border-b border-slate-200 dark:border-slate-800 z-20">
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-white">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<h1 class="text-xl font-bold tracking-tight">Unified AI Engine Hub</h1>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 rounded-full border border-green-500/20">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+</span>
+<span class="text-xs font-semibold text-green-500">Online</span>
+</div>
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-white">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto scrollbar-hide pb-6">
+<div class="p-4 border-b border-slate-200 dark:border-slate-800/60">
+<h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 px-1">Model Orchestration</h3>
+<div class="grid grid-cols-1 gap-3">
+<div class="relative group">
+<label class="absolute top-2 left-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest z-10 pointer-events-none">Primary Assistant</label>
+<select class="w-full pt-7 pb-2 pl-3 pr-8 bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium appearance-none focus:ring-1 focus:ring-primary focus:border-primary outline-none text-slate-700 dark:text-slate-200 transition-shadow">
+<option>Auto-Pilot (GPT-4)</option>
+<option selected="">Copilot (Claude 3.5)</option>
+<option>Local (Llama-3)</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pt-3 text-slate-500 pointer-events-none group-hover:text-primary transition-colors">expand_more</span>
+</div>
+<div class="relative group">
+<label class="absolute top-2 left-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest z-10 pointer-events-none">Chat Model</label>
+<select class="w-full pt-7 pb-2 pl-3 pr-8 bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium appearance-none focus:ring-1 focus:ring-primary focus:border-primary outline-none text-slate-700 dark:text-slate-200 transition-shadow">
+<option>gpt-4-turbo</option>
+<option>claude-3-opus</option>
+<option selected="">mistral-large</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pt-3 text-slate-500 pointer-events-none group-hover:text-primary transition-colors">expand_more</span>
+</div>
+</div>
+</div>
+<div class="p-4 border-b border-slate-200 dark:border-slate-800/60">
+<div class="flex items-center justify-between mb-3 px-1">
+<h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Local LLM Engine</h3>
+<span class="text-[10px] text-slate-400 font-mono">v2.4.0</span>
+</div>
+<div class="flex items-center gap-2 mb-4 bg-white dark:bg-surface-dark p-2 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="material-symbols-outlined text-slate-400 text-[18px]">terminal</span>
+<input class="flex-1 bg-transparent border-none text-xs font-mono text-slate-600 dark:text-slate-300 focus:ring-0 p-0 truncate" readonly="" type="text" value="/usr/local/bin/ollama"/>
+<button class="text-xs font-medium text-primary hover:text-primary-dark transition-colors px-2">Edit</button>
+</div>
+<div class="bg-white dark:bg-surface-dark rounded-xl p-4 shadow-sm border border-primary/30 relative overflow-hidden group">
+<div class="absolute top-3 right-3">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-green-500/10 text-green-500 border border-green-500/20 shadow-sm">
+<span class="relative flex h-1.5 w-1.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+</span>
+                    Running
+                </span>
+</div>
+<div class="flex items-start gap-4 mb-4">
+<div class="size-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-primary/20 text-white shrink-0">
+<span class="material-symbols-outlined text-[20px]">smart_toy</span>
+</div>
+<div class="flex flex-col">
+<h4 class="font-bold text-base leading-tight text-slate-900 dark:text-white">Llama-3-8b-instruct</h4>
+<span class="text-slate-500 dark:text-slate-400 text-xs font-mono mt-1">GGUF • 4-bit • 8k ctx</span>
+</div>
+</div>
+<div class="bg-slate-50 dark:bg-surface-darker rounded-lg p-3 mb-3 border border-slate-100 dark:border-slate-800/50">
+<div class="flex justify-between text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+<span>VRAM Usage</span>
+<span class="text-slate-700 dark:text-slate-200">5.8GB / 16GB</span>
+</div>
+<div class="h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[36%] rounded-full shadow-[0_0_10px_rgba(19,91,236,0.5)]"></div>
+</div>
+</div>
+<button class="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-colors">
+<span class="material-symbols-outlined text-[16px]">stop_circle</span>
+                Stop Instance
+            </button>
+</div>
+</div>
+<div class="p-4 border-b border-slate-200 dark:border-slate-800/60">
+<h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 px-1">Generation Settings</h3>
+<div class="mb-6">
+<div class="flex justify-between items-center mb-2">
+<label class="text-sm font-medium text-slate-700 dark:text-slate-300">Temperature</label>
+<span class="text-xs font-mono bg-slate-100 dark:bg-surface-dark px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">0.7</span>
+</div>
+<div class="relative h-6 flex items-center">
+<input max="1" min="0" step="0.1" type="range" value="0.7"/>
+</div>
+<div class="flex justify-between text-[10px] uppercase font-bold text-slate-400 mt-1">
+<span>Precise</span>
+<span>Creative</span>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-center mb-2">
+<label class="text-sm font-medium text-slate-700 dark:text-slate-300">Context Window</label>
+<span class="text-xs font-mono bg-slate-100 dark:bg-surface-dark px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">8192</span>
+</div>
+<div class="relative h-6 flex items-center">
+<input max="32768" min="2048" step="1024" type="range" value="8192"/>
+</div>
+<div class="flex justify-between text-[10px] uppercase font-bold text-slate-400 mt-1">
+<span>2k</span>
+<span>32k</span>
+</div>
+</div>
+</div>
+<div class="p-4">
+<div class="flex items-center justify-between mb-3 px-1">
+<h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Prompt Templates</h3>
+<button class="text-primary hover:text-primary-dark text-xs font-bold uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">add</span> New
+            </button>
+</div>
+<div class="flex flex-col gap-2">
+<div class="group flex items-center justify-between p-3 bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 hover:border-primary/50 transition-colors cursor-pointer shadow-sm">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-lg bg-orange-500/10 text-orange-500 flex items-center justify-center border border-orange-500/20">
+<span class="material-symbols-outlined text-[18px]">bug_report</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-slate-700 dark:text-slate-200">Bug Analysis</span>
+<span class="text-[10px] text-slate-500 truncate max-w-[200px]">Analyze code for potential security flaws...</span>
+</div>
+</div>
+<button class="size-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+</div>
+<div class="group flex items-center justify-between p-3 bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 hover:border-primary/50 transition-colors cursor-pointer shadow-sm">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center border border-blue-500/20">
+<span class="material-symbols-outlined text-[18px]">code</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-slate-700 dark:text-slate-200">Refactoring</span>
+<span class="text-[10px] text-slate-500 truncate max-w-[200px]">Improve readability and performance...</span>
+</div>
+</div>
+<button class="size-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+</div>
+<div class="group flex items-center justify-between p-3 bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 hover:border-primary/50 transition-colors cursor-pointer shadow-sm">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center border border-purple-500/20">
+<span class="material-symbols-outlined text-[18px]">quiz</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-slate-700 dark:text-slate-200">Unit Tests</span>
+<span class="text-[10px] text-slate-500 truncate max-w-[200px]">Generate Jest tests for selected block...</span>
+</div>
+</div>
+<button class="size-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+</div>
+</div>
+<div class="h-6"></div>
+</div>
+</main>
+<div class="shrink-0 h-[28%] bg-terminal-bg border-t border-slate-800 flex flex-col shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.5)] z-10 relative">
+<div class="flex items-center justify-between px-4 py-2 bg-surface-darker border-b border-slate-800">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-500 text-[18px]">terminal</span>
+<span class="text-xs font-mono text-slate-400 uppercase tracking-widest">Console Output</span>
+</div>
+<div class="flex gap-2">
+<button class="text-slate-500 hover:text-white transition-colors"><span class="material-symbols-outlined text-[16px]">close_fullscreen</span></button>
+<button class="text-slate-500 hover:text-white transition-colors"><span class="material-symbols-outlined text-[16px]">delete_sweep</span></button>
+</div>
+</div>
+<div class="flex-1 p-4 overflow-y-auto font-mono text-sm leading-relaxed scrollbar-hide">
+<div class="text-slate-500 mb-2 select-none">Unified Engine Hub v3.0.1 initialized...</div>
+<div class="mb-1">
+<span class="text-green-500">➜</span>
+<span class="text-blue-400">~</span>
+<span class="text-slate-300">ollama serve</span>
+</div>
+<div class="text-slate-400 mb-2 pl-4">
+            Listening on 127.0.0.1:11434
+        </div>
+<div class="mb-1">
+<span class="text-green-500">➜</span>
+<span class="text-blue-400">~</span>
+<span class="text-slate-300">ollama run llama3-8b-instruct</span>
+</div>
+<div class="text-slate-400 mb-1 pl-4">
+<span class="text-green-500">✓</span> Model loaded successfully (3.4s)
+        </div>
+<div class="text-slate-300 mb-1 pl-4 border-l-2 border-primary/40 ml-1 py-1 bg-primary/5">
+            System: Connected to local instance. VRAM: 5.8GB.
+        </div>
+<div class="mb-1 mt-2">
+<span class="text-green-500">➜</span>
+<span class="text-blue-400">~</span>
+<span class="text-slate-300">waiting for input...</span>
+</div>
+<div class="h-4"></div>
+</div>
+<div class="p-3 bg-surface-darker border-t border-slate-800">
+<div class="flex items-center gap-2">
+<span class="text-green-500 font-bold font-mono">❯</span>
+<input autocomplete="off" class="flex-1 bg-transparent border-none p-0 text-white font-mono text-sm focus:ring-0 placeholder:text-slate-600" placeholder="Type a command..." type="text"/>
+</div>
+</div>
+</div>
+<div class="absolute bottom-[30%] right-4 z-50">
+<button class="flex items-center justify-center size-12 rounded-full bg-primary text-white shadow-xl shadow-primary/30 hover:bg-primary-dark transition-transform hover:scale-105 active:scale-95 border border-white/10">
+<span class="material-symbols-outlined text-[24px]">search</span>
+</button>
+</div>
+
+</body></html>

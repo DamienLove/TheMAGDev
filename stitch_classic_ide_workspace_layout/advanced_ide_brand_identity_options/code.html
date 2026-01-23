@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Advanced IDE Brand Identity Options</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "jetbrains": ["JetBrains Mono", "monospace"],
+                        "fira": ["Fira Code", "monospace"],
+                        "source": ["Source Code Pro", "monospace"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;700&amp;family=Fira+Code:wght@400;700&amp;family=Source+Code+Pro:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-white font-display">
+<!-- Main Container -->
+<div class="relative flex h-full w-full max-w-md mx-auto flex-col overflow-x-hidden pb-24">
+<!-- Top App Bar -->
+<div class="sticky top-0 z-50 flex items-center bg-background-light dark:bg-background-dark/95 backdrop-blur-md p-4 pb-2 justify-between border-b border-gray-200 dark:border-gray-800">
+<div class="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-slate-900 dark:text-white">arrow_back</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Identity Proposals</h2>
+<div class="flex w-10 items-center justify-end">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400">info</span>
+</div>
+</div>
+<!-- Segmented Control / Filter -->
+<div class="flex px-4 py-4 sticky top-[60px] z-40 bg-background-light dark:bg-background-dark">
+<div class="flex h-10 flex-1 items-center justify-center rounded-lg bg-gray-200 dark:bg-[#222f49] p-1">
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md px-2 has-[:checked]:bg-white dark:has-[:checked]:bg-[#101623] has-[:checked]:shadow-sm has-[:checked]:text-primary text-slate-500 dark:text-[#90a4cb] text-sm font-medium leading-normal transition-all">
+<span class="truncate">CoreIDE</span>
+<input checked="" class="invisible w-0 absolute" name="brand-option" type="radio" value="CoreIDE"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md px-2 has-[:checked]:bg-white dark:has-[:checked]:bg-[#101623] has-[:checked]:shadow-sm has-[:checked]:text-primary text-slate-500 dark:text-[#90a4cb] text-sm font-medium leading-normal transition-all">
+<span class="truncate">Flux</span>
+<input class="invisible w-0 absolute" name="brand-option" type="radio" value="Flux"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md px-2 has-[:checked]:bg-white dark:has-[:checked]:bg-[#101623] has-[:checked]:shadow-sm has-[:checked]:text-primary text-slate-500 dark:text-[#90a4cb] text-sm font-medium leading-normal transition-all">
+<span class="truncate">Stellar</span>
+<input class="invisible w-0 absolute" name="brand-option" type="radio" value="Stellar"/>
+</label>
+</div>
+</div>
+<!-- Content Feed -->
+<div class="flex flex-col gap-6 px-4">
+<!-- Headline -->
+<div class="flex flex-col gap-1">
+<h1 class="text-slate-900 dark:text-white text-[28px] font-bold leading-tight">Brand Directions</h1>
+<p class="text-slate-500 dark:text-[#90a4cb] text-base">Explore the three proposed visual identities for the Nexus IDE project.</p>
+</div>
+<!-- Option 1: CoreIDE -->
+<div class="bg-white dark:bg-[#182234] rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800">
+<!-- Hero Visual -->
+<div class="w-full aspect-video bg-cover bg-center relative" data-alt="Hexagonal core structure with orbital rings in neon lime and dark slate" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAongOUcPLYkqQTFW6f9YLLkSq7rap9V2NfsdR7LQR1VIf1BcfUn9tymjvij-T5GdbqggTnmyV431jykbgZxDNeDXtIeEHSnPQBdev0-8eNElI5U_TzKHcEpbUuGbz5G7UA6zuO8k5XiAl_rlxb5VEHayMi77BFk_BLp_ux_0xXY5IE6zShuTo5QWRBAMfOmWi6GXpRJyDo0AG23zQHSWJYYj8PWlkM1Yc2kQDHmKVg7O3n88MlkUfkh220RfsUuXIjWZAszRnSbgHn");'>
+<div class="absolute inset-0 bg-gradient-to-t from-[#182234] to-transparent opacity-60"></div>
+<div class="absolute bottom-4 left-4">
+<span class="px-2 py-1 rounded bg-[#DFFF00] text-[#2F4F4F] text-xs font-bold uppercase tracking-wider">Option 1</span>
+</div>
+</div>
+<div class="p-5 flex flex-col gap-5">
+<!-- Title & Desc -->
+<div>
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-1">CoreIDE</h3>
+<p class="text-slate-600 dark:text-[#90a4cb] text-sm leading-relaxed">Solid. Structural. Central. A bold logo using a central hexagonal core with 'orbit' rings symbolizing the development lifecycle.</p>
+</div>
+<!-- Color Palette -->
+<div>
+<p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Color System</p>
+<div class="flex gap-4">
+<div class="flex flex-col items-center gap-1 group cursor-pointer">
+<div class="size-12 rounded-full shadow-lg ring-2 ring-white/10 transition-transform group-hover:scale-110" style="background-color: #DFFF00;"></div>
+<span class="text-[10px] font-mono text-slate-500 dark:text-slate-400">#DFFF00</span>
+</div>
+<div class="flex flex-col items-center gap-1 group cursor-pointer">
+<div class="size-12 rounded-full shadow-lg ring-2 ring-white/10 transition-transform group-hover:scale-110" style="background-color: #2F4F4F;"></div>
+<span class="text-[10px] font-mono text-slate-500 dark:text-slate-400">#2F4F4F</span>
+</div>
+</div>
+</div>
+<!-- Typography -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Typography</p>
+<span class="text-[10px] text-slate-400 dark:text-slate-500">JetBrains Mono</span>
+</div>
+<div class="bg-[#2F4F4F] rounded-lg p-3 font-jetbrains text-sm text-[#DFFF00] border-l-4 border-[#DFFF00]">
+<span class="text-white/70">const</span> <span class="text-[#DFFF00]">core</span> = <span class="text-white/70">new</span> <span class="text-[#DFFF00]">IDE</span>();<br/>
+                            core.init(<span class="text-white">'structural'</span>);
+                        </div>
+</div>
+</div>
+</div>
+<!-- Option 2: Flux -->
+<div class="bg-white dark:bg-[#182234] rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800">
+<!-- Hero Visual -->
+<div class="w-full aspect-video bg-cover bg-center relative" data-alt="Abstract fluid gradient shapes flowing like overlapping S curves in purple and pink" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuByCVAvKvUK5Z8jEMuXWst_-CNptkBsyxES0FWOFF8HfOcpWjsBvnUGwH36DsohH6Sa7cPvwKuyDHr21paz--Q3hX9SUNjb4zbSWNo7r0Zt2b_wOY64ot-wQF30dM0zN0LZJlPOoFMWOVD1BlvONV3sdAasot2U9MocgQ2vrdgghc9cTf2z2nAi69sbn5P6ZIDHDFz9dNl3qhfxXKWLSBEquKhzC0a3so-ygoi9ATeq_dhHxVO3DFy-7uK243kCO3ZgqDLwBvli65i2");'>
+<div class="absolute inset-0 bg-gradient-to-t from-[#182234] to-transparent opacity-60"></div>
+<div class="absolute bottom-4 left-4">
+<span class="px-2 py-1 rounded bg-[#FF0099] text-white text-xs font-bold uppercase tracking-wider">Option 2</span>
+</div>
+</div>
+<div class="p-5 flex flex-col gap-5">
+<!-- Title & Desc -->
+<div>
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-1">Flux</h3>
+<p class="text-slate-600 dark:text-[#90a4cb] text-sm leading-relaxed">Seamless. Cross-platform flow. A fluid, gradient logo consisting of two overlapping 'S' shapes representing continuous integration.</p>
+</div>
+<!-- Color Palette -->
+<div>
+<p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Color System</p>
+<div class="flex gap-4 items-center">
+<div class="h-12 w-24 rounded-full shadow-lg ring-2 ring-white/10 flex items-center justify-center relative overflow-hidden bg-gradient-to-r from-[#BF00FF] to-[#FF0099]">
+<span class="text-[10px] font-mono text-white mix-blend-overlay font-bold">GRADIENT</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<div class="size-3 rounded-full bg-[#BF00FF]"></div>
+<span class="text-[10px] font-mono text-slate-500 dark:text-slate-400">#BF00FF</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="size-3 rounded-full bg-[#FF0099]"></div>
+<span class="text-[10px] font-mono text-slate-500 dark:text-slate-400">#FF0099</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Typography -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Typography</p>
+<span class="text-[10px] text-slate-400 dark:text-slate-500">Fira Code</span>
+</div>
+<div class="bg-[#1a1025] rounded-lg p-3 font-fira text-sm text-[#FF0099] border-l-4 border-[#BF00FF]">
+<span class="text-[#BF00FF]">flow</span>.stream()<br/>
+                              .pipe(<span class="text-white">data</span> =&gt; {<br/>
+                                <span class="text-[#FF0099]">return</span> true;<br/>
+                              });
+                        </div>
+</div>
+</div>
+</div>
+<!-- Option 3: Stellar -->
+<div class="bg-white dark:bg-[#182234] rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800">
+<!-- Hero Visual -->
+<div class="w-full aspect-video bg-cover bg-center relative" data-alt="Minimalist constellation of glowing dots connected by thin lines against deep blue" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAhCoNKS3sCtgKWt2ZmUqiZ68HQNM1WmQR77Hyc7vb_8senRsv9vwXtSgcka07GJ8tO0tDqZ5ZnSEw9iFykKGRXQXTksyumZosZHj2SinUyjc_a1Y--tO-xETa4CTUoJsUE760LgODrBlgmBAs3HNqv19uBcICDKZQkMDFcbMsKq4e755hz5WZPdEWnaFvzZhNxkIwseJTmU3IbZxvUUJepR0aB-Q-rbvmhaauh9Umh9PRUWfICpf91QwCu_6uVv1wdNdEk9NYa6mKR");'>
+<div class="absolute inset-0 bg-gradient-to-t from-[#182234] to-transparent opacity-60"></div>
+<div class="absolute bottom-4 left-4">
+<span class="px-2 py-1 rounded bg-[#C0C0C0] text-[#1E213D] text-xs font-bold uppercase tracking-wider">Option 3</span>
+</div>
+</div>
+<div class="p-5 flex flex-col gap-5">
+<!-- Title & Desc -->
+<div>
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-1">Stellar</h3>
+<p class="text-slate-600 dark:text-[#90a4cb] text-sm leading-relaxed">Minimalist. Interconnected. A constellation of 5 dots representing the major OS targets, connected by precision lines.</p>
+</div>
+<!-- Color Palette -->
+<div>
+<p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Color System</p>
+<div class="flex gap-4">
+<div class="flex flex-col items-center gap-1 group cursor-pointer">
+<div class="size-12 rounded-full shadow-lg ring-2 ring-white/10 transition-transform group-hover:scale-110" style="background-color: #1E213D;"></div>
+<span class="text-[10px] font-mono text-slate-500 dark:text-slate-400">#1E213D</span>
+</div>
+<div class="flex flex-col items-center gap-1 group cursor-pointer">
+<div class="size-12 rounded-full shadow-lg ring-2 ring-white/10 transition-transform group-hover:scale-110" style="background-color: #C0C0C0;"></div>
+<span class="text-[10px] font-mono text-slate-500 dark:text-slate-400">#C0C0C0</span>
+</div>
+</div>
+</div>
+<!-- Typography -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Typography</p>
+<span class="text-[10px] text-slate-400 dark:text-slate-500">Source Code Pro</span>
+</div>
+<div class="bg-[#0f111f] rounded-lg p-3 font-source text-sm text-[#C0C0C0] border-l-4 border-[#C0C0C0]">
+<span class="text-blue-400">const</span> targets = [<br/>
+                              { <span class="text-white">x</span>: 5, <span class="text-white">y</span>: 12 },<br/>
+                              { <span class="text-white">x</span>: 8, <span class="text-white">y</span>: 88 }<br/>
+                            ];
+                        </div>
+</div>
+</div>
+</div>
+<div class="h-4"></div>
+</div>
+<!-- Sticky Bottom Action Bar -->
+<div class="fixed bottom-0 left-0 right-0 p-4 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-50 flex justify-center">
+<div class="w-full max-w-md flex gap-3">
+<button class="flex-1 bg-gray-200 dark:bg-[#222f49] text-slate-900 dark:text-white font-bold h-12 rounded-lg hover:bg-gray-300 dark:hover:bg-[#2d3e5e] transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">description</span>
+<span>PDF Spec</span>
+</button>
+<button class="flex-[2] bg-primary text-white font-bold h-12 rounded-lg shadow-lg shadow-primary/30 hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">how_to_vote</span>
+<span>Vote for Selection</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>

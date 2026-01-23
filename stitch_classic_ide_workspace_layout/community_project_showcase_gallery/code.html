@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Community Showcase</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+            extend: {
+                colors: {
+                    "primary": "#135bec",
+                    "background-light": "#f6f6f8",
+                    "background-dark": "#101622", // Deep charcoal/almost black
+                    "surface-dark": "#1a1d24", // Lighter dark for cards
+                    "surface-border": "#2b3240",
+                    "text-secondary": "#94a3b8",
+                },
+                fontFamily: {
+                    "display": ["Space Grotesk", "sans-serif"],
+                    "body": ["Noto Sans", "sans-serif"],
+                },
+                borderRadius: {
+                    "DEFAULT": "0.375rem", 
+                    "lg": "0.5rem", 
+                    "xl": "0.75rem", 
+                    "2xl": "1rem",
+                    "full": "9999px"
+                },
+            },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding for horizontal scroll containers */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-white font-display overflow-x-hidden antialiased pb-20">
+<!-- Header Section -->
+<header class="sticky top-0 z-50 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-gray-200 dark:border-surface-border transition-colors duration-300">
+<div class="px-4 py-3 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[20px]">terminal</span>
+</div>
+<h1 class="text-lg font-bold tracking-tight">Showcase</h1>
+</div>
+<div class="flex items-center gap-3">
+<button class="relative p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-surface-border rounded-full transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-background-light dark:border-background-dark"></span>
+</button>
+<button class="w-8 h-8 rounded-full overflow-hidden border border-slate-200 dark:border-surface-border">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyDMcsCgvqu2y1ViP8jqatb6p8ns6rEF5DTq-deckzAGDJXfx34N995oU3RRDyA6w2J_MRv-9fvZVGDG4zgPSNvzFFQTsZtzF5zpcOJiz2JYNS3Dd3T3ABJE2kFUp6ly2HHNdjoXaVxlhtmy4YGlEnB5aYWA8Y0qmAQSnR4_T0fe1mmt1GnJTYXDRaaPEFPocSQGZHy-Ujl4gZt0C2dbUtkjvzcC4PZx5ctR-9pVzVb5LBzbjhAlhS_eQ_pZhzKmd7DCFVxcxTNFVC"/>
+</button>
+</div>
+</div>
+<!-- Search Bar -->
+<div class="px-4 pb-2">
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-2.5 border-none rounded-xl bg-slate-100 dark:bg-surface-dark text-sm placeholder-slate-500 dark:text-white focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-surface-border transition-all shadow-sm" placeholder="Search projects, libraries, or devs..." type="text"/>
+</div>
+</div>
+<!-- Filter Chips -->
+<div class="flex gap-2 px-4 py-2 overflow-x-auto no-scrollbar pb-3">
+<button class="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary text-white text-sm font-medium whitespace-nowrap shadow-lg shadow-primary/20 transition-transform active:scale-95">
+<span>All</span>
+</button>
+<button class="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-slate-200 dark:bg-surface-dark dark:hover:bg-surface-border text-slate-700 dark:text-slate-300 text-sm font-medium whitespace-nowrap border border-transparent dark:border-surface-border transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]">android</span>
+<span>Android</span>
+</button>
+<button class="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-slate-200 dark:bg-surface-dark dark:hover:bg-surface-border text-slate-700 dark:text-slate-300 text-sm font-medium whitespace-nowrap border border-transparent dark:border-surface-border transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]">phone_iphone</span>
+<span>iOS</span>
+</button>
+<button class="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-slate-200 dark:bg-surface-dark dark:hover:bg-surface-border text-slate-700 dark:text-slate-300 text-sm font-medium whitespace-nowrap border border-transparent dark:border-surface-border transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]">desktop_mac</span>
+<span>Desktop</span>
+</button>
+<button class="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-slate-200 dark:bg-surface-dark dark:hover:bg-surface-border text-slate-700 dark:text-slate-300 text-sm font-medium whitespace-nowrap border border-transparent dark:border-surface-border transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]">language</span>
+<span>Web</span>
+</button>
+</div>
+</header>
+<main class="flex flex-col gap-8 pt-6">
+<!-- Hero Section: Featured Builds -->
+<section class="flex flex-col gap-4">
+<div class="px-4 flex items-center justify-between">
+<h2 class="text-xl font-bold dark:text-white">Featured Builds</h2>
+<button class="text-sm text-primary font-medium hover:text-primary/80 transition-colors">View all</button>
+</div>
+<!-- Horizontal Snap Scroll Carousel -->
+<div class="flex overflow-x-auto gap-4 px-4 pb-4 snap-x snap-mandatory no-scrollbar">
+<!-- Card 1 -->
+<div class="relative snap-center shrink-0 w-[85%] sm:w-[320px] h-[200px] rounded-2xl overflow-hidden group cursor-pointer shadow-lg shadow-black/20">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Modern task management dashboard interface dark mode" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBwi4Eff25nBL-atkUNNBqtrB5e9Q6zXEF6qWKaJyPIROT19fyMQMiv1LT-OY9QLyfKsBd4TIgWcvNkNgMpy1Y4uiDtJKTFenb71lMKxcKy1YefsSjtC3N2dcCEFDAS9ddiHoCmg3pcjdplbyjsnyxLaPw9N-nz5n6YP3JvYt-3u_oRwbD7RbFfSujI8sqVf712KccE0CwyIrZ3DhWZQUuigo_BKpE1jaakT6Qg9QWOdMvAih6zUNytXL1QgEq1xUZOKpXRQa8NVrGc');">
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+<div class="absolute bottom-0 left-0 right-0 p-4">
+<div class="flex items-center gap-2 mb-1">
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500 text-white uppercase tracking-wider">New</span>
+<span class="text-xs text-gray-300 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span> 20 mins build</span>
+</div>
+<h3 class="text-white text-xl font-bold leading-tight">Task Master Pro</h3>
+<p class="text-gray-300 text-sm line-clamp-1 mt-1 font-body">Complete Kanban board with real-time sync.</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="relative snap-center shrink-0 w-[85%] sm:w-[320px] h-[200px] rounded-2xl overflow-hidden group cursor-pointer shadow-lg shadow-black/20">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Vibrant mobile e-commerce application screen with product grid" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDsqxO47r99Ia9qr4fBjutBQvf1uDTiHaCjE_KdkWxQPzCVkOndVRQ-_D0BvfE-tZOIuSyqOBNY02eEbIcXTNVGnKXGSQQQyVhRfqMTVX1ZQ7-MYP5PaMStGi6VI8cYI7rRPDP4MrZMXU5ofXq3C55fwwmA3VV7XjRj93l4OnoyPqLsSxCmVz6UFkG82XxxbrARV1j-5ezNO4IuJshyQ66g76S4n01OM78ffZTibI7DhI-iu7dVFK-_lO9k2xjfZuyTiAUYm09yVy15');">
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+<div class="absolute bottom-0 left-0 right-0 p-4">
+<div class="flex items-center gap-2 mb-1">
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500 text-white uppercase tracking-wider">Popular</span>
+<span class="text-xs text-gray-300 flex items-center gap-1"><span class="material-symbols-outlined text-[14px] filled text-yellow-400">star</span> 4.8k</span>
+</div>
+<h3 class="text-white text-xl font-bold leading-tight">ShopKit UI</h3>
+<p class="text-gray-300 text-sm line-clamp-1 mt-1 font-body">Cross-platform e-commerce starter template.</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="relative snap-center shrink-0 w-[85%] sm:w-[320px] h-[200px] rounded-2xl overflow-hidden group cursor-pointer shadow-lg shadow-black/20">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="Abstract neon data visualization dashboard dark theme" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuANb_fji_dEOY97RkMZbEhGx4qmydJJl9paKMx3ExD_TYMC1USf4SbSBImKAmMrllrzMqVQ6NfA9y5xSSY_kEAX1Ly4X5_XNo_f0xC-NjPyppLA4AkgHgQNjfPe1T3YEB8EgtOhgwifxWbegEACbU84d4NOveAAIRxLidDE2NWY--bbhv27fn-ydocHO5DtHPELOlBxJ5xIPzozlqOfubWIwiNN--iWQwre3NpP_ZM0lOd0n3yNE3Q2Gh_6G0q2fvpeMgyHmxmKukbD');">
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+<div class="absolute bottom-0 left-0 right-0 p-4">
+<div class="flex items-center gap-2 mb-1">
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500 text-white uppercase tracking-wider">Updated</span>
+</div>
+<h3 class="text-white text-xl font-bold leading-tight">CryptoDash</h3>
+<p class="text-gray-300 text-sm line-clamp-1 mt-1 font-body">Real-time crypto tracking with WebSockets.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Trending Developers (Adapted for Mobile) -->
+<section class="border-y border-slate-200 dark:border-surface-border bg-slate-50/50 dark:bg-surface-dark/30 py-4">
+<div class="px-4 mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">trending_up</span>
+<h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Trending Developers</h3>
+</div>
+<div class="flex gap-4 px-4 overflow-x-auto no-scrollbar">
+<!-- Dev 1 -->
+<div class="flex flex-col items-center gap-1 shrink-0 w-16 group cursor-pointer">
+<div class="w-14 h-14 rounded-full p-0.5 bg-gradient-to-br from-primary to-purple-500">
+<img alt="Developer Sarah avatar" class="w-full h-full rounded-full border-2 border-background-light dark:border-background-dark object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBze8unp5WULEtHVbBU-1Yvo8wV3G5DMzMyD43xMVC30D7lPJKXzlFMC7uJdwbAZRquTXXt2g3xFolPUTRsJ2m1TjlIMzwK0iAj6KL-46vYdT-sHDEIPL9mHWmT9_I09a1UTjUJqC1UY-MuzDIcXiy4okY3Lk2mH2y0f0k0UZf5-y827kBuXmAkuZO2oUNEe6I5d-WX3jfOTTX9eBShKAm_fEdOSRBDQTpRYonvTFzIHKTwxwWpmlKo7BoU_GHqZnbd3EOZBPI8kCq6"/>
+</div>
+<span class="text-xs font-medium truncate w-full text-center">@sarah</span>
+</div>
+<!-- Dev 2 -->
+<div class="flex flex-col items-center gap-1 shrink-0 w-16 group cursor-pointer">
+<div class="w-14 h-14 rounded-full p-0.5 bg-gradient-to-br from-green-400 to-blue-500">
+<img alt="Developer Mike avatar" class="w-full h-full rounded-full border-2 border-background-light dark:border-background-dark object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPuFOr2DYC2pYMyxB8ZElkcL5da19I-bp7drjS1nK0sZM28H5i48bMF79iH2ZVVIv3feI77ZUN5UG7PN0_ThkfrT1c6X5yEHQmfdNAbfpMEnDK0Txx8L29uL8qa9HGw8B1pISRVvpk2RjZ6zuYtkOJFqsgmul5odMT5GOIC8qIFmXqEly95apDT1sUVgNX8kw0IPFmyVCzoXPmD30fH8KWSaWQeOGeHCLdqm63v9OMCZM8CQ4uAQhQ9FEAGBav9EmOGtAqnfONcFAt"/>
+</div>
+<span class="text-xs font-medium truncate w-full text-center">@mikecode</span>
+</div>
+<!-- Dev 3 -->
+<div class="flex flex-col items-center gap-1 shrink-0 w-16 group cursor-pointer">
+<div class="w-14 h-14 rounded-full p-0.5 bg-gradient-to-br from-yellow-400 to-orange-500">
+<img alt="Developer Jin avatar" class="w-full h-full rounded-full border-2 border-background-light dark:border-background-dark object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDA3pf6X03dvx28UcVtxUASxkcPvuIbi1VrPAAFCakaPHAl9uuUN9IOfqxNTWGOuskfKV5kHj5QRtouO2UgRu7uW21dSIVxkw7uiB4hJKuiAAi3fv-Bqy6R8dHKfvVatnkpFdP4ZJOHKwCjFi6rKxONBcOkGY5fehcnFG908oPQ0sd0dj3Inv1LzCN_gnK_8vBFAhiguhRYoEE5F_WEKJUWNeOSQBpI84Bo4HcwUu4G3X3vezIAUhyJuc7KQ7Ce7SfvsKigVZc4OL7c"/>
+</div>
+<span class="text-xs font-medium truncate w-full text-center">@jin_dev</span>
+</div>
+<!-- Dev 4 -->
+<div class="flex flex-col items-center gap-1 shrink-0 w-16 group cursor-pointer">
+<div class="w-14 h-14 rounded-full p-0.5 bg-gradient-to-br from-pink-500 to-rose-500">
+<img alt="Developer Elena avatar" class="w-full h-full rounded-full border-2 border-background-light dark:border-background-dark object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwCeFVAswSQXediOq-dRGkwT21oQlp7gyXnTDYoKMVTs5zSpwvU1vGTSNro6sDgjXo6M6v4m5IDke9GTb6yLcIXWibpJlej9U9xJdXfTJo8rZrknWP64I2slsDaH7AFL5DPg9LWOOT97yu_nGFrGt2t-mMC88riqC56Y11Rvxs4LP_Uw3bPlzINrHmBC3Ph53yIyZf8JioSm7V16Q_5005FDksXyy7MR8BcsQ1O8bf1EeDExs2c-50KF6BdO_OxlUjZ3MMZH2AaVw6"/>
+</div>
+<span class="text-xs font-medium truncate w-full text-center">@elenaUI</span>
+</div>
+<!-- Dev 5 -->
+<div class="flex flex-col items-center gap-1 shrink-0 w-16 group cursor-pointer">
+<div class="w-14 h-14 rounded-full p-0.5 bg-gradient-to-br from-slate-400 to-slate-600">
+<img alt="Developer Tom avatar" class="w-full h-full rounded-full border-2 border-background-light dark:border-background-dark object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtmjfRj-zIp40BZBwA8iJmvYj-Wsya8ndLwzxQUz8Co1YZewxqKMhbcFUYRTK5y1WbInVJi13PpX5ZU6Od2yQWeJ6m87s0YAQa2ay_N8z0pyCKejTBCsF8jfFQodesVyZ13mXn9PXLDrpqn8cNZ9rrm_x-ltO2RZIAr0JilenXlj4uYbM-X6NCi8zEida3a5w8ld8Dmn7686Y7rumPqaXgLIcUHt_Z3EHntMnPcDU3CULi0mZijbu85smABSiqRdlIi_3nI_e1ADT8"/>
+</div>
+<span class="text-xs font-medium truncate w-full text-center">@tomh</span>
+</div>
+</div>
+</section>
+<!-- Main Grid: Explore Projects -->
+<section class="px-4">
+<h2 class="text-xl font-bold mb-4 dark:text-white">Explore</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Project Card 1 -->
+<div class="bg-white dark:bg-surface-dark rounded-xl overflow-hidden border border-slate-200 dark:border-surface-border shadow-sm hover:shadow-md transition-all group">
+<div class="relative h-48 w-full bg-slate-800">
+<img alt="Financial analytics dashboard chart" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnUOeysMLs1jwg8NRYKcP6yUpoPbrLPl1R_9cYDp7Jyoqf8sSZFFXbrQCOkQEyJjjPWyBqWzpZU_Q9cSsJ9pMx5l39zG86LY31YFlVY0vZNlDxjvWFEnLhIhO8S8YV7D8UDh_vVH-_vOXIguiQm5nqfBwJw5kiT_pLcqPnVu0DRqiB1b1dCseNdIu5Jl8cMTzq1QjNFRPFTPS5W4fEfdHHAguHGjwFnQ_2nvVRwoGSiVOLHNxM0h9jUGlLbv69kzuXlst1AnOklvkg"/>
+<div class="absolute top-3 right-3 flex gap-1">
+<div class="w-6 h-6 rounded bg-black/60 backdrop-blur-sm flex items-center justify-center text-white border border-white/10" title="Android">
+<span class="material-symbols-outlined text-[14px]">android</span>
+</div>
+<div class="w-6 h-6 rounded bg-black/60 backdrop-blur-sm flex items-center justify-center text-white border border-white/10" title="iOS">
+<span class="material-symbols-outlined text-[14px]">phone_iphone</span>
+</div>
+</div>
+</div>
+<div class="p-4">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-bold text-lg leading-snug">FinTrack Mobile</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-body">Personal finance tracker with OCR receipt scanning.</p>
+</div>
+</div>
+<div class="flex items-center justify-between mt-4">
+<div class="flex items-center gap-2">
+<img alt="Author Alex avatar" class="w-6 h-6 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC48j1lWarywr_1AAQwoRoqDRkeUUhF0EsGdo1mpXofF1bVZQqIVVjNHAupFYNjyzmPVJic5W1LZwIAD63AT-1vI6_htIq1OooWWyLGSVL5WqNUnwRWWYlYzckgT9RNgLYVIADohvZe8pJ-L_7RcQjq2fI7VKxe8UgGHpo0TUWEJrWT33uau_1TdHUHK7FY3Wmj1q5_5zEdW184nyHXDT4qygUtB06Mbw4BDk8FlOkuPXmHXIgj1E540iNJvvcadQTMKPs1Ye4GQNwj"/>
+<span class="text-xs text-slate-500 dark:text-slate-400">@alexd</span>
+</div>
+<div class="flex items-center gap-1 text-yellow-500">
+<span class="material-symbols-outlined filled text-[16px]">star</span>
+<span class="text-xs font-bold text-slate-700 dark:text-slate-200">1.2k</span>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-slate-100 dark:border-surface-border">
+<button class="w-full h-10 bg-primary hover:bg-blue-600 text-white font-bold text-sm rounded-lg flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]">code</span>
+                                Open in Editor
+                            </button>
+</div>
+</div>
+</div>
+<!-- Project Card 2 -->
+<div class="bg-white dark:bg-surface-dark rounded-xl overflow-hidden border border-slate-200 dark:border-surface-border shadow-sm hover:shadow-md transition-all group">
+<div class="relative h-48 w-full bg-slate-800">
+<img alt="Code editor syntax highlighting dark theme" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHiN6ysy_swfplkxKWDNZSNXLCYsEYuMKox2iDYJddjbAjKCwXLt7T2csR_8qYsnLZAcrlUtWMISlY54RLpfJcqvvopWiWH7KoR10L376v8kYh-Ne_DTwka2WqmwFMRxoOFvDKqcRtIN_99w597gJdhznWSy1na3tuPIQ4mNhnoGSPNHMXe4-NjvpcsGxxl4eceovfO05B2_aQuCw64Bv37oYPw8tg-zau97c9XfbRsa5tDkTqQc1ei0kqrLDn6ejRsMqlBsAKiB8-"/>
+<div class="absolute top-3 right-3 flex gap-1">
+<div class="w-6 h-6 rounded bg-black/60 backdrop-blur-sm flex items-center justify-center text-white border border-white/10" title="Web">
+<span class="material-symbols-outlined text-[14px]">language</span>
+</div>
+</div>
+</div>
+<div class="p-4">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-bold text-lg leading-snug">DevPortfolio v2</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-body">Minimalist developer portfolio template.</p>
+</div>
+</div>
+<div class="flex items-center justify-between mt-4">
+<div class="flex items-center gap-2">
+<img alt="Author Maria avatar" class="w-6 h-6 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCiTyA2gm9VJIpKgj1P0tv05pYgiyawmf-81lRK4Nc5EESLoluEs8VSmQnEIClPVm068FpkdRLQwvdxT_AzS5k4ci9piEP_A4dly4aiObTdgdTNoSKjxwjSYiyOesy80oMV77q2XOak1F1X0m2YBffFv1pxygx35SFQS9X7oGHFbFSrWdgMIl6RU0-OCodVIupFb_Ux4lNRJvSGQHUbpDXwNuzbV4SFLe36itf97WdQuAMCDQM4BuXSXV_cdtvdZelKLQCIF-S5Nb2"/>
+<span class="text-xs text-slate-500 dark:text-slate-400">@maria_s</span>
+</div>
+<div class="flex items-center gap-1 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined text-[16px]">star</span>
+<span class="text-xs font-bold text-slate-700 dark:text-slate-200">854</span>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-slate-100 dark:border-surface-border">
+<button class="w-full h-10 bg-primary/10 hover:bg-primary/20 text-primary dark:text-blue-400 font-bold text-sm rounded-lg flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+                                Preview
+                            </button>
+</div>
+</div>
+</div>
+<!-- Project Card 3 -->
+<div class="bg-white dark:bg-surface-dark rounded-xl overflow-hidden border border-slate-200 dark:border-surface-border shadow-sm hover:shadow-md transition-all group">
+<div class="relative h-48 w-full bg-slate-800">
+<img alt="Retro pixel art game screenshot" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbiNqA8qPa0_0qUs03oZ9p0B8yzasFjKzklP6pdqr2gXMNJOgZT0AKVLghAvMehTFyP7ceDTcsl1vxnzxaZeV-IDMbPa3YJEq6sZsr77n4lXdZoHYKJ0DRZ1vSkFOH4TeczUU3tUXk4OFybfkTJEIsmxXZ7STS9uqxV1xOzqzOES4rzmYOSjAgBfik14OUaU549bxufohdfVZrn4ESVuGxYF3NRXdiCoGWAs0KocRaUKVsEuYfc3A9rgUiQIrTK1qDSXal_FEm6wum"/>
+<div class="absolute top-3 right-3 flex gap-1">
+<div class="w-6 h-6 rounded bg-black/60 backdrop-blur-sm flex items-center justify-center text-white border border-white/10" title="Web">
+<span class="material-symbols-outlined text-[14px]">desktop_mac</span>
+</div>
+<div class="w-6 h-6 rounded bg-black/60 backdrop-blur-sm flex items-center justify-center text-white border border-white/10" title="Game">
+<span class="material-symbols-outlined text-[14px]">sports_esports</span>
+</div>
+</div>
+</div>
+<div class="p-4">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-bold text-lg leading-snug">Pixel Jumper</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-body">2D platformer engine built from scratch.</p>
+</div>
+</div>
+<div class="flex items-center justify-between mt-4">
+<div class="flex items-center gap-2">
+<img alt="Author GameDev avatar" class="w-6 h-6 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8LwBSZ_h8tqJs7MoqzdhpH2JjXfM-uMKR9oIPNDw7X7NdlEPLF3U2KWOeTtcmZgegxly1Z9k387REu9ShtHCze-8QOEew-6Imvs_bXQWmRJOm9mDrjLJ_mt7Jb98qEwUb3geFxYr7HGesLYFVo6jFPurubitk7d3tLh-ZJpMCXTfsj_Rkh8WZ4YH8SJo9HTXfD-HfqvYFZ6sbjo8JOj9IUKsv2WoAgTmQFbPNzh8J64wP1zmf-F6IP0arNGi_NnrXxkYUPIWIJADq"/>
+<span class="text-xs text-slate-500 dark:text-slate-400">@gamedev_x</span>
+</div>
+<div class="flex items-center gap-1 text-yellow-500">
+<span class="material-symbols-outlined filled text-[16px]">star</span>
+<span class="text-xs font-bold text-slate-700 dark:text-slate-200">2.4k</span>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-slate-100 dark:border-surface-border">
+<button class="w-full h-10 bg-primary hover:bg-blue-600 text-white font-bold text-sm rounded-lg flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]">code</span>
+                                Open in Editor
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Build Activity (Bottom List) -->
+<section class="px-4 pb-6">
+<h2 class="text-lg font-bold mb-3 mt-4 dark:text-white">Recent Activity</h2>
+<div class="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-surface-border overflow-hidden">
+<div class="divide-y divide-slate-100 dark:divide-surface-border">
+<!-- Activity Item 1 -->
+<div class="p-3 flex items-start gap-3 hover:bg-slate-50 dark:hover:bg-surface-border/50 transition-colors">
+<div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px] text-green-500">fork_right</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-sm text-slate-800 dark:text-slate-200">
+<span class="font-bold">@jessica</span> forked <span class="font-bold text-primary">CryptoDash</span>
+</p>
+<p class="text-xs text-slate-500 mt-0.5">2 minutes ago</p>
+</div>
+</div>
+<!-- Activity Item 2 -->
+<div class="p-3 flex items-start gap-3 hover:bg-slate-50 dark:hover:bg-surface-border/50 transition-colors">
+<div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px] text-yellow-500">star</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-sm text-slate-800 dark:text-slate-200">
+<span class="font-bold">@david_k</span> starred <span class="font-bold text-primary">Pixel Jumper</span>
+</p>
+<p class="text-xs text-slate-500 mt-0.5">15 minutes ago</p>
+</div>
+</div>
+<!-- Activity Item 3 -->
+<div class="p-3 flex items-start gap-3 hover:bg-slate-50 dark:hover:bg-surface-border/50 transition-colors">
+<div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px] text-blue-500">publish</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-sm text-slate-800 dark:text-slate-200">
+<span class="font-bold">@alexd</span> updated <span class="font-bold text-primary">FinTrack Mobile</span>
+</p>
+<p class="text-xs text-slate-500 mt-0.5">1 hour ago</p>
+</div>
+</div>
+</div>
+<div class="p-2 text-center bg-slate-50 dark:bg-surface-border/30">
+<button class="text-xs font-bold text-primary uppercase tracking-wide">View All Activity</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Mobile Bottom Navigation for context -->
+<nav class="fixed bottom-0 w-full bg-white dark:bg-[#151b26] border-t border-slate-200 dark:border-surface-border pb-safe pt-2 px-6 flex justify-between items-center z-50 h-16 safe-area-bottom">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined filled">explore</span>
+<span class="text-[10px] font-medium">Explore</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300" href="#">
+<span class="material-symbols-outlined">code_blocks</span>
+<span class="text-[10px] font-medium">My Projects</span>
+</a>
+<div class="relative -top-6">
+<button class="w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-primary/40 transform transition hover:scale-105 active:scale-95">
+<span class="material-symbols-outlined text-[28px]">add</span>
+</button>
+</div>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span class="text-[10px] font-medium">Editor</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</a>
+</nav>
+<div class="h-6 w-full bg-white dark:bg-[#151b26] fixed bottom-0 z-50"></div> <!-- Safe area spacer for notched phones if needed -->
+</body></html>

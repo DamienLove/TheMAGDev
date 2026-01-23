@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Integrated Version Control View</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "sidebar-dark": "#161b26",
+                        "diff-green": "rgba(46, 160, 67, 0.15)",
+                        "diff-green-border": "rgba(46, 160, 67, 0.4)",
+                        "diff-red": "rgba(248, 81, 73, 0.15)",
+                        "diff-red-border": "rgba(248, 81, 73, 0.4)",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["Fira Code", "monospace"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden h-screen w-full flex">
+<!-- Global Icon Rail (Left Edge) -->
+<div class="w-14 hidden sm:flex flex-col items-center py-6 bg-[#1e2330] border-r border-slate-700/50 shrink-0 z-20">
+<div class="mb-8 text-primary">
+<span class="material-symbols-outlined text-3xl">code_blocks</span>
+</div>
+<nav class="flex flex-col gap-6 w-full items-center">
+<button class="text-slate-400 hover:text-white transition-colors p-2 rounded-lg">
+<span class="material-symbols-outlined">folder_open</span>
+</button>
+<button class="text-slate-400 hover:text-white transition-colors p-2 rounded-lg">
+<span class="material-symbols-outlined">search</span>
+</button>
+<!-- Active Source Control -->
+<div class="relative w-full flex justify-center">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full"></div>
+<button class="text-primary bg-primary/10 p-2 rounded-lg">
+<span class="material-symbols-outlined">source_environment</span>
+</button>
+</div>
+<button class="text-slate-400 hover:text-white transition-colors p-2 rounded-lg">
+<span class="material-symbols-outlined">bug_report</span>
+</button>
+<button class="text-slate-400 hover:text-white transition-colors p-2 rounded-lg">
+<span class="material-symbols-outlined">extension</span>
+</button>
+</nav>
+<div class="mt-auto flex flex-col gap-6 w-full items-center">
+<button class="text-slate-400 hover:text-white transition-colors p-2 rounded-lg">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+<button class="text-slate-400 hover:text-white transition-colors p-2 rounded-lg">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+<!-- Source Control Sidebar (Collapsible on mobile) -->
+<div class="w-full sm:w-80 bg-sidebar-dark flex flex-col border-r border-slate-700/50 shrink-0 h-full overflow-hidden absolute sm:relative z-10 transition-transform duration-300" id="source-control-panel">
+<!-- Header -->
+<div class="flex items-center justify-between p-4 border-b border-slate-700/50 h-16 shrink-0 bg-[#161b26]">
+<div class="flex items-center gap-3 sm:gap-0">
+<!-- Mobile Only Menu Toggle -->
+<button class="sm:hidden text-slate-400 mr-2">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="text-white text-lg font-bold tracking-tight">Source Control</h2>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/5">
+<span class="material-symbols-outlined text-[20px]">refresh</span>
+</button>
+<button class="text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/5">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+</div>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto scrollbar-hide p-4 flex flex-col gap-4">
+<!-- Branch Info (Visible in Sidebar on Mobile mainly) -->
+<div class="flex items-center justify-between text-xs text-slate-400 bg-white/5 p-2 rounded-lg">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">call_split</span>
+<span>feature/ui-update</span>
+</div>
+<span class="material-symbols-outlined text-[16px]">cloud_upload</span>
+</div>
+<!-- Commit Input -->
+<div class="flex flex-col gap-3">
+<textarea class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-h-[80px] resize-none font-mono" placeholder="Message (⌘Enter to commit)"></textarea>
+<button class="w-full bg-primary hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors text-sm">
+<span class="material-symbols-outlined text-[18px]">check</span>
+                    Commit &amp; Push
+                </button>
+</div>
+<!-- Accordions -->
+<div class="flex flex-col gap-1 mt-2">
+<!-- Staged Changes -->
+<details class="group" open="">
+<summary class="flex items-center justify-between cursor-pointer py-2 px-1 select-none text-slate-300 hover:text-white group-open:mb-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] transition-transform group-open:rotate-90">chevron_right</span>
+<span class="text-xs font-bold uppercase tracking-wider">Staged Changes</span>
+<span class="bg-primary/20 text-primary text-[10px] px-1.5 py-0.5 rounded-full font-mono">2</span>
+</div>
+</summary>
+<div class="flex flex-col pl-2">
+<!-- File Item 1 -->
+<div class="flex items-center justify-between p-2 rounded hover:bg-white/5 cursor-pointer group/file border-l-2 border-transparent hover:border-primary">
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-amber-500 text-[18px]">description</span>
+<div class="flex flex-col truncate">
+<span class="text-sm text-slate-200 truncate font-mono">MainActivity.kt</span>
+<span class="text-[10px] text-slate-500 truncate">app/src/main/java/...</span>
+</div>
+</div>
+<div class="flex items-center gap-2 text-[10px] font-mono shrink-0">
+<span class="text-emerald-400">+12</span>
+<span class="text-rose-400">-4</span>
+<span class="text-amber-500 font-bold ml-1">M</span>
+</div>
+</div>
+<!-- File Item 2 -->
+<div class="flex items-center justify-between p-2 rounded hover:bg-white/5 cursor-pointer group/file border-l-2 border-transparent hover:border-primary">
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-blue-400 text-[18px]">settings</span>
+<div class="flex flex-col truncate">
+<span class="text-sm text-slate-200 truncate font-mono">build.gradle</span>
+<span class="text-[10px] text-slate-500 truncate">app/</span>
+</div>
+</div>
+<div class="flex items-center gap-2 text-[10px] font-mono shrink-0">
+<span class="text-emerald-400">+1</span>
+<span class="text-rose-400">-0</span>
+<span class="text-emerald-500 font-bold ml-1">M</span>
+</div>
+</div>
+</div>
+</details>
+<!-- Changes -->
+<details class="group mt-2">
+<summary class="flex items-center justify-between cursor-pointer py-2 px-1 select-none text-slate-300 hover:text-white group-open:mb-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] transition-transform group-open:rotate-90">chevron_right</span>
+<span class="text-xs font-bold uppercase tracking-wider">Changes</span>
+<span class="bg-slate-700 text-slate-300 text-[10px] px-1.5 py-0.5 rounded-full font-mono">1</span>
+</div>
+</summary>
+<div class="flex flex-col pl-2">
+<!-- File Item 3 -->
+<div class="flex items-center justify-between p-2 rounded hover:bg-white/5 cursor-pointer group/file border-l-2 border-transparent hover:border-primary">
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-purple-400 text-[18px]">palette</span>
+<div class="flex flex-col truncate">
+<span class="text-sm text-slate-200 truncate font-mono">colors.xml</span>
+<span class="text-[10px] text-slate-500 truncate">app/src/main/res/values</span>
+</div>
+</div>
+<div class="flex items-center gap-2 text-[10px] font-mono shrink-0">
+<span class="text-emerald-400">+5</span>
+<span class="text-rose-400">-2</span>
+<span class="text-amber-500 font-bold ml-1">M</span>
+</div>
+</div>
+</div>
+</details>
+</div>
+</div>
+</div>
+<!-- Main Content Area (Diff View) -->
+<div class="flex-1 flex flex-col h-full bg-[#1e2330] overflow-hidden relative w-full sm:w-auto transform transition-transform sm:translate-x-0 translate-x-full sm:static absolute top-0 left-0 right-0 bottom-0 z-20">
+<!-- Mobile Header overlay to go back -->
+<div class="sm:hidden flex items-center p-2 bg-[#161b26] border-b border-slate-700/50">
+<button class="flex items-center gap-2 text-slate-300 hover:text-white">
+<span class="material-symbols-outlined">arrow_back</span>
+<span class="text-sm font-medium">Back to Changes</span>
+</button>
+</div>
+<!-- Editor Toolbar -->
+<div class="h-14 bg-[#1e2330] border-b border-slate-700/50 flex items-center justify-between px-4 shrink-0">
+<!-- Left: File Breadcrumbs -->
+<div class="flex items-center gap-2 text-sm overflow-hidden">
+<span class="material-symbols-outlined text-amber-500 text-[18px]">description</span>
+<div class="flex items-center text-slate-400 whitespace-nowrap overflow-hidden text-ellipsis">
+<span class="hidden sm:inline">app / src / main / java / ... / </span>
+<span class="text-white font-mono font-medium ml-1">MainActivity.kt</span>
+</div>
+<span class="text-xs text-amber-500 border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 rounded ml-2 font-mono">Modified</span>
+</div>
+<!-- Right: View Controls -->
+<div class="flex items-center gap-3">
+<!-- View Toggle (Split vs Unified) -->
+<div class="hidden md:flex bg-[#0d1117] rounded-lg p-0.5 border border-slate-700">
+<button class="px-3 py-1 text-xs font-medium bg-slate-700 text-white rounded shadow-sm">Split</button>
+<button class="px-3 py-1 text-xs font-medium text-slate-400 hover:text-white">Unified</button>
+</div>
+<div class="h-4 w-px bg-slate-700 mx-1 hidden sm:block"></div>
+<button class="text-slate-400 hover:text-white p-1">
+<span class="material-symbols-outlined text-[20px]">vertical_split</span>
+</button>
+<button class="text-slate-400 hover:text-white p-1">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Diff Viewer Container -->
+<div class="flex-1 overflow-auto bg-[#0f0f12] font-mono text-sm relative">
+<!-- Diff Header (Comparison Info) -->
+<div class="sticky top-0 z-10 flex bg-[#161b26] border-b border-slate-800 text-xs font-mono text-slate-400">
+<div class="w-1/2 p-2 border-r border-slate-800 flex items-center justify-between bg-diff-red/10">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px]">history</span> HEAD (Original)
+                    </span>
+</div>
+<div class="w-1/2 p-2 flex items-center justify-between bg-diff-green/10">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px]">edit_note</span> Working Tree
+                    </span>
+</div>
+</div>
+<!-- Code Content -->
+<div class="w-full">
+<!-- Unchanged Block -->
+<div class="flex w-full hover:bg-white/[0.02]">
+<div class="w-10 shrink-0 text-slate-600 text-right pr-3 select-none py-0.5 border-r border-slate-800 bg-[#161b26]">10</div>
+<div class="w-1/2 border-r border-slate-800 px-4 py-0.5 text-slate-400 overflow-hidden whitespace-pre">    private lateinit var auth: FirebaseAuth</div>
+<div class="w-10 shrink-0 text-slate-600 text-right pr-3 select-none py-0.5 border-r border-slate-800 bg-[#161b26]">10</div>
+<div class="w-1/2 px-4 py-0.5 text-slate-400 overflow-hidden whitespace-pre">    private lateinit var auth: FirebaseAuth</div>
+</div>
+<div class="flex w-full hover:bg-white/[0.02]">
+<div class="w-10 shrink-0 text-slate-600 text-right pr-3 select-none py-0.5 border-r border-slate-800 bg-[#161b26]">11</div>
+<div class="w-1/2 border-r border-slate-800 px-4 py-0.5 text-slate-400 overflow-hidden whitespace-pre"></div>
+<div class="w-10 shrink-0 text-slate-600 text-right pr-3 select-none py-0.5 border-r border-slate-800 bg-[#161b26]">11</div>
+<div class="w-1/2 px-4 py-0.5 text-slate-400 overflow-hidden whitespace-pre"></div>
+</div>
+<!-- Changed Block -->
+<div class="flex w-full group">
+<!-- Left Side (Deletion) -->
+<div class="w-1/2 flex border-r border-slate-800 bg-diff-red relative">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-rose-500/50"></div>
+<div class="w-10 shrink-0 text-slate-500 text-right pr-3 select-none py-0.5 bg-diff-red border-r border-rose-900/30">12</div>
+<div class="flex-1 px-4 py-0.5 text-slate-300 overflow-hidden whitespace-pre opacity-60 line-through decoration-rose-500/50">    val user = null</div>
+</div>
+<!-- Right Side (Addition) -->
+<div class="w-1/2 flex bg-diff-green relative">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500/50"></div>
+<div class="w-10 shrink-0 text-slate-500 text-right pr-3 select-none py-0.5 bg-diff-green border-r border-emerald-900/30">12</div>
+<div class="flex-1 px-4 py-0.5 text-emerald-100 overflow-hidden whitespace-pre font-medium">    val user = AuthManager.getCurrentUser()</div>
+</div>
+</div>
+<div class="flex w-full group">
+<!-- Left Side (Deletion) -->
+<div class="w-1/2 flex border-r border-slate-800 bg-diff-red relative">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-rose-500/50"></div>
+<div class="w-10 shrink-0 text-slate-500 text-right pr-3 select-none py-0.5 bg-diff-red border-r border-rose-900/30">13</div>
+<div class="flex-1 px-4 py-0.5 text-slate-300 overflow-hidden whitespace-pre opacity-60 line-through decoration-rose-500/50">    if (user == null) {</div>
+</div>
+<!-- Right Side (Addition) -->
+<div class="w-1/2 flex bg-diff-green relative">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500/50"></div>
+<div class="w-10 shrink-0 text-slate-500 text-right pr-3 select-none py-0.5 bg-diff-green border-r border-emerald-900/30">13</div>
+<div class="flex-1 px-4 py-0.5 text-emerald-100 overflow-hidden whitespace-pre font-medium">    if (!user.isAuthenticated()) {</div>
+</div>
+</div>
+<!-- Unchanged Block -->
+<div class="flex w-full hover:bg-white/[0.02]">
+<div class="w-10 shrink-0 text-slate-600 text-right pr-3 select-none py-0.5 border-r border-slate-800 bg-[#161b26]">14</div>
+<div class="w-1/2 border-r border-slate-800 px-4 py-0.5 text-slate-400 overflow-hidden whitespace-pre">        reload()</div>
+<div class="w-10 shrink-0 text-slate-600 text-right pr-3 select-none py-0.5 border-r border-slate-800 bg-[#161b26]">14</div>
+<div class="w-1/2 px-4 py-0.5 text-slate-400 overflow-hidden whitespace-pre">        reload()</div>
+</div>
+<!-- Addition Block only -->
+<div class="flex w-full group">
+<!-- Left Side (Empty) -->
+<div class="w-1/2 flex border-r border-slate-800 bg-[#0f0f12]">
+<div class="w-10 shrink-0 text-slate-600 text-right pr-3 select-none py-0.5 bg-[#161b26] border-r border-slate-800"></div>
+<div class="flex-1 px-4 py-0.5 text-slate-500 overflow-hidden whitespace-pre bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjMWUxZTI0Ii8+CjxwYXRoIGQ9Ik0wIDBMNCA0Wk00IDBMMCA0WiIgc3Ryb2tlPSIjMjMzZjU1IiBzdHJva2Utd2lkdGg9IjEiLz4KPC9zdmc+')] opacity-20"></div>
+</div>
+<!-- Right Side (Addition) -->
+<div class="w-1/2 flex bg-diff-green relative">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500/50"></div>
+<div class="w-10 shrink-0 text-slate-500 text-right pr-3 select-none py-0.5 bg-diff-green border-r border-emerald-900/30">15</div>
+<div class="flex-1 px-4 py-0.5 text-emerald-100 overflow-hidden whitespace-pre font-medium">        Log.d("Auth", "User not found")</div>
+</div>
+</div>
+<!-- Unchanged Block Long -->
+<div class="flex w-full hover:bg-white/[0.02]">
+<div class="w-10 shrink-0 text-slate-600 text-right pr-3 select-none py-0.5 border-r border-slate-800 bg-[#161b26]">16</div>
+<div class="w-1/2 border-r border-slate-800 px-4 py-0.5 text-slate-400 overflow-hidden whitespace-pre">    }</div>
+<div class="w-10 shrink-0 text-slate-600 text-right pr-3 select-none py-0.5 border-r border-slate-800 bg-[#161b26]">16</div>
+<div class="w-1/2 px-4 py-0.5 text-slate-400 overflow-hidden whitespace-pre">    }</div>
+</div>
+<div class="flex w-full hover:bg-white/[0.02]">
+<div class="w-10 shrink-0 text-slate-600 text-right pr-3 select-none py-0.5 border-r border-slate-800 bg-[#161b26]">17</div>
+<div class="w-1/2 border-r border-slate-800 px-4 py-0.5 text-slate-400 overflow-hidden whitespace-pre">}</div>
+<div class="w-10 shrink-0 text-slate-600 text-right pr-3 select-none py-0.5 border-r border-slate-800 bg-[#161b26]">17</div>
+<div class="w-1/2 px-4 py-0.5 text-slate-400 overflow-hidden whitespace-pre">}</div>
+</div>
+</div>
+<!-- Floating Branch Selector (Over Code) -->
+<div class="absolute top-4 right-4 z-20">
+<div class="bg-primary/90 text-white rounded-full px-3 py-1.5 shadow-lg shadow-black/50 backdrop-blur-sm border border-primary/50 flex items-center gap-2 cursor-pointer hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-[16px]">call_split</span>
+<span class="text-xs font-bold font-mono">feature/ui-update</span>
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+</body></html>

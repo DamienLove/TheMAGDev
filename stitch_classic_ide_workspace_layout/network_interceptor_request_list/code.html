@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Network Interceptor</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1e2736",
+                        "method-get": "#10b981",
+                        "method-post": "#f59e0b",
+                        "method-put": "#6366f1",
+                        "method-delete": "#ef4444",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-black font-display text-white overflow-x-hidden antialiased">
+<!-- Mobile Container Wrapper -->
+<div class="relative flex h-screen w-full flex-col bg-background-dark mx-auto max-w-md overflow-hidden border-x border-slate-800 shadow-2xl">
+<!-- Header -->
+<header class="shrink-0 flex items-center justify-between px-4 py-3 bg-background-dark border-b border-slate-800 z-20">
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center text-slate-400 hover:text-white transition-colors p-1 -ml-2">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<h1 class="text-white text-lg font-bold leading-tight tracking-tight">Network Log</h1>
+<!-- Live Indicator -->
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+</div>
+<span class="text-xs text-slate-400 font-medium tracking-wide">app.myapp.com</span>
+</div>
+</div>
+<div class="flex items-center gap-1">
+<button aria-label="Pause Recording" class="flex items-center justify-center h-10 w-10 rounded-full hover:bg-surface-dark text-slate-300 hover:text-white transition-colors">
+<span class="material-symbols-outlined">pause_circle</span>
+</button>
+<button aria-label="Clear Log" class="flex items-center justify-center h-10 w-10 rounded-full hover:bg-surface-dark text-slate-300 hover:text-white transition-colors">
+<span class="material-symbols-outlined">delete_sweep</span>
+</button>
+</div>
+</header>
+<!-- Search / Filter Bar -->
+<div class="shrink-0 px-4 py-3 bg-background-dark border-b border-slate-800 z-10">
+<label class="group flex items-center w-full h-10 bg-surface-dark rounded-lg px-3 gap-2 border border-transparent focus-within:border-primary/50 transition-all">
+<span class="material-symbols-outlined text-slate-500 group-focus-within:text-primary text-xl">search</span>
+<input class="bg-transparent border-none text-sm text-white placeholder-slate-500 w-full focus:ring-0 p-0 font-medium" placeholder="Filter by URL, method or status..." type="text"/>
+<button class="text-slate-500 hover:text-white">
+<span class="material-symbols-outlined text-xl">filter_list</span>
+</button>
+</label>
+</div>
+<!-- Request List -->
+<div class="flex-1 overflow-y-auto scrollbar-hide">
+<!-- List Item: GET Success -->
+<div class="group flex flex-col border-b border-slate-800/50 hover:bg-surface-dark/50 transition-colors cursor-pointer">
+<div class="flex items-start gap-3 p-4">
+<!-- Method Badge -->
+<div class="shrink-0 flex items-center justify-center w-14 h-7 rounded bg-emerald-500/10 border border-emerald-500/20">
+<span class="text-xs font-bold text-emerald-400">GET</span>
+</div>
+<!-- Content -->
+<div class="flex-1 min-w-0 flex flex-col gap-0.5">
+<div class="flex items-baseline justify-between gap-2">
+<h3 class="text-sm font-medium text-white truncate font-mono">/api/v1/users/me</h3>
+<span class="shrink-0 text-xs font-bold text-emerald-400">200 OK</span>
+</div>
+<div class="flex items-center justify-between gap-2">
+<p class="text-xs text-slate-500 truncate">api.myapp.com</p>
+<span class="shrink-0 text-xs text-slate-400">45ms</span>
+</div>
+</div>
+</div>
+</div>
+<!-- List Item: POST Success -->
+<div class="group flex flex-col border-b border-slate-800/50 hover:bg-surface-dark/50 transition-colors cursor-pointer">
+<div class="flex items-start gap-3 p-4">
+<div class="shrink-0 flex items-center justify-center w-14 h-7 rounded bg-amber-500/10 border border-amber-500/20">
+<span class="text-xs font-bold text-amber-400">POST</span>
+</div>
+<div class="flex-1 min-w-0 flex flex-col gap-0.5">
+<div class="flex items-baseline justify-between gap-2">
+<h3 class="text-sm font-medium text-white truncate font-mono">/auth/refresh-token</h3>
+<span class="shrink-0 text-xs font-bold text-emerald-400">200 OK</span>
+</div>
+<div class="flex items-center justify-between gap-2">
+<p class="text-xs text-slate-500 truncate">auth.myapp.com</p>
+<span class="shrink-0 text-xs text-slate-400">120ms</span>
+</div>
+</div>
+</div>
+</div>
+<!-- List Item: GET Cached -->
+<div class="group flex flex-col border-b border-slate-800/50 hover:bg-surface-dark/50 transition-colors cursor-pointer">
+<div class="flex items-start gap-3 p-4">
+<div class="shrink-0 flex items-center justify-center w-14 h-7 rounded bg-emerald-500/10 border border-emerald-500/20">
+<span class="text-xs font-bold text-emerald-400">GET</span>
+</div>
+<div class="flex-1 min-w-0 flex flex-col gap-0.5">
+<div class="flex items-baseline justify-between gap-2">
+<h3 class="text-sm font-medium text-white truncate font-mono">/assets/images/logo.png</h3>
+<span class="shrink-0 text-xs font-bold text-sky-400">304</span>
+</div>
+<div class="flex items-center justify-between gap-2">
+<p class="text-xs text-slate-500 truncate">cdn.myapp.com</p>
+<span class="shrink-0 text-xs text-slate-400">12ms</span>
+</div>
+</div>
+</div>
+</div>
+<!-- List Item: PUT Error -->
+<div class="group flex flex-col border-b border-slate-800/50 hover:bg-surface-dark/50 transition-colors cursor-pointer bg-red-500/5">
+<div class="flex items-start gap-3 p-4">
+<div class="shrink-0 flex items-center justify-center w-14 h-7 rounded bg-indigo-500/10 border border-indigo-500/20">
+<span class="text-xs font-bold text-indigo-400">PUT</span>
+</div>
+<div class="flex-1 min-w-0 flex flex-col gap-0.5">
+<div class="flex items-baseline justify-between gap-2">
+<h3 class="text-sm font-medium text-white truncate font-mono">/api/v1/settings/profile</h3>
+<span class="shrink-0 text-xs font-bold text-red-500">500</span>
+</div>
+<div class="flex items-center justify-between gap-2">
+<p class="text-xs text-slate-500 truncate">api.myapp.com</p>
+<span class="shrink-0 text-xs text-red-400">520ms</span>
+</div>
+</div>
+</div>
+</div>
+<!-- List Item: DELETE -->
+<div class="group flex flex-col border-b border-slate-800/50 hover:bg-surface-dark/50 transition-colors cursor-pointer">
+<div class="flex items-start gap-3 p-4">
+<div class="shrink-0 flex items-center justify-center w-14 h-7 rounded bg-red-500/10 border border-red-500/20">
+<span class="text-xs font-bold text-red-400">DEL</span>
+</div>
+<div class="flex-1 min-w-0 flex flex-col gap-0.5">
+<div class="flex items-baseline justify-between gap-2">
+<h3 class="text-sm font-medium text-white truncate font-mono">/api/v1/projects/proj_8823</h3>
+<span class="shrink-0 text-xs font-bold text-emerald-400">204 OK</span>
+</div>
+<div class="flex items-center justify-between gap-2">
+<p class="text-xs text-slate-500 truncate">api.myapp.com</p>
+<span class="shrink-0 text-xs text-slate-400">89ms</span>
+</div>
+</div>
+</div>
+</div>
+<!-- List Item: GET -->
+<div class="group flex flex-col border-b border-slate-800/50 hover:bg-surface-dark/50 transition-colors cursor-pointer">
+<div class="flex items-start gap-3 p-4">
+<div class="shrink-0 flex items-center justify-center w-14 h-7 rounded bg-emerald-500/10 border border-emerald-500/20">
+<span class="text-xs font-bold text-emerald-400">GET</span>
+</div>
+<div class="flex-1 min-w-0 flex flex-col gap-0.5">
+<div class="flex items-baseline justify-between gap-2">
+<h3 class="text-sm font-medium text-white truncate font-mono">/api/v1/notifications/unread</h3>
+<span class="shrink-0 text-xs font-bold text-emerald-400">200 OK</span>
+</div>
+<div class="flex items-center justify-between gap-2">
+<p class="text-xs text-slate-500 truncate">api.myapp.com</p>
+<span class="shrink-0 text-xs text-slate-400">230ms</span>
+</div>
+</div>
+</div>
+</div>
+<!-- List Item: POST Slow -->
+<div class="group flex flex-col border-b border-slate-800/50 hover:bg-surface-dark/50 transition-colors cursor-pointer">
+<div class="flex items-start gap-3 p-4">
+<div class="shrink-0 flex items-center justify-center w-14 h-7 rounded bg-amber-500/10 border border-amber-500/20">
+<span class="text-xs font-bold text-amber-400">POST</span>
+</div>
+<div class="flex-1 min-w-0 flex flex-col gap-0.5">
+<div class="flex items-baseline justify-between gap-2">
+<h3 class="text-sm font-medium text-white truncate font-mono">/analytics/track</h3>
+<span class="shrink-0 text-xs font-bold text-yellow-500">202</span>
+</div>
+<div class="flex items-center justify-between gap-2">
+<p class="text-xs text-slate-500 truncate">t.myapp.com</p>
+<span class="shrink-0 text-xs text-yellow-500">1.2s</span>
+</div>
+</div>
+</div>
+</div>
+<!-- List Item: HEAD -->
+<div class="group flex flex-col border-b border-slate-800/50 hover:bg-surface-dark/50 transition-colors cursor-pointer">
+<div class="flex items-start gap-3 p-4">
+<div class="shrink-0 flex items-center justify-center w-14 h-7 rounded bg-slate-500/10 border border-slate-500/20">
+<span class="text-xs font-bold text-slate-400">HEAD</span>
+</div>
+<div class="flex-1 min-w-0 flex flex-col gap-0.5">
+<div class="flex items-baseline justify-between gap-2">
+<h3 class="text-sm font-medium text-white truncate font-mono">/health-check</h3>
+<span class="shrink-0 text-xs font-bold text-emerald-400">200 OK</span>
+</div>
+<div class="flex items-center justify-between gap-2">
+<p class="text-xs text-slate-500 truncate">status.myapp.com</p>
+<span class="shrink-0 text-xs text-slate-400">10ms</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sticky Bottom Status (Optional, implied by "real-time log") -->
+<div class="shrink-0 bg-surface-dark border-t border-slate-800 p-2 px-4 flex justify-between items-center text-xs text-slate-400">
+<span>8 Requests</span>
+<span>2.4 KB Received</span>
+</div>
+</div>
+</body></html>

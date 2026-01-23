@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Project Commit History &amp; Graph</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "primary-content": "#ffffff",
+                        "secondary": "#a855f7", /* Purple for feature branch */
+                        "tertiary": "#22c55e", /* Green for bugfix branch */
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#161e2e",
+                        "border-dark": "#2a364e",
+                        "text-secondary": "#92a4c9",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Custom scrollbar for horizontal scrolling */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display antialiased overflow-hidden">
+<div class="relative flex h-screen w-full flex-col overflow-hidden max-w-md mx-auto border-x border-border-dark shadow-2xl">
+<!-- Header -->
+<header class="flex items-center justify-between px-4 py-3 bg-background-dark/95 backdrop-blur-md z-20 border-b border-border-dark sticky top-0">
+<button class="text-white flex items-center justify-center p-2 rounded-full hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="text-white text-lg font-bold leading-tight tracking-tight flex-1 text-center">Commit History</h1>
+<button class="text-text-secondary hover:text-white flex items-center justify-center p-2 rounded-full hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</header>
+<!-- Actions Toolbar -->
+<div class="flex items-center gap-3 px-4 py-3 bg-background-dark z-10 overflow-x-auto hide-scrollbar border-b border-border-dark/50">
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-dark border border-border-dark rounded-full hover:bg-border-dark transition-colors whitespace-nowrap group">
+<span class="material-symbols-outlined text-sky-400 text-[20px]">cloud_download</span>
+<span class="text-sm font-semibold text-gray-200">Fetch</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-dark border border-border-dark rounded-full hover:bg-border-dark transition-colors whitespace-nowrap">
+<span class="material-symbols-outlined text-emerald-400 text-[20px]">arrow_downward</span>
+<span class="text-sm font-semibold text-gray-200">Pull</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-dark border border-border-dark rounded-full hover:bg-border-dark transition-colors whitespace-nowrap">
+<span class="material-symbols-outlined text-primary text-[20px]">arrow_upward</span>
+<span class="text-sm font-semibold text-gray-200">Push</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-dark border border-border-dark rounded-full hover:bg-border-dark transition-colors whitespace-nowrap">
+<span class="material-symbols-outlined text-amber-400 text-[20px]">inventory_2</span>
+<span class="text-sm font-semibold text-gray-200">Stash</span>
+</button>
+</div>
+<!-- Commit Graph / Timeline -->
+<div class="flex-1 overflow-y-auto pb-[400px]"> <!-- Extra padding for bottom sheet -->
+<div class="flex flex-col px-4 pt-4">
+<!-- Commit 1 (Merge) -->
+<div class="grid grid-cols-[48px_1fr] gap-x-3 group cursor-pointer">
+<div class="flex flex-col items-center h-full">
+<div class="w-px bg-border-dark h-3"></div>
+<div class="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 border-2 border-primary text-primary shadow-[0_0_10px_rgba(19,91,236,0.3)]">
+<span class="material-symbols-outlined text-[16px]">call_merge</span>
+</div>
+<div class="w-px bg-border-dark h-full grow"></div>
+</div>
+<div class="flex flex-col py-2 pb-6">
+<div class="flex justify-between items-start">
+<p class="text-white text-base font-bold leading-snug">Merge pull request #42 from feature/auth</p>
+<span class="text-xs font-mono text-text-secondary bg-surface-dark px-1.5 py-0.5 rounded border border-border-dark ml-2 shrink-0">4f2a9c</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<img alt="Alex avatar" class="w-4 h-4 rounded-full" data-alt="Avatar of user Alex R" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzzfRiWGQGH0qFa2qKQhnLeBNCozjy7ERdO09WYKHdcX8wkabF5OY-_NFk8TM83eASfKBlABJDEaDw75ry46AFmCso5AZzyhsnaCmBvTridBMKd4u0R2Edgrb-EkAEswy1ikd4lZHd_EMfh33ycVBeBmzv-LvwrrpNLLiRHcojDZDdWI03VH18kv1cX1PBPjen871HSyVzY_dYaz_Tc6oc7XOC3JVSfwDObvu5jnmEDv_vd0y7ziAtggtdUccyYU0dcgB-buS9S0fV"/>
+<p class="text-text-secondary text-sm">master • 2h ago</p>
+</div>
+</div>
+</div>
+<!-- Commit 2 (Feature - Selected) -->
+<div class="grid grid-cols-[48px_1fr] gap-x-3 group cursor-pointer">
+<div class="flex flex-col items-center h-full relative">
+<div class="w-px bg-border-dark h-full absolute left-1/2 -translate-x-1/2"></div>
+<!-- Branch deviation line (visual trick) -->
+<div class="absolute top-0 left-1/2 w-4 h-8 border-b-2 border-l-2 border-secondary rounded-bl-xl z-0" style="transform: translate(0, 12px);"></div>
+<div class="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-secondary text-white shadow-[0_0_15px_rgba(168,85,247,0.5)] mt-3">
+<span class="material-symbols-outlined text-[18px] icon-fill">commit</span>
+</div>
+</div>
+<div class="flex flex-col py-3 pb-6 pl-2 rounded-lg bg-white/5 border border-white/10 -mx-2 px-4 shadow-lg">
+<div class="flex justify-between items-start">
+<p class="text-white text-base font-bold leading-snug">Fix layout bug in profile screen</p>
+<span class="text-xs font-mono text-white bg-secondary/30 px-1.5 py-0.5 rounded border border-secondary/50 ml-2 shrink-0">a1b2c3</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<img alt="Sarah avatar" class="w-4 h-4 rounded-full" data-alt="Avatar of user Sarah D" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCe4bC25oC8VJWZpUHxsKypEHZ7_5HnlMn-26zwcOrxplxvsDawrzuPcbzsOc_4hfYknJy2ZE1UJk7eTd9sTow10SZwP1f1_1VtHjLRxkUsJF2Ur7-Op4485cAglrtYUEz98W8W6roUjsKvXKi_0yrptC81ayqRtbVEanIbb4yjV0VoY3v9XpbwLzDUmh2wlFn4dzhCuUIUmbb_cMLQCIzHaktK8oPlHPRe_WwwpWlv5P073fduVSu1yNX-4AU3Jmg5Ew0vQguOHG_g"/>
+<p class="text-secondary text-sm font-medium">feature/profile • 5h ago</p>
+</div>
+</div>
+</div>
+<!-- Commit 3 (Feature - Continued) -->
+<div class="grid grid-cols-[48px_1fr] gap-x-3 group cursor-pointer opacity-70 hover:opacity-100 transition-opacity">
+<div class="flex flex-col items-center h-full relative">
+<div class="w-px bg-border-dark h-full absolute left-1/2 -translate-x-1/2"></div>
+<!-- Branch Line -->
+<div class="absolute top-0 left-1/2 w-px h-full bg-secondary ml-4"></div>
+<div class="relative z-10 flex items-center justify-center w-3 h-3 rounded-full bg-secondary ml-8 mt-4 ring-4 ring-background-dark"></div>
+</div>
+<div class="flex flex-col py-2 pb-6">
+<div class="flex justify-between items-start">
+<p class="text-white text-base font-medium leading-snug">Refactor user context provider</p>
+<span class="text-xs font-mono text-text-secondary bg-surface-dark px-1.5 py-0.5 rounded border border-border-dark ml-2 shrink-0">d8e1f0</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<img alt="Sarah avatar" class="w-4 h-4 rounded-full" data-alt="Avatar of user Sarah D" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZgUg8QYjqjP5lE3b4w72-TSgO4sGghgm_VrULSSG-Nj6rCBBya5llo7hnPkR4j3moqTkr6E9RP4-ulkjonBZT201GoaOEgdmTbOitu6cL6w8iL2626UZ4428ZnfqlUUC5QUgbWbNMTMmLgbtR3Uo9SOcUwQac0NKU7T_EIQuOv_Nb62jmS4-4hfBqB5DLKSQvtEhvvggQ_31cUUT_AN0TaM7YLef6H2rMkI6FxnBbLR-GCLGE2z_WNvsbn3spimHta0FzJWttrjRu"/>
+<p class="text-text-secondary text-sm">feature/profile • 1d ago</p>
+</div>
+</div>
+</div>
+<!-- Commit 4 (Develop) -->
+<div class="grid grid-cols-[48px_1fr] gap-x-3 group cursor-pointer opacity-70 hover:opacity-100 transition-opacity">
+<div class="flex flex-col items-center h-full relative">
+<div class="w-px bg-border-dark h-full absolute left-1/2 -translate-x-1/2"></div>
+<!-- Branch Line -->
+<div class="absolute top-0 left-1/2 w-px h-full bg-tertiary -ml-4"></div>
+<div class="relative z-10 flex items-center justify-center w-3 h-3 rounded-full bg-tertiary -ml-8 mt-4 ring-4 ring-background-dark"></div>
+</div>
+<div class="flex flex-col py-2 pb-6">
+<div class="flex justify-between items-start">
+<p class="text-white text-base font-medium leading-snug">Update dependencies in package.json</p>
+<span class="text-xs font-mono text-text-secondary bg-surface-dark px-1.5 py-0.5 rounded border border-border-dark ml-2 shrink-0">b7a9c2</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<img alt="Mike avatar" class="w-4 h-4 rounded-full" data-alt="Avatar of user Mike T" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCepi08xUG1CLoFviZA67azaumDD1GlnDl6NLwJfP0EdZ--VLH0CDj2-jbUotzsR5bIFvnXVL8G9prqSvy5hClQJvvOdOBkYaXBjV3aPQlwAlOwXIFSk-zt11-SEcZ-pS70eY56zFwb6pvNqF5BGId2ypCyKfH3_3u_ZVWRrcFGrDsgD6D-62zMA0Q05_W68QlORw6rIEuSXc1VpsTIkMn2f6zcR1a0dWn7nq4n9xPw5gJXMxEmLzrLjnJOu0OhMZhMbXJw80dK2y9f"/>
+<p class="text-text-secondary text-sm">develop • 1d ago</p>
+</div>
+</div>
+</div>
+<!-- Commit 5 (Master) -->
+<div class="grid grid-cols-[48px_1fr] gap-x-3 group cursor-pointer opacity-70 hover:opacity-100 transition-opacity">
+<div class="flex flex-col items-center h-full relative">
+<div class="w-px bg-border-dark h-full absolute left-1/2 -translate-x-1/2"></div>
+<div class="relative z-10 flex items-center justify-center w-3 h-3 rounded-full bg-primary mt-4 ring-4 ring-background-dark"></div>
+</div>
+<div class="flex flex-col py-2 pb-6">
+<div class="flex justify-between items-start">
+<p class="text-white text-base font-medium leading-snug">Initial project setup</p>
+<span class="text-xs font-mono text-text-secondary bg-surface-dark px-1.5 py-0.5 rounded border border-border-dark ml-2 shrink-0">init</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<img alt="Alex avatar" class="w-4 h-4 rounded-full" data-alt="Avatar of user Alex R" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA26DQLjJuA-Gk8q473Z51UjX4F6vbnkzqIIuqnffmtJE8Fof9aaTVwLhKQJeM0OQ5tA66QciD5zLZkI4MfkbyoIHR52MeAOEwjDxllvoDxXw96SdCDpAVmPb0nlWM19KaXfTg3xkvV8UOuCUBXJMFtojAIw3Ft5bqKtN1kxxo25f1-BMOKulhmxugOCRW5PSPKvRjbMEqQgnXSTEgQJS2XiJj5_ypKwAZfwYOwyGND7FQDokMHtF85-sjmWECy9J_fLDfVqq8zck1i"/>
+<p class="text-text-secondary text-sm">master • 1w ago</p>
+</div>
+</div>
+</div>
+<!-- Spacer for visual length -->
+<div class="grid grid-cols-[48px_1fr] gap-x-3">
+<div class="flex flex-col items-center h-24">
+<div class="w-px bg-gradient-to-b from-border-dark to-transparent h-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Sheet (Fixed Overlay) -->
+<div class="absolute bottom-0 left-0 right-0 z-40 flex flex-col justify-end pointer-events-none h-full">
+<!-- Backdrop shim -->
+<div class="absolute inset-0 bg-black/40 pointer-events-auto"></div>
+<!-- Sheet Content -->
+<div class="bg-surface-dark rounded-t-2xl shadow-[0_-5px_30px_rgba(0,0,0,0.5)] border-t border-border-dark w-full max-h-[85vh] flex flex-col pointer-events-auto transform transition-transform duration-300 ease-out">
+<!-- Handle -->
+<div class="w-full flex items-center justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing">
+<div class="w-12 h-1.5 rounded-full bg-border-dark"></div>
+</div>
+<!-- Sheet Header -->
+<div class="px-5 pb-4 border-b border-border-dark/50">
+<div class="flex justify-between items-start pt-2 gap-4">
+<h2 class="text-xl font-bold text-white leading-tight font-display">Fix layout bug in profile screen</h2>
+<button class="p-1 text-text-secondary hover:text-white shrink-0">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Metadata Row -->
+<div class="flex flex-wrap items-center gap-4 mt-4">
+<div class="flex items-center gap-2 bg-background-dark px-3 py-1.5 rounded-full border border-border-dark">
+<img alt="Sarah avatar" class="w-5 h-5 rounded-full" data-alt="Avatar of user Sarah D" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVl-vUn2XiqYa1ErKRyz8gV09PkXSMxPXta-q6BXlcH4ptE1eTmWUgiJPCEoA6ZDNYAaZeX9cMRFLWrYuUeg8kxjDiRTGYkO3UrLqCMI5oUILq534MK_rxo6_nAYPaiFudENZtsnpE1zfMMGEUapkONjWfoYdowG1PSErQGH47GK39rXh5KJ66dcCWa3YcR-gSINZQs0xnc2YMI-bNS2z0Ko5rkzbBvgQ2nAaKlRS3FM1SVkbIJHvFu1uLtKZOyqwnFC0pjIgFKmUI"/>
+<span class="text-sm font-medium text-white">Sarah Dev</span>
+</div>
+<div class="flex items-center gap-1 text-text-secondary">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span class="text-sm">5h ago</span>
+</div>
+<div class="flex items-center gap-2 text-text-secondary ml-auto">
+<span class="font-mono text-sm text-secondary bg-secondary/10 px-2 py-0.5 rounded border border-secondary/20">a1b2c3d</span>
+<button class="text-text-secondary hover:text-white">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Changes Summary -->
+<div class="flex items-center px-5 py-3 bg-background-dark/50 gap-4 text-sm font-medium border-b border-border-dark/50">
+<div class="flex items-center gap-1.5 text-emerald-400">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span>12 Added</span>
+</div>
+<div class="flex items-center gap-1.5 text-red-400">
+<span class="material-symbols-outlined text-[18px]">remove_circle</span>
+<span>4 Deleted</span>
+</div>
+<div class="flex-1"></div>
+<span class="text-text-secondary">2 Files changed</span>
+</div>
+<!-- File List -->
+<div class="overflow-y-auto p-5 space-y-3 pb-8">
+<!-- File 1 -->
+<div class="flex flex-col bg-background-dark rounded-lg border border-border-dark overflow-hidden group/file hover:border-border-dark/80 transition-colors">
+<div class="flex items-center justify-between p-3 cursor-pointer">
+<div class="flex items-center gap-3 min-w-0">
+<span class="material-symbols-outlined text-text-secondary">description</span>
+<div class="flex flex-col min-w-0">
+<span class="text-sm font-medium text-white truncate">src/components/Header.tsx</span>
+<span class="text-xs text-text-secondary truncate">src/components</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-text-secondary group-hover/file:text-white">chevron_right</span>
+</div>
+<!-- Inline Diff Visual (Abstract) -->
+<div class="h-1 w-full flex">
+<div class="h-full bg-emerald-500/50 w-[70%]"></div>
+<div class="h-full bg-red-500/50 w-[10%]"></div>
+<div class="h-full bg-transparent w-[20%]"></div>
+</div>
+</div>
+<!-- File 2 -->
+<div class="flex flex-col bg-background-dark rounded-lg border border-border-dark overflow-hidden group/file hover:border-border-dark/80 transition-colors">
+<div class="flex items-center justify-between p-3 cursor-pointer">
+<div class="flex items-center gap-3 min-w-0">
+<span class="material-symbols-outlined text-amber-400">code_blocks</span>
+<div class="flex flex-col min-w-0">
+<span class="text-sm font-medium text-white truncate">package.json</span>
+<span class="text-xs text-text-secondary truncate">Root</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-text-secondary group-hover/file:text-white">chevron_right</span>
+</div>
+<div class="h-1 w-full flex">
+<div class="h-full bg-emerald-500/50 w-[20%]"></div>
+<div class="h-full bg-red-500/50 w-[20%]"></div>
+<div class="h-full bg-transparent w-[60%]"></div>
+</div>
+</div>
+</div>
+<!-- Action Footer in Sheet -->
+<div class="p-4 border-t border-border-dark bg-background-dark pb-8">
+<button class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-xl transition-colors shadow-lg shadow-primary/25">
+<span class="material-symbols-outlined">history</span>
+                         Checkout this Commit
+                    </button>
+</div>
+</div>
+</div>
+<!-- Branch Filter FAB (Floating Action Button) -->
+<button class="absolute bottom-6 right-4 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-white text-background-dark shadow-xl hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+</body></html>

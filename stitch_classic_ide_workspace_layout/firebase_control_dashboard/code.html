@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Firebase Control Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                        "card-dark": "#1e293b", // Adjusted for better contrast within the theme
+                        "text-secondary": "#94a3b8",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                        "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for code editor preview if needed */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased selection:bg-primary/30">
+<div class="relative flex min-h-screen w-full flex-col overflow-hidden max-w-md mx-auto border-x border-white/5 shadow-2xl">
+<!-- Header -->
+<header class="flex items-center justify-between p-4 pb-2 bg-background-light dark:bg-background-dark z-10 sticky top-0 backdrop-blur-md bg-opacity-90 dark:bg-opacity-90">
+<div class="flex items-center gap-3 flex-1 min-w-0">
+<div class="relative flex items-center justify-center size-10 rounded-lg bg-primary/10 text-primary shrink-0">
+<span class="material-symbols-outlined text-[24px]">dataset</span>
+<div class="absolute -bottom-1 -right-1 size-3 bg-emerald-500 border-2 border-background-dark rounded-full"></div>
+</div>
+<div class="flex flex-col truncate">
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight truncate">Production-App-A</h2>
+<span class="text-xs text-text-secondary font-medium">firebase-proj-88a2</span>
+</div>
+</div>
+<div class="flex items-center gap-1">
+<button class="flex items-center justify-center size-10 rounded-lg text-slate-500 hover:bg-black/5 dark:text-slate-400 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<!-- Segmented Control -->
+<div class="px-4 py-2 bg-background-light dark:bg-background-dark">
+<div class="flex h-10 w-full items-center rounded-lg bg-slate-200 dark:bg-[#1E293B] p-1">
+<label class="flex-1 cursor-pointer h-full flex items-center justify-center rounded-[4px] relative transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-[#2C3B55] has-[:checked]:text-primary has-[:checked]:shadow-sm text-slate-500 dark:text-slate-400 text-sm font-bold">
+<span>Overview</span>
+<input checked="" class="absolute inset-0 opacity-0 cursor-pointer" name="view-tab" type="radio" value="Overview"/>
+</label>
+<label class="flex-1 cursor-pointer h-full flex items-center justify-center rounded-[4px] relative transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-[#2C3B55] has-[:checked]:text-primary has-[:checked]:shadow-sm text-slate-500 dark:text-slate-400 text-sm font-bold">
+<span>Rules</span>
+<input class="absolute inset-0 opacity-0 cursor-pointer" name="view-tab" type="radio" value="Rules"/>
+</label>
+</div>
+</div>
+<main class="flex-1 overflow-y-auto overflow-x-hidden pb-8">
+<!-- Quick Stats Row 1 -->
+<div class="grid grid-cols-2 gap-3 px-4 pt-4">
+<!-- Active Users -->
+<div class="flex flex-col gap-1 p-4 rounded-xl bg-white dark:bg-[#1E293B] shadow-sm border border-slate-100 dark:border-white/5">
+<div class="flex items-center justify-between">
+<p class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wide">Active Users</p>
+<span class="material-symbols-outlined text-emerald-500 text-[18px]">trending_up</span>
+</div>
+<div class="flex items-baseline gap-2 mt-1">
+<h3 class="text-slate-900 dark:text-white text-2xl font-bold">1,240</h3>
+<span class="text-emerald-500 text-xs font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">+12%</span>
+</div>
+<p class="text-slate-400 dark:text-slate-500 text-[11px] font-medium">Last 24 hours</p>
+</div>
+<!-- Functions Health -->
+<div class="flex flex-col gap-1 p-4 rounded-xl bg-white dark:bg-[#1E293B] shadow-sm border border-slate-100 dark:border-white/5">
+<div class="flex items-center justify-between">
+<p class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wide">Func. Health</p>
+<span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+</div>
+<div class="flex items-baseline gap-2 mt-1">
+<h3 class="text-slate-900 dark:text-white text-2xl font-bold">99.9%</h3>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 99.9%"></div>
+</div>
+</div>
+</div>
+<!-- Firestore Quota Card -->
+<div class="px-4 pt-3">
+<div class="flex flex-row items-center gap-4 p-4 rounded-xl bg-white dark:bg-[#1E293B] shadow-sm border border-slate-100 dark:border-white/5">
+<!-- Circular Chart CSS only -->
+<div class="relative size-16 shrink-0 rounded-full flex items-center justify-center" style="background: conic-gradient(#0d59f2 0% 65%, #334155 65% 100%);">
+<div class="absolute inset-1 rounded-full bg-white dark:bg-[#1E293B] flex items-center justify-center">
+<span class="text-xs font-bold text-slate-900 dark:text-white">65%</span>
+</div>
+</div>
+<div class="flex flex-col flex-1 gap-3">
+<div class="flex flex-col gap-1">
+<div class="flex justify-between text-xs font-medium">
+<span class="text-slate-500 dark:text-slate-300">Reads (Quota)</span>
+<span class="text-slate-900 dark:text-white font-bold">45k / 50k</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 90%"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between text-xs font-medium">
+<span class="text-slate-500 dark:text-slate-300">Writes (Quota)</span>
+<span class="text-slate-900 dark:text-white font-bold">5k / 20k</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+<div class="bg-sky-400 h-full rounded-full" style="width: 25%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Activity Chart -->
+<div class="px-4 pt-6 pb-2">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold mb-3 px-1">Activity Trend</h3>
+<div class="p-5 rounded-xl bg-white dark:bg-[#1E293B] shadow-sm border border-slate-100 dark:border-white/5">
+<div class="flex justify-between items-end mb-4">
+<div>
+<p class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">1.2k</p>
+<p class="text-xs text-text-secondary mt-1">Requests / min</p>
+</div>
+<div class="flex gap-2">
+<span class="size-2 rounded-full bg-primary mt-1.5"></span>
+<span class="text-xs text-text-secondary">Reads</span>
+</div>
+</div>
+<div class="relative h-[120px] w-full">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 100 50">
+<!-- Gradient Defs -->
+<defs>
+<lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#0d59f2" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="#0d59f2" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Fill -->
+<path d="M0 50 L0 35 Q10 25 20 30 T40 20 T60 35 T80 15 T100 25 L100 50 Z" fill="url(#chartGradient)" stroke="none"></path>
+<!-- Line -->
+<path d="M0 35 Q10 25 20 30 T40 20 T60 35 T80 15 T100 25" fill="none" stroke="#0d59f2" stroke-linecap="round" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+</svg>
+<!-- Time labels -->
+<div class="flex justify-between mt-2 text-[10px] text-text-secondary font-mono font-medium opacity-70">
+<span>00:00</span>
+<span>06:00</span>
+<span>12:00</span>
+<span>18:00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Hosting Section -->
+<div class="px-4 pt-4">
+<div class="flex items-center justify-between mb-3 px-1">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold">Hosting</h3>
+<button class="text-primary text-sm font-bold hover:underline">View All</button>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Live Deployment -->
+<div class="relative p-4 rounded-xl bg-white dark:bg-[#1E293B] shadow-sm border-l-4 border-emerald-500 overflow-hidden group">
+<div class="flex justify-between items-start mb-2">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-emerald-500 text-[18px]">rocket_launch</span>
+<span class="text-emerald-500 text-xs font-bold uppercase tracking-wider">Live</span>
+</div>
+<h4 class="text-slate-900 dark:text-white font-bold mt-1">Master Branch</h4>
+</div>
+<span class="font-mono text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">8f3a2c</span>
+</div>
+<p class="text-sm text-text-secondary mb-3 line-clamp-1">Merge pull request #42 from feat/user-auth</p>
+<div class="flex items-center gap-2 text-xs text-text-secondary">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+<span>12 mins ago</span>
+<span class="mx-1">•</span>
+<span class="flex items-center gap-1">
+<img alt="User Avatar" class="size-4 rounded-full" data-alt="Avatar of user Alex D" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuKVxFmYk_dqzqVbhXzgaxF95ioeCWRuLL7P2awCWtmNv1JU8ztY5TNMIoOA-YYStyw1kv5P1zXdU27mkVqJU881mMRBEH3e0D1cGUZ92PdXPXkyXFPd3Qr4BPgKJ_pSbtK6wUewm4Krd7pe7FKD7fo1zpHjo_V8CaphrffqKotZr17tGlPdKqQJYbUitO269obqyxMnDxCVqvhwdgA8UQui-WFMc8n6T4WXBtCCOrYwQGea9kHk76xTM4uOYOScdV_AQM5Cdtto1d"/>
+                                by Alex
+                             </span>
+</div>
+</div>
+<!-- Previous Deployment 1 -->
+<div class="relative p-4 rounded-xl bg-white dark:bg-[#1E293B] shadow-sm border border-slate-100 dark:border-white/5 opacity-80 hover:opacity-100 transition-opacity">
+<div class="flex justify-between items-start mb-2">
+<div class="flex flex-col">
+<h4 class="text-slate-900 dark:text-white font-bold text-sm">Feat/Auth Layout</h4>
+</div>
+<span class="font-mono text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">2b1c9d</span>
+</div>
+<div class="flex items-center justify-between mt-3">
+<div class="flex items-center gap-2 text-xs text-text-secondary">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+<span>2 hours ago</span>
+</div>
+<button class="flex items-center gap-1 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors px-2 py-1 rounded hover:bg-red-500/10 dark:hover:bg-red-500/10">
+<span class="material-symbols-outlined text-[16px]">history</span>
+                               Rollback
+                           </button>
+</div>
+</div>
+<!-- Previous Deployment 2 -->
+<div class="relative p-4 rounded-xl bg-white dark:bg-[#1E293B] shadow-sm border border-slate-100 dark:border-white/5 opacity-80 hover:opacity-100 transition-opacity">
+<div class="flex justify-between items-start mb-2">
+<div class="flex flex-col">
+<h4 class="text-slate-900 dark:text-white font-bold text-sm">Fix/Typo Header</h4>
+</div>
+<span class="font-mono text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">9a3e1f</span>
+</div>
+<div class="flex items-center justify-between mt-3">
+<div class="flex items-center gap-2 text-xs text-text-secondary">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+<span>1 day ago</span>
+</div>
+<button class="flex items-center gap-1 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors px-2 py-1 rounded hover:bg-red-500/10 dark:hover:bg-red-500/10">
+<span class="material-symbols-outlined text-[16px]">history</span>
+                               Rollback
+                           </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Rules Preview Snippet (Bottom) -->
+<div class="px-4 pt-6 pb-4">
+<div class="bg-[#1e1e1e] rounded-xl overflow-hidden border border-white/10 shadow-lg">
+<div class="bg-[#252526] px-3 py-2 flex items-center justify-between border-b border-white/5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-text-secondary text-[16px]">gavel</span>
+<span class="text-xs font-mono text-slate-300">firestore.rules</span>
+</div>
+<span class="text-[10px] text-emerald-500 flex items-center gap-1">
+<span class="size-1.5 rounded-full bg-emerald-500"></span>
+                            Published
+                        </span>
+</div>
+<div class="p-3 overflow-x-auto no-scrollbar">
+<pre class="text-xs font-mono leading-relaxed"><code class="language-javascript"><span class="text-[#569cd6]">service</span> cloud.firestore {
+  <span class="text-[#c586c0]">match</span> /databases/{database}/documents {
+    <span class="text-[#c586c0]">match</span> /users/{userId} {
+      <span class="text-[#569cd6]">allow</span> <span class="text-[#ce9178]">read</span>, <span class="text-[#ce9178]">write</span>: <span class="text-[#569cd6]">if</span> request.auth != <span class="text-[#569cd6]">null</span> 
+        &amp;&amp; request.auth.uid == userId;
+    }
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

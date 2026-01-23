@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IDE Extensions Marketplace</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-300">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden max-w-[480px] mx-auto border-x border-slate-200 dark:border-slate-800 shadow-2xl">
+<!-- TopAppBar -->
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-50">
+<div class="text-slate-900 dark:text-white flex size-12 shrink-0 items-center">
+<span class="material-symbols-outlined">menu</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Marketplace</h2>
+<div class="flex w-12 items-center justify-end">
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-transparent text-slate-900 dark:text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+<!-- Tabs -->
+<div class="pb-3 sticky top-[68px] bg-background-light dark:bg-background-dark z-40">
+<div class="flex border-b border-slate-200 dark:border-[#324467] px-4 gap-8">
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-primary text-primary pb-[13px] pt-4" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Explore</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-slate-500 dark:text-[#92a4c9] pb-[13px] pt-4" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Installed</p>
+</a>
+</div>
+</div>
+<!-- SearchBar -->
+<div class="px-4 py-3">
+<label class="flex flex-col min-w-40 h-12 w-full">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-slate-400 dark:text-[#92a4c9] flex border-none bg-slate-200 dark:bg-[#232f48] items-center justify-center pl-4 rounded-l-lg border-r-0">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 dark:text-white focus:outline-0 focus:ring-0 border-none bg-slate-200 dark:bg-[#232f48] focus:border-none h-full placeholder:text-slate-400 dark:placeholder:text-[#92a4c9] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="Search extensions, themes..." value=""/>
+</div>
+</label>
+</div>
+<!-- Horizontal Chips (Categories) -->
+<div class="flex gap-3 p-3 overflow-x-auto no-scrollbar">
+<div class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary/20 border border-primary/40 px-4">
+<span class="material-symbols-outlined text-primary text-[18px]">trending_up</span>
+<p class="text-primary text-sm font-bold leading-normal">Popular</p>
+</div>
+<div class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-slate-200 dark:bg-[#232f48] px-4">
+<span class="material-symbols-outlined text-slate-500 dark:text-[#92a4c9] text-[18px]">palette</span>
+<p class="text-slate-700 dark:text-white text-sm font-medium leading-normal">Themes</p>
+</div>
+<div class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-slate-200 dark:bg-[#232f48] px-4">
+<span class="material-symbols-outlined text-slate-500 dark:text-[#92a4c9] text-[18px]">translate</span>
+<p class="text-slate-700 dark:text-white text-sm font-medium leading-normal">Languages</p>
+</div>
+<div class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-slate-200 dark:bg-[#232f48] px-4">
+<span class="material-symbols-outlined text-slate-500 dark:text-[#92a4c9] text-[18px]">psychology</span>
+<p class="text-slate-700 dark:text-white text-sm font-medium leading-normal">AI &amp; LLMs</p>
+</div>
+<div class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-slate-200 dark:bg-[#232f48] px-4">
+<span class="material-symbols-outlined text-slate-500 dark:text-[#92a4c9] text-[18px]">cloud</span>
+<p class="text-slate-700 dark:text-white text-sm font-medium leading-normal">Cloud</p>
+</div>
+</div>
+<!-- Featured Banner -->
+<div class="px-4 py-3">
+<div class="bg-cover bg-center flex flex-col justify-end overflow-hidden rounded-xl min-h-[180px] shadow-lg relative group" data-alt="Futuristic glowing AI brain abstract background" style='background-image: linear-gradient(0deg, rgba(16, 22, 34, 0.9) 0%, rgba(16, 22, 34, 0.2) 60%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuD84L7I5CR0RJTLJsFkI_ZdL_TRyPoegYAsC0m6sh7sZk_of19iLT0zVEEtNlLniKNJlMFV3RzNczgOrUOtCQSA3TBgNCSmgTI38gQOlrBhsGDBsY_kWX3VAv1J-7ANCSeodoiEQEQV12eeHZgS8tGcQHQMNGRSMNi2qK5UYtPhy4XHvwFpIxVcT3KNsLPxU0a8KMaigJfm2XUyZFemB_BLg0Htb3H_hiHPO77grrbXS5boXtrNTwowEIH0PtvNkWRTdwGts7i6-eRv");'>
+<div class="absolute top-4 right-4 bg-primary px-3 py-1 rounded-full">
+<p class="text-white text-[10px] font-bold uppercase tracking-widest">Featured</p>
+</div>
+<div class="flex flex-col p-5">
+<p class="text-white tracking-tight text-2xl font-bold leading-tight">Copilot Pro</p>
+<p class="text-slate-300 text-sm mt-1">Supercharge your coding with generative AI.</p>
+<button class="mt-4 bg-primary text-white font-bold py-2 px-4 rounded-lg w-fit text-sm">Get Started</button>
+</div>
+</div>
+</div>
+<!-- Extensions Grid/List -->
+<div class="px-4 py-4 space-y-4">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold">Trending Extensions</h3>
+<!-- Extension Card 1 -->
+<div class="flex items-start gap-4 p-4 rounded-xl bg-white dark:bg-[#1a2333] border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="size-16 rounded-xl bg-orange-500 flex items-center justify-center flex-shrink-0 text-white shadow-lg">
+<span class="material-symbols-outlined text-3xl">flutter_dash</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h4 class="text-slate-900 dark:text-white font-bold truncate">Flutter DevTools</h4>
+<span class="flex items-center text-xs text-yellow-500 font-bold">
+<span class="material-symbols-outlined text-xs mr-1 fill-[1]">star</span> 4.9
+                        </span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">by Google</p>
+<p class="text-slate-600 dark:text-slate-400 text-sm mt-2 line-clamp-2">Visual debugging and performance tools for Flutter apps.</p>
+<div class="flex items-center justify-between mt-4">
+<div class="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-[11px] font-medium">
+<span class="material-symbols-outlined text-sm">download</span>
+<span>2.4M downloads</span>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-white text-xs font-bold py-1.5 px-5 rounded-lg transition-all shadow-md active:scale-95">Install</button>
+</div>
+</div>
+</div>
+<!-- Extension Card 2 -->
+<div class="flex items-start gap-4 p-4 rounded-xl bg-white dark:bg-[#1a2333] border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="size-16 rounded-xl bg-purple-600 flex items-center justify-center flex-shrink-0 text-white shadow-lg">
+<span class="material-symbols-outlined text-3xl">database</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h4 class="text-slate-900 dark:text-white font-bold truncate">Prisma ORM</h4>
+<span class="flex items-center text-xs text-yellow-500 font-bold">
+<span class="material-symbols-outlined text-xs mr-1 fill-[1]">star</span> 4.8
+                        </span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">by Prisma Inc.</p>
+<p class="text-slate-600 dark:text-slate-400 text-sm mt-2 line-clamp-2">Next-generation Node.js and TypeScript ORM support.</p>
+<div class="flex items-center justify-between mt-4">
+<div class="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-[11px] font-medium">
+<span class="material-symbols-outlined text-sm">download</span>
+<span>850K downloads</span>
+</div>
+<button class="bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white text-xs font-bold py-1.5 px-5 rounded-lg transition-all active:scale-95">Manage</button>
+</div>
+</div>
+</div>
+<!-- Extension Card 3 -->
+<div class="flex items-start gap-4 p-4 rounded-xl bg-white dark:bg-[#1a2333] border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="size-16 rounded-xl bg-teal-500 flex items-center justify-center flex-shrink-0 text-white shadow-lg">
+<span class="material-symbols-outlined text-3xl">terminal</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h4 class="text-slate-900 dark:text-white font-bold truncate">Dracula Theme</h4>
+<span class="flex items-center text-xs text-yellow-500 font-bold">
+<span class="material-symbols-outlined text-xs mr-1 fill-[1]">star</span> 5.0
+                        </span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">by Zeno Rocha</p>
+<p class="text-slate-600 dark:text-slate-400 text-sm mt-2 line-clamp-2">A dark theme for 350+ apps and counting.</p>
+<div class="flex items-center justify-between mt-4">
+<div class="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-[11px] font-medium">
+<span class="material-symbols-outlined text-sm">download</span>
+<span>4.2M downloads</span>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-white text-xs font-bold py-1.5 px-5 rounded-lg transition-all shadow-md active:scale-95">Install</button>
+</div>
+</div>
+</div>
+<!-- Bottom Spacer for Tab Bar if applicable -->
+<div class="h-10"></div>
+</div>
+<!-- iOS Home Indicator Sim -->
+<div class="flex justify-center pb-2 pt-6">
+<div class="w-32 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+</div>
+</div>
+</body></html>

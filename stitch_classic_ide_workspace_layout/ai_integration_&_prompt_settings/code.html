@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Integration Settings</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#192233",
+                        "border-dark": "#324467",
+                        "text-secondary": "#92a4c9",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
+        }
+        
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+        }
+
+        input[type=range]:focus {
+            outline: none; 
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display antialiased selection:bg-primary/30">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden pb-24">
+<!-- Top App Bar -->
+<header class="sticky top-0 z-50 flex items-center justify-between bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md px-4 py-3 border-b border-gray-200 dark:border-border-dark/50">
+<div class="flex items-center gap-3">
+<button class="flex items-center text-text-secondary hover:text-white transition-colors">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</button>
+<h2 class="text-xl font-bold leading-tight tracking-tight">AI Integration</h2>
+</div>
+<button class="flex items-center justify-center rounded-full bg-primary/10 px-4 py-1.5 text-primary text-sm font-bold hover:bg-primary/20 transition-colors">
+                Save
+            </button>
+</header>
+<!-- Main Content -->
+<main class="flex flex-col gap-6 p-4">
+<!-- Section: Model Orchestration -->
+<section>
+<div class="mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">hub</span>
+<h3 class="text-lg font-bold leading-tight">Model Orchestration</h3>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Primary Code Assistant -->
+<div class="relative group">
+<label class="mb-2 block text-sm font-medium text-text-secondary">Primary Code Assistant</label>
+<div class="relative">
+<select class="w-full appearance-none rounded-lg border border-border-dark bg-surface-dark py-3.5 pl-4 pr-12 text-base text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
+<option selected="" value="gpt-4o">GPT-4o (OpenAI)</option>
+<option value="claude-3-opus">Claude 3 Opus</option>
+<option value="gemini-1.5">Gemini 1.5 Pro</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-text-secondary">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+<!-- Status Indicator -->
+<div class="absolute inset-y-0 right-10 flex items-center">
+<span class="flex h-2.5 w-2.5 items-center justify-center rounded-full bg-green-500/20 ring-1 ring-green-500/50">
+<span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+</span>
+</div>
+</div>
+<p class="mt-1.5 text-xs text-text-secondary">Used for inline completions and complex refactoring.</p>
+</div>
+<!-- Chat Model -->
+<div class="relative group">
+<label class="mb-2 block text-sm font-medium text-text-secondary">Chat Model</label>
+<div class="relative">
+<select class="w-full appearance-none rounded-lg border border-border-dark bg-surface-dark py-3.5 pl-4 pr-12 text-base text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
+<option value="claude-3.5">Claude 3.5 Sonnet</option>
+<option value="gpt-4-turbo">GPT-4 Turbo</option>
+<option value="llama-3">Llama 3 70B</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-text-secondary">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+<!-- Status Indicator -->
+<div class="absolute inset-y-0 right-10 flex items-center">
+<span class="flex h-2.5 w-2.5 items-center justify-center rounded-full bg-green-500/20 ring-1 ring-green-500/50">
+<span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+</span>
+</div>
+</div>
+</div>
+<!-- Error Analysis Engine -->
+<div class="relative group">
+<label class="mb-2 block text-sm font-medium text-text-secondary">Error Analysis Engine</label>
+<div class="relative">
+<select class="w-full appearance-none rounded-lg border border-border-dark bg-surface-dark py-3.5 pl-4 pr-12 text-base text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
+<option value="local-llama">Local Llama 3 (8B)</option>
+<option value="mistral">Mistral Large</option>
+<option value="cloud-fallback">Cloud Fallback</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-text-secondary">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+<!-- Status Indicator (Warning) -->
+<div class="absolute inset-y-0 right-10 flex items-center">
+<span class="flex h-2.5 w-2.5 items-center justify-center rounded-full bg-yellow-500/20 ring-1 ring-yellow-500/50">
+<span class="h-1.5 w-1.5 rounded-full bg-yellow-500"></span>
+</span>
+</div>
+</div>
+<p class="mt-1.5 text-xs text-text-secondary">Local models reduce latency but may consume battery.</p>
+</div>
+</div>
+</section>
+<div class="h-px w-full bg-border-dark/50"></div>
+<!-- Section: Hyperparameters -->
+<section>
+<div class="mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">tune</span>
+<h3 class="text-lg font-bold leading-tight">Hyperparameters</h3>
+</div>
+<div class="flex flex-col gap-6">
+<!-- Temperature Slider -->
+<div>
+<div class="mb-3 flex justify-between">
+<label class="text-sm font-medium text-text-secondary">Creativity (Temperature)</label>
+<span class="text-sm font-bold text-primary">0.7</span>
+</div>
+<div class="relative flex h-6 items-center">
+<div class="absolute h-1 w-full rounded bg-border-dark overflow-hidden">
+<div class="h-full bg-primary w-[70%]"></div>
+</div>
+<input class="absolute z-10 h-full w-full cursor-pointer opacity-0" max="100" min="0" type="range" value="70"/>
+<div class="pointer-events-none absolute h-5 w-5 rounded-full border-2 border-white bg-primary shadow-lg left-[70%] -translate-x-1/2"></div>
+</div>
+<div class="flex justify-between text-[10px] uppercase tracking-wider text-text-secondary/60 mt-1">
+<span>Precise</span>
+<span>Creative</span>
+</div>
+</div>
+<!-- Context Window Slider -->
+<div>
+<div class="mb-3 flex justify-between">
+<label class="text-sm font-medium text-text-secondary">Context Window</label>
+<span class="text-sm font-bold text-primary">32k Tokens</span>
+</div>
+<div class="relative flex h-6 items-center">
+<div class="absolute h-1 w-full rounded bg-border-dark overflow-hidden">
+<div class="h-full bg-primary w-[25%]"></div>
+</div>
+<input class="absolute z-10 h-full w-full cursor-pointer opacity-0" max="128" min="4" type="range" value="32"/>
+<div class="pointer-events-none absolute h-5 w-5 rounded-full border-2 border-white bg-primary shadow-lg left-[25%] -translate-x-1/2"></div>
+</div>
+<div class="flex justify-between text-[10px] uppercase tracking-wider text-text-secondary/60 mt-1">
+<span>4k</span>
+<span>128k</span>
+</div>
+</div>
+</div>
+</section>
+<div class="h-px w-full bg-border-dark/50"></div>
+<!-- Section: Prompt Templates -->
+<section>
+<div class="mb-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">terminal</span>
+<h3 class="text-lg font-bold leading-tight">Prompt Templates</h3>
+</div>
+<button class="text-primary text-sm font-medium hover:text-white transition-colors">Reset All</button>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Prompt Item 1 -->
+<button class="flex w-full items-center justify-between rounded-lg border border-border-dark bg-surface-dark p-4 text-left transition-all hover:border-primary/50 active:scale-[0.99]">
+<div class="flex items-center gap-3">
+<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-background-dark text-text-secondary border border-border-dark">
+<span class="material-symbols-outlined text-lg">code</span>
+</div>
+<div>
+<h4 class="text-base font-medium text-white">Optimize Code</h4>
+<p class="text-xs text-text-secondary line-clamp-1">Improve time complexity and memory usage...</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-text-secondary">edit</span>
+</button>
+<!-- Prompt Item 2 -->
+<button class="flex w-full items-center justify-between rounded-lg border border-border-dark bg-surface-dark p-4 text-left transition-all hover:border-primary/50 active:scale-[0.99]">
+<div class="flex items-center gap-3">
+<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-background-dark text-text-secondary border border-border-dark">
+<span class="material-symbols-outlined text-lg">comment</span>
+</div>
+<div>
+<h4 class="text-base font-medium text-white">Add Comments</h4>
+<p class="text-xs text-text-secondary line-clamp-1">Generate JSDoc style comments for...</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-text-secondary">edit</span>
+</button>
+<!-- Prompt Item 3 -->
+<button class="flex w-full items-center justify-between rounded-lg border border-border-dark bg-surface-dark p-4 text-left transition-all hover:border-primary/50 active:scale-[0.99]">
+<div class="flex items-center gap-3">
+<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-background-dark text-text-secondary border border-border-dark">
+<span class="material-symbols-outlined text-lg">construction</span>
+</div>
+<div>
+<h4 class="text-base font-medium text-white">Refactor Logic</h4>
+<p class="text-xs text-text-secondary line-clamp-1">Clean up nested conditionals and...</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-text-secondary">edit</span>
+</button>
+<button class="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border-dark py-3 text-sm font-medium text-text-secondary hover:border-primary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">add</span>
+                        Create New Template
+                    </button>
+</div>
+</section>
+</main>
+<!-- Sticky Footer -->
+<div class="fixed bottom-0 left-0 right-0 z-40 border-t border-border-dark bg-background-dark/95 backdrop-blur-xl p-4 pb-8 shadow-[0_-4px_20px_rgba(0,0,0,0.4)]">
+<button class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-base font-bold text-white shadow-lg shadow-primary/20 transition-transform active:scale-[0.98] hover:bg-primary/90">
+<span class="material-symbols-outlined text-xl">bolt</span>
+                Test Connection
+            </button>
+<div class="mt-2 text-center">
+<p class="text-[10px] text-text-secondary opacity-60">API Latency: 45ms • Server Status: Online</p>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MCP Server Management Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#135bec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622",
+              "surface-dark": "#192233",
+              "surface-highlight": "#232f48",
+            },
+            fontFamily: {
+              "display": ["Space Grotesk", "sans-serif"],
+              "body": ["Noto Sans", "sans-serif"],
+              "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased overflow-hidden selection:bg-primary selection:text-white">
+<div class="relative flex h-screen w-full flex-col overflow-hidden">
+<!-- TopAppBar -->
+<div class="shrink-0 z-20 flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between border-b border-gray-200 dark:border-gray-800">
+<h2 class="text-xl font-bold leading-tight tracking-[-0.015em] flex-1">MCP Servers</h2>
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center rounded-full w-10 h-10 hover:bg-gray-200 dark:hover:bg-surface-highlight transition-colors text-gray-500 dark:text-gray-400">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="flex cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 w-10 bg-primary text-white shadow-lg shadow-primary/30 hover:bg-blue-600 transition-all">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto pb-[400px]"> <!-- Padding bottom to account for the bottom sheet -->
+<!-- Global Toggle (ListItem) -->
+<div class="flex items-center gap-4 px-4 py-4 min-h-16 justify-between border-b border-gray-200 dark:border-gray-800 bg-background-light dark:bg-background-dark sticky top-0 z-10">
+<div class="flex flex-col">
+<p class="text-base font-bold leading-tight">Enable MCP Service</p>
+<p class="text-xs text-gray-500 dark:text-gray-400 font-normal">Master switch for all protocol connections</p>
+</div>
+<div class="shrink-0">
+<label class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-gray-300 dark:bg-[#232f48] p-0.5 has-[:checked]:justify-end has-[:checked]:bg-primary transition-colors duration-200">
+<div class="h-full w-[27px] rounded-full bg-white shadow-sm"></div>
+<input checked="" class="invisible absolute" type="checkbox"/>
+</label>
+</div>
+</div>
+<!-- Section Header -->
+<div class="px-4 pb-2 pt-6 flex justify-between items-end">
+<h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-tight">Active Servers</h3>
+<span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">3 Running</span>
+</div>
+<!-- Card: FileSystem-MCP -->
+<div class="p-4 pt-2 pb-2">
+<div class="flex flex-col gap-3 rounded-xl bg-white dark:bg-surface-dark p-4 shadow-sm border border-gray-100 dark:border-gray-800">
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+<span class="material-symbols-outlined">folder_open</span>
+</div>
+<div>
+<h4 class="text-base font-bold leading-tight">FileSystem-MCP</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+</span>
+<span class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Active</span>
+<span class="text-gray-300 dark:text-gray-600">•</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 dark:bg-surface-highlight text-gray-600 dark:text-gray-300 uppercase tracking-wide">stdio</span>
+</div>
+</div>
+</div>
+<button class="text-gray-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="bg-gray-50 dark:bg-[#111722] rounded-lg p-2 font-mono text-xs text-gray-500 dark:text-gray-400 truncate border border-gray-100 dark:border-gray-800/50">
+                        ALLOWED_PATHS=/Users/dev/project
+                    </div>
+<div class="flex items-center justify-end gap-2 mt-1">
+<button class="flex items-center justify-center h-8 px-3 rounded-lg bg-gray-100 dark:bg-surface-highlight text-gray-700 dark:text-gray-300 text-xs font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+<span class="material-symbols-outlined text-[16px] mr-1.5">terminal</span>
+                            Logs
+                        </button>
+</div>
+</div>
+</div>
+<!-- Card: Postgres-MCP (Selected State) -->
+<div class="p-4 pt-2 pb-2">
+<div class="relative flex flex-col gap-3 rounded-xl bg-white dark:bg-surface-dark p-4 shadow-md border-2 border-primary ring-1 ring-primary/20">
+<div class="absolute top-2 right-2 text-primary">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+</div>
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500">
+<span class="material-symbols-outlined">database</span>
+</div>
+<div>
+<h4 class="text-base font-bold leading-tight text-primary">Postgres-MCP</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+</span>
+<span class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Active</span>
+<span class="text-gray-300 dark:text-gray-600">•</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 dark:bg-surface-highlight text-gray-600 dark:text-gray-300 uppercase tracking-wide">stdio</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-gray-50 dark:bg-[#111722] rounded-lg p-2 font-mono text-xs text-gray-500 dark:text-gray-400 truncate border border-gray-100 dark:border-gray-800/50">
+                        DB_HOST=localhost DB_PORT=5432
+                    </div>
+<div class="flex items-center justify-end gap-2 mt-1">
+<button class="flex items-center justify-center h-8 px-3 rounded-lg bg-primary text-white text-xs font-bold hover:bg-blue-600 transition-colors shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-[16px] mr-1.5">terminal</span>
+                            Logs
+                        </button>
+</div>
+</div>
+</div>
+<!-- Card: Slack-API-MCP (Error State) -->
+<div class="p-4 pt-2 pb-2">
+<div class="flex flex-col gap-3 rounded-xl bg-white dark:bg-surface-dark p-4 shadow-sm border border-gray-100 dark:border-gray-800 opacity-90">
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-500">
+<span class="material-symbols-outlined">chat</span>
+</div>
+<div>
+<h4 class="text-base font-bold leading-tight">Slack-API-MCP</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+<span class="text-xs text-rose-600 dark:text-rose-400 font-medium">Connection Error</span>
+<span class="text-gray-300 dark:text-gray-600">•</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 dark:bg-surface-highlight text-gray-600 dark:text-gray-300 uppercase tracking-wide">sse</span>
+</div>
+</div>
+</div>
+<button class="text-gray-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="bg-rose-50 dark:bg-rose-950/20 rounded-lg p-2 font-mono text-xs text-rose-600 dark:text-rose-400 truncate border border-rose-100 dark:border-rose-900/30">
+                        Error: Connection timeout (ETIMEDOUT)
+                    </div>
+<div class="flex items-center justify-end gap-2 mt-1">
+<button class="flex items-center justify-center h-8 px-3 rounded-lg bg-gray-100 dark:bg-surface-highlight text-gray-700 dark:text-gray-300 text-xs font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+<span class="material-symbols-outlined text-[16px] mr-1.5">refresh</span>
+                            Retry
+                        </button>
+</div>
+</div>
+</div>
+<!-- Spacer for bottom sheet -->
+<div class="h-10"></div>
+</div>
+<!-- Detail Panel (Bottom Sheet) -->
+<div class="absolute bottom-0 left-0 right-0 z-30 bg-white dark:bg-[#151b28] rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.3)] border-t border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-in-out h-[380px] flex flex-col">
+<!-- Handle -->
+<div class="w-full flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing">
+<div class="w-12 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600"></div>
+</div>
+<!-- Header -->
+<div class="px-6 py-2 flex items-center justify-between border-b border-gray-200 dark:border-gray-800">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">tune</span>
+<h3 class="text-lg font-bold text-gray-900 dark:text-white">Configuration</h3>
+</div>
+<div class="flex gap-2">
+<button class="text-xs font-bold text-primary hover:text-blue-400 uppercase tracking-wider px-2 py-1">Save</button>
+<button class="text-gray-400 hover:text-white">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</div>
+<!-- Content -->
+<div class="flex-1 overflow-auto p-0 bg-[#0d1117]">
+<div class="flex items-center justify-between px-4 py-2 bg-[#192233] border-b border-gray-800">
+<span class="text-xs font-mono text-gray-400">config.json</span>
+<span class="text-[10px] font-mono text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">Valid JSON</span>
+</div>
+<div class="p-4 font-mono text-sm leading-6">
+<pre><code class="language-json"><span class="text-yellow-500">{</span>
+  <span class="text-sky-300">"name"</span><span class="text-gray-400">:</span> <span class="text-orange-300">"Postgres-MCP"</span><span class="text-gray-400">,</span>
+  <span class="text-sky-300">"transport"</span><span class="text-gray-400">:</span> <span class="text-orange-300">"stdio"</span><span class="text-gray-400">,</span>
+  <span class="text-sky-300">"command"</span><span class="text-gray-400">:</span> <span class="text-orange-300">"docker"</span><span class="text-gray-400">,</span>
+  <span class="text-sky-300">"args"</span><span class="text-gray-400">:</span> <span class="text-yellow-500">[</span>
+    <span class="text-orange-300">"run"</span><span class="text-gray-400">,</span>
+    <span class="text-orange-300">"-i"</span><span class="text-gray-400">,</span>
+    <span class="text-orange-300">"--rm"</span><span class="text-gray-400">,</span>
+    <span class="text-orange-300">"mcp/postgres"</span>
+  <span class="text-yellow-500">]</span><span class="text-gray-400">,</span>
+  <span class="text-sky-300">"env"</span><span class="text-gray-400">:</span> <span class="text-yellow-500">{</span>
+    <span class="text-sky-300">"DB_HOST"</span><span class="text-gray-400">:</span> <span class="text-orange-300">"localhost"</span><span class="text-gray-400">,</span>
+    <span class="text-sky-300">"DB_PORT"</span><span class="text-gray-400">:</span> <span class="text-orange-300">"5432"</span><span class="text-gray-400">,</span>
+    <span class="text-sky-300">"POSTGRES_PASSWORD"</span><span class="text-gray-400">:</span> <span class="text-orange-300">"***"</span>
+  <span class="text-yellow-500">}</span>
+<span class="text-yellow-500">}</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+</body></html>

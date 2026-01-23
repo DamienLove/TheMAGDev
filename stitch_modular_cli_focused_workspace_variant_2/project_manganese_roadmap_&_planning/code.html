@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Project Manganese Roadmap &amp; Planning</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1337ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101322",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Space Grotesk', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #282b39; border-radius: 10px; }
+        .timeline-grid {
+            background-size: 100px 100%;
+            background-image: linear-gradient(to right, #282b39 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="w-64 border-r border-[#282b39] flex flex-col bg-background-light dark:bg-background-dark shrink-0">
+<div class="p-6 border-b border-[#282b39] flex items-center gap-3">
+<div class="bg-primary size-8 rounded flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-xl">database</span>
+</div>
+<h1 class="text-lg font-bold tracking-tight">Manganese IDE</h1>
+</div>
+<nav class="flex-1 overflow-y-auto p-4 space-y-6">
+<div>
+<p class="px-3 text-xs font-semibold text-[#9da1b9] uppercase tracking-wider mb-2">Workspace</p>
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary" href="#">
+<span class="material-symbols-outlined">timeline</span>
+<span class="text-sm font-medium">Roadmap</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#282b39] transition-colors" href="#">
+<span class="material-symbols-outlined">view_kanban</span>
+<span class="text-sm font-medium">Board</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#282b39] transition-colors" href="#">
+<span class="material-symbols-outlined">list_alt</span>
+<span class="text-sm font-medium">Backlog</span>
+</a>
+</div>
+</div>
+<div>
+<p class="px-3 text-xs font-semibold text-[#9da1b9] uppercase tracking-wider mb-2">Engineering</p>
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#282b39] transition-colors" href="#">
+<span class="material-symbols-outlined">source</span>
+<span class="text-sm font-medium">Repositories</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#282b39] transition-colors" href="#">
+<span class="material-symbols-outlined">hub</span>
+<span class="text-sm font-medium">Pull Requests</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#282b39] transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-sm font-medium">Analytics</span>
+</a>
+</div>
+</div>
+<div class="pt-4 mt-4 border-t border-[#282b39]">
+<div class="bg-[#282b39]/50 rounded-lg p-4">
+<p class="text-xs font-medium text-[#9da1b9] mb-2 uppercase">Sprint 24 Status</p>
+<div class="flex items-end gap-2 mb-1">
+<span class="text-2xl font-bold">72%</span>
+<span class="text-xs text-green-400 pb-1">↑ 12%</span>
+</div>
+<div class="w-full bg-[#282b39] h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[72%]"></div>
+</div>
+</div>
+</div>
+</nav>
+<div class="p-4 border-t border-[#282b39]">
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-2 rounded-lg flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">add</span>
+<span>New Task</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col overflow-hidden">
+<!-- Header -->
+<header class="h-16 border-b border-[#282b39] flex items-center justify-between px-8 shrink-0">
+<div class="flex items-center gap-4">
+<nav class="flex items-center gap-2 text-sm">
+<a class="text-[#9da1b9] hover:text-white" href="#">Projects</a>
+<span class="text-[#9da1b9]">/</span>
+<span class="text-white font-medium">Manganese Roadmap</span>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-[#9da1b9]">search</span>
+<input class="bg-[#282b39] border-none rounded-lg pl-10 pr-4 py-1.5 text-sm w-64 focus:ring-1 focus:ring-primary text-white" placeholder="Search tasks, PRs..." type="text"/>
+</div>
+<div class="flex items-center gap-3 border-l border-[#282b39] pl-6">
+<button class="p-2 hover:bg-[#282b39] rounded-lg relative">
+<span class="material-symbols-outlined text-[#9da1b9]">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-background-dark"></span>
+</button>
+<button class="p-2 hover:bg-[#282b39] rounded-lg">
+<span class="material-symbols-outlined text-[#9da1b9]">settings</span>
+</button>
+<div class="size-8 rounded-full bg-cover" data-alt="User profile avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCZyuj7AhXmEJ5EtxksrhHyvc7eE7qPtNzl8GmB1Q7UDrep9zIv5frzmd9LQ0CVeqeyPpE275dL2m1RLpE3U0eAH12vZ2SXQBnRbuUfjH-GTS28a1nyBZ7tv-5LyYIE8Q_1SjK6E6e_sBPSjx8FouTC0xwj9iQhAYlJPTK8jJZTe_DaYF5MOFTHMO-9Aj6HSSLWxOxGHFb_sV3wsggOXGLv3c6Y5llbeALcsrfpIoyTy5WpeIM_Xot47QxxJkK9FFSzbXF6oWpKVgI");'></div>
+</div>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto custom-scrollbar">
+<!-- Page Title & Tabs -->
+<div class="px-8 pt-8">
+<div class="flex justify-between items-end mb-6">
+<div>
+<h2 class="text-4xl font-black tracking-tight mb-2">Roadmap &amp; Planning</h2>
+<p class="text-[#9da1b9]">Cross-platform IDE development cycle tracking and milestone visualization.</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-[#282b39] text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-[#3b3f54]">
+<span class="material-symbols-outlined text-sm">ios_share</span>
+                                Export
+                            </button>
+<button class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">calendar_month</span>
+                                Q3 Planning
+                            </button>
+</div>
+</div>
+<div class="flex border-b border-[#282b39] gap-8">
+<a class="border-b-2 border-primary pb-3 text-sm font-bold text-white" href="#">All Platforms</a>
+<a class="border-b-2 border-transparent pb-3 text-sm font-bold text-[#9da1b9] hover:text-white" href="#">iOS</a>
+<a class="border-b-2 border-transparent pb-3 text-sm font-bold text-[#9da1b9] hover:text-white" href="#">Android</a>
+<a class="border-b-2 border-transparent pb-3 text-sm font-bold text-[#9da1b9] hover:text-white" href="#">Web Core</a>
+</div>
+</div>
+<!-- Gantt Timeline Section -->
+<div class="px-8 mt-8">
+<div class="bg-[#181a25] rounded-xl border border-[#282b39] overflow-hidden">
+<div class="flex border-b border-[#282b39] bg-[#212330]">
+<div class="w-48 p-4 font-bold border-r border-[#282b39] shrink-0 text-xs uppercase tracking-widest text-[#9da1b9]">Platform</div>
+<div class="flex-1 flex overflow-x-auto custom-scrollbar timeline-grid">
+<div class="min-w-full flex">
+<div class="w-[200px] p-4 text-xs font-bold shrink-0 border-r border-[#282b39]/30">AUG 24</div>
+<div class="w-[200px] p-4 text-xs font-bold shrink-0 border-r border-[#282b39]/30">SEP 24</div>
+<div class="w-[200px] p-4 text-xs font-bold shrink-0 border-r border-[#282b39]/30">OCT 24</div>
+<div class="w-[200px] p-4 text-xs font-bold shrink-0 border-r border-[#282b39]/30">NOV 24</div>
+<div class="w-[200px] p-4 text-xs font-bold shrink-0 border-r border-[#282b39]/30">DEC 24</div>
+</div>
+</div>
+</div>
+<!-- Timeline Rows -->
+<div class="flex flex-col">
+<!-- Row 1: iOS -->
+<div class="flex border-b border-[#282b39]">
+<div class="w-48 p-4 border-r border-[#282b39] shrink-0 flex items-center gap-2">
+<span class="material-symbols-outlined text-blue-400">phone_iphone</span>
+<span class="font-bold text-sm">iOS Mobile</span>
+</div>
+<div class="flex-1 relative h-16 timeline-grid overflow-hidden">
+<div class="absolute top-4 left-10 w-48 h-8 bg-primary rounded-lg flex items-center px-3 gap-2 shadow-lg shadow-primary/20 cursor-pointer">
+<div class="size-2 rounded-full bg-white animate-pulse"></div>
+<span class="text-xs font-bold text-white truncate">Alpha Release</span>
+</div>
+<div class="absolute top-4 left-[280px] w-32 h-8 bg-[#282b39] rounded-lg flex items-center px-3 border border-white/10 opacity-60">
+<span class="text-xs font-medium text-white/70 truncate">App Store Sandbox</span>
+</div>
+</div>
+</div>
+<!-- Row 2: Android -->
+<div class="flex border-b border-[#282b39]">
+<div class="w-48 p-4 border-r border-[#282b39] shrink-0 flex items-center gap-2">
+<span class="material-symbols-outlined text-green-400">android</span>
+<span class="font-bold text-sm">Android</span>
+</div>
+<div class="flex-1 relative h-16 timeline-grid overflow-hidden">
+<div class="absolute top-4 left-[120px] w-56 h-8 bg-indigo-600 rounded-lg flex items-center px-3 gap-2 shadow-lg shadow-indigo-500/20">
+<div class="size-2 rounded-full bg-indigo-200"></div>
+<span class="text-xs font-bold text-white truncate">Beta Testing Phase</span>
+</div>
+</div>
+</div>
+<!-- Row 3: Web Core -->
+<div class="flex">
+<div class="w-48 p-4 border-r border-[#282b39] shrink-0 flex items-center gap-2">
+<span class="material-symbols-outlined text-orange-400">window</span>
+<span class="font-bold text-sm">Web Core</span>
+</div>
+<div class="flex-1 relative h-16 timeline-grid overflow-hidden">
+<div class="absolute top-4 left-[200px] w-80 h-8 bg-primary/40 border border-primary/60 rounded-lg flex items-center px-3 gap-2">
+<div class="size-2 rounded-full bg-primary"></div>
+<span class="text-xs font-bold text-white truncate">V1.0 Stable Architecture</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Kanban Board Hybrid -->
+<div class="px-8 mt-12 mb-12">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-xl font-bold flex items-center gap-2">
+<span class="material-symbols-outlined">analytics</span>
+                            Current Sprint (v1.2-beta)
+                        </h3>
+<div class="flex items-center gap-4 text-sm text-[#9da1b9]">
+<span class="flex items-center gap-1"><span class="size-2 rounded-full bg-blue-500"></span> 12 Done</span>
+<span class="flex items-center gap-1"><span class="size-2 rounded-full bg-orange-500"></span> 5 Blocked</span>
+<span class="flex items-center gap-1"><span class="size-2 rounded-full bg-primary"></span> 8 Active</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<!-- Column: To Do -->
+<div class="space-y-4">
+<div class="flex items-center justify-between px-2">
+<span class="text-sm font-bold uppercase text-[#9da1b9] tracking-widest">To Do</span>
+<span class="bg-[#282b39] px-2 py-0.5 rounded text-xs font-bold">5</span>
+</div>
+<div class="bg-[#181a25] p-4 rounded-xl border border-[#282b39] space-y-3 hover:border-primary/50 cursor-pointer transition-all">
+<div class="flex justify-between items-start">
+<span class="px-2 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-bold rounded uppercase">iOS</span>
+<span class="material-symbols-outlined text-[#9da1b9] text-sm">more_horiz</span>
+</div>
+<p class="text-sm font-semibold leading-relaxed">Implement Swift-based Syntax Highlighting Engine</p>
+<div class="flex items-center justify-between pt-2">
+<div class="flex -space-x-2">
+<div class="size-6 rounded-full border-2 border-[#181a25] bg-cover" data-alt="Team member 1" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCTQWxMmnBcIwEO7LRVHjlDy-IRFB3gajwM4obaslrL5jHgOEj0pQrfoawyCd7K7gq8E2AtJU9XDuOG3mfan7gzQ4rZa-_gz48aqD_wOPqiXwoP5qDrteJVUbkGtVpFNpxZY7SSdtuqYV4TmvQjz-kA_NCmCzEjJZNPp-QsowJvEaVSEI5hmEdG0LWylLyKCkBMAw6Shll5LhJP_J1_OCPDiqdbS9_Gh4XYnLb3QkdR0RBU1VaBQX3h01z8r1nwxyp6JAatx53VqEQ");'></div>
+<div class="size-6 rounded-full border-2 border-[#181a25] bg-cover" data-alt="Team member 2" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB9p0lCp6GIAsIzw0kMOqJOhXrR9eaTBcXTGy4-BXf2YRyzY02f4vikkxOkngivXEtP_a7F8NsyYmigPTrlLSDvGJlrGES9eFw1oIGjQJK1E_WAqQ0lAt0k5PRXCaW5br6qI6FI5jA3bbftTT6MaW0uILToui1aOlgalM5xrSkNtFLtr2aazeQcMnVm6kkXPSYwLZ2EiesJNihnhh5Nc2RMOZ6osq7ohX85BIb4aLHE8TbaBCFQXA30p-USEgyO9ZflkhmwUvB9Wvo");'></div>
+</div>
+<div class="flex items-center gap-1 text-[#9da1b9]">
+<span class="material-symbols-outlined text-xs">chat_bubble_outline</span>
+<span class="text-[10px] font-bold">3</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Column: In Progress -->
+<div class="space-y-4">
+<div class="flex items-center justify-between px-2">
+<span class="text-sm font-bold uppercase text-[#9da1b9] tracking-widest">In Progress</span>
+<span class="bg-primary/20 text-primary px-2 py-0.5 rounded text-xs font-bold">2</span>
+</div>
+<div class="bg-[#181a25] p-4 rounded-xl border border-primary/30 shadow-lg shadow-primary/5 space-y-3">
+<div class="flex justify-between items-start">
+<span class="px-2 py-1 bg-orange-500/10 text-orange-400 text-[10px] font-bold rounded uppercase">Web</span>
+<span class="flex items-center gap-1 text-green-400">
+<span class="material-symbols-outlined text-sm">hub</span>
+<span class="text-[10px] font-bold">PR #1209</span>
+</span>
+</div>
+<p class="text-sm font-semibold leading-relaxed">LSP Protocol implementation for Rust integration</p>
+<div class="w-full bg-[#282b39] h-1 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[45%]"></div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<div class="size-6 rounded-full border-2 border-[#181a25] bg-cover" data-alt="Team member 3" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDnqgA1Us2Griy4F_2vk4UmC62zVLcDS4IkLcDsStGLj78NQfTf_fZGgSz6fb9rd-WMAfqLVb7JIgLFGNgYEXfuf-Zak-DqpLZEMxb1Nd73c_sIoer4BUmr5HzE3bKIPzUE3yZhZQzMmFwwkzIjhSwsWgmvNVqMpDxd6tXvrLHUMK9669Y6OfWW3eq20zY-NoVsaLy8TzEIdob_9Oxbps4r-TMg9LarxeiJNmYKEeyHr5Htu6ofuv_0EEo-Og4Vwa3yQg14zzbZJq4");'></div>
+<span class="text-[10px] font-bold text-primary">In Review</span>
+</div>
+</div>
+</div>
+<!-- Column: Code Review -->
+<div class="space-y-4">
+<div class="flex items-center justify-between px-2">
+<span class="text-sm font-bold uppercase text-[#9da1b9] tracking-widest">Review</span>
+<span class="bg-[#282b39] px-2 py-0.5 rounded text-xs font-bold">3</span>
+</div>
+<div class="bg-[#181a25] p-4 rounded-xl border border-[#282b39] space-y-3">
+<div class="flex justify-between items-start">
+<span class="px-2 py-1 bg-purple-500/10 text-purple-400 text-[10px] font-bold rounded uppercase">Android</span>
+<span class="material-symbols-outlined text-[#9da1b9] text-sm">priority_high</span>
+</div>
+<p class="text-sm font-semibold leading-relaxed">Fix gradle build optimization for ARM-v8</p>
+<div class="flex items-center gap-2 pt-2">
+<div class="size-6 rounded-full border-2 border-[#181a25] bg-cover" data-alt="Team member 4" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA4xbnuRPNGFMSZxGw3LI4475CAinwl3D3d9A-U9tWg0Yz_eP_sXphPk6MFuyPSe3Ff1L6ZECt9UaeU_TpIz9vmWoILlnEWhCPp2Cd6iDpqiHYNRZ9hvnkd2rF4hGZkKzp994CQNX_7dgtE6ZcNlzBHTIy9KsDwx-31i6JyJWPGNCxPvb8-cr4wInEV_DaSkjozUjvFnH_WJOZj3a4JMpNx_WTx-VTZaUFtVAnzzTL8wGLAlRoZaXdd-MuO5rnaAtAvJFf18qPcv2U");'></div>
+<span class="text-[10px] font-medium text-[#9da1b9]">Waiting for @amanda</span>
+</div>
+</div>
+</div>
+<!-- Column: Done -->
+<div class="space-y-4 opacity-70">
+<div class="flex items-center justify-between px-2">
+<span class="text-sm font-bold uppercase text-[#9da1b9] tracking-widest">Done</span>
+<span class="bg-green-500/20 text-green-400 px-2 py-0.5 rounded text-xs font-bold">12</span>
+</div>
+<div class="bg-[#282b39]/30 p-4 rounded-xl border border-transparent space-y-3">
+<div class="flex justify-between items-start">
+<span class="px-2 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded uppercase">Core</span>
+<span class="material-symbols-outlined text-green-500 text-sm">check_circle</span>
+</div>
+<p class="text-sm font-semibold leading-relaxed line-through text-[#9da1b9]">Setup CI/CD pipelines for staging environment</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Right Detail Panel (Collapsible Mock) -->
+<aside class="w-80 border-l border-[#282b39] bg-[#111218] p-6 hidden lg:flex flex-col overflow-y-auto custom-scrollbar">
+<div class="flex items-center justify-between mb-8">
+<h4 class="font-bold">Milestone Details</h4>
+<button class="p-1 hover:bg-[#282b39] rounded">
+<span class="material-symbols-outlined text-sm">close</span>
+</button>
+</div>
+<div class="space-y-6">
+<div class="p-4 bg-primary/10 border border-primary/20 rounded-xl">
+<div class="flex items-center gap-3 mb-3">
+<span class="material-symbols-outlined text-primary">rocket_launch</span>
+<span class="font-bold text-sm">iOS Alpha Release</span>
+</div>
+<p class="text-xs text-[#9da1b9] leading-relaxed mb-4">First stable build for internal mobile testing. Includes core editor and file explorer.</p>
+<div class="space-y-2">
+<div class="flex justify-between text-[10px] font-bold">
+<span>PROGRESS</span>
+<span>65%</span>
+</div>
+<div class="w-full bg-[#282b39] h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[65%]"></div>
+</div>
+</div>
+</div>
+<div>
+<h5 class="text-xs font-bold text-[#9da1b9] uppercase tracking-widest mb-4">Linked Pull Requests</h5>
+<div class="space-y-3">
+<div class="flex items-center gap-3 group cursor-pointer">
+<span class="material-symbols-outlined text-green-500 text-lg">merge</span>
+<div class="flex-1">
+<p class="text-xs font-semibold group-hover:text-primary transition-colors truncate">feat: ios-native-scroller</p>
+<p class="text-[10px] text-[#9da1b9]">Merged 2h ago</p>
+</div>
+</div>
+<div class="flex items-center gap-3 group cursor-pointer">
+<span class="material-symbols-outlined text-primary text-lg">sync</span>
+<div class="flex-1">
+<p class="text-xs font-semibold group-hover:text-primary transition-colors truncate">refactor: file-system-api</p>
+<p class="text-[10px] text-[#9da1b9]">3 approvals • 1 comment</p>
+</div>
+</div>
+</div>
+</div>
+<div class="pt-6 border-t border-[#282b39]">
+<h5 class="text-xs font-bold text-[#9da1b9] uppercase tracking-widest mb-4">Team Load</h5>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-cover" data-alt="Team Member Alex" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDobN-Fdh8O6AeYLTYFF7s8-dmptLm18o_K3EtzHbCpynILNTsyXBJojFFbasl52aKr11GhEnNxvRsnwIQwhG3Owja8Ce93z8CZ2FAMYiMutCSA8-vLEBo6d5ErydYP2DwHbYsS9L_jb_1ZwXmoqLshtSB_eIAaR6aNi9CsClBX4dAERkXyqp3rGqEp4vazD9RyGsmsHVAnH1kMbJS-71Z2YqnK9AMrIQJutQugHiCOUZhQ_Bb5kcJGjbdZ8NYgHrnUECmxYuaeBGc");'></div>
+<div class="flex-1">
+<div class="flex justify-between mb-1">
+<span class="text-[10px] font-bold">Alex Chen</span>
+<span class="text-[10px] text-red-400">Overloaded</span>
+</div>
+<div class="w-full bg-[#282b39] h-1 rounded-full overflow-hidden">
+<div class="bg-red-400 h-full w-[95%]"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-cover" data-alt="Team Member Sarah" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB-RebE0DvR7h_bedM5jk03fcLqiBzqQf1cty5EeuTSk8SnCcbeb2cGv6g8NstVzABexsV7oZixjpqhNC4Q7iLngzwua9aOb9fiXnbMfw2K8Mq_YSTe3x-M5RlejUeVycq2k12nZe6_K2Taq3EtU_P1SawAaY9V9kUIvNrD72V26dyJlGUsfS7fRgaEf_q44MmEuWIOhWOQI-N_G1zo04BUSx3AgY9QgQbEdpMyudneuLfAqht5nf7FOjvw7w4jqzQz7709f9JFMls");'></div>
+<div class="flex-1">
+<div class="flex justify-between mb-1">
+<span class="text-[10px] font-bold">Sarah Smith</span>
+<span class="text-[10px] text-green-400">Available</span>
+</div>
+<div class="w-full bg-[#282b39] h-1 rounded-full overflow-hidden">
+<div class="bg-green-400 h-full w-[40%]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-6">
+<button class="w-full border border-[#282b39] hover:bg-[#282b39] text-[#9da1b9] hover:text-white font-bold py-2 rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">history</span>
+                    View Changelog
+                </button>
+</div>
+</aside>
+</div>
+</body></html>

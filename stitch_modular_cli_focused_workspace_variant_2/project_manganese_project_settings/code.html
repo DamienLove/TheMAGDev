@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Project Manganese | Project Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1337ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101322",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Space Grotesk', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="flex flex-col h-screen overflow-hidden">
+<!-- TopNavBar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-background-light dark:bg-background-dark px-6 py-3 z-20">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-xl">account_tree</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-tight">Project Manganese</h2>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-sm font-bold text-primary border-b-2 border-primary" href="#">Settings</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Analytics</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Logs</a>
+</nav>
+</div>
+<div class="flex flex-1 justify-end gap-4 items-center">
+<label class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-1.5 w-64">
+<span class="material-symbols-outlined text-slate-400 text-lg">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-slate-500" placeholder="Search config..." value=""/>
+</label>
+<button class="flex items-center justify-center rounded-lg h-9 px-4 bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-all">
+<span>Save Changes</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 border-2 border-slate-200 dark:border-slate-700" data-alt="User avatar placeholder" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC8LGFDXoO7XG1KBhUfmx_kpaeWpRIos_OL7wDSXl6ceq-KfNvC787JNj_R-IVYgXQ4PlkSe2cw8F7o0yZwMe7NIu4sOL0Wj6oSTbPDTU4-6rUqSvHANwi-xJbyTpgSoctJAMDL6aQNKLbREb3HsPlcZAVNMffE4RBvtIkM0CLh1y71z-YHFoIP8OlEhCqtH5N58K8Pe6SWtOV5Cbu6DbvzrP7PC-NmtVEwsGsysC9J_zQafBatnczSbkh54W8flWcmMgysjhhA_ro");'>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- SideNavBar -->
+<aside class="w-64 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between p-4 bg-slate-50 dark:bg-slate-900/50">
+<div class="flex flex-col gap-6">
+<div class="px-2">
+<h1 class="text-xs font-bold uppercase tracking-wider text-slate-400">Configuration</h1>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+<span class="text-sm font-medium">General</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary" href="#">
+<span class="material-symbols-outlined text-xl">layers</span>
+<span class="text-sm font-bold">Environment</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" href="#">
+<span class="material-symbols-outlined text-xl">devices</span>
+<span class="text-sm font-medium">Platforms</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" href="#">
+<span class="material-symbols-outlined text-xl">alt_route</span>
+<span class="text-sm font-medium">Pipelines</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" href="#">
+<span class="material-symbols-outlined text-xl">lock</span>
+<span class="text-sm font-medium">Access</span>
+</a>
+</nav>
+<div class="mt-4 px-2">
+<h1 class="text-xs font-bold uppercase tracking-wider text-slate-400">Resources</h1>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" href="#">
+<span class="material-symbols-outlined text-xl">database</span>
+<span class="text-sm font-medium">Databases</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" href="#">
+<span class="material-symbols-outlined text-xl">cloud_queue</span>
+<span class="text-sm font-medium">Storage</span>
+</a>
+</nav>
+</div>
+<div class="p-2 bg-slate-200/50 dark:bg-slate-800/50 rounded-lg">
+<p class="text-slate-500 dark:text-slate-400 text-xs font-mono uppercase tracking-tighter">v2.4.0-stable</p>
+<p class="text-[10px] text-slate-400">Build: 04-OCT-2023</p>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto bg-white dark:bg-background-dark">
+<!-- Breadcrumbs -->
+<div class="px-8 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+<a class="text-slate-500 text-xs font-medium uppercase tracking-widest hover:text-primary" href="#">Projects</a>
+<span class="material-symbols-outlined text-slate-400 text-sm">chevron_right</span>
+<a class="text-slate-500 text-xs font-medium uppercase tracking-widest hover:text-primary" href="#">Manganese</a>
+<span class="material-symbols-outlined text-slate-400 text-sm">chevron_right</span>
+<span class="text-slate-900 dark:text-white text-xs font-bold uppercase tracking-widest">Configuration</span>
+</div>
+<!-- PageHeading -->
+<div class="px-8 py-8">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="max-w-2xl">
+<h1 class="text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-2">Project Settings</h1>
+<p class="text-slate-500 dark:text-slate-400 text-lg font-normal">Manage high-performance build environments, cross-platform targets, and enterprise CI/CD workflows for the Manganese IDE.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-lg">history</span>
+                                History
+                            </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-lg">bolt</span>
+                                Deploy
+                            </button>
+</div>
+</div>
+</div>
+<!-- Tabs -->
+<div class="px-8 mb-6">
+<div class="flex border-b border-slate-200 dark:border-slate-800 gap-8 overflow-x-auto">
+<a class="flex flex-col items-center justify-center border-b-2 border-primary text-primary pb-3 font-bold text-sm whitespace-nowrap" href="#">
+                            Environment Variables
+                        </a>
+<a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 pb-3 font-medium text-sm transition-all whitespace-nowrap" href="#">
+                            Target Platforms
+                        </a>
+<a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 pb-3 font-medium text-sm transition-all whitespace-nowrap" href="#">
+                            CI/CD Pipelines
+                        </a>
+<a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 pb-3 font-medium text-sm transition-all whitespace-nowrap" href="#">
+                            Team Access
+                        </a>
+</div>
+</div>
+<!-- Section: Environment Variables (High Density Table Placeholder) -->
+<div class="px-8 pb-12">
+<div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-900/30">
+<div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900/50">
+<h3 class="font-bold text-slate-900 dark:text-white">Sub-modules &amp; Linked Repositories</h3>
+<button class="text-primary text-sm font-bold flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+                                Add Module
+                            </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-[11px] uppercase tracking-wider text-slate-500 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80">
+<th class="px-6 py-3 font-bold">Module Name</th>
+<th class="px-6 py-3 font-bold">Status</th>
+<th class="px-6 py-3 font-bold">Branch</th>
+<th class="px-6 py-3 font-bold">Source Path</th>
+<th class="px-6 py-3 font-bold">Last Sync</th>
+<th class="px-6 py-3 font-bold text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-4 font-bold text-slate-900 dark:text-slate-200 flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-lg">folder_open</span>
+                                            core-engine-v3
+                                        </td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[11px] font-bold">
+<span class="size-1.5 rounded-full bg-emerald-500"></span>
+                                                Active
+                                            </span>
+</td>
+<td class="px-6 py-4 font-mono text-xs text-slate-500">main</td>
+<td class="px-6 py-4 font-mono text-xs text-slate-400">/lib/core</td>
+<td class="px-6 py-4 text-xs text-slate-500">2 mins ago</td>
+<td class="px-6 py-4 text-right space-x-2">
+<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg leading-none">sync</span></button>
+<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg leading-none">edit</span></button>
+<button class="text-slate-400 hover:text-red-500 transition-colors"><span class="material-symbols-outlined text-lg leading-none">delete</span></button>
+</td>
+</tr>
+<tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-4 font-bold text-slate-900 dark:text-slate-200 flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-lg">folder_open</span>
+                                            ui-kit-pro
+                                        </td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[11px] font-bold">
+<span class="size-1.5 rounded-full bg-emerald-500"></span>
+                                                Active
+                                            </span>
+</td>
+<td class="px-6 py-4 font-mono text-xs text-slate-500">release/2.4</td>
+<td class="px-6 py-4 font-mono text-xs text-slate-400">/src/ui</td>
+<td class="px-6 py-4 text-xs text-slate-500">1 hour ago</td>
+<td class="px-6 py-4 text-right space-x-2">
+<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg leading-none">sync</span></button>
+<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg leading-none">edit</span></button>
+<button class="text-slate-400 hover:text-red-500 transition-colors"><span class="material-symbols-outlined text-lg leading-none">delete</span></button>
+</td>
+</tr>
+<tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-4 font-bold text-slate-900 dark:text-slate-200 flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-lg">folder_open</span>
+                                            compiler-llvm
+                                        </td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[11px] font-bold">
+<span class="size-1.5 rounded-full bg-amber-500"></span>
+                                                Outdated
+                                            </span>
+</td>
+<td class="px-6 py-4 font-mono text-xs text-slate-500">stable-v12</td>
+<td class="px-6 py-4 font-mono text-xs text-slate-400">/build/bin</td>
+<td class="px-6 py-4 text-xs text-slate-500">2 days ago</td>
+<td class="px-6 py-4 text-right space-x-2">
+<button class="text-primary hover:text-primary/80 transition-colors"><span class="material-symbols-outlined text-lg leading-none">sync</span></button>
+<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg leading-none">edit</span></button>
+<button class="text-slate-400 hover:text-red-500 transition-colors"><span class="material-symbols-outlined text-lg leading-none">delete</span></button>
+</td>
+</tr>
+<tr class="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="px-6 py-4 font-bold text-slate-900 dark:text-slate-200 flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-lg">folder_open</span>
+                                            analytics-sdk
+                                        </td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[11px] font-bold">
+<span class="size-1.5 rounded-full bg-slate-400"></span>
+                                                Inactive
+                                            </span>
+</td>
+<td class="px-6 py-4 font-mono text-xs text-slate-500">dev</td>
+<td class="px-6 py-4 font-mono text-xs text-slate-400">/vendor/analytics</td>
+<td class="px-6 py-4 text-xs text-slate-500">12 days ago</td>
+<td class="px-6 py-4 text-right space-x-2">
+<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg leading-none">sync</span></button>
+<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg leading-none">edit</span></button>
+<button class="text-slate-400 hover:text-red-500 transition-colors"><span class="material-symbols-outlined text-lg leading-none">delete</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Environment Variables Editor Section -->
+<div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+<div class="space-y-6">
+<div class="flex flex-col gap-2">
+<h3 class="text-lg font-bold">Environment Configuration</h3>
+<p class="text-slate-500 text-sm">Define your environment variables for local and production runtimes.</p>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-4 bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800">
+<div class="flex-1">
+<label class="text-[10px] uppercase font-bold text-slate-400">Variable Key</label>
+<input class="w-full bg-transparent border-none p-0 text-sm font-mono focus:ring-0 text-slate-900 dark:text-white" type="text" value="API_ENDPOINT_URL"/>
+</div>
+<div class="flex-1">
+<label class="text-[10px] uppercase font-bold text-slate-400">Value</label>
+<input class="w-full bg-transparent border-none p-0 text-sm font-mono focus:ring-0 text-slate-900 dark:text-white" type="password" value="https://api.manganese.io/v3"/>
+</div>
+<button class="text-slate-400 hover:text-primary"><span class="material-symbols-outlined">visibility</span></button>
+</div>
+<div class="flex items-center gap-4 bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800">
+<div class="flex-1">
+<label class="text-[10px] uppercase font-bold text-slate-400">Variable Key</label>
+<input class="w-full bg-transparent border-none p-0 text-sm font-mono focus:ring-0 text-slate-900 dark:text-white" type="text" value="AUTH_TOKEN_SECRET"/>
+</div>
+<div class="flex-1">
+<label class="text-[10px] uppercase font-bold text-slate-400">Value</label>
+<input class="w-full bg-transparent border-none p-0 text-sm font-mono focus:ring-0 text-slate-900 dark:text-white" type="password" value="************************"/>
+</div>
+<button class="text-slate-400 hover:text-primary"><span class="material-symbols-outlined">visibility</span></button>
+</div>
+<button class="w-full py-3 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-lg text-slate-400 text-sm font-bold hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">add</span>
+                                    New Variable
+                                </button>
+</div>
+</div>
+<div class="bg-slate-900 rounded-xl p-6 text-slate-300 font-mono text-xs relative overflow-hidden group">
+<div class="absolute top-4 right-4 flex gap-2">
+<span class="size-3 rounded-full bg-red-500"></span>
+<span class="size-3 rounded-full bg-amber-500"></span>
+<span class="size-3 rounded-full bg-emerald-500"></span>
+</div>
+<div class="mb-4 text-slate-500 border-b border-slate-800 pb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">terminal</span>
+                                manganese.yaml - Deployment Spec
+                            </div>
+<pre class="leading-relaxed"><span class="text-primary-400">version:</span> <span class="text-emerald-400">"2.4"</span>
+<span class="text-primary-400">services:</span>
+  <span class="text-primary-400">app:</span>
+    <span class="text-primary-400">image:</span> manganese-ide/core:latest
+    <span class="text-primary-400">ports:</span>
+      - <span class="text-emerald-400">"8080:80"</span>
+    <span class="text-primary-400">environment:</span>
+      - <span class="text-slate-400">DEBUG=false</span>
+      - <span class="text-slate-400">LOG_LEVEL=info</span>
+    <span class="text-primary-400">volumes:</span>
+      - <span class="text-slate-400">./data:/app/data</span>
+    <span class="text-primary-400">deploy:</span>
+      <span class="text-primary-400">replicas:</span> <span class="text-amber-400">3</span>
+      <span class="text-primary-400">restart_policy:</span>
+        <span class="text-primary-400">condition:</span> on-failure</pre>
+<div class="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+<span class="bg-slate-800 text-white px-3 py-1.5 rounded text-xs font-bold border border-slate-700">Read Only Mode</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Sticky Save Bar (only show if change detected, simulated here) -->
+<div class="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-8 py-3 flex items-center justify-between z-30 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+<div class="flex items-center gap-3">
+<div class="size-2 rounded-full bg-amber-500 animate-pulse"></div>
+<p class="text-sm font-medium">You have unsaved changes in Environment Variables</p>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Discard</button>
+<button class="px-6 py-2 bg-primary text-white text-sm font-bold rounded-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">Save All Changes</button>
+</div>
+</div>
+</div>
+</body></html>

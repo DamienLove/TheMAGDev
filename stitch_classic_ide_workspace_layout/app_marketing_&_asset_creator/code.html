@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>App Marketing &amp; Asset Creator</title>
+<!-- Google Fonts: Space Grotesk -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1e2430",
+                        "surface-highlight": "#222f49"
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem", 
+                        "lg": "0.5rem", 
+                        "xl": "0.75rem", 
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased selection:bg-primary selection:text-white">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden pb-24">
+<!-- TopAppBar -->
+<div class="sticky top-0 z-50 flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between border-b border-gray-200 dark:border-gray-800">
+<button class="text-slate-900 dark:text-white flex size-12 shrink-0 items-center justify-start hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</button>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Asset Studio</h2>
+<div class="flex w-12 items-center justify-end">
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg size-12 bg-transparent text-slate-900 dark:text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-2xl">close</span>
+</button>
+</div>
+</div>
+<!-- Screenshot Generator Section -->
+<div class="flex flex-col">
+<!-- Headline -->
+<h2 class="text-slate-900 dark:text-white tracking-light text-[24px] font-bold leading-tight px-4 text-left pb-3 pt-6">Screenshots &amp; Mockups</h2>
+<!-- Carousel -->
+<div class="flex overflow-y-auto no-scrollbar snap-x snap-mandatory px-4 pb-4 gap-4">
+<!-- Card 1 -->
+<div class="snap-center flex h-full flex-col gap-3 rounded-xl min-w-[220px] w-[220px] group cursor-pointer">
+<div class="relative w-full aspect-[9/19] rounded-2xl overflow-hidden border-4 border-surface-highlight shadow-xl transition-transform transform group-hover:scale-[1.02]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Vibrant abstract geometric pattern in blue and purple representing a modern mobile app interface" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA0V9gg_KRUn0i6npOsteosSELlwcveq8RIJiPHaaPt44kk0Fptbep34ML0-OPZs9uBZrfV98qzQGhP4BLHHjZdab5B-mV4n-w3PfJnKTXeV6ZHtiiMZBbP4GJ06-t8CCZbwAv6xLd6mcirozp9_0OEkAlzaUx1Bs_tFZEJiplnDyAZgs568M0VrXqSvLVT2u9AFYCkkLQzzDlB9FpNxFO8wrbO9Dr1c9KlQS6W3PZUNzUCIuKFaDQB_ryuVwV-DKtw6TGSOUyVS-QR");'></div>
+<!-- Mockup Frame simulation -->
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-4 bg-black rounded-b-xl"></div>
+</div>
+<div class="text-center">
+<p class="text-slate-900 dark:text-white text-sm font-medium leading-normal">iPhone 15 Pro</p>
+<p class="text-slate-500 dark:text-[#90a4cb] text-xs font-normal leading-normal">Deep Purple</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="snap-center flex h-full flex-col gap-3 rounded-xl min-w-[220px] w-[220px] group cursor-pointer">
+<div class="relative w-full aspect-[9/19] rounded-2xl overflow-hidden border-4 border-surface-highlight shadow-xl transition-transform transform group-hover:scale-[1.02]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Clean minimal dashboard interface with charts and graphs" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAfV9L6qPgbo80sp2d8iHagPuG34EIvwVxFozWOH4y2LwjNZPbjseuGUxF926BlaYBZVXJIW2XcbNpameQSiAQXXeVmlTB3MdG0vYMrxcDo0aBtkWJLds_BPCWSyuns9AnQrTD_yLsTcuI1nOyngs6ptlF4PUI8SARs2WkV0aIbNa9SQIKnvUOBy902jkr1dVHWpnRE3pbDdDL0-y1Zs9xnh_PUs0oc4w8nWPr9vb9SBetrlFWd8o6Plb1WY2HwX4dIJf4cPLFnYPdJ");'></div>
+<div class="absolute top-4 left-1/2 -translate-x-1/2 size-3 bg-black rounded-full"></div>
+</div>
+<div class="text-center">
+<p class="text-slate-900 dark:text-white text-sm font-medium leading-normal">Pixel 8</p>
+<p class="text-slate-500 dark:text-[#90a4cb] text-xs font-normal leading-normal">Obsidian</p>
+</div>
+</div>
+<!-- Add New Placeholer -->
+<div class="snap-center flex h-full flex-col gap-3 rounded-xl min-w-[100px] w-[100px] items-center justify-center">
+<button class="flex flex-col items-center justify-center w-full aspect-[9/19] rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-primary dark:hover:border-primary transition-colors bg-transparent group">
+<div class="size-10 rounded-full bg-slate-100 dark:bg-surface-highlight flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">add</span>
+</div>
+<span class="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">Add View</span>
+</button>
+<div class="h-[38px]"></div> <!-- Spacer to align with text above -->
+</div>
+</div>
+<!-- Actions Bar -->
+<div class="@container px-4 py-2">
+<div class="gap-3 grid grid-cols-3">
+<button class="flex flex-col items-center gap-2 rounded-xl bg-white dark:bg-surface-highlight/30 p-3 text-center border border-slate-200 dark:border-transparent hover:bg-slate-50 dark:hover:bg-surface-highlight/50 active:scale-95 transition-all">
+<div class="rounded-full bg-blue-50 dark:bg-surface-highlight p-2 text-primary dark:text-white">
+<span class="material-symbols-outlined text-[20px]">photo_camera</span>
+</div>
+<p class="text-slate-700 dark:text-white text-xs font-medium leading-normal">Capture</p>
+</button>
+<button class="flex flex-col items-center gap-2 rounded-xl bg-white dark:bg-surface-highlight/30 p-3 text-center border border-slate-200 dark:border-transparent hover:bg-slate-50 dark:hover:bg-surface-highlight/50 active:scale-95 transition-all">
+<div class="rounded-full bg-blue-50 dark:bg-surface-highlight p-2 text-primary dark:text-white">
+<span class="material-symbols-outlined text-[20px]">devices</span>
+</div>
+<p class="text-slate-700 dark:text-white text-xs font-medium leading-normal">Frame</p>
+</button>
+<button class="flex flex-col items-center gap-2 rounded-xl bg-white dark:bg-surface-highlight/30 p-3 text-center border border-slate-200 dark:border-transparent hover:bg-slate-50 dark:hover:bg-surface-highlight/50 active:scale-95 transition-all">
+<div class="rounded-full bg-blue-50 dark:bg-surface-highlight p-2 text-primary dark:text-white">
+<span class="material-symbols-outlined text-[20px]">palette</span>
+</div>
+<p class="text-slate-700 dark:text-white text-xs font-medium leading-normal">Background</p>
+</button>
+</div>
+</div>
+<!-- List Item: Toggle -->
+<div class="px-4 py-2">
+<div class="flex items-center gap-4 rounded-xl bg-white dark:bg-surface-highlight/20 border border-slate-200 dark:border-transparent px-4 py-3 justify-between">
+<div class="flex items-center gap-3">
+<div class="text-primary dark:text-white flex items-center justify-center rounded-lg bg-blue-50 dark:bg-surface-highlight shrink-0 size-10">
+<span class="material-symbols-outlined">signal_wifi_statusbar_4_bar</span>
+</div>
+<div class="flex flex-col">
+<p class="text-slate-900 dark:text-white text-sm font-medium leading-normal">Include Status Bar</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs">Time, Battery, Wifi</p>
+</div>
+</div>
+<div class="shrink-0">
+<label class="relative flex h-[24px] w-[44px] cursor-pointer items-center rounded-full border-none bg-slate-200 dark:bg-surface-highlight p-0.5 has-[:checked]:justify-end has-[:checked]:bg-primary transition-colors">
+<div class="h-full w-[20px] rounded-full bg-white shadow-sm"></div>
+<input checked="" class="invisible absolute" type="checkbox"/>
+</label>
+</div>
+</div>
+</div>
+</div>
+<div class="h-px bg-slate-200 dark:bg-surface-highlight mx-4 my-6"></div>
+<!-- Metadata Editor Section -->
+<div class="flex flex-col px-4 gap-6">
+<div class="flex items-center justify-between">
+<h2 class="text-slate-900 dark:text-white tracking-light text-[24px] font-bold leading-tight">Store Metadata</h2>
+<span class="px-2 py-1 rounded text-[10px] font-bold bg-green-500/20 text-green-600 dark:text-green-400 uppercase tracking-wider">Auto-Saved</span>
+</div>
+<!-- Platform Tabs -->
+<div class="flex p-1 bg-slate-100 dark:bg-surface-highlight/40 rounded-lg">
+<button class="flex-1 py-2 text-sm font-medium rounded-md shadow-sm bg-white dark:bg-surface-highlight text-primary dark:text-white transition-all">iOS App Store</button>
+<button class="flex-1 py-2 text-sm font-medium rounded-md text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">Google Play</button>
+<button class="flex-1 py-2 text-sm font-medium rounded-md text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">Windows</button>
+</div>
+<!-- Form Fields -->
+<div class="flex flex-col gap-5">
+<!-- App Name -->
+<div class="group">
+<div class="flex justify-between mb-1.5">
+<label class="text-sm font-medium text-slate-700 dark:text-slate-300">App Name</label>
+<span class="text-xs text-slate-400">12/30</span>
+</div>
+<div class="relative">
+<input class="w-full bg-white dark:bg-surface-highlight/20 border border-slate-200 dark:border-surface-highlight rounded-lg px-4 py-3 text-slate-900 dark:text-white text-base focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder-slate-400 transition-all" placeholder="Enter app name" type="text" value="ProTasker"/>
+<div class="absolute right-3 top-3 text-green-500">
+<span class="material-symbols-outlined text-lg">check_circle</span>
+</div>
+</div>
+</div>
+<!-- Short Description -->
+<div class="group">
+<div class="flex justify-between mb-1.5">
+<label class="text-sm font-medium text-slate-700 dark:text-slate-300">Short Description</label>
+<span class="text-xs text-orange-500 font-medium">165/170</span>
+</div>
+<textarea class="w-full bg-white dark:bg-surface-highlight/20 border border-slate-200 dark:border-surface-highlight rounded-lg px-4 py-3 text-slate-900 dark:text-white text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder-slate-400 resize-none transition-all" placeholder="Briefly describe your app's main features...">The ultimate solution for project management. Collaborate with your team in real-time and boost productivity with our intuitive interface.</textarea>
+<p class="text-xs text-slate-500 mt-1.5">This text will appear in the promo card of the store.</p>
+</div>
+<!-- Keywords -->
+<div class="group">
+<div class="flex justify-between mb-1.5">
+<label class="text-sm font-medium text-slate-700 dark:text-slate-300">Keywords</label>
+<span class="text-xs text-slate-400">5 tags</span>
+</div>
+<div class="w-full bg-white dark:bg-surface-highlight/20 border border-slate-200 dark:border-surface-highlight rounded-lg p-2 flex flex-wrap gap-2 focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-blue-50 dark:bg-primary/20 text-primary dark:text-blue-200 text-sm">
+                            Productivity <button class="hover:text-red-400"><span class="material-symbols-outlined text-[14px]">close</span></button>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-blue-50 dark:bg-primary/20 text-primary dark:text-blue-200 text-sm">
+                            Management <button class="hover:text-red-400"><span class="material-symbols-outlined text-[14px]">close</span></button>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-blue-50 dark:bg-primary/20 text-primary dark:text-blue-200 text-sm">
+                            Tools <button class="hover:text-red-400"><span class="material-symbols-outlined text-[14px]">close</span></button>
+</span>
+<input class="bg-transparent border-none outline-none text-slate-900 dark:text-white text-sm flex-1 min-w-[60px] placeholder-slate-500 py-1" placeholder="Add keyword..." type="text"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Spacer for footer -->
+<div class="h-10"></div>
+</div>
+<!-- Fixed Footer -->
+<div class="fixed bottom-0 left-0 w-full z-40 bg-white/80 dark:bg-[#101622]/90 backdrop-blur-md border-t border-slate-200 dark:border-surface-highlight p-4 flex flex-col gap-2">
+<button class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined">folder_zip</span>
+            Package &amp; Export (.zip)
+         </button>
+</div>
+</body></html>

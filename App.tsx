@@ -4,9 +4,12 @@ import { View } from './types';
 import Dashboard from './views/Dashboard';
 import CodeEditor from './views/CodeEditor';
 import DesignStudio from './views/DesignStudio';
+import BuildSystem from './views/BuildSystem';
+import Analytics from './views/Analytics';
 import Marketplace from './views/Marketplace';
 import Infrastructure from './views/Infrastructure';
 import CommunitySupport from './views/CommunitySupport';
+import DesktopWorkspace from './views/DesktopWorkspace';
 import Projects from './views/Projects';
 import Auth from './views/Auth';
 
@@ -35,8 +38,14 @@ const App: React.FC = () => {
         return <Projects />;
       case View.Editor:
         return <CodeEditor />;
+      case View.Desktop:
+        return <DesktopWorkspace />;
       case View.Design:
         return <DesignStudio />;
+      case View.Build:
+        return <BuildSystem />;
+      case View.Analytics:
+        return <Analytics />;
       case View.Marketplace:
         return <Marketplace />;
       case View.Infrastructure:

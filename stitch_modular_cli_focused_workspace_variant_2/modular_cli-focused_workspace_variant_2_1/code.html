@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DevStudio Pro - Unified Master Workspace</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1337ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#090a11",
+                        "surface-dark": "#161825",
+                        "border-dark": "#282b39",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            ::-webkit-scrollbar {
+                width: 6px;
+                height: 6px;
+            }
+            ::-webkit-scrollbar-track {
+                background: #090a11; 
+            }
+            ::-webkit-scrollbar-thumb {
+                background: #282b39; 
+                border-radius: 4px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: #3b3f54; 
+            }
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-background-dark text-slate-200 font-display overflow-hidden h-screen flex flex-col selection:bg-primary/30">
+<header class="flex-none flex items-center justify-between border-b border-border-dark bg-[#0d0e15] px-4 py-2">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-white">
+<div class="size-7 flex items-center justify-center bg-primary rounded text-white">
+<span class="material-symbols-outlined text-[18px]">developer_mode_tv</span>
+</div>
+<h1 class="text-sm font-bold tracking-tight">DevStudio <span class="text-primary">Master</span></h1>
+</div>
+<nav class="hidden md:flex items-center gap-4 text-[#9da1b9]">
+<button class="hover:text-white text-[12px] font-medium transition-colors">Project</button>
+<button class="hover:text-white text-[12px] font-medium transition-colors">Build</button>
+<button class="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
+<button class="hover:text-white text-[12px] font-medium transition-colors">Cloud</button>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center bg-surface-dark border border-border-dark rounded-md px-3 py-1 gap-2 w-64">
+<span class="material-symbols-outlined text-[16px] text-[#5f637a]">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-[12px] w-full p-0 placeholder:text-[#5f637a]" placeholder="Global Search (⌘P)"/>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 hover:bg-white/5 rounded-md text-[#9da1b9] transition-colors"><span class="material-symbols-outlined text-[18px]">account_circle</span></button>
+<button class="p-1.5 hover:bg-white/5 rounded-md text-[#9da1b9] transition-colors relative">
+<span class="material-symbols-outlined text-[18px]">notifications</span>
+<span class="absolute top-1.5 right-1.5 size-1.5 bg-red-500 rounded-full"></span>
+</button>
+<button class="ml-2 px-3 py-1 bg-primary text-white text-[12px] font-bold rounded-md hover:brightness-110 flex items-center gap-2">
+<span>Deploy All</span>
+<span class="material-symbols-outlined text-[14px]">rocket_launch</span>
+</button>
+</div>
+</div>
+</header>
+<div class="flex-none bg-[#090a11] border-b border-border-dark px-4 py-1.5 flex items-center gap-4 overflow-x-auto no-scrollbar">
+<div class="flex items-center gap-2 border-r border-border-dark pr-4">
+<span class="text-[10px] text-[#5f637a] uppercase font-bold tracking-widest">Build Targets</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2.5 bg-surface-dark border border-green-500/30 px-2.5 py-1 rounded">
+<span class="material-symbols-outlined text-green-500 text-[18px]">android</span>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold leading-none">Android API 33</span>
+<span class="text-[9px] text-green-400 font-medium">Synced &amp; Ready</span>
+</div>
+</div>
+<div class="flex items-center gap-2.5 bg-surface-dark border border-primary/30 px-2.5 py-1 rounded relative overflow-hidden">
+<div class="absolute bottom-0 left-0 h-[2px] bg-primary w-[65%] shadow-[0_0_8px_rgba(19,55,236,0.6)]"></div>
+<span class="material-symbols-outlined text-white text-[18px]">phone_iphone</span>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold leading-none">iPhone 15 Pro</span>
+<span class="text-[9px] text-primary font-medium">Compiling (65%)</span>
+</div>
+</div>
+<div class="flex items-center gap-2.5 bg-surface-dark border border-border-dark px-2.5 py-1 rounded">
+<span class="material-symbols-outlined text-[#9da1b9] text-[18px]">laptop_mac</span>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold leading-none">Desktop (Mac/Win)</span>
+<span class="text-[9px] text-[#5f637a] font-medium">Pending Release</span>
+</div>
+</div>
+<div class="flex items-center gap-2.5 bg-surface-dark border border-red-500/20 px-2.5 py-1 rounded">
+<span class="material-symbols-outlined text-red-400 text-[18px]">language</span>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold leading-none">Web/Linux</span>
+<span class="text-[9px] text-red-400 font-medium">1 Error detected</span>
+</div>
+</div>
+</div>
+<div class="ml-auto flex items-center gap-3">
+<div class="text-right border-l border-border-dark pl-4">
+<div class="text-[9px] text-[#5f637a] leading-none mb-1 uppercase">Cloud Sync</div>
+<div class="text-[10px] text-white font-mono leading-none">Active: 4m 12s</div>
+</div>
+<button class="p-1 text-[#5f637a] hover:text-white"><span class="material-symbols-outlined text-[18px]">refresh</span></button>
+</div>
+</div>
+<div class="flex-1 flex overflow-hidden">
+<aside class="w-12 flex-none flex flex-col items-center py-4 bg-[#0d0e15] border-r border-border-dark gap-6">
+<div class="flex flex-col items-center gap-4">
+<button class="p-2 text-white bg-primary/10 rounded-md text-primary border-r-2 border-primary">
+<span class="material-symbols-outlined text-[24px]">folder</span>
+</button>
+<button class="p-2 text-[#5f637a] hover:text-white transition-colors relative">
+<span class="material-symbols-outlined text-[24px]">account_tree</span>
+<span class="absolute top-1 right-1 size-2 bg-primary rounded-full border border-[#0d0e15]"></span>
+</button>
+<button class="p-2 text-[#5f637a] hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[24px]">bug_report</span>
+</button>
+<button class="p-2 text-[#5f637a] hover:text-white transition-colors relative">
+<span class="material-symbols-outlined text-[24px]">rebase</span>
+<span class="absolute top-1 right-1 text-[8px] font-bold bg-primary text-white px-1 rounded-full">3</span>
+</button>
+</div>
+<div class="mt-auto flex flex-col items-center gap-4">
+<button class="p-2 text-[#5f637a] hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[24px]">extension</span>
+</button>
+<button class="p-2 text-[#5f637a] hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[24px]">settings</span>
+</button>
+</div>
+</aside>
+<nav class="w-60 flex-none bg-[#111218] border-r border-border-dark flex flex-col">
+<div class="h-10 flex items-center justify-between px-4 border-b border-border-dark">
+<span class="text-[11px] font-bold text-[#9da1b9] uppercase tracking-wider">Explorer</span>
+<span class="material-symbols-outlined text-[16px] text-[#5f637a] cursor-pointer hover:text-white">create_new_folder</span>
+</div>
+<div class="flex-1 overflow-y-auto p-2 font-mono text-[12px]">
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-2 px-2 py-1 text-white bg-white/5 rounded-sm cursor-pointer">
+<span class="material-symbols-outlined text-[16px] text-yellow-400">folder_open</span>
+<span>src</span>
+</div>
+<div class="pl-4 flex flex-col gap-0.5">
+<div class="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-surface-dark rounded-sm">
+<span class="material-symbols-outlined text-[16px]">folder</span>
+<span>api</span>
+</div>
+<div class="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-surface-dark rounded-sm">
+<span class="material-symbols-outlined text-[16px]">folder</span>
+<span>components</span>
+</div>
+<div class="flex items-center gap-2 px-2 py-1 text-white bg-primary/20 rounded-sm cursor-pointer border-l-2 border-primary">
+<span class="material-symbols-outlined text-[16px] text-blue-400">code</span>
+<span>MainController.ts</span>
+</div>
+<div class="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-surface-dark rounded-sm">
+<span class="material-symbols-outlined text-[16px] text-red-400">description</span>
+<span>styles.css</span>
+</div>
+</div>
+<div class="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-surface-dark rounded-sm mt-1">
+<span class="material-symbols-outlined text-[16px]">folder</span>
+<span>tests</span>
+</div>
+<div class="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-surface-dark rounded-sm">
+<span class="material-symbols-outlined text-[16px] text-orange-400">settings</span>
+<span>config.json</span>
+</div>
+</div>
+</div>
+</nav>
+<main class="flex-1 flex flex-col bg-[#090a11] min-w-0">
+<div class="h-10 flex-none flex items-center bg-[#0d0e15] border-b border-border-dark overflow-x-auto no-scrollbar">
+<div class="h-full flex items-center px-4 bg-[#111218] border-r border-border-dark border-t-2 border-t-primary text-white text-[12px] font-medium gap-2 min-w-fit">
+<span class="material-symbols-outlined text-[14px] text-blue-400">code</span>
+                    MainController.ts
+                    <span class="material-symbols-outlined text-[14px] hover:bg-white/10 rounded p-0.5 cursor-pointer">close</span>
+</div>
+<div class="h-full flex items-center px-4 text-[#9da1b9] hover:bg-surface-dark border-r border-border-dark text-[12px] font-medium gap-2 cursor-pointer transition-colors min-w-fit">
+<span class="material-symbols-outlined text-[14px] text-red-400">description</span>
+                    styles.css
+                </div>
+<div class="h-full flex items-center px-4 bg-primary/5 text-primary border-r border-border-dark text-[12px] font-medium gap-2 cursor-pointer min-w-fit">
+<span class="material-symbols-outlined text-[14px]">error_outline</span>
+                    Issue #402: Build Failure
+                    <span class="material-symbols-outlined text-[14px] hover:bg-primary/10 rounded p-0.5">close</span>
+</div>
+</div>
+<div class="flex-1 flex overflow-hidden">
+<div class="flex-1 flex flex-col min-w-0 border-r border-border-dark">
+<div class="flex-1 overflow-auto p-4 font-mono text-[13px] relative bg-[#111218]">
+<div class="absolute left-0 top-4 bottom-0 w-10 flex flex-col items-end pr-2 text-[#4b5064] select-none">
+<div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div class="text-primary font-bold">6</div><div>7</div><div>8</div><div>9</div><div>10</div>
+</div>
+<div class="pl-8 text-[#d4d4d4]">
+<div class="leading-6"><span class="text-[#c586c0]">import</span> { Controller, Platform } <span class="text-[#c586c0]">from</span> <span class="text-[#ce9178]">'@devstudio/core'</span>;</div>
+<div class="leading-6"> </div>
+<div class="leading-6 text-white/40">// Initialize multi-platform handler</div>
+<div class="leading-6"><span class="text-[#569cd6]">export class</span> <span class="text-[#4ec9b0]">MainController</span> {</div>
+<div class="leading-6 pl-4 bg-primary/5 border-l-2 border-primary -ml-1"><span class="text-[#569cd6]">private</span> <span class="text-[#9cdcfe]">targetPlatform</span>: Platform;</div>
+<div class="leading-6 pl-4"> </div>
+<div class="leading-6 pl-4"><span class="text-[#dcdcaa]">constructor</span>() {</div>
+<div class="leading-6 pl-8"> <span class="text-[#569cd6]">this</span>.<span class="text-[#9cdcfe]">targetPlatform</span> = Platform.<span class="text-[#4ec9b0]">current</span>();</div>
+<div class="leading-6 pl-4"> }</div>
+<div class="leading-6">}</div>
+</div>
+</div>
+</div>
+<div class="w-1/3 flex-none bg-surface-dark flex flex-col border-l border-border-dark overflow-hidden">
+<div class="p-4 border-b border-border-dark bg-[#1c1e2d]">
+<div class="flex items-center justify-between mb-2">
+<span class="text-[10px] text-primary font-bold uppercase tracking-widest">Active Issue Details</span>
+<span class="px-2 py-0.5 bg-red-500/10 text-red-500 text-[10px] rounded border border-red-500/20">Critical</span>
+</div>
+<h3 class="text-sm font-bold text-white mb-1">#402: Native module linking failed for Linux</h3>
+<div class="flex items-center gap-2 text-[10px] text-[#9da1b9]">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">person</span> dev_john</span>
+<span>•</span>
+<span>opened 2h ago</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-4">
+<div class="bg-black/20 p-3 rounded-lg border border-border-dark">
+<p class="text-[12px] text-[#9da1b9] leading-relaxed">
+                                The Linux build target is failing due to a missing dependency <code class="bg-surface-dark px-1 rounded text-white">libgtk-3-dev</code> in the build container environment. This is blocking the CI/CD pipeline.
+                            </p>
+</div>
+<div class="space-y-2">
+<h4 class="text-[11px] font-bold text-[#5f637a] uppercase tracking-wider">Related Pull Requests</h4>
+<div class="p-2 bg-surface-dark border border-border-dark rounded flex items-center gap-3 hover:border-primary cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-green-400 text-[18px]">merge</span>
+<div class="flex flex-col">
+<span class="text-[12px] text-white font-medium leading-none">PR #405: Fix Linux Dockerfile</span>
+<span class="text-[10px] text-[#5f637a] mt-1">Review required • 2 checks passed</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="h-64 flex-none border-t border-border-dark flex flex-col bg-[#090a11]">
+<div class="h-9 flex-none flex items-center bg-[#1c1e2d] px-2 border-b border-border-dark">
+<div class="flex items-center h-full">
+<button class="h-full px-4 flex items-center gap-2 border-b-2 border-primary text-white text-[11px] font-bold bg-[#111218]">
+<span class="material-symbols-outlined text-[16px]">terminal</span>
+                            Terminal
+                        </button>
+<button class="h-full px-4 flex items-center gap-2 border-b-2 border-transparent text-[#9da1b9] hover:text-white text-[11px] transition-colors">
+<span class="material-symbols-outlined text-[16px]">history</span>
+                            Git Status
+                            <span class="bg-primary/20 text-primary text-[9px] px-1.5 rounded-full">12</span>
+</button>
+<button class="h-full px-4 flex items-center gap-2 border-b-2 border-transparent text-[#9da1b9] hover:text-white text-[11px] transition-colors">
+<span class="material-symbols-outlined text-[16px] text-red-400">error</span>
+                            Build Logs
+                        </button>
+</div>
+<div class="ml-auto flex items-center gap-2 pr-2">
+<button class="p-1 hover:bg-white/10 rounded text-[#5f637a]"><span class="material-symbols-outlined text-[18px]">add</span></button>
+<button class="p-1 hover:bg-white/10 rounded text-[#5f637a]"><span class="material-symbols-outlined text-[18px]">keyboard_arrow_down</span></button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-4 font-mono text-[12px] text-[#d4d4d4]">
+<div class="mb-1 text-green-400">Successfully connected to build worker: node-linux-01</div>
+<div class="mb-1"><span class="text-blue-400">➜</span> <span class="text-yellow-400">~/devstudio/master</span> <span class="text-white/40">(main)</span> npm run build:linux</div>
+<div class="mb-1">...</div>
+<div class="mb-1 text-red-400">error: libgtk-3-dev not found. Try installing via apt.</div>
+<div class="mb-1">Terminating build processes...</div>
+<div class="mt-4 flex items-center gap-1">
+<span class="text-blue-400">➜</span>
+<span class="w-2 h-4 bg-primary/60 animate-pulse"></span>
+</div>
+</div>
+</div>
+</main>
+<aside class="w-72 flex-none bg-[#0d0e15] border-l border-border-dark flex flex-col">
+<div class="p-3 border-b border-border-dark flex items-center gap-2 bg-[#1c1e2d]">
+<div class="bg-primary p-1 rounded-sm">
+<span class="material-symbols-outlined text-[18px] text-white">smart_toy</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[12px] font-bold text-white">AI Assistant</span>
+<span class="text-[9px] text-green-500 font-medium">Analyzing Context...</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-5">
+<div class="space-y-2">
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-bold text-[#5f637a] uppercase tracking-widest">Code Suggestion</span>
+</div>
+<div class="bg-surface-dark border border-border-dark p-3 rounded-lg shadow-sm">
+<p class="text-[11px] text-[#d4d4d4] mb-3 leading-relaxed">
+                            You're using <code class="text-primary">Platform.current()</code> on Line 8. Consider adding a fallback for unsupported targets.
+                        </p>
+<button class="w-full py-1.5 bg-primary/10 text-primary border border-primary/20 rounded text-[11px] font-bold hover:bg-primary/20 transition-colors">
+                            Apply Patch
+                        </button>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-bold text-[#5f637a] uppercase tracking-widest">Issue Analysis</span>
+</div>
+<div class="bg-primary/5 border border-primary/20 p-3 rounded-lg">
+<p class="text-[11px] text-[#d4d4d4] mb-2 leading-relaxed">
+                            I see Issue #402 relates to the Linux build error in your terminal. I've prepared a command to fix the environment.
+                        </p>
+<div class="bg-black/40 p-2 rounded font-mono text-[10px] text-white border border-white/5 mb-3">
+                            sudo apt install -y libgtk-3-dev
+                        </div>
+<div class="flex gap-2">
+<button class="flex-1 py-1 bg-primary text-white text-[10px] font-bold rounded">Run in Terminal</button>
+<button class="px-2 py-1 bg-surface-dark text-[#9da1b9] text-[10px] rounded border border-border-dark">Copy</button>
+</div>
+</div>
+</div>
+</div>
+<div class="p-3 bg-[#111218] border-t border-border-dark">
+<div class="relative">
+<textarea class="w-full bg-[#1c1e2d] border border-border-dark rounded-lg p-2.5 pr-8 text-[12px] text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#5f637a] resize-none" placeholder="Ask AI anything..." rows="2"></textarea>
+<button class="absolute right-2 bottom-2 text-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">send</span>
+</button>
+</div>
+<div class="flex items-center justify-between mt-2">
+<span class="text-[9px] text-[#5f637a]">Press ⌘+Enter to send</span>
+<span class="material-symbols-outlined text-[14px] text-[#5f637a]">mic</span>
+</div>
+</div>
+</aside>
+</div>
+<footer class="flex-none h-6 bg-primary text-white flex items-center px-3 justify-between text-[10px] font-mono">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">source</span>
+<span class="font-bold">main</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">sync</span>
+<span>In Sync</span>
+</div>
+<div class="flex items-center gap-1.5 text-white/80">
+<span class="material-symbols-outlined text-[14px]">close</span>
+<span>0</span>
+<span class="material-symbols-outlined text-[14px]">warning</span>
+<span>2</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="opacity-80">Spaces: 4</span>
+<span class="opacity-80">UTF-8</span>
+<span class="font-bold">TypeScript React</span>
+<div class="flex items-center gap-1 bg-black/20 px-2 py-0.5 rounded">
+<span class="size-1.5 bg-green-400 rounded-full animate-pulse"></span>
+<span>DevServer: 8080</span>
+</div>
+</div>
+</footer>
+
+</body></html>

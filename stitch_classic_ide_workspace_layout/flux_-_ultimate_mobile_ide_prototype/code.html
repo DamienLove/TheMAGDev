@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Flux - Ultimate Mobile IDE Prototype</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&family=Fira+Code:wght@400;500&family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- React & Libraries -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/history@5/umd/history.development.js"></script>
+    <script src="https://unpkg.com/react-router@6.3.0/umd/react-router.development.js"></script>
+    <script src="https://unpkg.com/react-router-dom@6.3.0/umd/react-router-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1a2234",
+                        "border-dark": "#232f48",
+                        "secondary": "#db2777",
+                        "terminal-bg": "#0c0e12",
+                        "card-dark": "#1e293b",
+                        "text-secondary": "#94a3b8",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #101622;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2d3748;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a5568;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .dot-pattern {
+            background-image: radial-gradient(#374151 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark text-white font-display antialiased">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const { createRoot } = ReactDOM;
+        const { MemoryRouter, Routes, Route, Link, useNavigate, useLocation } = ReactRouterDOM;
+
+        // --- Shared Components ---
+
+        const BottomNav = ({ active }) => {
+            const navItems = [
+                { icon: 'home', label: 'Home', path: '/' },
+                { icon: 'code', label: 'Editor', path: '/editor' },
+                { icon: 'rocket_launch', label: 'Builds', path: '/builds' },
+                { icon: 'explore', label: 'Market', path: '/market' },
+                { icon: 'forum', label: 'Comm', path: '/community' },
+            ];
+            return (
+                <nav className="fixed bottom-0 left-0 w-full bg-background-dark/95 backdrop-blur-xl border-t border-white/5 z-50 px-2 pb-safe shadow-2xl">
+                    <div className="flex items-center justify-around h-16 max-w-md mx-auto">
+                        {navItems.map((item) => (
+                            <Link 
+                                key={item.label}
+                                to={item.path} 
+                                className={`flex flex-col items-center gap-1 w-16 transition-colors ${active === item.path ? 'text-primary' : 'text-gray-500 hover:text-white'}`}
+                            >
+                                <span className={`material-symbols-outlined text-[24px] ${active === item.path ? 'filled' : ''}`}>{item.icon}</span>
+                                <span className="text-[10px] font-medium">{item.label}</span>
+                            </Link>
+                        ))}
+                    </div>
+                </nav>
+            );
+        };
+
+        const PageWrapper = ({ children, activePath }) => (
+            <div className="relative flex flex-col min-h-screen w-full max-w-md mx-auto bg-background-dark shadow-2xl overflow-hidden pb-20">
+                {children}
+                <BottomNav active={activePath} />
+            </div>
+        );
+
+        // --- Screens ---
+
+        const LandingPage = () => {
+            const navigate = useNavigate();
+            return (
+                <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root">
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] h-[600px] bg-primary/10 blur-[100px] rounded-full opacity-60"></div>
+                    </div>
+                    <header className="flex items-center p-4 pb-2 justify-between relative z-50">
+                        <div className="flex items-center gap-2 text-white">
+                            <div className="flex items-center justify-center size-8 rounded-lg bg-gradient-to-br from-primary to-secondary">
+                                <span className="material-symbols-outlined text-white text-[20px]">terminal</span>
+                            </div>
+                            <h2 className="text-white text-xl font-bold tracking-tight">Flux</h2>
+                        </div>
+                        <button className="flex items-center justify-center size-10 rounded-full text-white hover:bg-white/10 transition-colors">
+                            <span className="material-symbols-outlined text-[28px]">menu</span>
+                        </button>
+                    </header>
+                    <main className="flex-1 flex flex-col items-center justify-start pt-6 pb-8 relative z-10 w-full">
+                        <div className="px-5 text-center mb-4">
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-5">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                                </span>
+                                <span className="text-xs font-medium text-gray-300 tracking-wide uppercase">v2.0 Now Live</span>
+                            </div>
+                            <h1 className="text-white text-[42px] leading-[1.1] font-bold tracking-tight mb-4">
+                                Code Anywhere.<br/>
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Build Everything.</span>
+                            </h1>
+                            <p className="text-gray-400 text-lg font-normal leading-relaxed max-w-[320px] mx-auto">
+                                The first true cross-platform IDE in your browser. Zero setup, infinite power.
+                            </p>
+                        </div>
+                        <div className="w-full px-5 mb-8">
+                            <button 
+                                onClick={() => navigate('/login')}
+                                className="w-full relative group cursor-pointer overflow-hidden rounded-xl h-14 bg-gradient-to-r from-primary to-secondary text-white text-lg font-bold shadow-[0_0_20px_rgba(127,13,242,0.3)] transition-all hover:shadow-[0_0_30px_rgba(127,13,242,0.5)] hover:scale-[1.02]"
+                            >
+                                <span className="relative flex items-center justify-center gap-2">
+                                    Start Coding for Free
+                                    <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
+                                </span>
+                            </button>
+                        </div>
+                        <div className="w-full px-2 mb-8 relative">
+                            <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-[#0d0d0d]">
+                                <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBroddpwOzWnIipE7hrlBqewMBIm-WpjcOS9HtetafSNWUKO1Np8rCtd2VRYENKGlu-OgH7oBtEPlX-wnx-G7_bfBx44FXq0QDzM6o6NANXZykgHWZ2SK0Tw2fJRfeVxm2DhO23N25ssS-Ih1CtB4xXyo02eTnq1_2rVCti0dwDeDByNo66dihGGU-pKrARy26Q19SF6yHyOMrN6spQa1w4WvbcW2QKsotlsEbnDpS0yc7gga4Ir5C13hNOMQTKreasPwpLBavjuOBJ')", opacity: 0.8 }} />
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent"></div>
+                            </div>
+                        </div>
+                    </main>
+                    <BottomNav active="/" />
+                </div>
+            )
+        }
+
+        const LoginPage = () => {
+            const navigate = useNavigate();
+            return (
+                <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-background-dark">
+                    <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary/10 blur-[120px]"></div>
+                    </div>
+                    <div className="relative z-10 w-full max-w-[400px] bg-surface-dark rounded-2xl border border-white/5 overflow-hidden flex flex-col shadow-2xl">
+                        <div className="pt-8 pb-4 px-6 flex flex-col items-center text-center">
+                            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center shadow-lg mb-5">
+                                <span className="material-symbols-outlined text-white text-4xl filled">deployed_code</span>
+                            </div>
+                            <h1 className="text-white text-3xl font-bold tracking-tight mb-2">Welcome back</h1>
+                            <p className="text-gray-400 text-sm">Code anywhere, deploy everywhere.</p>
+                        </div>
+                        <div className="px-6 py-4 flex flex-col gap-3">
+                            <button className="flex w-full items-center justify-center rounded-lg h-12 px-4 bg-[#24292F] hover:bg-[#2c323a] text-white transition-all">
+                                <span className="material-symbols-outlined mr-3 text-[22px]">code</span>
+                                <span className="font-display font-semibold text-sm">Continue with GitHub</span>
+                            </button>
+                            <button className="flex w-full items-center justify-center rounded-lg h-12 px-4 bg-[#FC6D26] hover:bg-[#e65e1b] text-white transition-all">
+                                <span className="material-symbols-outlined mr-3 text-[22px]">source_environment</span>
+                                <span className="font-display font-semibold text-sm">Continue with GitLab</span>
+                            </button>
+                        </div>
+                        <div className="px-6 py-2">
+                            <div className="relative flex py-2 items-center">
+                                <div className="flex-grow border-t border-white/10"></div>
+                                <span className="flex-shrink-0 mx-4 text-gray-400 text-xs font-display uppercase">Or use email</span>
+                                <div className="flex-grow border-t border-white/10"></div>
+                            </div>
+                        </div>
+                        <form className="px-6 pb-8 flex flex-col gap-4">
+                            <div className="space-y-4">
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span className="material-symbols-outlined text-gray-400 text-[20px]">mail</span>
+                                    </div>
+                                    <input className="block w-full rounded-lg border-0 py-3 pl-10 bg-transparent ring-1 ring-white/10 text-white placeholder:text-gray-500 focus:ring-2 focus:ring-primary sm:text-sm" placeholder="name@company.com" type="email"/>
+                                </div>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span className="material-symbols-outlined text-gray-400 text-[20px]">lock</span>
+                                    </div>
+                                    <input className="block w-full rounded-lg border-0 py-3 pl-10 bg-transparent ring-1 ring-white/10 text-white placeholder:text-gray-500 focus:ring-2 focus:ring-primary sm:text-sm" placeholder="••••••••" type="password"/>
+                                </div>
+                            </div>
+                            <button 
+                                type="button"
+                                onClick={() => navigate('/editor')}
+                                className="mt-2 w-full flex items-center justify-center rounded-lg bg-primary py-3 px-4 text-sm font-bold text-white shadow-lg hover:bg-blue-600 transition-all"
+                            >
+                                Log In
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )
+        }
+
+        const EditorPage = () => {
+            const [activeTab, setActiveTab] = useState('main.dart');
+            return (
+                <div className="flex flex-col h-screen bg-background-dark font-mono">
+                    <header className="h-14 bg-background-dark border-b border-white/10 flex items-center justify-between px-3 shrink-0">
+                        <div className="flex items-center gap-3">
+                            <button className="text-gray-400"><span className="material-symbols-outlined">menu</span></button>
+                            <div className="flex flex-col">
+                                <span className="text-white font-bold leading-none text-sm">NexusApp</span>
+                                <span className="text-[10px] text-gray-500">lib / main.dart</span>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button className="text-green-500 p-2"><span className="material-symbols-outlined filled">play_arrow</span></button>
+                            <button className="text-orange-500 p-2"><span className="material-symbols-outlined">bug_report</span></button>
+                        </div>
+                    </header>
+                    <div className="flex h-9 bg-background-dark border-b border-white/10 overflow-x-auto scrollbar-hide shrink-0">
+                        {['main.dart', 'app.dart', 'theme.dart'].map(tab => (
+                            <div 
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                className={`h-full flex items-center px-4 gap-2 border-r border-white/10 min-w-fit cursor-pointer text-xs ${activeTab === tab ? 'bg-white/5 border-t-2 border-primary text-white' : 'text-gray-500'}`}
+                            >
+                                <span className="material-symbols-outlined text-[14px]">description</span>
+                                {tab}
+                            </div>
+                        ))}
+                    </div>
+                    <main className="flex-1 overflow-auto relative font-mono text-[13px] leading-relaxed p-4">
+                        <div className="flex gap-4 text-gray-400">
+                            <div className="flex flex-col text-right text-gray-600 select-none pr-2 border-r border-white/5">
+                                {Array.from({length: 20}).map((_, i) => <div key={i}>{i+1}</div>)}
+                            </div>
+                            <div className="flex flex-col text-gray-300">
+                                <div><span className="text-pink-400">import</span> <span className="text-green-400">'package:flutter/material.dart'</span>;</div>
+                                <br/>
+                                <div><span className="text-blue-400">void</span> main() {'{'}</div>
+                                <div className="pl-4">runApp(<span className="text-yellow-400">const</span> MyApp());</div>
+                                <div>{'}'}</div>
+                                <br/>
+                                <div><span className="text-pink-400">class</span> <span className="text-yellow-400">MyApp</span> <span className="text-pink-400">extends</span> <span className="text-yellow-400">StatelessWidget</span> {'{'}</div>
+                                <div className="pl-4"><span className="text-blue-400">@override</span></div>
+                                <div className="pl-4"><span className="text-yellow-400">Widget</span> build(<span className="text-yellow-400">BuildContext</span> context) {'{'}</div>
+                                <div className="pl-8"><span className="text-pink-400">return</span> MaterialApp(</div>
+                                <div className="pl-12">theme: ThemeData.dark(),</div>
+                                <div className="pl-12">home: Scaffold(</div>
+                                <div className="pl-16">body: Center(child: Text(<span className="text-green-400">'Hello Flux'</span>)),</div>
+                                <div className="pl-12">),</div>
+                                <div className="pl-8">);</div>
+                                <div className="pl-4">{'}'}</div>
+                                <div>{'}'}</div>
+                            </div>
+                        </div>
+                        <div className="fixed bottom-20 right-4 flex flex-col gap-3">
+                            <button className="bg-primary text-white p-4 rounded-2xl shadow-xl shadow-primary/20"><span className="material-symbols-outlined">smart_toy</span></button>
+                        </div>
+                    </main>
+                    <div className="h-32 bg-terminal-bg border-t border-white/10 p-3 shrink-0 overflow-hidden">
+                        <div className="flex gap-4 mb-2 border-b border-white/5 pb-1">
+                            <span className="text-[10px] font-bold text-white uppercase border-b-2 border-primary">Terminal</span>
+                            <span className="text-[10px] font-bold text-gray-500 uppercase">Debug</span>
+                        </div>
+                        <div className="text-[11px] font-mono text-gray-400 space-y-1 overflow-y-auto h-full">
+                            <p><span className="text-green-500">➜</span> ~/nexus_app git:(<span className="text-pink-400">main</span>) flutter pub get</p>
+                            <p className="text-gray-500">Resolving dependencies...</p>
+                            <p className="text-gray-300">Got dependencies!</p>
+                            <p><span className="text-green-500">➜</span> ~/nexus_app flutter run</p>
+                            <p className="text-gray-500 animate-pulse">Launching on Pixel 7 Pro...</p>
+                        </div>
+                    </div>
+                    <BottomNav active="/editor" />
+                </div>
+            )
+        }
+
+        const BuildsPage = () => (
+            <PageWrapper activePath="/builds">
+                <header className="p-4 border-b border-white/5">
+                    <h1 className="text-2xl font-bold">Build & Deploy</h1>
+                    <p className="text-sm text-gray-400">Manage multi-platform distribution</p>
+                </header>
+                <div className="p-4 space-y-4">
+                    {[
+                        { platform: 'Android', icon: 'android', status: 'In Progress', progress: 45, color: 'primary' },
+                        { platform: 'iOS', icon: 'phone_iphone', status: 'Stable', progress: 100, color: 'emerald-500' },
+                        { platform: 'Web', icon: 'language', status: 'Failed', progress: 92, color: 'red-500' },
+                        { platform: 'Windows', icon: 'window', status: 'Queued', progress: 0, color: 'gray-500' }
+                    ].map(item => (
+                        <div key={item.platform} className="bg-surface-dark border border-white/5 rounded-xl p-4">
+                            <div className="flex justify-between items-start mb-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center">
+                                        <span className="material-symbols-outlined">{item.icon}</span>
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold">{item.platform}</h3>
+                                        <p className="text-xs text-gray-400">v2.4.0 (Build 402)</p>
+                                    </div>
+                                </div>
+                                <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded bg-${item.color}/10 text-${item.color}`}>
+                                    {item.status}
+                                </span>
+                            </div>
+                            <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                                <div className={`bg-${item.color} h-full transition-all`} style={{ width: `${item.progress}%` }}></div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <div className="p-4">
+                    <button className="w-full bg-primary h-14 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2">
+                        <span className="material-symbols-outlined">rocket_launch</span>
+                        Deploy All Platforms
+                    </button>
+                </div>
+            </PageWrapper>
+        );
+
+        const MarketplacePage = () => (
+            <PageWrapper activePath="/market">
+                <header className="p-4 border-b border-white/5 sticky top-0 bg-background-dark/90 backdrop-blur-md">
+                    <h1 className="text-2xl font-bold">Marketplace</h1>
+                    <div className="mt-3 relative">
+                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">search</span>
+                        <input className="w-full bg-surface-dark border-none rounded-xl pl-10 text-sm" placeholder="Search extensions..." />
+                    </div>
+                </header>
+                <div className="p-4 space-y-4">
+                    <div className="bg-gradient-to-br from-primary to-blue-900 rounded-2xl p-6 relative overflow-hidden">
+                        <div className="relative z-10">
+                            <h3 className="text-xl font-bold mb-1">Copilot Pro</h3>
+                            <p className="text-sm opacity-80 mb-4">Supercharge your coding with generative AI.</p>
+                            <button className="bg-white text-primary px-4 py-2 rounded-lg font-bold text-xs uppercase">Get Started</button>
+                        </div>
+                        <div className="absolute -right-4 -bottom-4 opacity-20">
+                            <span className="material-symbols-outlined text-[120px]">auto_awesome</span>
+                        </div>
+                    </div>
+                    <div className="flex gap-4 overflow-x-auto no-scrollbar py-2">
+                        {['Popular', 'Themes', 'AI', 'Cloud', 'Utils'].map(tag => (
+                            <button key={tag} className="px-4 py-1.5 rounded-full bg-surface-dark border border-white/5 text-xs font-bold whitespace-nowrap">{tag}</button>
+                        ))}
+                    </div>
+                    <div className="grid grid-cols-1 gap-4">
+                        {[
+                            { name: 'Prisma ORM', provider: 'Prisma Inc.', downloads: '850k', icon: 'database', color: 'bg-purple-600' },
+                            { name: 'Dracula Pro', provider: 'Zeno Rocha', downloads: '4.2M', icon: 'palette', color: 'bg-indigo-600' },
+                            { name: 'Docker Tools', provider: 'Docker Inc.', downloads: '12M', icon: 'container', color: 'bg-blue-500' }
+                        ].map(ext => (
+                            <div key={ext.name} className="bg-surface-dark p-4 rounded-xl border border-white/5 flex items-center gap-4">
+                                <div className={`w-14 h-14 rounded-xl ${ext.color} flex items-center justify-center text-white`}>
+                                    <span className="material-symbols-outlined text-3xl">{ext.icon}</span>
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="font-bold text-sm">{ext.name}</h4>
+                                    <p className="text-xs text-gray-500">{ext.provider}</p>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <span className="text-[10px] text-gray-500">{ext.downloads} downloads</span>
+                                        <button className="ml-auto bg-white/5 hover:bg-white/10 px-3 py-1 rounded-md text-[10px] font-bold border border-white/5">Install</button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </PageWrapper>
+        );
+
+        const CommunityPage = () => (
+            <PageWrapper activePath="/community">
+                <header className="p-4 flex items-center justify-between">
+                    <h1 className="text-2xl font-bold">Community Hub</h1>
+                    <button className="bg-primary px-4 py-2 rounded-lg text-xs font-bold uppercase">Ask</button>
+                </header>
+                <div className="p-4 space-y-6">
+                    <section>
+                        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Top Contributors</h3>
+                        <div className="flex gap-4 overflow-x-auto no-scrollbar">
+                            {[1, 2, 3, 4, 5].map(i => (
+                                <div key={i} className="flex flex-col items-center gap-2 shrink-0">
+                                    <div className="w-12 h-12 rounded-full border-2 border-primary p-0.5">
+                                        <div className="w-full h-full rounded-full bg-gray-700" />
+                                    </div>
+                                    <span className="text-[10px] font-medium">@dev_{i}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                    <section className="space-y-4">
+                        {[
+                            { title: 'iOS Build fails on Xcode 14.2 update', tags: ['#ios', '#build'], votes: 34, ans: 5, author: 'sarah_dev' },
+                            { title: 'How to correctly configure MCP server?', tags: ['#mcp', '#config'], votes: 12, ans: 2, author: 'mike_k' },
+                            { title: 'Flutter hot reload not working in web', tags: ['#flutter', '#bug'], votes: 8, ans: 0, author: 'jin_x' }
+                        ].map((post, idx) => (
+                            <div key={idx} className="bg-surface-dark border border-white/5 p-4 rounded-2xl flex gap-4">
+                                <div className="flex flex-col items-center gap-2 min-w-[32px]">
+                                    <span className="material-symbols-outlined text-primary">expand_less</span>
+                                    <span className="text-xs font-bold">{post.votes}</span>
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="font-bold text-sm mb-2">{post.title}</h4>
+                                    <div className="flex gap-2 mb-3">
+                                        {post.tags.map(tag => <span key={tag} className="text-[10px] font-bold text-gray-500 uppercase">{tag}</span>)}
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-5 h-5 rounded-full bg-gray-700" />
+                                            <span className="text-[10px] text-gray-400">@{post.author}</span>
+                                        </div>
+                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white/5 border border-white/10">{post.ans} Answers</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </section>
+                </div>
+            </PageWrapper>
+        );
+
+        // --- Main App ---
+
+        const App = () => {
+            return (
+                <MemoryRouter>
+                    <Routes>
+                        <Route path="/" element={<LandingPage />} />
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/editor" element={<EditorPage />} />
+                        <Route path="/builds" element={<BuildsPage />} />
+                        <Route path="/market" element={<MarketplacePage />} />
+                        <Route path="/community" element={<CommunityPage />} />
+                    </Routes>
+                </MemoryRouter>
+            );
+        };
+
+        const container = document.getElementById('root');
+        const root = createRoot(container);
+        root.render(<App />);
+    </script>
+</body>
+</html>

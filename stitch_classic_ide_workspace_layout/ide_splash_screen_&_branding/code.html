@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nexus IDE Splash Screen</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#135bec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622",
+            },
+            fontFamily: {
+              "display": ["Space Grotesk", "sans-serif"],
+              "body": ["Noto Sans", "sans-serif"],
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            animation: {
+                'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            }
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased selection:bg-primary/30 selection:text-white overflow-hidden">
+<div class="relative flex h-screen w-full flex-col items-center justify-between overflow-hidden">
+<!-- Background Ambient Glow -->
+<!-- A subtle radial glow behind the logo as requested -->
+<div class="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-primary/20 dark:bg-primary/10 blur-[80px] rounded-full pointer-events-none z-0"></div>
+<!-- Spacer for Layout Balance -->
+<div class="h-10"></div>
+<!-- Main Content Area: Logo + Progress -->
+<div class="z-10 flex flex-col items-center justify-center w-full max-w-xs px-6 flex-1">
+<!-- Logo Container -->
+<div class="flex flex-col items-center gap-6 mb-12 animate-pulse-slow">
+<!-- Using properties from ImageGrid but adapted for a single Logo -->
+<div class="w-24 h-24 bg-center bg-no-repeat bg-contain rounded-xl shadow-2xl shadow-primary/20 ring-1 ring-white/10" data-alt="Nexus IDE hexagonal futuristic logo icon" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDEjjk3gZ0NcD1GJTWw0OdJbkfzP4mspzPewlsLpH9AYuqc5XNdUVkeh1uRRlxPTiH3KzVghRmAdUin7E6pts0_HSPcqp7kQeZQMlIL_3Acm4k2SbH2WMq3B1tS2gK3VdLgedog-rP6HdE2tUVoPikXzm4lrdFBE-I0MCzwmwUU8TUPGOWXImbw5fa7kyz-PPVzDRmNiaGYvPK6JTqHU4uMqZHFPZMsbD5dkNTz9FpmgTmw1phwqrIpkCIZnwC8U3-iOvdLn8yrDKiT");'>
+</div>
+<h1 class="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">Nexus IDE</h1>
+</div>
+<!-- Loading Status Section -->
+<div class="w-full flex flex-col gap-4">
+<!-- Progress Bar Component -->
+<div class="rounded-full bg-slate-200 dark:bg-[#324467] overflow-hidden">
+<div class="h-1.5 rounded-full bg-primary shadow-[0_0_15px_rgba(19,91,236,0.6)] relative overflow-hidden" style="width: 65%;">
+<!-- Shimmer effect overlay on the bar -->
+<div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 translate-x-[-100%] animate-[shimmer_1.5s_infinite]"></div>
+</div>
+</div>
+<!-- Active Status Text -->
+<div class="flex justify-between items-center">
+<p class="text-slate-500 dark:text-[#92a4c9] text-sm font-medium leading-normal">Loading LLM Modules...</p>
+<span class="text-xs text-primary font-mono">65%</span>
+</div>
+<!-- Initialization Log (List of steps) -->
+<div class="mt-4 flex flex-col gap-2 pt-4 border-t border-slate-200 dark:border-white/5">
+<div class="flex items-center gap-3 text-slate-400 dark:text-slate-600">
+<span class="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+<span class="text-xs font-mono">Connecting to Cloud CLI...</span>
+</div>
+<div class="flex items-center gap-3 text-slate-400 dark:text-slate-600">
+<span class="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+<span class="text-xs font-mono">Verifying User Token...</span>
+</div>
+<div class="flex items-center gap-3 text-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined text-[16px] animate-spin">sync</span>
+<span class="text-xs font-mono">Synchronizing Extensions...</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer / Meta Text -->
+<div class="z-10 pb-8 w-full flex flex-col items-center gap-1 opacity-60">
+<p class="text-slate-500 dark:text-[#92a4c9] text-xs font-normal tracking-widest uppercase">v2.4.0-beta</p>
+<p class="text-slate-400 dark:text-slate-700 text-[10px]">© 2024 Nexus Systems</p>
+</div>
+</div>
+<style>
+        @keyframes shimmer {
+            100% {
+                transform: translateX(100%);
+            }
+        }
+    </style>
+</body></html>

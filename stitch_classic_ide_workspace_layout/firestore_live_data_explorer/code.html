@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Firestore Live Data Explorer</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1a2234",
+                        "surface-darker": "#151b2b",
+                        "code-string": "#a5d6ff",
+                        "code-number": "#ffdf9b",
+                        "code-bool": "#7ee787",
+                        "code-key": "#d2a8ff",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for dark theme code editor feel */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #101622;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2b3b55;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b4f6e;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display h-screen flex flex-col overflow-hidden text-slate-900 dark:text-white antialiased selection:bg-primary/30">
+<!-- Top App Bar -->
+<header class="shrink-0 bg-surface-darker border-b border-white/5 p-4 pb-2 z-20">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/20 text-primary">
+<span class="material-symbols-outlined text-2xl">database</span>
+</div>
+<div>
+<h2 class="text-white text-lg font-bold leading-tight tracking-tight">Firestore Explorer</h2>
+<p class="text-xs text-slate-400 font-medium">project-id-8392</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex items-center gap-1.5 px-2 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+<div class="size-1.5 rounded-full bg-green-500 animate-pulse"></div>
+<span class="text-green-500 text-xs font-bold uppercase tracking-wide">Live</span>
+</div>
+<button class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-xl">settings</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Query / Filter Bar -->
+<div class="shrink-0 bg-background-dark px-4 py-3 border-b border-white/5 z-10">
+<div class="flex w-full items-stretch rounded-lg h-11 bg-surface-dark group focus-within:ring-1 focus-within:ring-primary/50 transition-all">
+<div class="text-slate-400 flex items-center justify-center pl-3 pr-2">
+<span class="material-symbols-outlined text-xl">filter_list</span>
+</div>
+<input class="flex w-full min-w-0 flex-1 bg-transparent border-none text-sm text-white placeholder:text-slate-500 focus:ring-0 p-0 font-medium" placeholder="Filter (e.g. status == 'active')" value=""/>
+<button class="px-3 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">add_circle</span>
+</button>
+</div>
+</div>
+<!-- Breadcrumb Nav (Horizontal Scroll) -->
+<div class="shrink-0 bg-background-dark border-b border-white/5 overflow-x-auto whitespace-nowrap hide-scrollbar">
+<div class="flex items-center px-4 py-3 gap-2 text-sm">
+<button class="flex items-center gap-1 text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-lg">home</span>
+<span class="font-medium">Root</span>
+</button>
+<span class="text-slate-600 material-symbols-outlined text-sm">chevron_right</span>
+<button class="flex items-center gap-1.5 px-2 py-1 rounded bg-surface-dark text-slate-300 border border-white/5">
+<span class="material-symbols-outlined text-base text-primary">folder_open</span>
+<span class="font-medium">users</span>
+</button>
+<span class="text-slate-600 material-symbols-outlined text-sm">chevron_right</span>
+<button class="flex items-center gap-1.5 px-2 py-1 rounded bg-primary/20 text-white border border-primary/30 shadow-sm shadow-primary/10">
+<span class="material-symbols-outlined text-base text-primary">description</span>
+<span class="font-bold">uid_83f...a9</span>
+</button>
+</div>
+</div>
+<!-- Main Content Area: Columns -->
+<main class="flex-1 overflow-y-auto relative bg-background-dark">
+<!-- We use a CSS Grid that mimics columns but stacks or slides on mobile. 
+             For this specific phone view, we are focusing on the "Detail" view (Fields) 
+             since we have navigated deep in the breadcrumbs. -->
+<!-- Document Fields Header -->
+<div class="sticky top-0 z-10 bg-background-dark/95 backdrop-blur-sm border-b border-white/5 px-4 py-3 flex justify-between items-center">
+<h3 class="text-white text-base font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">data_object</span>
+                Document Fields
+            </h3>
+<div class="flex gap-2">
+<button class="size-8 flex items-center justify-center rounded-lg bg-surface-dark hover:bg-white/10 text-slate-400 hover:text-white transition-colors border border-white/5">
+<span class="material-symbols-outlined text-lg">content_copy</span>
+</button>
+<button class="size-8 flex items-center justify-center rounded-lg bg-primary hover:bg-primary/90 text-white transition-colors shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg">add</span>
+</button>
+</div>
+</div>
+<!-- Fields List -->
+<div class="p-4 space-y-1 pb-24">
+<!-- String Field -->
+<div class="group relative flex flex-col gap-1 p-3 rounded-lg hover:bg-surface-dark border border-transparent hover:border-white/5 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 min-w-0">
+<span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-wider border border-white/5">str</span>
+<span class="text-code-key font-medium text-sm truncate">username</span>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-primary transition-all">
+<span class="material-symbols-outlined text-base">edit</span>
+</button>
+</div>
+<div class="pl-10">
+<p class="text-code-string text-sm font-mono break-all">"dev_user_1"</p>
+</div>
+</div>
+<!-- Number Field -->
+<div class="group relative flex flex-col gap-1 p-3 rounded-lg hover:bg-surface-dark border border-transparent hover:border-white/5 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 min-w-0">
+<span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-wider border border-white/5">num</span>
+<span class="text-code-key font-medium text-sm truncate">login_count</span>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-primary transition-all">
+<span class="material-symbols-outlined text-base">edit</span>
+</button>
+</div>
+<div class="pl-10">
+<p class="text-code-number text-sm font-mono">42</p>
+</div>
+</div>
+<!-- Boolean Field -->
+<div class="group relative flex flex-col gap-1 p-3 rounded-lg hover:bg-surface-dark border border-transparent hover:border-white/5 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 min-w-0">
+<span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-wider border border-white/5">bool</span>
+<span class="text-code-key font-medium text-sm truncate">is_active</span>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-primary transition-all">
+<span class="material-symbols-outlined text-base">edit</span>
+</button>
+</div>
+<div class="pl-10">
+<p class="text-code-bool text-sm font-mono">true</p>
+</div>
+</div>
+<!-- Timestamp Field -->
+<div class="group relative flex flex-col gap-1 p-3 rounded-lg hover:bg-surface-dark border border-transparent hover:border-white/5 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 min-w-0">
+<span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-wider border border-white/5">time</span>
+<span class="text-code-key font-medium text-sm truncate">created_at</span>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-primary transition-all">
+<span class="material-symbols-outlined text-base">edit</span>
+</button>
+</div>
+<div class="pl-10 flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-500 text-sm">schedule</span>
+<p class="text-slate-300 text-sm font-mono">October 24, 2023 at 4:30:00 PM UTC-7</p>
+</div>
+</div>
+<!-- Map/Object Field (Collapsed) -->
+<div class="group relative flex flex-col gap-1 p-3 rounded-lg bg-surface-dark/30 hover:bg-surface-dark border border-white/5 transition-all">
+<div class="flex items-center justify-between cursor-pointer">
+<div class="flex items-center gap-2 min-w-0">
+<span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-wider border border-white/5">map</span>
+<span class="text-code-key font-medium text-sm truncate">preferences</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-xs text-slate-500 italic">3 fields</span>
+<span class="material-symbols-outlined text-slate-500 text-lg">expand_more</span>
+</div>
+</div>
+<!-- Nested content preview -->
+<div class="pl-10 pt-1">
+<p class="text-slate-500 text-xs font-mono truncate">{ theme: "dark", notifications: true, ... }</p>
+</div>
+</div>
+<!-- Array Field (Expanded) -->
+<div class="group relative flex flex-col gap-1 p-3 rounded-lg bg-surface-dark border border-primary/20 transition-all shadow-sm">
+<div class="flex items-center justify-between cursor-pointer pb-2 border-b border-white/5 mb-2">
+<div class="flex items-center gap-2 min-w-0">
+<span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-wider border border-white/5">arr</span>
+<span class="text-code-key font-medium text-sm truncate">roles</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="size-6 flex items-center justify-center rounded bg-primary/10 hover:bg-primary/20 text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+<span class="material-symbols-outlined text-slate-400 text-lg">expand_less</span>
+</div>
+</div>
+<!-- Array Items -->
+<div class="pl-4 space-y-2 border-l border-white/10 ml-2">
+<div class="flex items-center gap-2">
+<span class="text-slate-500 text-xs font-mono w-4">0</span>
+<span class="text-code-string text-sm font-mono">"admin"</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-slate-500 text-xs font-mono w-4">1</span>
+<span class="text-code-string text-sm font-mono">"editor"</span>
+</div>
+</div>
+</div>
+<!-- GeoPoint -->
+<div class="group relative flex flex-col gap-1 p-3 rounded-lg hover:bg-surface-dark border border-transparent hover:border-white/5 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 min-w-0">
+<span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-wider border border-white/5">geo</span>
+<span class="text-code-key font-medium text-sm truncate">last_location</span>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-primary transition-all">
+<span class="material-symbols-outlined text-base">edit</span>
+</button>
+</div>
+<div class="pl-10 flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-500 text-sm">location_on</span>
+<p class="text-code-number text-sm font-mono">[34.0522° N, 118.2437° W]</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Action Bar / Inline Editor Trigger (Floating) -->
+<!-- Simulating the "Inline Editor" sliding up partially or being available -->
+<div class="fixed bottom-0 left-0 w-full bg-surface-darker border-t border-white/10 p-4 pb-8 z-30 shadow-2xl shadow-black">
+<div class="flex items-center justify-between text-xs text-slate-500 mb-2 uppercase tracking-wider font-bold">
+<span>Editor</span>
+<span class="flex items-center gap-1"><div class="size-1.5 rounded-full bg-primary"></div> unsaved changes</span>
+</div>
+<div class="flex gap-2 mb-3">
+<div class="flex-1 bg-background-dark rounded-lg p-3 border border-primary/40 relative">
+<label class="absolute -top-2 left-2 px-1 bg-background-dark text-[10px] text-primary font-bold">Value (JSON)</label>
+<textarea class="w-full bg-transparent border-none text-white font-mono text-sm p-0 focus:ring-0 resize-none h-12" spellcheck="false">{"theme": "dark", "notifications": false}</textarea>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="flex-1 h-10 rounded-lg bg-surface-dark text-slate-300 hover:text-white font-medium text-sm border border-white/5">Cancel</button>
+<button class="flex-1 h-10 rounded-lg bg-primary text-white font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary/90 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg">save</span>
+                Update
+            </button>
+</div>
+</div>
+<!-- Background Overlay for Modal effect (Optional visual cue) -->
+<div aria-hidden="true" class="fixed inset-0 bg-black/50 pointer-events-none opacity-0 transition-opacity z-20"></div>
+</body></html>

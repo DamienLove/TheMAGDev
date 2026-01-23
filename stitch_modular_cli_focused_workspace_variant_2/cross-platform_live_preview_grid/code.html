@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DevStudio AI - Cross-Platform Preview</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1337ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101322",
+                        "surface-dark": "#1c1f2e",
+                        "surface-darker": "#161926",
+                        "border-dark": "#2d3142",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #101322; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2d3142; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b5563; 
+        }
+        
+        /* Device specific styles */
+        .notch-ios {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 28px;
+            background-color: #000;
+            border-bottom-left-radius: 14px;
+            border-bottom-right-radius: 14px;
+            z-index: 20;
+        }
+        
+        .camera-android {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            background-color: #000;
+            border-radius: 50%;
+            z-index: 20;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden h-screen flex flex-col">
+<!-- Top Navigation -->
+<header class="flex shrink-0 items-center justify-between whitespace-nowrap border-b border-solid border-border-dark bg-surface-dark px-6 py-3 shadow-md z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-white">
+<div class="flex items-center justify-center size-8 rounded bg-primary/20 text-primary">
+<span class="material-symbols-outlined">code_blocks</span>
+</div>
+<h2 class="text-white text-lg font-bold leading-tight tracking-tight">DevStudio AI</h2>
+</div>
+<!-- Search Bar -->
+<label class="hidden md:flex flex-col min-w-40 !h-10 w-80">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full border border-border-dark bg-background-dark focus-within:border-primary/50 transition-colors">
+<div class="text-slate-400 flex items-center justify-center pl-3">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-transparent text-white focus:outline-0 focus:ring-0 border-none h-full placeholder:text-slate-500 px-3 text-sm font-normal" placeholder="Search files, symbols, or actions..." value=""/>
+<div class="flex items-center pr-2">
+<span class="text-xs text-slate-500 bg-surface-dark px-1.5 py-0.5 rounded border border-border-dark">⌘K</span>
+</div>
+</div>
+</label>
+</div>
+<div class="flex items-center gap-3">
+<div class="hidden lg:flex items-center gap-2 mr-4 border-r border-border-dark pr-6">
+<button class="flex items-center gap-2 px-3 h-8 rounded-lg bg-surface-darker hover:bg-border-dark text-slate-300 text-xs font-medium transition-colors border border-border-dark">
+<span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></span>
+                    Build Passing
+                </button>
+<span class="text-slate-500 text-xs">v2.4.0-rc1</span>
+</div>
+<button class="hidden sm:flex min-w-[100px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-9 px-4 bg-primary hover:bg-blue-600 text-white text-sm font-bold shadow-lg shadow-blue-900/20 transition-all">
+<span class="material-symbols-outlined text-[18px]">rocket_launch</span>
+<span class="truncate">Deploy</span>
+</button>
+<div class="flex gap-1">
+<button class="flex size-9 cursor-pointer items-center justify-center rounded-lg bg-transparent hover:bg-white/5 text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex size-9 cursor-pointer items-center justify-center rounded-lg bg-transparent hover:bg-white/5 text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="flex size-9 cursor-pointer items-center justify-center rounded-lg bg-transparent hover:bg-white/5 text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Layout -->
+<div class="flex flex-1 overflow-hidden">
+<!-- Center Canvas -->
+<main class="flex-1 flex flex-col min-w-0 bg-background-dark relative">
+<!-- Toolbar -->
+<div class="flex flex-col sm:flex-row justify-between items-center gap-4 px-6 py-3 border-b border-border-dark bg-surface-dark/50 backdrop-blur-sm z-40">
+<div class="flex flex-col xl:flex-row xl:items-center gap-4 w-full sm:w-auto">
+<!-- Page Title -->
+<div class="flex flex-col">
+<h1 class="text-white text-xl font-bold tracking-tight">Cross-Platform Preview</h1>
+<p class="text-slate-400 text-xs">Live session • 3 Devices Connected</p>
+</div>
+<!-- View Controls -->
+<div class="flex items-center gap-1 bg-surface-darker p-1 rounded-lg border border-border-dark self-start">
+<button class="p-1.5 rounded-md hover:bg-white/10 text-white" title="Zoom In">
+<span class="material-symbols-outlined text-[20px]">zoom_in</span>
+</button>
+<span class="text-xs font-mono text-slate-400 px-1">100%</span>
+<button class="p-1.5 rounded-md hover:bg-white/10 text-white" title="Zoom Out">
+<span class="material-symbols-outlined text-[20px]">zoom_out</span>
+</button>
+<div class="w-px h-4 bg-border-dark mx-1"></div>
+<button class="flex items-center gap-2 px-2 py-1.5 rounded-md bg-primary/20 text-primary hover:bg-primary/30 text-xs font-medium transition-colors" title="Sync Scroll">
+<span class="material-symbols-outlined text-[16px]">sync_alt</span>
+                            Sync Scroll
+                        </button>
+<button class="p-1.5 rounded-md hover:bg-white/10 text-slate-400 hover:text-white transition-colors" title="Sync Clicks">
+<span class="material-symbols-outlined text-[20px] fill-current">ads_click</span>
+</button>
+</div>
+</div>
+<!-- Platform Toggles & Actions -->
+<div class="flex items-center gap-3 overflow-x-auto max-w-full pb-1 sm:pb-0 no-scrollbar">
+<div class="flex items-center gap-2 bg-surface-darker p-1 rounded-lg border border-border-dark">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-surface-dark text-white shadow-sm text-xs font-medium border border-border-dark">
+<span class="material-symbols-outlined text-[16px]">android</span>
+                            Android
+                        </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-white/5 text-slate-400 text-xs font-medium transition-colors">
+<span class="material-symbols-outlined text-[16px]">phone_iphone</span>
+                            iOS
+                        </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-white/5 text-slate-400 text-xs font-medium transition-colors">
+<span class="material-symbols-outlined text-[16px]">desktop_windows</span>
+                            Windows
+                        </button>
+</div>
+<button class="flex shrink-0 cursor-pointer items-center justify-center rounded-lg h-9 px-4 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20 gap-2 text-sm font-bold transition-all">
+<span class="material-symbols-outlined text-[20px] animate-pulse">bolt</span>
+                        Hot Reload
+                    </button>
+</div>
+</div>
+<!-- Scrollable Grid Area -->
+<div class="flex-1 overflow-y-auto p-6 @container">
+<div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-8 items-start justify-items-center pb-20">
+<!-- Android Emulator -->
+<div class="flex flex-col gap-4 group">
+<div class="relative bg-black rounded-[2rem] border-4 border-slate-800 shadow-2xl w-[340px] h-[700px] overflow-hidden flex flex-col select-none ring-1 ring-white/10 group-hover:ring-primary/50 transition-all duration-300">
+<!-- Buttons -->
+<div class="absolute -right-1.5 top-20 w-1 h-12 bg-slate-700 rounded-r-md"></div>
+<div class="absolute -right-1.5 top-36 w-1 h-20 bg-slate-700 rounded-r-md"></div>
+<!-- Screen -->
+<div class="flex-1 bg-surface-dark relative w-full h-full overflow-hidden rounded-[1.7rem]">
+<!-- Status Bar -->
+<div class="h-8 w-full flex justify-between items-center px-6 text-[10px] text-white font-medium select-none z-30 pt-2">
+<span>9:41</span>
+<div class="flex gap-1.5">
+<span class="material-symbols-outlined text-[12px]">signal_cellular_alt</span>
+<span class="material-symbols-outlined text-[12px]">wifi</span>
+<span class="material-symbols-outlined text-[12px]">battery_full</span>
+</div>
+</div>
+<div class="camera-android"></div>
+<!-- App Content -->
+<div class="w-full h-full bg-cover bg-top absolute top-0 left-0" data-alt="Modern mobile banking application dark mode interface with charts" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDf32GNpQ0gQXjkSxgdo0lqbGACZyhoHfQyEZWU-l4wLzt4lQlJqg1K_46w1IMRhJ8ycnmNuC9dvnccj5KlT1Sbdk4YBsu-EAVriz0pbNsGKhdLPq9YEr8wh3YhxP0XjByHv42K-qhn3mTEsV2jtHy60A8vAjF2ZqTT8qB9WeGVyuS3xRJUjz4CLgtM2aXtOjk91pYUhxlE5qNdn3OcU2INSOghlHRzb49oxdWb9pyu2XSM-Bk2EsPgCViYpCSLG0mQqrL8QeoVd4Y');">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+<div class="absolute bottom-8 left-0 right-0 px-6">
+<div class="bg-surface-darker/90 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-lg">
+<div class="h-2 w-12 bg-slate-600 rounded-full mb-3"></div>
+<div class="h-2 w-24 bg-slate-700 rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Device Meta -->
+<div class="w-[340px] bg-surface-dark p-3 rounded-lg border border-border-dark flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="bg-[#3DDC84]/20 p-1.5 rounded text-[#3DDC84]">
+<span class="material-symbols-outlined text-[18px]">android</span>
+</div>
+<div>
+<p class="text-white text-sm font-bold">Pixel 7 Pro</p>
+<p class="text-slate-400 text-xs">Android 13 • API 33</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-green-500"></div>
+<span class="text-slate-400 text-xs font-mono">12ms</span>
+</div>
+</div>
+</div>
+<!-- iOS Emulator -->
+<div class="flex flex-col gap-4 group">
+<div class="relative bg-black rounded-[2.5rem] border-[6px] border-slate-800 shadow-2xl w-[350px] h-[710px] overflow-hidden flex flex-col select-none ring-1 ring-white/10 group-hover:ring-primary/50 transition-all duration-300">
+<!-- Buttons -->
+<div class="absolute -left-2 top-24 w-1 h-8 bg-slate-700 rounded-l-md"></div>
+<div class="absolute -left-2 top-36 w-1 h-14 bg-slate-700 rounded-l-md"></div>
+<div class="absolute -left-2 top-52 w-1 h-14 bg-slate-700 rounded-l-md"></div>
+<div class="absolute -right-2 top-36 w-1 h-20 bg-slate-700 rounded-r-md"></div>
+<!-- Screen -->
+<div class="flex-1 bg-surface-dark relative w-full h-full overflow-hidden rounded-[2.2rem]">
+<!-- Notch -->
+<div class="notch-ios"></div>
+<!-- Status Bar -->
+<div class="h-10 w-full flex justify-between items-center px-6 text-[12px] text-white font-medium select-none z-30 pt-3">
+<span>9:41</span>
+<div class="flex gap-1.5">
+<span class="material-symbols-outlined text-[14px]">signal_cellular_alt</span>
+<span class="material-symbols-outlined text-[14px]">wifi</span>
+<span class="material-symbols-outlined text-[14px]">battery_full</span>
+</div>
+</div>
+<!-- App Content -->
+<div class="w-full h-full bg-cover bg-top absolute top-0 left-0" data-alt="Modern mobile banking application dark mode interface with charts on iOS" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC5P1Oer9Pihme9k2LvSRPjAGBpXM3_BnPH_nhqqwA4BWKMXX4jY2Ch0wWwkb5kkKvqOHAUPDITSPAaM0sww5So-ZyHUK7IrPcuzfQPTtkUSLlxYLnX8SE7GSl-NH8O3SPkrhEO_0qLB8wuxlZLMYeUpgqCwtP5-09qC8iRbA_IawfmbaZ578O3OyLXPo6JjXdmDsvgwBVxjw9KLf49aivwqkrxCc5qghjXGcA6vhVUFk-1PMAmWsjkVPDuryypY2iaibrjZb7KFMc');">
+<div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80"></div>
+<!-- Bottom Indicator -->
+<div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/50 rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Device Meta -->
+<div class="w-[350px] bg-surface-dark p-3 rounded-lg border border-border-dark flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="bg-white/10 p-1.5 rounded text-white">
+<span class="material-symbols-outlined text-[18px]">phone_iphone</span>
+</div>
+<div>
+<p class="text-white text-sm font-bold">iPhone 14 Pro</p>
+<p class="text-slate-400 text-xs">iOS 16.2</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="animate-spin text-primary material-symbols-outlined text-[16px]">progress_activity</span>
+<span class="text-slate-400 text-xs font-mono">Syncing...</span>
+</div>
+</div>
+</div>
+<!-- Windows Desktop Emulator -->
+<div class="flex flex-col gap-4 group w-full max-w-[600px] lg:col-span-2 2xl:col-span-1">
+<div class="relative bg-surface-darker rounded-xl border border-border-dark shadow-2xl w-full aspect-video overflow-hidden flex flex-col select-none ring-1 ring-white/5 group-hover:ring-primary/50 transition-all duration-300">
+<!-- Window Header -->
+<div class="h-8 bg-surface-dark border-b border-border-dark flex items-center justify-between px-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px] text-blue-400">desktop_windows</span>
+<span class="text-xs text-slate-300">MyAwesomeApp.exe</span>
+</div>
+<div class="flex gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-slate-600 hover:bg-slate-500"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-slate-600 hover:bg-slate-500"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-rose-500 hover:bg-rose-400"></div>
+</div>
+</div>
+<!-- Screen Content -->
+<div class="flex-1 bg-cover bg-center relative" data-alt="Desktop dashboard application with data visualization charts" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBda-AiqgQHi7Js_baOytVVkBUuW3foN4X8qTOb1vQPHSDK6sDg3EbJqKXvosOANP87NU-eRCUEx1M2xlserfJOJxUVC18rus0kPSUbD1SSka5llbBaH_xrm7T2dQwSYARmaw9ZY-43XCq5imx70zSxq2DMWVIVi-DOWbK5ERohVYxv_SSMIyu5jkaB5QIbMq2Sn_5CbH3I8jB3T9vnAZj0J07npeRaQqmA0VLmCRpeHeOEFOrTsDGSxrZ9rgIJtXkjJPLICCXyIQY');">
+<div class="absolute inset-0 bg-background-dark/20 backdrop-blur-[1px]"></div>
+<!-- Overlay mock cursor -->
+<div class="absolute top-1/4 left-1/3">
+<span class="material-symbols-outlined text-white drop-shadow-md text-[24px]">arrow_selector_tool</span>
+</div>
+</div>
+</div>
+<!-- Device Meta -->
+<div class="w-full bg-surface-dark p-3 rounded-lg border border-border-dark flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="bg-blue-500/20 p-1.5 rounded text-blue-400">
+<span class="material-symbols-outlined text-[18px]">window</span>
+</div>
+<div>
+<p class="text-white text-sm font-bold">Windows 11</p>
+<p class="text-slate-400 text-xs">Desktop Build • x64</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-green-500"></div>
+<span class="text-slate-400 text-xs font-mono">24ms</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Grid Background decoration -->
+<div class="absolute inset-0 z-0 pointer-events-none opacity-[0.03]" style="background-image: radial-gradient(#4b5563 1px, transparent 1px); background-size: 24px 24px;"></div>
+</main>
+<!-- Right Sidebar (Properties) -->
+<aside class="w-80 bg-surface-dark border-l border-border-dark flex flex-col hidden xl:flex z-40">
+<!-- Sidebar Header -->
+<div class="h-14 px-5 border-b border-border-dark flex items-center justify-between">
+<span class="text-sm font-bold text-white tracking-wide">Inspector</span>
+<button class="text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">dock_to_right</span>
+</button>
+</div>
+<!-- Content -->
+<div class="flex-1 overflow-y-auto p-5 space-y-6">
+<!-- Selected Element -->
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Selection</h3>
+<span class="px-2 py-0.5 bg-primary/20 text-primary text-[10px] font-mono rounded">#hero-section</span>
+</div>
+<div class="bg-background-dark rounded-lg p-3 border border-border-dark space-y-2">
+<div class="flex justify-between text-xs">
+<span class="text-slate-500">Width</span>
+<span class="text-white font-mono">100%</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-slate-500">Height</span>
+<span class="text-white font-mono">Auto</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-slate-500">Padding</span>
+<span class="text-white font-mono">16px</span>
+</div>
+</div>
+</div>
+<hr class="border-border-dark"/>
+<!-- Platform Overrides -->
+<div class="space-y-3">
+<h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Device Overrides</h3>
+<div class="space-y-3">
+<label class="flex items-center justify-between cursor-pointer group">
+<span class="text-sm text-slate-300 group-hover:text-white">Dark Mode</span>
+<div class="relative inline-block w-10 h-5 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-3 h-3 rounded-full bg-white border-4 border-primary appearance-none cursor-pointer right-1 top-1 checked:right-1 checked:border-primary" type="checkbox"/>
+<div class="toggle-label block overflow-hidden h-5 rounded-full bg-primary cursor-pointer"></div>
+</div>
+</label>
+<label class="flex items-center justify-between cursor-pointer group">
+<span class="text-sm text-slate-300 group-hover:text-white">Mock Location</span>
+<span class="text-xs text-primary cursor-pointer">San Francisco, CA</span>
+</label>
+<label class="flex items-center justify-between cursor-pointer group">
+<span class="text-sm text-slate-300 group-hover:text-white">Network</span>
+<div class="flex items-center gap-1 text-xs text-slate-400 bg-surface-darker px-2 py-1 rounded border border-border-dark">
+<span>4G LTE</span>
+<span class="material-symbols-outlined text-[14px]">expand_more</span>
+</div>
+</label>
+</div>
+</div>
+<hr class="border-border-dark"/>
+<!-- AI Assistant -->
+<div class="space-y-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-purple-400 text-[18px]">auto_awesome</span>
+<h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">AI Suggestions</h3>
+</div>
+<div class="bg-gradient-to-br from-purple-900/20 to-blue-900/20 rounded-lg p-3 border border-purple-500/20 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-1">
+<span class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+</span>
+</div>
+<p class="text-xs text-slate-300 leading-relaxed mb-3">
+<strong class="text-white block mb-1">Layout Issue Detected</strong>
+                            The card component overflows on iPhone SE viewport width. Recommend switching to vertical flex layout.
+                        </p>
+<button class="w-full py-1.5 px-3 bg-purple-600 hover:bg-purple-500 text-white text-xs font-medium rounded-md transition-colors shadow-lg shadow-purple-900/20 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[14px]">build</span>
+                            Auto-Fix Layout
+                        </button>
+</div>
+</div>
+<!-- Logs preview -->
+<div class="flex-1 min-h-[150px] bg-background-dark rounded-lg border border-border-dark p-3 font-mono text-[10px] text-slate-400 overflow-hidden flex flex-col">
+<div class="flex justify-between items-center mb-2 pb-2 border-b border-border-dark/50">
+<span class="font-bold text-slate-300">Console</span>
+<span class="bg-slate-800 text-slate-400 px-1 rounded">Clear</span>
+</div>
+<div class="overflow-y-auto space-y-1">
+<p class="text-green-400">&gt; build completed in 450ms</p>
+<p class="text-blue-400">[info] connected to wss://emulator-bridge</p>
+<p class="text-yellow-400">[warn] unused variable 'userState' in line 42</p>
+<p class="opacity-50">Rendering frame 1024...</p>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</body></html>

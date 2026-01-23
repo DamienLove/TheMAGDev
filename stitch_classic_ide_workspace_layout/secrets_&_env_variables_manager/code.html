@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Secrets &amp; Env Variables Manager</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1A2332",
+                        "surface-border": "#2A3649"
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                        "mono": ["Space Grotesk", "monospace"] // Using Space Grotesk for mono-feel numbers/keys
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased overflow-hidden">
+<div class="relative flex h-full min-h-screen w-full flex-col max-w-md mx-auto overflow-hidden bg-background-light dark:bg-background-dark shadow-2xl">
+<!-- Header -->
+<header class="flex items-center justify-between p-4 sticky top-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-gray-200 dark:border-white/5">
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-slate-700 dark:text-white">arrow_back</span>
+</button>
+<h1 class="text-lg font-bold tracking-tight flex-1 text-center">Secrets Manager</h1>
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-slate-700 dark:text-white">search</span>
+</button>
+</header>
+<!-- Main Actions Toolbar -->
+<div class="flex gap-3 px-4 py-3 shrink-0">
+<button class="flex-1 h-12 bg-primary hover:bg-blue-600 active:bg-blue-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 transition-all">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span>Add Secret</span>
+</button>
+<button class="h-12 w-12 bg-white dark:bg-surface-dark border border-gray-200 dark:border-surface-border text-slate-700 dark:text-white rounded-xl flex items-center justify-center hover:bg-gray-50 dark:hover:bg-[#253042] transition-colors relative group" title="Import .env">
+<span class="material-symbols-outlined">upload_file</span>
+</button>
+<button class="h-12 w-12 bg-white dark:bg-surface-dark border border-gray-200 dark:border-surface-border text-slate-700 dark:text-white rounded-xl flex items-center justify-center hover:bg-gray-50 dark:hover:bg-[#253042] transition-colors relative group" title="Sync Secrets">
+<span class="material-symbols-outlined">cloud_sync</span>
+<div class="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full border-2 border-surface-dark"></div>
+</button>
+</div>
+<!-- Filter Chips -->
+<div class="flex gap-2 px-4 py-2 overflow-x-auto no-scrollbar shrink-0 pb-4">
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-slate-200 dark:bg-white text-slate-900 dark:text-background-dark px-4 font-bold text-sm transition-colors">
+                All Envs
+            </button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-surface-dark border border-gray-200 dark:border-surface-border text-slate-600 dark:text-gray-300 px-4 font-medium text-sm hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                Development
+            </button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-surface-dark border border-gray-200 dark:border-surface-border text-slate-600 dark:text-gray-300 px-4 font-medium text-sm hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                Production
+            </button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-surface-dark border border-gray-200 dark:border-surface-border text-slate-600 dark:text-gray-300 px-4 font-medium text-sm hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                Staging
+            </button>
+</div>
+<!-- Section Header -->
+<div class="px-4 py-2 flex items-center justify-between shrink-0">
+<h3 class="text-slate-900 dark:text-white text-base font-bold">Project Variables (12)</h3>
+<span class="text-xs text-slate-500 dark:text-gray-400 font-medium">Last synced 2m ago</span>
+</div>
+<!-- Scrollable List -->
+<div class="flex-1 overflow-y-auto px-4 pb-24 space-y-3">
+<!-- Secret Item 1: High Security -->
+<div class="bg-white dark:bg-surface-dark rounded-xl p-4 border border-gray-200 dark:border-surface-border shadow-sm">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="bg-amber-100 dark:bg-amber-500/20 p-2 rounded-lg">
+<span class="material-symbols-outlined text-amber-600 dark:text-amber-400 text-[20px]">lock</span>
+</div>
+<div>
+<p class="font-mono text-sm font-bold text-slate-800 dark:text-white tracking-wide">STRIPE_SECRET_KEY</p>
+<p class="text-xs text-slate-500 dark:text-gray-400 mt-0.5">Updated by Admin • 2d ago</p>
+</div>
+</div>
+<button class="text-slate-400 hover:text-slate-600 dark:text-gray-500 dark:hover:text-white">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="relative group/input">
+<div class="w-full bg-slate-50 dark:bg-black/30 border border-gray-200 dark:border-white/10 rounded-lg h-10 px-3 flex items-center justify-between font-mono text-sm text-slate-400 dark:text-gray-400 select-none">
+<span class="tracking-widest">•••••••••••••••••••••••••</span>
+<button class="text-slate-400 hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">visibility_off</span>
+</button>
+</div>
+</div>
+<div class="flex gap-2 mt-3">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300">
+<span class="material-symbols-outlined text-[12px]">public</span> Global
+                    </span>
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-300">
+<span class="material-symbols-outlined text-[12px]">code</span> Dev
+                    </span>
+</div>
+</div>
+<!-- Secret Item 2: Android Specific -->
+<div class="bg-white dark:bg-surface-dark rounded-xl p-4 border border-gray-200 dark:border-surface-border shadow-sm">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="bg-green-100 dark:bg-green-500/20 p-2 rounded-lg">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 text-[20px]">android</span>
+</div>
+<div>
+<p class="font-mono text-sm font-bold text-slate-800 dark:text-white tracking-wide">GOOGLE_MAPS_API</p>
+<p class="text-xs text-slate-500 dark:text-gray-400 mt-0.5">Updated via .env import</p>
+</div>
+</div>
+<button class="text-slate-400 hover:text-slate-600 dark:text-gray-500 dark:hover:text-white">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="relative group/input">
+<div class="w-full bg-slate-50 dark:bg-black/30 border border-gray-200 dark:border-white/10 rounded-lg h-10 px-3 flex items-center justify-between font-mono text-sm text-slate-400 dark:text-gray-400 select-none">
+<span class="tracking-widest">••••••••••••••••</span>
+<button class="text-slate-400 hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">visibility_off</span>
+</button>
+</div>
+</div>
+<div class="flex gap-2 mt-3">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-300">
+                        Android
+                    </span>
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300">
+<span class="material-symbols-outlined text-[12px]">rocket_launch</span> Prod
+                    </span>
+</div>
+</div>
+<!-- Secret Item 3: iOS Specific -->
+<div class="bg-white dark:bg-surface-dark rounded-xl p-4 border border-gray-200 dark:border-surface-border shadow-sm">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="bg-slate-200 dark:bg-slate-700 p-2 rounded-lg">
+<span class="material-symbols-outlined text-slate-600 dark:text-white text-[20px]">smartphone</span>
+</div>
+<div>
+<p class="font-mono text-sm font-bold text-slate-800 dark:text-white tracking-wide">APPLE_TEAM_ID</p>
+<p class="text-xs text-slate-500 dark:text-gray-400 mt-0.5">Manual Entry</p>
+</div>
+</div>
+<button class="text-slate-400 hover:text-slate-600 dark:text-gray-500 dark:hover:text-white">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="relative group/input">
+<div class="w-full bg-slate-50 dark:bg-black/30 border border-gray-200 dark:border-white/10 rounded-lg h-10 px-3 flex items-center justify-between font-mono text-sm text-slate-400 dark:text-gray-400 select-none">
+<span class="tracking-widest">••••••••••</span>
+<button class="text-slate-400 hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">visibility_off</span>
+</button>
+</div>
+</div>
+<div class="flex gap-2 mt-3">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200">
+                        iOS Only
+                    </span>
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300">
+<span class="material-symbols-outlined text-[12px]">rocket_launch</span> Prod
+                    </span>
+</div>
+</div>
+<!-- Secret Item 4: Revealed Example -->
+<div class="bg-white dark:bg-surface-dark rounded-xl p-4 border border-gray-200 dark:border-surface-border shadow-sm">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="bg-blue-100 dark:bg-blue-500/20 p-2 rounded-lg">
+<span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-[20px]">link</span>
+</div>
+<div>
+<p class="font-mono text-sm font-bold text-slate-800 dark:text-white tracking-wide">NEXT_PUBLIC_API_URL</p>
+<p class="text-xs text-slate-500 dark:text-gray-400 mt-0.5">Publicly visible</p>
+</div>
+</div>
+<button class="text-slate-400 hover:text-slate-600 dark:text-gray-500 dark:hover:text-white">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="relative group/input">
+<div class="w-full bg-slate-50 dark:bg-black/30 border border-gray-200 dark:border-white/10 rounded-lg h-10 px-3 flex items-center justify-between font-mono text-sm text-slate-800 dark:text-gray-200">
+<span class="truncate pr-2">https://api.staging.myapp.com/v1</span>
+<button class="text-primary hover:text-blue-400 transition-colors shrink-0">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+</div>
+</div>
+<div class="flex gap-2 mt-3">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300">
+<span class="material-symbols-outlined text-[12px]">public</span> Global
+                    </span>
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-300">
+                        Staging
+                    </span>
+</div>
+</div>
+<!-- Secret Item 5: Database -->
+<div class="bg-white dark:bg-surface-dark rounded-xl p-4 border border-gray-200 dark:border-surface-border shadow-sm mb-6">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="bg-red-100 dark:bg-red-500/20 p-2 rounded-lg">
+<span class="material-symbols-outlined text-red-600 dark:text-red-400 text-[20px]">database</span>
+</div>
+<div>
+<p class="font-mono text-sm font-bold text-slate-800 dark:text-white tracking-wide">SUPABASE_SERVICE_ROLE</p>
+<p class="text-xs text-slate-500 dark:text-gray-400 mt-0.5">Critical Security</p>
+</div>
+</div>
+<button class="text-slate-400 hover:text-slate-600 dark:text-gray-500 dark:hover:text-white">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="relative group/input">
+<div class="w-full bg-slate-50 dark:bg-black/30 border border-red-200 dark:border-red-900/30 rounded-lg h-10 px-3 flex items-center justify-between font-mono text-sm text-slate-400 dark:text-gray-400 select-none">
+<span class="tracking-widest">••••••••••••••••••••••••••••••</span>
+<button class="text-slate-400 hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">visibility_off</span>
+</button>
+</div>
+</div>
+<div class="flex gap-2 mt-3">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300">
+                        Global
+                    </span>
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300">
+                        Prod
+                    </span>
+</div>
+</div>
+</div>
+</div>
+</body></html>

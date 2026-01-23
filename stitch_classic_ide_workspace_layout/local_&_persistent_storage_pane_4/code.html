@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unified Infrastructure Manager</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1a2234",
+                        "surface-light": "#ffffff",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #101622;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2d3748;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a5568;
+        }input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #0d59f2;
+            cursor: pointer;
+            margin-top: -6px; 
+            box-shadow: 0 0 0 4px rgba(13, 89, 242, 0.2);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #2d3748;
+            border-radius: 2px;
+        }details > summary {
+            list-style: none;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display antialiased overflow-hidden h-screen flex flex-col">
+<header class="shrink-0 flex items-center bg-background-light dark:bg-background-dark px-4 py-3 justify-between border-b border-gray-200 dark:border-gray-800 z-10">
+<button class="text-slate-900 dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h2 class="text-lg font-bold leading-tight tracking-tight flex-1 text-center">Unified Infrastructure</h2>
+<button class="text-slate-900 dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</header>
+<main class="flex-1 overflow-y-auto pb-28">
+<div class="px-4 mt-6 grid grid-cols-2 gap-3 mb-6">
+<div class="bg-white dark:bg-surface-dark p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+<p class="text-[11px] text-gray-500 uppercase font-bold tracking-wider">Current Month</p>
+<div class="flex items-end gap-1 mt-1">
+<p class="text-2xl font-bold text-slate-900 dark:text-white">$42.50</p>
+<span class="text-xs text-emerald-500 font-medium mb-1.5 flex items-center">
+<span class="material-symbols-outlined text-[14px]">trending_down</span>
+                        2%
+                    </span>
+</div>
+</div>
+<div class="bg-white dark:bg-surface-dark p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+<p class="text-[11px] text-gray-500 uppercase font-bold tracking-wider">Status</p>
+<div class="flex items-center gap-2 mt-2">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+</span>
+<p class="text-base font-bold text-slate-900 dark:text-white">Active</p>
+</div>
+</div>
+</div>
+<div class="space-y-4 px-4">
+<details class="group bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm transition-all duration-300">
+<summary class="flex items-center justify-between p-4 cursor-pointer select-none bg-gray-50/50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">settings_system_daydream</span>
+</div>
+<span class="font-semibold text-sm">VM Configuration</span>
+</div>
+<span class="material-symbols-outlined text-gray-400 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-5 pt-2 space-y-6">
+<div>
+<div class="flex justify-between mb-2">
+<label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">vCPU Allocation</label>
+<span class="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">4 Cores</span>
+</div>
+<input class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer" max="16" min="1" type="range" value="4"/>
+<div class="flex justify-between mt-1 text-[10px] text-gray-400 font-mono">
+<span>1</span>
+<span>8</span>
+<span>16</span>
+</div>
+</div>
+<div>
+<div class="flex justify-between mb-2">
+<label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Memory (RAM)</label>
+<span class="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">16 GB</span>
+</div>
+<input class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer" max="64" min="4" step="4" type="range" value="16"/>
+<div class="flex justify-between mt-1 text-[10px] text-gray-400 font-mono">
+<span>4GB</span>
+<span>32GB</span>
+<span>64GB</span>
+</div>
+</div>
+</div>
+</details>
+<details class="group bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm transition-all duration-300">
+<summary class="flex items-center justify-between p-4 cursor-pointer select-none bg-gray-50/50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
+<span class="material-symbols-outlined text-[20px]">cloud_circle</span>
+</div>
+<span class="font-semibold text-sm">Cloud Resources</span>
+</div>
+<span class="material-symbols-outlined text-gray-400 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-4 pt-2">
+<div class="border-l border-gray-200 dark:border-gray-700 ml-2 pl-4 space-y-4 py-2">
+<div class="relative">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-orange-500 text-[20px]">folder_data</span>
+<span class="text-sm font-medium">AWS S3 Buckets</span>
+</div>
+<div class="ml-2 pl-4 border-l border-gray-200 dark:border-gray-800 space-y-2">
+<div class="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[18px]">draft</span>
+<span class="text-xs font-mono">assets-bucket-prod</span>
+</div>
+<div class="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[18px]">draft</span>
+<span class="text-xs font-mono">user-uploads-dev</span>
+</div>
+</div>
+</div>
+<div class="relative">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-blue-500 text-[20px]">add_to_drive</span>
+<span class="text-sm font-medium">Google Drive</span>
+</div>
+<div class="ml-2 pl-4 border-l border-gray-200 dark:border-gray-800 space-y-2">
+<div class="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[18px]">folder_shared</span>
+<span class="text-xs font-mono">Team_Backups</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</details>
+<details class="group bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm transition-all duration-300" open="">
+<summary class="flex items-center justify-between p-4 cursor-pointer select-none bg-gray-50/50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors border-b border-transparent group-open:border-gray-200 group-open:dark:border-gray-800">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+<span class="material-symbols-outlined text-[20px]">hard_drive</span>
+</div>
+<span class="font-semibold text-sm">Local &amp; Persistent Storage</span>
+</div>
+<span class="material-symbols-outlined text-gray-400 transition-transform duration-300 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-2 pb-4 bg-gray-50/30 dark:bg-black/20">
+<div class="mt-4 mb-2 px-2">
+<div class="flex items-center justify-between mb-3 px-1">
+<h3 class="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-bold">Local Machine</h3>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+<span class="relative flex h-1.5 w-1.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+</span>
+                                Connected
+                            </span>
+</div>
+<div class="space-y-1">
+<button class="w-full group flex items-center gap-3 bg-white dark:bg-surface-dark p-2.5 rounded-lg border border-gray-200 dark:border-gray-700/50 hover:border-primary/50 dark:hover:border-primary/50 transition-all active:scale-[0.99]">
+<div class="flex items-center justify-center rounded-md bg-blue-100 dark:bg-blue-500/10 text-primary h-8 w-8 shrink-0">
+<span class="material-symbols-outlined text-[18px]">folder_open</span>
+</div>
+<div class="flex-1 text-left min-w-0">
+<p class="text-xs font-semibold truncate">Documents</p>
+<p class="text-[10px] text-gray-500 dark:text-gray-400 truncate">~/User/Dev/Documents</p>
+</div>
+<span class="material-symbols-outlined text-gray-400 group-hover:text-primary transition-colors text-[16px]">chevron_right</span>
+</button>
+<button class="w-full group flex items-center gap-3 bg-white dark:bg-surface-dark p-2.5 rounded-lg border border-gray-200 dark:border-gray-700/50 hover:border-primary/50 dark:hover:border-primary/50 transition-all active:scale-[0.99]">
+<div class="flex items-center justify-center rounded-md bg-blue-100 dark:bg-blue-500/10 text-primary h-8 w-8 shrink-0">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</div>
+<div class="flex-1 text-left min-w-0">
+<p class="text-xs font-semibold truncate">Downloads</p>
+<p class="text-[10px] text-gray-500 dark:text-gray-400 truncate">~/User/Dev/Downloads</p>
+</div>
+<span class="material-symbols-outlined text-gray-400 group-hover:text-primary transition-colors text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="mt-6 mb-2 px-2">
+<div class="flex items-center justify-between mb-3 px-1">
+<h3 class="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-bold">Workspace Volumes</h3>
+</div>
+<div class="bg-white dark:bg-surface-dark p-3 rounded-lg border border-gray-200 dark:border-gray-700/50 mb-3 shadow-sm">
+<div class="flex justify-between items-end mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gray-400 text-[18px]">cloud_queue</span>
+<span class="text-xs font-medium">IDE Cloud Volume</span>
+</div>
+<span class="text-[10px] font-mono text-gray-500 dark:text-gray-400">45GB / 100GB</span>
+</div>
+<div class="h-1.5 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[45%] rounded-full"></div>
+</div>
+</div>
+<div class="space-y-1">
+<button class="w-full group flex items-center gap-3 bg-white dark:bg-surface-dark p-2.5 rounded-lg border border-gray-200 dark:border-gray-700/50 hover:border-primary/50 dark:hover:border-primary/50 transition-all active:scale-[0.99]">
+<div class="flex items-center justify-center rounded-md bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 h-8 w-8 shrink-0">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</div>
+<div class="flex-1 text-left min-w-0">
+<p class="text-xs font-semibold truncate">Application Source</p>
+<p class="text-[10px] text-gray-500 dark:text-gray-400 font-mono truncate">/app/src</p>
+</div>
+<span class="text-[10px] font-mono text-gray-500 mr-1">12 GB</span>
+</button>
+</div>
+</div>
+</div>
+</details>
+</div>
+</main>
+<div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-background-light via-background-light to-transparent dark:from-background-dark dark:via-background-dark dark:to-transparent pointer-events-none pb-8 pt-12 z-20">
+<button class="pointer-events-auto w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-14 rounded-xl shadow-lg shadow-emerald-900/20 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined">rocket_launch</span>
+            Deploy Changes
+        </button>
+</div>
+
+</body></html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Flux Assets</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "sans": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden pb-12">
+<!-- Top App Bar -->
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-50">
+<div class="text-slate-900 dark:text-white flex size-12 shrink-0 items-center justify-start cursor-pointer">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">Brand Identity</h2>
+<div class="flex w-12 items-center justify-end absolute right-4">
+<span class="material-symbols-outlined text-[#90a4cb] cursor-pointer hover:text-primary transition-colors">ios_share</span>
+</div>
+</div>
+<!-- Header Section -->
+<div class="flex flex-col px-4 pt-2">
+<h1 class="text-slate-900 dark:text-white tracking-tight text-[32px] font-bold leading-tight text-left">Flux Assets</h1>
+<p class="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal pt-2">Identity System v1.0. Visualizing the brand from IDE to stickers.</p>
+</div>
+<!-- Segmented Control -->
+<div class="flex px-4 py-6 sticky top-[60px] z-40 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm">
+<div class="flex h-10 flex-1 items-center justify-center rounded-lg bg-slate-200 dark:bg-[#222f49] p-1">
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md has-[:checked]:bg-white dark:has-[:checked]:bg-[#101623] has-[:checked]:shadow-[0_0_4px_rgba(0,0,0,0.1)] has-[:checked]:text-primary dark:has-[:checked]:text-white text-slate-500 dark:text-[#90a4cb] text-sm font-bold leading-normal transition-all">
+<span class="truncate">Digital</span>
+<input checked="" class="invisible w-0 absolute" name="view-toggle" type="radio" value="Digital"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md has-[:checked]:bg-white dark:has-[:checked]:bg-[#101623] has-[:checked]:shadow-[0_0_4px_rgba(0,0,0,0.1)] has-[:checked]:text-primary dark:has-[:checked]:text-white text-slate-500 dark:text-[#90a4cb] text-sm font-bold leading-normal transition-all">
+<span class="truncate">Badges</span>
+<input class="invisible w-0 absolute" name="view-toggle" type="radio" value="Badges"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md has-[:checked]:bg-white dark:has-[:checked]:bg-[#101623] has-[:checked]:shadow-[0_0_4px_rgba(0,0,0,0.1)] has-[:checked]:text-primary dark:has-[:checked]:text-white text-slate-500 dark:text-[#90a4cb] text-sm font-bold leading-normal transition-all">
+<span class="truncate">Swag</span>
+<input class="invisible w-0 absolute" name="view-toggle" type="radio" value="Swag"/>
+</label>
+</div>
+</div>
+<!-- Digital Presence Section -->
+<div class="px-4 pb-6">
+<div class="flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-primary text-xl">terminal</span>
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">GitHub Readme Badges</h3>
+</div>
+<div class="bg-white dark:bg-[#1a1a1f] rounded-lg p-4 shadow-sm border border-slate-200 dark:border-slate-800">
+<div class="flex flex-wrap gap-3">
+<div class="flex items-center rounded overflow-hidden">
+<div class="bg-[#2d333b] px-2 py-1 text-xs text-slate-300 font-mono">build</div>
+<div class="bg-[#2ea043] px-2 py-1 text-xs text-white font-mono font-bold">passing</div>
+</div>
+<div class="flex items-center rounded overflow-hidden">
+<div class="bg-[#2d333b] px-2 py-1 text-xs text-slate-300 font-mono">flux</div>
+<div class="bg-primary px-2 py-1 text-xs text-white font-mono font-bold">certified</div>
+</div>
+<div class="flex items-center rounded overflow-hidden">
+<div class="bg-[#2d333b] px-2 py-1 text-xs text-slate-300 font-mono">uptime</div>
+<div class="bg-primary/80 px-2 py-1 text-xs text-white font-mono font-bold">100%</div>
+</div>
+<div class="flex items-center rounded overflow-hidden">
+<div class="bg-[#2d333b] px-2 py-1 text-xs text-slate-300 font-mono">version</div>
+<div class="bg-blue-600 px-2 py-1 text-xs text-white font-mono font-bold">v2.0.1</div>
+</div>
+</div>
+<div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
+<span class="text-xs font-mono text-slate-400">![Flux Status](https://img.shields.io/flux...)</span>
+<span class="material-symbols-outlined text-slate-400 text-sm cursor-pointer hover:text-white">content_copy</span>
+</div>
+</div>
+</div>
+<!-- Iconography Grid -->
+<div class="px-4 pb-6">
+<div class="flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-primary text-xl">apps</span>
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Ecosystem Icons</h3>
+</div>
+<div class="grid grid-cols-4 gap-3">
+<!-- Discord -->
+<div class="aspect-square bg-white dark:bg-[#1a1a1f] rounded-lg flex flex-col items-center justify-center border border-slate-200 dark:border-slate-800 p-2 group cursor-pointer hover:border-primary/50 transition-colors">
+<div class="size-8 rounded-full bg-[#5865F2] flex items-center justify-center text-white mb-2">
+<span class="material-symbols-outlined text-[18px]">forum</span>
+</div>
+<span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Discord</span>
+</div>
+<!-- VS Code Extension -->
+<div class="aspect-square bg-white dark:bg-[#1a1a1f] rounded-lg flex flex-col items-center justify-center border border-slate-200 dark:border-slate-800 p-2 group cursor-pointer hover:border-primary/50 transition-colors">
+<div class="size-8 flex items-center justify-center text-[#007ACC] mb-2">
+<span class="material-symbols-outlined text-[28px]">code_blocks</span>
+</div>
+<span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">VS Code</span>
+</div>
+<!-- Python Ext -->
+<div class="aspect-square bg-white dark:bg-[#1a1a1f] rounded-lg flex flex-col items-center justify-center border border-slate-200 dark:border-slate-800 p-2 group cursor-pointer hover:border-primary/50 transition-colors">
+<div class="size-8 flex items-center justify-center text-[#FFD43B] mb-2">
+<span class="material-symbols-outlined text-[28px]">data_object</span>
+</div>
+<span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Python</span>
+</div>
+<!-- Rust Ext -->
+<div class="aspect-square bg-white dark:bg-[#1a1a1f] rounded-lg flex flex-col items-center justify-center border border-slate-200 dark:border-slate-800 p-2 group cursor-pointer hover:border-primary/50 transition-colors">
+<div class="size-8 flex items-center justify-center text-orange-500 mb-2">
+<span class="material-symbols-outlined text-[28px]">settings_suggest</span>
+</div>
+<span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Rust</span>
+</div>
+</div>
+</div>
+<!-- Pro Badge Showcase -->
+<div class="px-4 pb-6">
+<div class="flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-primary text-xl">verified</span>
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Pro Status Badge</h3>
+</div>
+<div class="relative bg-gradient-to-br from-slate-900 to-black rounded-xl p-6 border border-slate-800 overflow-hidden group">
+<!-- Glow Effect -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-primary/20 rounded-full blur-3xl group-hover:bg-primary/30 transition-all duration-500"></div>
+<div class="relative z-10 flex flex-col items-center">
+<div class="flex items-center gap-2 px-4 py-2 bg-black/40 backdrop-blur-md rounded-full border border-primary/50 shadow-[0_0_15px_rgba(13,89,242,0.3)]">
+<span class="material-symbols-outlined text-primary fill-1">bolt</span>
+<span class="text-white font-bold tracking-wider text-sm">FLUX PRO</span>
+</div>
+<p class="text-center text-slate-400 text-xs mt-4 max-w-[200px]">Premium user identifier. Displays on profile and commit history.</p>
+</div>
+</div>
+</div>
+<!-- Mockups Carousel -->
+<div class="px-4 pb-6">
+<div class="flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-primary text-xl">sticker</span>
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Physical Swag</h3>
+</div>
+<div class="flex overflow-x-auto gap-4 pb-4 -mx-4 px-4 scrollbar-hide snap-x">
+<!-- Laptop Sticker Mockup -->
+<div class="min-w-[280px] snap-center bg-white dark:bg-[#1a1a1f] rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800">
+<div class="h-40 w-full bg-cover bg-center relative" data-alt="Dark metallic laptop lid with developer stickers" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDjM35PgNV04hx8S1dcyEi82SiYTI4MLzw0QCjiVuDBlgayTNdDcJFz0Mtzqr3N1mJF8_5wwzC0FrfIlVs7LOrziF8G_9x-NllIlauf9FnSX3tgQ4k60tOjXaD9-GDlikqWbqKZ3COdEJq_RrssRPeMpkIdY8qGXHz-HXQ9b9WPZB1eBOYNtY4t0_yiC1BtQP8DUQHSztaQTAwraWAmPAHEz3ShpKjl6ss2gQEQPM6tjzc0DfbIEXCjt9YJPfFA2q7ZraNM7PErBxLK');">
+<div class="absolute inset-0 bg-black/40"></div>
+<!-- Overlay Sticker -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-12deg] bg-white p-1 rounded-full shadow-lg">
+<div class="size-16 rounded-full bg-primary flex items-center justify-center border-4 border-white">
+<span class="font-bold text-white text-xs text-center leading-tight">I CODE<br/>IN FLUX</span>
+</div>
+</div>
+</div>
+<div class="p-3">
+<h4 class="text-sm font-bold text-slate-900 dark:text-white">Laptop Sticker Pack</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">Die-cut vinyl, matte finish</p>
+</div>
+</div>
+<!-- Mobile App Icon Mockup -->
+<div class="min-w-[280px] snap-center bg-white dark:bg-[#1a1a1f] rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800">
+<div class="h-40 w-full bg-cover bg-center relative" data-alt="Smartphone showing app grid on home screen" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBFDh4UuWvlI08q156Ebrg28Q0fq0r6roiXv8dv3IcuXilBD4OR_LA5iidT-jK8c7PzrDqJUAszaAozW_R-8s4xB3lZJ29GJY5PQq9bJ5ea4UmW5MVcweL9Yt8KAPsblU6ObqkP4iCQ_F7h87gtu4QbPxhip1F9p49aji2MDPRdngiD5JA7hSLnGwfrD02yArAsa6seJGk9jnHrI_Gp1oYJiVOA8vsQtPffOZAAR189H6qaiDSoO7lnU9zYc6NCd31L_0LDlsnxrDlX');">
+<div class="absolute inset-0 bg-black/20"></div>
+<!-- Overlay App Icon -->
+<div class="absolute bottom-6 right-12 size-12 rounded-xl bg-[#101622] border border-white/20 shadow-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-2xl">code</span>
+</div>
+</div>
+<div class="p-3">
+<h4 class="text-sm font-bold text-slate-900 dark:text-white">iOS App Icon</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">Dark mode variant</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Download Button -->
+<div class="px-4 py-3 mt-auto">
+<button class="w-full flex items-center justify-center rounded-lg h-12 bg-primary text-white gap-2 px-4 text-base font-bold leading-normal tracking-[0.015em] hover:bg-blue-700 active:scale-[0.98] transition-all shadow-[0_4px_14px_0_rgba(13,89,242,0.39)]">
+<span class="material-symbols-outlined text-[20px]">download</span>
+<span class="truncate">Download All Assets</span>
+</button>
+<p class="text-center text-xs text-slate-500 dark:text-slate-400 mt-3">Includes .SVG, .PNG, and .FIG files</p>
+</div>
+<div class="h-5"></div>
+</div>
+</body></html>

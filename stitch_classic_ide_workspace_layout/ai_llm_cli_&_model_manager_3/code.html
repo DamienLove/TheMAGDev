@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unified MCP &amp; Tools Hub</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "primary-dark": "#0e45b5",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1a1d24",
+                        "surface-darker": "#151920",
+                        "terminal-bg": "#0c0e12",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["Space Grotesk", "monospace"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>.scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display h-screen flex flex-col overflow-hidden selection:bg-primary selection:text-white">
+<header class="shrink-0 flex items-center justify-between p-4 bg-background-light dark:bg-background-dark border-b border-slate-200 dark:border-slate-800 z-20">
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="text-xl font-bold tracking-tight">MCP Hub</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-white">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="size-8 rounded-full bg-gradient-to-tr from-primary to-purple-500 flex items-center justify-center text-xs font-bold text-white shadow-lg shadow-primary/20">
+                JS
+            </div>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto scrollbar-hide pb-24">
+<div class="p-4 pb-0">
+<div class="flex items-center justify-between bg-white dark:bg-surface-dark p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-primary/10 rounded-lg text-primary">
+<span class="material-symbols-outlined">hub</span>
+</div>
+<div>
+<h2 class="font-bold text-base dark:text-white">Enable MCP Service</h2>
+<p class="text-xs text-slate-500 dark:text-slate-400">Master control for all servers</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<div class="mt-4">
+<div class="flex items-center justify-between px-4 mb-3">
+<h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active Servers</h3>
+<span class="text-xs font-mono text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">4 Running</span>
+</div>
+<div class="flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide">
+<div class="min-w-[150px] bg-white dark:bg-surface-dark p-3 rounded-xl border border-primary/30 shadow-sm relative group flex-shrink-0">
+<div class="absolute top-3 right-3">
+<span class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+</span>
+</div>
+<div class="size-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 mb-2">
+<span class="material-symbols-outlined">folder_open</span>
+</div>
+<h4 class="font-bold text-sm text-slate-900 dark:text-white truncate">FileSystem</h4>
+<p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 truncate">local://root</p>
+</div>
+<div class="min-w-[150px] bg-white dark:bg-surface-dark p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm relative group flex-shrink-0">
+<div class="absolute top-3 right-3">
+<span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+</div>
+<div class="size-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-2">
+<span class="material-symbols-outlined">database</span>
+</div>
+<h4 class="font-bold text-sm text-slate-900 dark:text-white truncate">Postgres DB</h4>
+<p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 truncate">localhost:5432</p>
+</div>
+<div class="min-w-[150px] bg-white dark:bg-surface-dark p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm relative group flex-shrink-0">
+<div class="absolute top-3 right-3">
+<span class="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
+</div>
+<div class="size-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 mb-2">
+<span class="material-symbols-outlined">code_blocks</span>
+</div>
+<h4 class="font-bold text-sm text-slate-900 dark:text-white truncate">GitHub</h4>
+<p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 truncate">auth: pending</p>
+</div>
+<button class="min-w-[60px] bg-transparent border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-center text-slate-400 dark:text-slate-600 hover:border-primary hover:text-primary transition-colors flex-shrink-0">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+<div class="p-4 pt-2">
+<h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Tools &amp; Resources Explorer</h3>
+<div class="relative mb-4">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
+<input class="w-full pl-10 pr-10 py-3 bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-slate-500 dark:text-white" placeholder="Search tools (e.g., read_file)..." type="text"/>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
+<kbd class="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-mono font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">⌘K</kbd>
+</div>
+</div>
+<div class="flex flex-col gap-3">
+<div class="bg-white dark:bg-surface-dark rounded-xl border border-primary/40 shadow-md overflow-hidden transition-all">
+<div class="p-4 flex items-start gap-3 border-b border-slate-100 dark:border-slate-800/50 bg-primary/5">
+<div class="size-8 rounded bg-primary/20 flex items-center justify-center text-primary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">description</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<h4 class="font-bold text-slate-900 dark:text-white font-mono text-sm">read_file</h4>
+<span class="material-symbols-outlined text-slate-400 transform rotate-180 text-[20px]">expand_less</span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">Reads the contents of a file from the filesystem.</p>
+<div class="mt-2 flex gap-2">
+<span class="text-[10px] bg-slate-100 dark:bg-surface-darker text-slate-500 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">filesystem</span>
+<span class="text-[10px] bg-slate-100 dark:bg-surface-darker text-slate-500 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">read-only</span>
+</div>
+</div>
+</div>
+<div class="p-4 bg-slate-50/50 dark:bg-surface-dark/50">
+<label class="block mb-3">
+<span class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 block">path <span class="text-red-400">*</span></span>
+<div class="relative">
+<input class="w-full bg-white dark:bg-surface-darker border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-slate-700 dark:text-slate-300 focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="/path/to/file.txt" type="text" value="./src/App.tsx"/>
+</div>
+<p class="text-[10px] text-slate-400 mt-1">The absolute path to the file to read.</p>
+</label>
+<div class="flex justify-end pt-2">
+<button class="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all active:scale-95 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-[18px]">play_arrow</span>
+                                Invoke Tool
+                            </button>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors cursor-pointer">
+<div class="p-4 flex items-center gap-3">
+<div class="size-8 rounded bg-purple-500/10 flex items-center justify-center text-purple-500 shrink-0">
+<span class="material-symbols-outlined text-[18px]">send</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<h4 class="font-bold text-slate-900 dark:text-white font-mono text-sm">send_message</h4>
+<span class="material-symbols-outlined text-slate-400 text-[20px]">expand_more</span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">Send a message to a Slack channel or user.</p>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors cursor-pointer">
+<div class="p-4 flex items-center gap-3">
+<div class="size-8 rounded bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0">
+<span class="material-symbols-outlined text-[18px]">table_chart</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<h4 class="font-bold text-slate-900 dark:text-white font-mono text-sm">list_tables</h4>
+<span class="material-symbols-outlined text-slate-400 text-[20px]">expand_more</span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">List all tables in the connected database.</p>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors cursor-pointer">
+<div class="p-4 flex items-center gap-3">
+<div class="size-8 rounded bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<h4 class="font-bold text-slate-900 dark:text-white font-mono text-sm">run_command</h4>
+<span class="material-symbols-outlined text-slate-400 text-[20px]">expand_more</span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">Execute a shell command in the environment.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="h-6"></div> 
+</div>
+</main>
+<div class="absolute bottom-6 right-4 z-30">
+<button class="flex items-center justify-center size-14 rounded-full bg-primary text-white shadow-xl shadow-primary/30 hover:bg-primary-dark transition-transform hover:scale-105 active:scale-95 group relative">
+<span class="material-symbols-outlined text-[28px]">add</span>
+<span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-surface-darker text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-slate-700">Add Server</span>
+</button>
+</div>
+
+</body></html>

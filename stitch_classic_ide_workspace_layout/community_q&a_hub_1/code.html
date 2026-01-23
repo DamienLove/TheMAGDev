@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Community Q&amp;A Hub</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+            extend: {
+                colors: {
+                "primary": "#0d59f2",
+                "background-light": "#f5f6f8",
+                "background-dark": "#101622",
+                "surface-dark": "#1a2332", // Custom surface color for cards
+                "surface-highlight": "#252f42",
+                },
+                fontFamily: {
+                "display": ["Space Grotesk", "sans-serif"],
+                "body": ["Noto Sans", "sans-serif"],
+                },
+                borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+            },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-900 dark:text-gray-100 antialiased selection:bg-primary selection:text-white">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden pb-20">
+<!-- Header -->
+<header class="sticky top-0 z-30 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-gray-200 dark:border-white/10">
+<div class="flex items-center justify-between px-4 py-3">
+<div>
+<h2 class="text-xl font-bold leading-tight tracking-tight">Community Hub</h2>
+<p class="text-xs text-gray-500 dark:text-gray-400 font-medium">IDE Support &amp; Discussion</p>
+</div>
+<button class="flex items-center gap-2 bg-primary hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition-colors shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span class="text-sm font-bold">Ask</span>
+</button>
+</div>
+<!-- Search Bar -->
+<div class="px-4 pb-3">
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-2.5 border-none rounded-xl bg-gray-200 dark:bg-surface-dark text-sm placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-surface-highlight transition-all" placeholder="Search questions, tags, or errors..." type="text"/>
+</div>
+</div>
+</header>
+<!-- Main Content Scroll Area -->
+<main class="flex-1 flex flex-col w-full">
+<!-- Top Contributors (Horizontal Scroll) -->
+<section class="py-4 border-b border-gray-200 dark:border-white/5">
+<div class="flex items-center justify-between px-4 mb-3">
+<h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Top Contributors</h3>
+<a class="text-xs font-bold text-primary hover:underline" href="#">View All</a>
+</div>
+<div class="flex overflow-x-auto px-4 gap-4 no-scrollbar pb-1 snap-x">
+<!-- Contributor 1 -->
+<div class="flex flex-col items-center gap-1 shrink-0 snap-start">
+<div class="relative">
+<img class="w-12 h-12 rounded-full border-2 border-primary p-0.5 object-cover" data-alt="Portrait of a young man with glasses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBn9S75XOIxcl0HSTEJnM2hfA9HIswNPWM2fmIY5-IRmf2ZF2SWDIhJ_8bpi-T171iHkLuewTROzNKOvVv0gUxxQMCpuLNTTVjgS4cX8gAuh9a2QPzd5j_hx6hWZsm2SktVugjGnMAku2udWISpY8bkvVu_JFEvgVFd5-2zvyaOER_RnkZKajy9haUcK5tb2jgdBKBX3btO5GeKwrK-h4yCKmNoFiAp78Dc8SmX49tnM5sqL6ZmqqpybhT27dBN61uoc28fGye5qgP5"/>
+<div class="absolute -bottom-1 -right-1 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-background-dark">1</div>
+</div>
+<span class="text-xs font-medium max-w-[60px] truncate">@dev_guru</span>
+<span class="text-[10px] text-gray-500 font-mono">5.2k</span>
+</div>
+<!-- Contributor 2 -->
+<div class="flex flex-col items-center gap-1 shrink-0 snap-start">
+<div class="relative">
+<img class="w-12 h-12 rounded-full border-2 border-transparent dark:border-white/10 p-0.5 object-cover" data-alt="Portrait of a smiling woman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeKeJ62yf19PgjEaTe8tfmi4_-bPgsC0N6g90Xb4W5gwr9s-oKSZ5Fxp6WCzGtbidn-KrF6rNE2B2i_wk_lkmnX-NLSxPn18HjqciFmqvcPxHmfPRn3-Nh9NoMAHlNahpEudwLDmcu-wNlLQsXb5lZL8SphiJ3GnrlPjSoSTJ6g_Z-a-aHtrmKFsdqdJrn9VyYMMOlKbIcWS6JDR4xcWP7DMJ5xlFMSr6E5__JWpIt0IdLGX4NafC-M7lhzgKyBwYWAwAVdmPkmfIe"/>
+</div>
+<span class="text-xs font-medium max-w-[60px] truncate">@sarah_js</span>
+<span class="text-[10px] text-gray-500 font-mono">3.8k</span>
+</div>
+<!-- Contributor 3 -->
+<div class="flex flex-col items-center gap-1 shrink-0 snap-start">
+<div class="relative">
+<img class="w-12 h-12 rounded-full border-2 border-transparent dark:border-white/10 p-0.5 object-cover" data-alt="Portrait of a man with beard" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb6Ds-gt7Z-upleOglvngoKo2GO4ZJRWhIcOl2cGWPd1gCz1_o0NLah_P6iCbFXvulh223AQP-QNNISyOel1T93Y_FhIL3XRZHbNAxxIoVeZVpthbWunEt_EzVDUEBmx1FaLjKMrmoaKnv0k71BPQeW3VGx89kS45u8ejDDQkTvpQtbQREYgEFhQcRg33qMMYJJG7QcCr1n1eDrYAPFlnLzuSec7h9AcA9wvt3-n3KKXPv00u9xHNwDqYqz8O4GjR_oPQ7ACDVGYqd"/>
+</div>
+<span class="text-xs font-medium max-w-[60px] truncate">@alex_rust</span>
+<span class="text-[10px] text-gray-500 font-mono">2.1k</span>
+</div>
+<!-- Contributor 4 -->
+<div class="flex flex-col items-center gap-1 shrink-0 snap-start">
+<div class="relative">
+<img class="w-12 h-12 rounded-full border-2 border-transparent dark:border-white/10 p-0.5 object-cover" data-alt="Portrait of a serious man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCg-ud7mvMdY8fVjMe6bMAke8jIKaGFp6tLrhHoDronEl7stjJzG4sXNwYeW8heAcT9raCcfrv7VQhj6IAZlD5MOyGoRQToQk0pENURYuX92cz4gpiWKJcz2J-FuB63SXv_oICduKWQcDWS4dD2h96WdrLZY5Tas_9zsIZzydS2TKEPMyMuPWSonTf75WeMSzV6pm_cdw-wHD89p0p47I5SV8YjntrTf2eXixyUelBVrBqirENnW9hAFr3iQIGks_c9H1SiGUbNBkwJ"/>
+</div>
+<span class="text-xs font-medium max-w-[60px] truncate">@m_foster</span>
+<span class="text-[10px] text-gray-500 font-mono">1.9k</span>
+</div>
+<!-- Contributor 5 -->
+<div class="flex flex-col items-center gap-1 shrink-0 snap-start">
+<div class="relative">
+<div class="w-12 h-12 rounded-full bg-surface-dark flex items-center justify-center border-2 border-transparent dark:border-white/10 text-gray-400">
+<span class="material-symbols-outlined">person</span>
+</div>
+</div>
+<span class="text-xs font-medium max-w-[60px] truncate">@you</span>
+<span class="text-[10px] text-gray-500 font-mono">--</span>
+</div>
+</div>
+</section>
+<!-- Trending Tags -->
+<section class="py-2 pb-4">
+<div class="flex overflow-x-auto px-4 gap-2 no-scrollbar">
+<button class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/20 border border-primary/20 text-primary hover:bg-primary/30 transition-colors whitespace-nowrap">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+<span class="text-xs font-bold">Trending</span>
+</button>
+<button class="flex items-center px-3 py-1.5 rounded-full bg-surface-dark border border-white/5 text-gray-300 hover:bg-surface-highlight hover:text-white transition-colors whitespace-nowrap">
+<span class="text-xs font-medium">#flutter</span>
+</button>
+<button class="flex items-center px-3 py-1.5 rounded-full bg-surface-dark border border-white/5 text-gray-300 hover:bg-surface-highlight hover:text-white transition-colors whitespace-nowrap">
+<span class="text-xs font-medium">#ios-build-error</span>
+</button>
+<button class="flex items-center px-3 py-1.5 rounded-full bg-surface-dark border border-white/5 text-gray-300 hover:bg-surface-highlight hover:text-white transition-colors whitespace-nowrap">
+<span class="text-xs font-medium">#mcp-setup</span>
+</button>
+<button class="flex items-center px-3 py-1.5 rounded-full bg-surface-dark border border-white/5 text-gray-300 hover:bg-surface-highlight hover:text-white transition-colors whitespace-nowrap">
+<span class="text-xs font-medium">#rust</span>
+</button>
+</div>
+</section>
+<!-- Feed Tabs -->
+<div class="sticky top-[125px] z-20 bg-background-light dark:bg-background-dark border-b border-gray-200 dark:border-white/10 px-4">
+<div class="flex gap-6">
+<button class="py-3 text-sm font-bold text-primary border-b-2 border-primary">
+                        Recent Questions
+                    </button>
+<button class="py-3 text-sm font-medium text-gray-500 hover:text-gray-300 dark:text-gray-400 border-b-2 border-transparent hover:border-gray-700 transition-colors">
+                        Unanswered
+                    </button>
+<button class="py-3 text-sm font-medium text-gray-500 hover:text-gray-300 dark:text-gray-400 border-b-2 border-transparent hover:border-gray-700 transition-colors">
+                        My Questions
+                    </button>
+</div>
+</div>
+<!-- Question List -->
+<div class="flex flex-col">
+<!-- Card 1: High Engagement / Solved -->
+<article class="flex gap-3 p-4 border-b border-gray-200 dark:border-white/5 hover:bg-surface-dark/50 transition-colors cursor-pointer group">
+<!-- Stats Column -->
+<div class="flex flex-col items-center gap-2 min-w-[48px] shrink-0 pt-1">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-[18px] text-primary">expand_less</span>
+<span class="text-sm font-bold text-gray-900 dark:text-white">34</span>
+</div>
+<div class="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-green-500/20 border border-green-500/30 text-green-500">
+<span class="text-sm font-bold">5</span>
+<span class="text-[8px] uppercase font-bold tracking-wide">Ans</span>
+</div>
+</div>
+<!-- Content Column -->
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-start justify-between gap-2 mb-1">
+<h3 class="text-base font-bold text-gray-900 dark:text-gray-100 leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                                iOS Build fails on XCode 14.2 update with error code 65
+                            </h3>
+<span class="shrink-0 material-symbols-outlined text-[18px] text-green-500" title="Solved">check_circle</span>
+</div>
+<p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3 font-body">
+                            I'm trying to run the build pipeline but it fails consistently after updating the environment. The logs show a signing issue despite the certificates being valid...
+                        </p>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-surface-dark text-blue-400 border border-blue-400/20">#ios</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-surface-dark text-red-400 border border-red-400/20">#build-error</span>
+</div>
+<div class="flex items-center gap-1.5">
+<img class="w-4 h-4 rounded-full object-cover" data-alt="Small avatar of user" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCofiB9PmmBHZWGWG0Zvy6q_0unmYYuOGmQV7FG2l7m9HRJp49BzftRsEEuFCsVDRUcW3SzVJ1VdoA0U038FHCtvvKHv-5tRoEksoeDl1FLA_fkWLC7bDSNgnJrPblfGh2kzhxvllq5YjmRTsETOSJqfnJMo7ZcF9XJLKZ1it5JurRfIqDHSHoQIRQ5GMqyg9bdYhGLasqIVvh_xhX72NBV3Cv3xJ3XpblrW161Zqddq3J2OhebyNXNg0O8l7GtIPc3300ww85Xy5t7"/>
+<span class="text-[11px] text-gray-500">2h ago</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 2: Medium Engagement -->
+<article class="flex gap-3 p-4 border-b border-gray-200 dark:border-white/5 hover:bg-surface-dark/50 transition-colors cursor-pointer group">
+<!-- Stats Column -->
+<div class="flex flex-col items-center gap-2 min-w-[48px] shrink-0 pt-1">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-[18px] text-gray-500 group-hover:text-primary transition-colors">expand_less</span>
+<span class="text-sm font-bold text-gray-600 dark:text-gray-300">12</span>
+</div>
+<div class="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-surface-dark border border-white/10 text-gray-400">
+<span class="text-sm font-bold">2</span>
+<span class="text-[8px] uppercase font-bold tracking-wide">Ans</span>
+</div>
+</div>
+<!-- Content Column -->
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-start justify-between gap-2 mb-1">
+<h3 class="text-base font-bold text-gray-900 dark:text-gray-100 leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                                How to correctly configure MCP server for local dev?
+                            </h3>
+</div>
+<p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3 font-body">
+                            The documentation is a bit unclear on setting up the Model Context Protocol server locally. I'm getting a connection refused error on port 8080...
+                        </p>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-surface-dark text-purple-400 border border-purple-400/20">#mcp</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-surface-dark text-gray-400 border border-gray-500/20">#config</span>
+</div>
+<div class="flex items-center gap-1.5">
+<div class="w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center text-[8px] text-white font-bold">M</div>
+<span class="text-[11px] text-gray-500">5h ago</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 3: New / Unanswered -->
+<article class="flex gap-3 p-4 border-b border-gray-200 dark:border-white/5 hover:bg-surface-dark/50 transition-colors cursor-pointer group">
+<!-- Stats Column -->
+<div class="flex flex-col items-center gap-2 min-w-[48px] shrink-0 pt-1">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-[18px] text-gray-500 group-hover:text-primary transition-colors">expand_less</span>
+<span class="text-sm font-bold text-gray-600 dark:text-gray-400">0</span>
+</div>
+<div class="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-transparent border border-dashed border-gray-600 text-gray-500">
+<span class="text-sm font-bold">0</span>
+<span class="text-[8px] uppercase font-bold tracking-wide">Ans</span>
+</div>
+</div>
+<!-- Content Column -->
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-start justify-between gap-2 mb-1">
+<h3 class="text-base font-bold text-gray-900 dark:text-gray-100 leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                                Flutter hot reload not working in web IDE environment
+                            </h3>
+</div>
+<p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3 font-body">
+                            Is hot reload supported on the iPad version of the web IDE? It works fine on desktop Chrome but seems to hang here.
+                        </p>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-surface-dark text-cyan-400 border border-cyan-400/20">#flutter</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-surface-dark text-orange-400 border border-orange-400/20">#bug</span>
+</div>
+<div class="flex items-center gap-1.5">
+<img class="w-4 h-4 rounded-full object-cover" data-alt="Small avatar of user" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKjnpN6SPm1TAgPpnR3q0ty2VfnvjvgOSEg1ghfReGmHygBe4VBp4Xgjldh21UVz2zHlmxwkov6fb1EvXWiZvjhbZ0fQzk9DMHtwRIABmJDFWrW3W_aPkNN1_51Bx30fjXxbhsOsq1xTmBpdpQD5UmkCCmls2q3auxXjTug97wmt43vjyv9T9qvuN00GV8uUIz95EsRFmKL8CXPQgMLBVWW8KZsoSCiI3j_Zik0wRkl7VtmvxA0C17ZBonn_qSi1A52uZ9b1lTJ9hq"/>
+<span class="text-[11px] text-gray-500">8h ago</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 4: Python -->
+<article class="flex gap-3 p-4 border-b border-gray-200 dark:border-white/5 hover:bg-surface-dark/50 transition-colors cursor-pointer group">
+<!-- Stats Column -->
+<div class="flex flex-col items-center gap-2 min-w-[48px] shrink-0 pt-1">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-[18px] text-gray-500 group-hover:text-primary transition-colors">expand_less</span>
+<span class="text-sm font-bold text-gray-600 dark:text-gray-300">8</span>
+</div>
+<div class="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-surface-dark border border-white/10 text-gray-400">
+<span class="text-sm font-bold">1</span>
+<span class="text-[8px] uppercase font-bold tracking-wide">Ans</span>
+</div>
+</div>
+<!-- Content Column -->
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-start justify-between gap-2 mb-1">
+<h3 class="text-base font-bold text-gray-900 dark:text-gray-100 leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                                ImportError: cannot import name 'soft_unicode' from 'markupsafe'
+                            </h3>
+</div>
+<p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3 font-body">
+                            My python project dependencies seem broken after the update. I checked requirements.txt but everything seems in order.
+                        </p>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-surface-dark text-yellow-400 border border-yellow-400/20">#python</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-surface-dark text-gray-400 border border-gray-500/20">#pip</span>
+</div>
+<div class="flex items-center gap-1.5">
+<div class="w-4 h-4 rounded-full bg-yellow-600 flex items-center justify-center text-[8px] text-white font-bold">J</div>
+<span class="text-[11px] text-gray-500">1d ago</span>
+</div>
+</div>
+</div>
+</article>
+</div>
+<!-- Loading Trigger / Footer -->
+<div class="p-6 text-center">
+<div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-dark text-gray-400 text-xs font-medium cursor-pointer hover:bg-surface-highlight hover:text-white transition-colors">
+<span>Load more questions</span>
+<span class="material-symbols-outlined text-[14px]">arrow_downward</span>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 w-full bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-xl border-t border-gray-200 dark:border-white/10 z-40 pb-safe">
+<div class="flex items-center justify-around h-16 max-w-md mx-auto">
+<a class="flex flex-col items-center gap-1 w-16 text-gray-400 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">code</span>
+<span class="text-[10px] font-medium">Editor</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-16 text-gray-400 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">rocket_launch</span>
+<span class="text-[10px] font-medium">Builds</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-16 text-primary relative" href="#">
+<div class="absolute -top-1 right-3 w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<span class="material-symbols-outlined text-[24px] fill-current">forum</span>
+<span class="text-[10px] font-bold">Community</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-16 text-gray-400 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">settings</span>
+<span class="text-[10px] font-medium">Settings</span>
+</a>
+</div>
+<!-- iOS Home Indicator spacing -->
+<div class="h-[env(safe-area-inset-bottom)] w-full"></div>
+</nav>
+<!-- Floating Action Button (Alternative Mobile) - Hidden on desktop, visible if we scroll down and header Ask button disappears? No, keeping header prominent is safer. 
+             But keeping a FAB is very standard for "Add new" actions on mobile. Let's add it for extra affordance. -->
+<div class="fixed bottom-20 right-4 z-50 md:hidden">
+<button class="flex items-center justify-center w-14 h-14 bg-primary text-white rounded-full shadow-xl shadow-primary/30 hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[28px]">edit</span>
+</button>
+</div>
+</div>
+<style>
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        /* Safe area for iPhone home indicator */
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+</body></html>

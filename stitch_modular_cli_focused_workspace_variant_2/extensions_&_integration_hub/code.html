@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Extensions &amp; Integration Hub | DevHub IDE</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1337ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101322",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="w-72 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-[#111218]">
+<div class="p-6 flex items-center gap-3">
+<div class="bg-primary size-10 rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">terminal</span>
+</div>
+<div>
+<h1 class="text-base font-bold leading-none">DevHub IDE</h1>
+<p class="text-xs text-slate-500 dark:text-[#9da1b9] mt-1">Enterprise Workspace</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-2 mt-4">
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-[22px]">hub</span>
+<p class="text-sm font-medium">Integrations</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#282b39] transition-colors cursor-pointer text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-[22px]">extension</span>
+<p class="text-sm font-medium">Extensions</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#282b39] transition-colors cursor-pointer text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-[22px]">share</span>
+<p class="text-sm font-medium">Sharing Settings</p>
+</div>
+<div class="pt-4 pb-2 px-3">
+<p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Account</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#282b39] transition-colors cursor-pointer text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-[22px]">payments</span>
+<p class="text-sm font-medium">Billing</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#282b39] transition-colors cursor-pointer text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-[22px]">vpn_key</span>
+<p class="text-sm font-medium">API Access</p>
+</div>
+</nav>
+<div class="p-4 mt-auto border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-200 dark:bg-slate-700 bg-cover bg-center" data-alt="User profile avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBybwnK05OmSF2cdQkoZ_6Dd61yESFARBFfCNS5Ot4SKXXkRblwtLUc2WvoAa2aReJX8AAqulUgq8gJb_-aQsyiem7gZoSE1D4qCTjys1jOUXYKCwunmisHxWwb7B5JmBbBD2wXQRkSFWe2JKg-3hM-ld4SVX34-qoFtT6IRk7gWSZS21z6XUYhoKdFKjekfO-A0d0lAy38d1iDRcGKYvN82u8WVVCs8nk9fovr8g3J8KAIDtERs_poFbbDCDq2Xgb0N3XmzGoX-MI')"></div>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-bold truncate">Alex Rivera</p>
+<p class="text-[10px] text-slate-500 truncate">alex@devhub.io</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-sm">settings</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col overflow-y-auto">
+<!-- Top Header -->
+<header class="sticky top-0 z-10 flex items-center justify-between bg-white/80 dark:bg-[#111218]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-8 py-4">
+<div class="flex items-center gap-6">
+<h2 class="text-xl font-bold tracking-tight">Extensions &amp; Integration Hub</h2>
+<div class="relative w-64 group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-slate-100 dark:bg-[#282b39] border-none rounded-lg pl-10 py-2 text-sm focus:ring-2 focus:ring-primary/50 transition-all outline-none" placeholder="Search resources..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-primary/90 transition-all">
+<span class="material-symbols-outlined text-lg">add</span>
+<span>Add Integration</span>
+</button>
+<button class="p-2 rounded-lg bg-slate-100 dark:bg-[#282b39] hover:bg-slate-200 dark:hover:bg-[#32364a] transition-colors relative">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-300">notifications</span>
+<span class="absolute top-2 right-2.5 size-2 bg-red-500 rounded-full border-2 border-white dark:border-[#282b39]"></span>
+</button>
+</div>
+</header>
+<div class="p-8 max-w-6xl mx-auto w-full">
+<!-- Connected Services Section -->
+<section class="mb-10">
+<div class="flex items-center justify-between mb-6 px-1">
+<div>
+<h3 class="text-lg font-bold">Connected Services</h3>
+<p class="text-sm text-slate-500 dark:text-[#9da1b9]">Linked external accounts and cloud providers</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- GitHub Card -->
+<div class="bg-white dark:bg-[#1a1c26] border border-slate-200 dark:border-slate-800 p-5 rounded-xl hover:border-primary/40 transition-all group">
+<div class="flex justify-between items-start mb-4">
+<div class="size-12 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center overflow-hidden">
+<img class="w-8 h-8 opacity-80 group-hover:opacity-100 transition-opacity" data-alt="GitHub brand logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-KH7TPkzsjHNfJcFWVnnfjXp8lh5U-YcAkRXdpuSw7r_8YxjqKhm3AJGc2t-EnwY4FvwTvR9rvR6t7n1ftv8jaETxGZi8JLAp-YEzquaomVr0nBrcyGHw_SDSKo_IfqaS4LTGcGEpOtm7Z58xUuVeiXBgQMApamB78te7PKNsiz_kdVm5fNTOmDupca-pKWXtZa-m4zyPg516gKWttjvCp2luAApTXj4v_4MFf1L1KHP9GQ8DXKTdBdjkb-ry4L_wSmNpu-9Z4gI"/>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/10 text-green-500 flex items-center gap-1">
+<span class="size-1.5 bg-green-500 rounded-full"></span> Active
+                                </span>
+</div>
+<h4 class="font-bold text-base">GitHub</h4>
+<p class="text-xs text-slate-500 dark:text-[#9da1b9] mt-1">@dev-alex-rivera</p>
+<div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+<span class="text-[10px] text-slate-400 uppercase font-bold">Auto-Sync ON</span>
+<button class="text-xs font-bold text-primary hover:underline">Manage</button>
+</div>
+</div>
+<!-- AWS Card -->
+<div class="bg-white dark:bg-[#1a1c26] border border-slate-200 dark:border-slate-800 p-5 rounded-xl hover:border-primary/40 transition-all group">
+<div class="flex justify-between items-start mb-4">
+<div class="size-12 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center overflow-hidden">
+<img class="w-8 h-8 opacity-80 group-hover:opacity-100 transition-opacity" data-alt="AWS brand logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzgot53KNOPYoTaWdsj-AZj1_zrVlgKjAELnfXuoAqTFPOWXWTYKBl-QOcKr_Rb2u78qiSIMTU5Ja0vKkk-jNQNcc4kBkWOOB-t1zwCO5yHc5Y4t2RPFWRztuUUhfL83E1u1homQr33Qtk1Nj1CrTkBz_Jm2cnQ6fmj_h0QDyYHYFYfByZr-2a40um0ujv6gYfN8LuSBY3SG22DdRigaQKh20El7jaLI7kc0bZYusuC5_psPUeV12BwkEv0UvDqRwRp9ZbR2VvsfE"/>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/10 text-green-500 flex items-center gap-1">
+<span class="size-1.5 bg-green-500 rounded-full"></span> Active
+                                </span>
+</div>
+<h4 class="font-bold text-base">AWS Console</h4>
+<p class="text-xs text-slate-500 dark:text-[#9da1b9] mt-1">Acct: 4429-1022-00</p>
+<div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+<span class="text-[10px] text-slate-400 uppercase font-bold">us-east-1</span>
+<button class="text-xs font-bold text-primary hover:underline">Manage</button>
+</div>
+</div>
+<!-- Firebase Card -->
+<div class="bg-white dark:bg-[#1a1c26] border border-slate-200 dark:border-slate-800 p-5 rounded-xl hover:border-primary/40 transition-all group">
+<div class="flex justify-between items-start mb-4">
+<div class="size-12 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center overflow-hidden">
+<img class="w-8 h-8 opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Firebase brand logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAj0Hnr_zXgVBut5FPlw70wTABik-RMB-Hb436nepZ_xT-ZM1yUaFTHwfOrZ9AwXrOjQW0SUIhX78IhdXXsrA44OKHLF7mFy1Ew9udvabc89zRlYcYUzAcUj-Ej9-axpRfqLWhnyTdGROKfyKuSxHA8fDM5QdpOddpcfUWCXXXMk_DPGqyXXy_vuauu5uZdGouWPX9ce6pYY-xahIYJrsACtSfDRINkyHv7d9DgFvSfsKIB6DCoCtH4reTZiOGBYOK-9_QI_JDxnto"/>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500 flex items-center gap-1">
+<span class="size-1.5 bg-amber-500 rounded-full"></span> Warning
+                                </span>
+</div>
+<h4 class="font-bold text-base">Firebase</h4>
+<p class="text-xs text-slate-500 dark:text-[#9da1b9] mt-1">Project: prod-v2</p>
+<div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+<span class="text-[10px] text-slate-400 uppercase font-bold">Usage: 88%</span>
+<button class="text-xs font-bold text-primary hover:underline">Reauth</button>
+</div>
+</div>
+<!-- OpenAI Card -->
+<div class="bg-white dark:bg-[#1a1c26] border border-slate-200 dark:border-slate-800 p-5 rounded-xl hover:border-primary/40 transition-all group">
+<div class="flex justify-between items-start mb-4">
+<div class="size-12 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center overflow-hidden">
+<img class="w-8 h-8 opacity-80 group-hover:opacity-100 transition-opacity" data-alt="OpenAI brand logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD734RdkpHwMTaC2Vx_dvMWnAXt3wG4VMY2kJL_17qEmer4P6i_IM2yhOEmbkR2gVchqj39ZYM3kFUDIrvzePh6XRScS6MPkL6DoXD1k5bM3JMwMgdQQV6985oR3Eb1Shdo5lQjd3UwI5qRSIZo0yUnyhW8ENxSmZZEUQOLLT-ltoSuk7c24uzaUwhAet-a9vG3ZBWaIyjG5J1-A5LodPxegv3pteQCOeAzE2BZfJxRoEirq_jXeD6oxT8-NqVKUCBzjv6iHYCjQrc"/>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/10 text-green-500 flex items-center gap-1">
+<span class="size-1.5 bg-green-500 rounded-full"></span> Active
+                                </span>
+</div>
+<h4 class="font-bold text-base">OpenAI AI</h4>
+<p class="text-xs text-slate-500 dark:text-[#9da1b9] mt-1">GPT-4 Turbo Enabled</p>
+<div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+<span class="text-[10px] text-slate-400 uppercase font-bold">API Stable</span>
+<button class="text-xs font-bold text-primary hover:underline">Keys</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Sharing Settings Panel -->
+<section class="mb-10">
+<div class="bg-white dark:bg-[#1a1c26] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+<div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+<div>
+<h3 class="text-lg font-bold">Community Sharing Settings</h3>
+<p class="text-sm text-slate-500 dark:text-[#9da1b9]">Control what metadata is shared with the DevHub Community</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-xs font-medium uppercase tracking-wider text-slate-400 mr-2">Private Mode</span>
+<button class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 bg-primary">
+<span class="translate-x-5 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x border-slate-200 dark:divide-slate-800">
+<div class="p-6">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary">code</span>
+<h4 class="font-bold text-sm uppercase tracking-tight">Code Snippets</h4>
+</div>
+<p class="text-xs text-slate-500 dark:text-[#9da1b9] mb-4">Allow others to view non-sensitive reusable functions.</p>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="rounded border-slate-300 dark:border-slate-700 text-primary focus:ring-primary bg-transparent" type="checkbox"/>
+<span class="text-sm font-medium group-hover:text-primary transition-colors">Share Public Gists</span>
+</label>
+</div>
+<div class="p-6">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary">build</span>
+<h4 class="font-bold text-sm uppercase tracking-tight">Build Configs</h4>
+</div>
+<p class="text-xs text-slate-500 dark:text-[#9da1b9] mb-4">Share optimized Docker and CI/CD yaml templates.</p>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-slate-300 dark:border-slate-700 text-primary focus:ring-primary bg-transparent" type="checkbox"/>
+<span class="text-sm font-medium group-hover:text-primary transition-colors">Contribute Templates</span>
+</label>
+</div>
+<div class="p-6">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary">visibility</span>
+<h4 class="font-bold text-sm uppercase tracking-tight">Visibility</h4>
+</div>
+<p class="text-xs text-slate-500 dark:text-[#9da1b9] mb-4">Presence visibility within the shared workspace.</p>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="rounded border-slate-300 dark:border-slate-700 text-primary focus:ring-primary bg-transparent" type="checkbox"/>
+<span class="text-sm font-medium group-hover:text-primary transition-colors">Show Active Status</span>
+</label>
+</div>
+</div>
+</div>
+</section>
+<!-- Paid Licenses Section -->
+<section>
+<div class="flex items-center justify-between mb-6 px-1">
+<div>
+<h3 class="text-lg font-bold">Paid Extension Licenses</h3>
+<p class="text-sm text-slate-500 dark:text-[#9da1b9]">Management of your premium IDE toolkit</p>
+</div>
+<button class="text-sm font-bold text-primary flex items-center gap-1 hover:underline">
+                            Browse Store <span class="material-symbols-outlined text-base">open_in_new</span>
+</button>
+</div>
+<div class="bg-white dark:bg-[#1a1c26] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 dark:bg-[#282b39]/30 text-[10px] uppercase tracking-widest text-slate-400 font-bold border-b border-slate-200 dark:border-slate-800">
+<th class="px-6 py-4">Extension Name</th>
+<th class="px-6 py-4">Status</th>
+<th class="px-6 py-4">Renewal Date</th>
+<th class="px-6 py-4">License Key</th>
+<th class="px-6 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<!-- Extension Row 1 -->
+<tr class="hover:bg-slate-50/50 dark:hover:bg-[#282b39]/10 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-blue-500/10 rounded flex items-center justify-center text-blue-500">
+<span class="material-symbols-outlined text-xl">psychology</span>
+</div>
+<div>
+<p class="text-sm font-bold">Advanced AI Debugger</p>
+<p class="text-[10px] text-slate-400">v2.4.0 • Pro License</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-500/10 text-green-500">Valid</span>
+</td>
+<td class="px-6 py-4 text-xs font-medium">Dec 12, 2024</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<code class="text-[10px] bg-slate-100 dark:bg-[#282b39] px-2 py-1 rounded font-mono text-slate-500">****-****-039X</code>
+<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-base">content_copy</span></button>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors"><span class="material-symbols-outlined text-lg">more_vert</span></button>
+</td>
+</tr>
+<!-- Extension Row 2 -->
+<tr class="hover:bg-slate-50/50 dark:hover:bg-[#282b39]/10 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-purple-500/10 rounded flex items-center justify-center text-purple-500">
+<span class="material-symbols-outlined text-xl">layers</span>
+</div>
+<div>
+<p class="text-sm font-bold">Docker Pro Visualizer</p>
+<p class="text-[10px] text-slate-400">v1.2.1 • Lifetime</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-500">Lifetime</span>
+</td>
+<td class="px-6 py-4 text-xs font-medium text-slate-400">—</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<code class="text-[10px] bg-slate-100 dark:bg-[#282b39] px-2 py-1 rounded font-mono text-slate-500">****-****-A94L</code>
+<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-base">content_copy</span></button>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors"><span class="material-symbols-outlined text-lg">more_vert</span></button>
+</td>
+</tr>
+<!-- Extension Row 3 -->
+<tr class="hover:bg-slate-50/50 dark:hover:bg-[#282b39]/10 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-amber-500/10 rounded flex items-center justify-center text-amber-500">
+<span class="material-symbols-outlined text-xl">database</span>
+</div>
+<div>
+<p class="text-sm font-bold">SQL Schema Architect</p>
+<p class="text-[10px] text-slate-400">v4.0.0 • Monthly</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-500">Expired</span>
+</td>
+<td class="px-6 py-4 text-xs font-medium text-red-400">Oct 20, 2023</td>
+<td class="px-6 py-4">
+<span class="text-[10px] text-slate-400 italic">Access Suspended</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-[10px] font-bold text-white bg-primary px-3 py-1.5 rounded hover:bg-primary/90 transition-all">Renew Now</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+<!-- Footer Branding -->
+<footer class="mt-auto py-6 px-8 flex justify-between items-center text-slate-400 border-t border-slate-200 dark:border-slate-800">
+<p class="text-[10px] font-medium tracking-widest uppercase">© 2023 DEVHUB SYSTEMS INC.</p>
+<div class="flex gap-4 text-[10px] font-bold uppercase tracking-widest">
+<a class="hover:text-primary transition-colors" href="#">Documentation</a>
+<a class="hover:text-primary transition-colors" href="#">Security Audit</a>
+<a class="hover:text-primary transition-colors" href="#">Support</a>
+</div>
+</footer>
+</main>
+</div>
+</body></html>

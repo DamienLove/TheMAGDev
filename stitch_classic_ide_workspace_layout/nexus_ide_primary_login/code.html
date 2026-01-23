@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nexus IDE Login</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1E293B",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                    boxShadow: {
+                        'glow': '0 0 20px -5px rgba(19, 91, 236, 0.3)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: "Noto Sans", sans-serif;
+        }
+        h1, h2, h3, h4, h5, h6, .font-display {
+            font-family: "Space Grotesk", sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+<!-- Background Decoration -->
+<div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+<div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary/10 blur-[120px]"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[100px]"></div>
+</div>
+<!-- Main Login Card -->
+<div class="relative z-10 w-full max-w-[400px] bg-white dark:bg-surface-dark rounded-2xl shadow-glow border border-gray-200 dark:border-white/5 overflow-hidden flex flex-col">
+<!-- Header Section -->
+<div class="pt-8 pb-4 px-6 flex flex-col items-center text-center">
+<!-- Logo Placeholder -->
+<div class="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center shadow-lg shadow-primary/30 mb-5" data-alt="Abstract geometric Nexus IDE logo in electric blue">
+<span class="material-symbols-outlined text-white text-4xl">deployed_code</span>
+</div>
+<h1 class="text-gray-900 dark:text-white text-3xl font-bold tracking-tight mb-2">Welcome back</h1>
+<p class="text-gray-500 dark:text-gray-400 text-sm font-normal">Code anywhere, deploy everywhere.</p>
+</div>
+<!-- SSO Buttons Stack -->
+<div class="px-6 py-4 flex flex-col gap-3">
+<button class="group flex w-full items-center justify-center rounded-lg h-12 px-4 bg-[#24292F] hover:bg-[#2c323a] text-white transition-all duration-200 relative overflow-hidden">
+<div class="absolute inset-0 w-full h-full bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="material-symbols-outlined mr-3 text-[22px]">code</span>
+<span class="font-display font-semibold text-sm tracking-wide">Continue with GitHub</span>
+</button>
+<button class="group flex w-full items-center justify-center rounded-lg h-12 px-4 bg-[#FC6D26] hover:bg-[#e65e1b] text-white transition-all duration-200 relative overflow-hidden">
+<div class="absolute inset-0 w-full h-full bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="material-symbols-outlined mr-3 text-[22px]">source_environment</span>
+<span class="font-display font-semibold text-sm tracking-wide">Continue with GitLab</span>
+</button>
+<button class="group flex w-full items-center justify-center rounded-lg h-12 px-4 bg-white dark:bg-background-dark border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-[#1a2230] text-gray-700 dark:text-white transition-all duration-200">
+<span class="material-symbols-outlined mr-3 text-[22px] text-gray-700 dark:text-white">public</span>
+<span class="font-display font-semibold text-sm tracking-wide">Continue with Google</span>
+</button>
+</div>
+<!-- Divider / Email Toggle -->
+<div class="px-6 py-2">
+<div class="relative flex py-2 items-center">
+<div class="flex-grow border-t border-gray-200 dark:border-white/10"></div>
+<span class="flex-shrink-0 mx-4 text-gray-400 text-xs font-display uppercase tracking-widest">Or use email</span>
+<div class="flex-grow border-t border-gray-200 dark:border-white/10"></div>
+</div>
+</div>
+<!-- Email Form (Expanded State Visualization) -->
+<form class="px-6 pb-8 flex flex-col gap-4">
+<div class="space-y-4">
+<div class="space-y-1">
+<label class="sr-only" for="email">Email address</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-gray-400 text-[20px]">mail</span>
+</div>
+<input class="block w-full rounded-lg border-0 py-3 pl-10 text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-white/10 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary bg-transparent sm:text-sm sm:leading-6 font-display" id="email" placeholder="name@company.com" type="email"/>
+</div>
+</div>
+<div class="space-y-1">
+<label class="sr-only" for="password">Password</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-gray-400 text-[20px]">lock</span>
+</div>
+<input class="block w-full rounded-lg border-0 py-3 pl-10 text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-white/10 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary bg-transparent sm:text-sm sm:leading-6 font-display" id="password" placeholder="••••••••" type="password"/>
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer">
+<span class="material-symbols-outlined text-gray-500 hover:text-gray-300 text-[20px]">visibility_off</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Utility Row -->
+<div class="flex items-center justify-between mt-1">
+<div class="flex items-center">
+<input class="h-4 w-4 rounded border-gray-300 dark:border-white/20 text-primary focus:ring-primary bg-transparent" id="remember-me" name="remember-me" type="checkbox"/>
+<label class="ml-2 block text-sm text-gray-500 dark:text-gray-400 font-display" for="remember-me">Stay signed in</label>
+</div>
+<div class="text-sm">
+<a class="font-medium text-primary hover:text-blue-400 transition-colors font-display" href="#">Forgot password?</a>
+</div>
+</div>
+<!-- Submit Button -->
+<button class="mt-2 w-full flex items-center justify-center rounded-lg bg-primary py-3 px-4 text-sm font-bold text-white shadow-lg shadow-primary/30 hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-all duration-200 font-display tracking-wide" type="button">
+                Log In
+            </button>
+</form>
+<!-- Footer -->
+<div class="bg-gray-50 dark:bg-black/20 px-6 py-4 text-center border-t border-gray-200 dark:border-white/5">
+<p class="text-xs text-gray-500 dark:text-gray-400 font-display">
+                Don't have an account? 
+                <a class="font-bold text-primary hover:text-blue-400 transition-colors" href="#">Sign up</a>
+</p>
+</div>
+</div>
+<!-- Bottom Indicator for Mobile Feel -->
+<div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-white/20 rounded-full z-20"></div>
+</body></html>

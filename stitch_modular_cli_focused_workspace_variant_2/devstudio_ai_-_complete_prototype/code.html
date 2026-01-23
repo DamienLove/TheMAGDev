@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>DevStudio AI - Complete Prototype</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    
+    <!-- Material Icons & Symbols -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- React & Router -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/history@5/umd/history.development.js"></script>
+    <script src="https://unpkg.com/react-router@6.3.0/umd/react-router.development.js"></script>
+    <script src="https://unpkg.com/react-router-dom@6.3.0/umd/react-router-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <!-- Theme Configuration -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1337ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101322",
+                        "surface-dark": "#1c1f2e",
+                        "surface-darker": "#161926",
+                        "border-dark": "#2d3142",
+                        "surface-border": "#282b39",
+                        "text-secondary": "#9da1b9",
+                        "diff-add-bg": "rgba(22, 163, 74, 0.15)",
+                        "diff-add-text": "#4ade80",
+                        "diff-del-bg": "rgba(220, 38, 38, 0.15)",
+                        "diff-del-text": "#f87171",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                        "mono": ["Fira Code", "ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+    <style>
+        /* Global Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #101322; }
+        ::-webkit-scrollbar-thumb { background: #2d3142; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .notch-ios { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 100px; height: 28px; background-color: #000; border-bottom-left-radius: 14px; border-bottom-right-radius: 14px; z-index: 20; }
+        .camera-android { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 12px; height: 12px; background-color: #000; border-radius: 50%; z-index: 20; }
+        .timeline-grid { background-size: 100px 100%; background-image: linear-gradient(to right, #282b39 1px, transparent 1px); }
+        .code-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+        .code-scroll::-webkit-scrollbar-track { background: transparent; }
+        .code-scroll::-webkit-scrollbar-thumb { background: #374151; border-radius: 5px; }
+        .code-scroll::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { createRoot } = ReactDOM;
+        const { MemoryRouter, Routes, Route, Link, useNavigate, useLocation } = ReactRouterDOM;
+
+        // --- Navigation Component ---
+        const PrototypeNavigation = () => {
+            const navigate = useNavigate();
+            const location = useLocation();
+            
+            // Map of path to readable name
+            const screens = [
+                { path: "/", name: "Cross-Platform Preview" },
+                { path: "/community", name: "DevCloud Community" },
+                { path: "/cli", name: "CLI Workspace" },
+                { path: "/extensions-hub", name: "Extensions Hub" },
+                { path: "/project-settings", name: "Project Settings" },
+                { path: "/vm-billing", name: "VM & Billing" },
+                { path: "/roadmap", name: "Roadmap" },
+                { path: "/executive", name: "Executive Dashboard" },
+                { path: "/marketplace", name: "Marketplace" },
+                { path: "/issues", name: "Issues & PRs" },
+                { path: "/sdk-manager", name: "SDK Manager" },
+                { path: "/version-control", name: "Version Control" },
+                { path: "/master-workspace", name: "Unified Master" },
+            ];
+
+            return (
+                <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-[100] bg-gray-900/90 backdrop-blur border border-gray-700 rounded-full px-4 py-2 flex gap-4 shadow-2xl overflow-x-auto max-w-[90vw] no-scrollbar">
+                    <select 
+                        value={location.pathname} 
+                        onChange={(e) => navigate(e.target.value)}
+                        className="bg-transparent text-white text-sm font-medium border-none focus:ring-0 cursor-pointer"
+                    >
+                        {screens.map(s => (
+                            <option key={s.path} value={s.path} className="text-black">{s.name}</option>
+                        ))}
+                    </select>
+                    <div className="flex gap-2">
+                        <button 
+                            onClick={() => {
+                                const currentIndex = screens.findIndex(s => s.path === location.pathname);
+                                const prevIndex = (currentIndex - 1 + screens.length) % screens.length;
+                                navigate(screens[prevIndex].path);
+                            }}
+                            className="text-gray-400 hover:text-white"
+                        >
+                            <span className="material-symbols-outlined text-lg">arrow_back</span>
+                        </button>
+                        <button 
+                            onClick={() => {
+                                const currentIndex = screens.findIndex(s => s.path === location.pathname);
+                                const nextIndex = (currentIndex + 1) % screens.length;
+                                navigate(screens[nextIndex].path);
+                            }}
+                            className="text-gray-400 hover:text-white"
+                        >
+                            <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Screen 1: Cross-Platform Preview ---
+        const ScreenCrossPlatform = () => {
+            return (
+                <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden h-screen flex flex-col">
+                    <header className="flex shrink-0 items-center justify-between whitespace-nowrap border-b border-solid border-border-dark bg-surface-dark px-6 py-3 shadow-md z-50">
+                        <div className="flex items-center gap-8">
+                            <div className="flex items-center gap-3 text-white">
+                                <div className="flex items-center justify-center size-8 rounded bg-primary/20 text-primary">
+                                    <span className="material-symbols-outlined">code_blocks</span>
+                                </div>
+                                <h2 className="text-white text-lg font-bold leading-tight tracking-tight">DevStudio AI</h2>
+                            </div>
+                            <label className="hidden md:flex flex-col min-w-40 !h-10 w-80">
+                                <div className="flex w-full flex-1 items-stretch rounded-lg h-full border border-border-dark bg-background-dark focus-within:border-primary/50 transition-colors">
+                                    <div className="text-slate-400 flex items-center justify-center pl-3">
+                                        <span className="material-symbols-outlined text-[20px]">search</span>
+                                    </div>
+                                    <input className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-transparent text-white focus:outline-0 focus:ring-0 border-none h-full placeholder:text-slate-500 px-3 text-sm font-normal" placeholder="Search files, symbols, or actions..." />
+                                    <div className="flex items-center pr-2">
+                                        <span className="text-xs text-slate-500 bg-surface-dark px-1.5 py-0.5 rounded border border-border-dark">⌘K</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <Link to="/master-workspace" className="hidden sm:flex min-w-[100px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-9 px-4 bg-primary hover:bg-blue-600 text-white text-sm font-bold shadow-lg shadow-blue-900/20 transition-all">
+                                <span className="material-symbols-outlined text-[18px]">rocket_launch</span>
+                                <span className="truncate">Deploy</span>
+                            </Link>
+                             <div className="flex gap-1">
+                                <button className="flex size-9 cursor-pointer items-center justify-center rounded-lg bg-transparent hover:bg-white/5 text-slate-400 hover:text-white transition-colors">
+                                    <span className="material-symbols-outlined">notifications</span>
+                                </button>
+                                <button className="flex size-9 cursor-pointer items-center justify-center rounded-lg bg-transparent hover:bg-white/5 text-slate-400 hover:text-white transition-colors">
+                                    <span className="material-symbols-outlined">settings</span>
+                                </button>
+                                <button className="flex size-9 cursor-pointer items-center justify-center rounded-lg bg-transparent hover:bg-white/5 text-slate-400 hover:text-white transition-colors">
+                                    <span className="material-symbols-outlined">account_circle</span>
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+                    <div className="flex flex-1 overflow-hidden">
+                        <main className="flex-1 flex flex-col min-w-0 bg-background-dark relative">
+                            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 px-6 py-3 border-b border-border-dark bg-surface-dark/50 backdrop-blur-sm z-40">
+                                <div className="flex flex-col xl:flex-row xl:items-center gap-4 w-full sm:w-auto">
+                                    <div className="flex flex-col">
+                                        <h1 className="text-white text-xl font-bold tracking-tight">Cross-Platform Preview</h1>
+                                        <p className="text-slate-400 text-xs">Live session • 3 Devices Connected</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3 overflow-x-auto max-w-full pb-1 sm:pb-0 no-scrollbar">
+                                     <button className="flex shrink-0 cursor-pointer items-center justify-center rounded-lg h-9 px-4 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20 gap-2 text-sm font-bold transition-all">
+                                        <span className="material-symbols-outlined text-[20px] animate-pulse">bolt</span>
+                                        Hot Reload
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-6 @container">
+                                <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-8 items-start justify-items-center pb-20">
+                                    {/* Android */}
+                                    <div className="flex flex-col gap-4 group">
+                                        <div className="relative bg-black rounded-[2rem] border-4 border-slate-800 shadow-2xl w-[340px] h-[700px] overflow-hidden flex flex-col select-none ring-1 ring-white/10 group-hover:ring-primary/50 transition-all duration-300">
+                                            <div className="absolute -right-1.5 top-20 w-1 h-12 bg-slate-700 rounded-r-md"></div>
+                                            <div className="absolute -right-1.5 top-36 w-1 h-20 bg-slate-700 rounded-r-md"></div>
+                                            <div className="flex-1 bg-surface-dark relative w-full h-full overflow-hidden rounded-[1.7rem]">
+                                                <div className="h-8 w-full flex justify-between items-center px-6 text-[10px] text-white font-medium select-none z-30 pt-2">
+                                                    <span>9:41</span>
+                                                    <div className="flex gap-1.5">
+                                                        <span className="material-symbols-outlined text-[12px]">signal_cellular_alt</span>
+                                                        <span className="material-symbols-outlined text-[12px]">wifi</span>
+                                                        <span className="material-symbols-outlined text-[12px]">battery_full</span>
+                                                    </div>
+                                                </div>
+                                                <div className="camera-android"></div>
+                                                <div className="w-full h-full bg-cover bg-top absolute top-0 left-0" style={{backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDf32GNpQ0gQXjkSxgdo0lqbGACZyhoHfQyEZWU-l4wLzt4lQlJqg1K_46w1IMRhJ8ycnmNuC9dvnccj5KlT1Sbdk4YBsu-EAVriz0pbNsGKhdLPq9YEr8wh3YhxP0XjByHv42K-qhn3mTEsV2jtHy60A8vAjF2ZqTT8qB9WeGVyuS3xRJUjz4CLgtM2aXtOjk91pYUhxlE5qNdn3OcU2INSOghlHRzb49oxdWb9pyu2XSM-Bk2EsPgCViYpCSLG0mQqrL8QeoVd4Y')"}}>
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                                                    <div className="absolute bottom-8 left-0 right-0 px-6">
+                                                        <div className="bg-surface-darker/90 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-lg">
+                                                            <div className="h-2 w-12 bg-slate-600 rounded-full mb-3"></div>
+                                                            <div className="h-2 w-24 bg-slate-700 rounded-full"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {/* iOS */}
+                                    <div className="flex flex-col gap-4 group">
+                                        <div className="relative bg-black rounded-[2.5rem] border-[6px] border-slate-800 shadow-2xl w-[350px] h-[710px] overflow-hidden flex flex-col select-none ring-1 ring-white/10 group-hover:ring-primary/50 transition-all duration-300">
+                                            <div className="absolute -left-2 top-24 w-1 h-8 bg-slate-700 rounded-l-md"></div>
+                                            <div className="flex-1 bg-surface-dark relative w-full h-full overflow-hidden rounded-[2.2rem]">
+                                                <div className="notch-ios"></div>
+                                                <div className="h-10 w-full flex justify-between items-center px-6 text-[12px] text-white font-medium select-none z-30 pt-3">
+                                                    <span>9:41</span>
+                                                    <div className="flex gap-1.5">
+                                                        <span className="material-symbols-outlined text-[14px]">signal_cellular_alt</span>
+                                                        <span className="material-symbols-outlined text-[14px]">wifi</span>
+                                                        <span className="material-symbols-outlined text-[14px]">battery_full</span>
+                                                    </div>
+                                                </div>
+                                                <div className="w-full h-full bg-cover bg-top absolute top-0 left-0" style={{backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuC5P1Oer9Pihme9k2LvSRPjAGBpXM3_BnPH_nhqqwA4BWKMXX4jY2Ch0wWwkb5kkKvqOHAUPDITSPAaM0sww5So-ZyHUK7IrPcuzfQPTtkUSLlxYLnX8SE7GSl-NH8O3SPkrhEO_0qLB8wuxlZLMYeUpgqCwtP5-09qC8iRbA_IawfmbaZ578O3OyLXPo6JjXdmDsvgwBVxjw9KLf49aivwqkrxCc5qghjXGcA6vhVUFk-1PMAmWsjkVPDuryypY2iaibrjZb7KFMc')"}}>
+                                                     <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80"></div>
+                                                     <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/50 rounded-full"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {/* Windows */}
+                                    <div className="flex flex-col gap-4 group w-full max-w-[600px] lg:col-span-2 2xl:col-span-1">
+                                        <div className="relative bg-surface-darker rounded-xl border border-border-dark shadow-2xl w-full aspect-video overflow-hidden flex flex-col select-none ring-1 ring-white/5 group-hover:ring-primary/50 transition-all duration-300">
+                                            <div className="h-8 bg-surface-dark border-b border-border-dark flex items-center justify-between px-3">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="material-symbols-outlined text-[14px] text-blue-400">desktop_windows</span>
+                                                    <span className="text-xs text-slate-300">MyAwesomeApp.exe</span>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <div className="w-2.5 h-2.5 rounded-full bg-slate-600"></div>
+                                                    <div className="w-2.5 h-2.5 rounded-full bg-slate-600"></div>
+                                                    <div className="w-2.5 h-2.5 rounded-full bg-rose-500"></div>
+                                                </div>
+                                            </div>
+                                            <div className="flex-1 bg-cover bg-center relative" style={{backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBda-AiqgQHi7Js_baOytVVkBUuW3foN4X8qTOb1vQPHSDK6sDg3EbJqKXvosOANP87NU-eRCUEx1M2xlserfJOJxUVC18rus0kPSUbD1SSka5llbBaH_xrm7T2dQwSYARmaw9ZY-43XCq5imx70zSxq2DMWVIVi-DOWbK5ERohVYxv_SSMIyu5jkaB5QIbMq2Sn_5CbH3I8jB3T9vnAZj0J07npeRaQqmA0VLmCRpeHeOEFOrTsDGSxrZ9rgIJtXkjJPLICCXyIQY')"}}>
+                                                <div className="absolute inset-0 bg-background-dark/20 backdrop-blur-[1px]"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </main>
+                         <aside className="w-80 bg-surface-dark border-l border-border-dark flex flex-col hidden xl:flex z-40">
+                            <div className="h-14 px-5 border-b border-border-dark flex items-center justify-between">
+                                <span className="text-sm font-bold text-white tracking-wide">Inspector</span>
+                                <button className="text-slate-400 hover:text-white transition-colors">
+                                    <span className="material-symbols-outlined text-[20px]">dock_to_right</span>
+                                </button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-5 space-y-6">
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <span className="material-symbols-outlined text-purple-400 text-[18px]">auto_awesome</span>
+                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">AI Suggestions</h3>
+                                    </div>
+                                    <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 rounded-lg p-3 border border-purple-500/20 relative overflow-hidden group">
+                                         <p className="text-xs text-slate-300 leading-relaxed mb-3">
+                                            <strong className="text-white block mb-1">Layout Issue Detected</strong>
+                                            The card component overflows on iPhone SE viewport width. Recommend switching to vertical flex layout.
+                                        </p>
+                                        <button className="w-full py-1.5 px-3 bg-purple-600 hover:bg-purple-500 text-white text-xs font-medium rounded-md transition-colors shadow-lg shadow-purple-900/20 flex items-center justify-center gap-2">
+                                            <span className="material-symbols-outlined text-[14px]">build</span>
+                                            Auto-Fix Layout
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- Screen 2: Community ---
+        const ScreenCommunity = () => {
+             return (
+                 <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen font-display">
+                     <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-[#282b39] bg-white dark:bg-background-dark px-6 py-3 sticky top-0 z-50">
+                        <div className="flex items-center gap-8">
+                             <div className="flex items-center gap-4 text-primary">
+                                <span className="material-symbols-outlined text-3xl">terminal</span>
+                                <h2 className="text-slate-900 dark:text-white text-lg font-bold">DevCloud IDE</h2>
+                            </div>
+                             <nav className="hidden md:flex items-center gap-6">
+                                <Link to="/" className="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white text-sm font-medium transition-colors">Editor</Link>
+                                <a className="text-primary dark:text-white text-sm font-medium border-b-2 border-primary pb-1" href="#">Community</a>
+                                <Link to="/marketplace" className="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white text-sm font-medium transition-colors">Marketplace</Link>
+                            </nav>
+                        </div>
+                     </header>
+                     <main className="flex h-[calc(100vh-65px)] overflow-hidden">
+                         <aside className="w-64 hidden xl:flex flex-col justify-between border-r border-slate-200 dark:border-[#282b39] bg-white dark:bg-background-dark p-4">
+                            <div className="flex flex-col gap-6">
+                                <div className="px-2">
+                                    <h1 className="text-slate-900 dark:text-white text-base font-bold">Developer Workspace</h1>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary dark:bg-primary/20 dark:text-white cursor-pointer">
+                                        <span className="material-symbols-outlined">home</span>
+                                        <p className="text-sm font-semibold">Feed</p>
+                                    </div>
+                                </div>
+                            </div>
+                         </aside>
+                         <section className="flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center bg-slate-50 dark:bg-[#0a0c16]">
+                             <div className="max-w-[800px] w-full px-6 py-6 flex flex-col gap-6">
+                                 {/* Feed Card 1 */}
+                                 <article className="bg-white dark:bg-background-dark rounded-xl border border-slate-200 dark:border-[#282b39] overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="p-4 border-b border-slate-100 dark:border-[#282b39] flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="size-10 rounded-full bg-cover bg-center" style={{backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAOi6yw9brgWcI25clii6u8u3plCUF5nbTAGUh63u4kvbFG97ZbQEmuIIkHHOFJO8-j7r8YK4FJOFz4XhN37FOXmCAiyIu2E_HJSQTUiblFoQcThIZq7j_bLniRnSS1GypEQLuyClsDP3_ojXSJ781putEDJ7btyPQc3UmQptuJcZWFruq6b0yh17hBeZ1AYCRENk4tGNboKDb4QaEEx-fkGUJGDojt6q0qJ6bi2x5XB39Ragh9MfRfmJgOVRHGMmmIVxBVWciRt2o')"}}></div>
+                                            <div>
+                                                <h4 className="text-sm font-bold text-slate-900 dark:text-white">Alex Rivero</h4>
+                                                <p className="text-[11px] text-slate-500 dark:text-slate-400">Published 2h ago • <span className="text-primary font-semibold">Live Build</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="p-4 flex flex-col gap-3">
+                                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Dynamic Data-Grid with Real-time WebSockets</h3>
+                                        <p className="text-sm text-slate-600 dark:text-slate-300">A high-performance grid component optimized for 10k+ rows with sub-ms filtering. Built using React and TanStack Table.</p>
+                                         <div className="relative group rounded-lg overflow-hidden border border-slate-200 dark:border-[#3b3f54] bg-[#0d0e14]">
+                                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity z-10">
+                                                <button className="flex items-center gap-2 bg-primary text-white px-6 py-2.5 rounded-lg font-bold shadow-xl">
+                                                    <span className="material-symbols-outlined">play_arrow</span>
+                                                    Run Live Demo
+                                                </button>
+                                            </div>
+                                             <div className="h-32 w-full bg-gradient-to-t from-background-dark/80 to-transparent flex items-end p-4">
+                                                <div className="flex gap-2">
+                                                    <span className="px-2 py-0.5 bg-slate-800 text-slate-300 text-[10px] rounded uppercase font-bold tracking-tighter">React</span>
+                                                    <span className="px-2 py-0.5 bg-slate-800 text-slate-300 text-[10px] rounded uppercase font-bold tracking-tighter">TypeScript</span>
+                                                </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                                 </article>
+                             </div>
+                         </section>
+                     </main>
+                 </div>
+             )
+        }
+
+        // --- Screen 3: CLI Workspace ---
+        const ScreenCLI = () => {
+             return (
+                 <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden h-screen flex flex-col">
+                     <header className="flex-none flex items-center justify-between whitespace-nowrap border-b border-solid border-border-dark bg-[#111218] px-6 py-2">
+                        <div className="flex items-center gap-6">
+                             <div className="flex items-center gap-3 text-white">
+                                <div className="size-8 flex items-center justify-center bg-primary rounded-lg text-white">
+                                    <span className="material-symbols-outlined text-[20px]">terminal</span>
+                                </div>
+                                <h2 className="text-white text-lg font-bold leading-tight tracking-tight">DevStudio Pro</h2>
+                            </div>
+                        </div>
+                     </header>
+                     <div className="flex-1 flex flex-col min-h-0">
+                         {/* Split View */}
+                         <div className="h-[40%] flex border-b border-border-dark min-h-[200px]">
+                            <div className="w-64 flex-none flex flex-col bg-[#111218] border-r border-border-dark hidden md:flex">
+                                <div className="h-9 flex items-center px-4 border-b border-border-dark justify-between">
+                                    <span className="text-xs font-bold text-[#9da1b9] uppercase tracking-wider">Explorer</span>
+                                </div>
+                                <div className="flex-1 overflow-y-auto p-2 font-mono text-sm">
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex items-center gap-2 px-2 py-1 text-white bg-primary/10 rounded cursor-pointer">
+                                            <span className="material-symbols-outlined text-[16px] text-primary">folder_open</span>
+                                            <span>src</span>
+                                        </div>
+                                         <div className="pl-4 flex flex-col gap-1">
+                                             <div className="flex items-center gap-2 px-2 py-1 text-white bg-primary/20 rounded cursor-pointer border-l-2 border-primary">
+                                                <span className="material-symbols-outlined text-[16px] text-[#61dafb]">code</span>
+                                                <span>App.tsx</span>
+                                            </div>
+                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex-1 flex flex-col bg-[#111218]">
+                                <div className="h-9 flex items-center bg-[#0d0e12] border-b border-border-dark">
+                                    <div className="h-full flex items-center px-4 bg-[#111218] border-r border-border-dark border-t-2 border-t-primary text-white text-xs font-medium gap-2">
+                                        <span className="material-symbols-outlined text-[14px] text-[#61dafb]">code</span>
+                                        App.tsx
+                                    </div>
+                                </div>
+                                <div className="flex-1 overflow-auto p-4 font-mono text-sm relative">
+                                    <div className="pl-4 text-[#d4d4d4]">
+                                        <div className="leading-6"><span className="text-[#c586c0]">import</span> React <span className="text-[#c586c0]">from</span> <span className="text-[#ce9178]">'react'</span>;</div>
+                                        <div className="leading-6"><span className="text-[#569cd6]">const</span> <span class="text-[#dcdcaa]">App</span> = () <span className="text-[#569cd6]">=&gt;</span> {"{"}</div>
+                                        <div className="leading-6 pl-4"><span class="text-[#c586c0]">return</span> (</div>
+                                        <div className="leading-6 pl-8"><span class="text-[#808080]">&lt;</span><span className="text-[#569cd6]">View</span> <span class="text-[#9cdcfe]">style</span>={"{"}<span className="text-[#9cdcfe]">styles.container</span>{"}"}<span className="text-[#808080]">&gt;</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                         </div>
+                         <div className="flex-1 flex flex-col min-h-0 bg-[#0d0e12] relative z-0">
+                            <div className="h-10 flex-none flex items-center justify-between border-b border-border-dark bg-[#1c1d27] px-2">
+                                <div className="flex items-center h-full">
+                                    <button className="h-full px-4 flex items-center gap-2 border-b-2 border-primary text-white text-xs font-bold bg-[#111218]">
+                                        <span className="material-symbols-outlined text-[16px]">terminal</span>
+                                        Terminal 1 (npm start)
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="flex-1 bg-[#0d0e12] p-4 font-mono text-sm overflow-y-auto text-[#d4d4d4]">
+                                <div className="mb-2 text-[#6a737d]"># Server initialized on port 8080</div>
+                                <div className="mb-1"><span className="text-[#4ade80]">➜</span> <span class="text-[#61dafb]">~/projects/devstudio</span> <span class="text-[#facc15]">git:(main)</span> npm run android</div>
+                                <div className="mb-1 text-[#fa6538]">Error: Missing dependency: libgtk-3-dev</div>
+                            </div>
+                         </div>
+                     </div>
+                 </div>
+             )
+        }
+
+        // --- Screen 10: Issues & PRs ---
+        const ScreenIssues = () => {
+             return (
+                 <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden h-screen flex flex-col">
+                     <header className="shrink-0 flex items-center justify-between whitespace-nowrap border-b border-solid border-border-color bg-[#111218] px-6 py-3">
+                        <div className="flex items-center gap-8">
+                             <div className="flex items-center gap-3 text-white">
+                                <span className="material-symbols-outlined text-3xl text-primary">terminal</span>
+                                <h2 className="text-white text-lg font-bold">IDE Studio</h2>
+                            </div>
+                            <nav className="hidden md:flex items-center gap-6">
+                                <a className="text-white text-sm font-medium transition-colors border-b-2 border-primary py-4" href="#">Issues</a>
+                                <Link to="/version-control" className="text-[#9da1b9] hover:text-white text-sm font-medium transition-colors">Code</Link>
+                            </nav>
+                        </div>
+                     </header>
+                     <div className="flex flex-1 overflow-hidden">
+                        <aside className="w-80 lg:w-96 flex flex-col border-r border-border-color bg-[#111218] shrink-0">
+                            <div className="p-3 border-b border-border-color flex flex-col gap-3">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-white text-sm font-bold">Issues</h3>
+                                </div>
+                                <div className="relative">
+                                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#9da1b9] text-[18px]">filter_list</span>
+                                    <input className="w-full bg-[#1e2029] border border-[#282b39] rounded-lg py-1.5 pl-9 pr-3 text-sm text-white placeholder:text-[#9da1b9] focus:outline-none focus:border-primary/50" placeholder="Filter issues..."/>
+                                </div>
+                            </div>
+                            <div className="flex-1 overflow-y-auto">
+                                <div className="group flex cursor-pointer flex-col gap-1 border-l-[3px] border-primary bg-surface-hover/50 p-4 hover:bg-surface-hover transition-colors">
+                                    <div className="flex items-start justify-between gap-2">
+                                        <h4 className="text-sm font-medium text-white line-clamp-2">Refactor Login Sequence for iOS</h4>
+                                        <span className="shrink-0 text-xs text-[#9da1b9]">2h</span>
+                                    </div>
+                                     <div className="flex items-center gap-2 text-xs text-[#9da1b9]">
+                                        <span className="flex items-center text-green-400 gap-1"><span className="material-symbols-outlined text-[14px] fill-current">adjust</span> #402</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                         <main className="flex-1 flex flex-col min-w-0 bg-background-dark/50 relative">
+                             <div className="shrink-0 border-b border-border-color p-5 flex items-start justify-between bg-[#111218]/80 backdrop-blur-sm z-10 sticky top-0">
+                                <div className="flex flex-col gap-3 flex-1 min-w-0 mr-4">
+                                     <h1 className="text-2xl font-bold text-white leading-tight">Refactor Login Sequence for iOS</h1>
+                                </div>
+                             </div>
+                             <div className="flex-1 overflow-y-auto p-5 md:p-8 scroll-smooth">
+                                 <div className="rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 to-transparent p-4 relative overflow-hidden group/ai">
+                                    <div className="flex gap-3">
+                                        <div className="shrink-0 mt-0.5 text-primary">
+                                            <span className="material-symbols-outlined">auto_awesome</span>
+                                        </div>
+                                        <div className="space-y-2 flex-1">
+                                            <h5 className="text-sm font-bold text-white">AI Insight</h5>
+                                            <p className="text-sm text-[#e4e4e7] leading-relaxed">
+                                                This issue suggests a significant refactor of the authentication module. 
+                                                <strong>Risk Level: Low.</strong>
+                                            </p>
+                                        </div>
+                                    </div>
+                                 </div>
+                             </div>
+                         </main>
+                     </div>
+                 </div>
+             )
+        }
+
+        // --- Screen 4: Extensions Hub ---
+        const ScreenExtensions = () => (
+            <div className="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-white font-display flex flex-col pb-24">
+                <header className="px-6 py-4 border-b border-border-dark bg-surface-dark flex justify-between items-center sticky top-0 z-10">
+                    <h1 className="text-lg font-bold">Extensions Hub</h1>
+                    <input className="bg-background-dark border border-border-dark rounded-md px-3 py-1 text-sm text-white focus:outline-none focus:border-primary" placeholder="Search extensions..." />
+                </header>
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto">
+                    {['Python', 'JavaScript', 'Docker', 'GitLens', 'Tailwind', 'Kubernetes', 'C++', 'Go'].map(i => (
+                        <div key={i} className="p-4 bg-surface-dark border border-border-dark rounded-lg flex items-center gap-4 hover:border-primary/50 transition-colors cursor-pointer group">
+                            <div className="size-10 rounded bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center font-bold text-lg shadow-inner text-white">{i[0]}</div>
+                            <div>
+                                <h3 className="font-bold text-sm group-hover:text-primary transition-colors text-white">{i}</h3>
+                                <p className="text-xs text-slate-400">v1.2.4 • 2M downloads</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+
+        // --- Screen 5: Project Settings ---
+        const ScreenSettings = () => (
+            <div className="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-white font-display flex overflow-hidden">
+                <aside className="w-60 bg-surface-dark border-r border-border-dark pt-6 hidden md:block">
+                    <div className="px-6 mb-6 font-bold text-xs uppercase text-slate-500 tracking-wider">Configuration</div>
+                    <nav className="space-y-1 px-3">
+                        {['General', 'Build & Deploy', 'Environments', 'Team', 'Billing'].map((item, i) => (
+                            <button key={item} className={`w-full text-left px-3 py-2 rounded text-sm font-medium ${i === 0 ? 'bg-primary/10 text-primary' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>{item}</button>
+                        ))}
+                    </nav>
+                </aside>
+                <main className="flex-1 p-8 overflow-y-auto pb-24">
+                    <h1 className="text-2xl font-bold mb-6 text-white">General Settings</h1>
+                    <div className="space-y-6 max-w-2xl">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-300">Project Name</label>
+                            <input className="w-full bg-surface-dark border border-border-dark rounded-lg px-4 py-2 text-white focus:border-primary outline-none" defaultValue="DevStudio AI - Prototype" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-300">Root Directory</label>
+                            <div className="flex">
+                                <span className="bg-surface-darker border border-r-0 border-border-dark rounded-l-lg px-3 py-2 text-slate-400 text-sm flex items-center">/home/user/</span>
+                                <input className="flex-1 bg-surface-dark border border-border-dark rounded-r-lg px-4 py-2 text-white focus:border-primary outline-none" defaultValue="projects/devstudio" />
+                            </div>
+                        </div>
+                        <div className="pt-4 border-t border-border-dark">
+                            <button className="px-6 py-2 bg-primary hover:bg-blue-600 text-white font-bold rounded-lg transition-colors">Save Changes</button>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        );
+
+        // --- Screen 6: VM & Billing ---
+        const ScreenBilling = () => (
+            <div className="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-white font-display p-8 pb-24">
+                <header className="flex justify-between items-end mb-8">
+                    <div>
+                        <h1 className="text-2xl font-bold mb-1 text-white">Infrastructure & Billing</h1>
+                        <p className="text-slate-400 text-sm">Manage your cloud resources and invoices.</p>
+                    </div>
+                    <div className="text-right">
+                        <div className="text-sm text-slate-400">Current Balance</div>
+                        <div className="text-3xl font-bold font-mono text-white">$124.50</div>
+                    </div>
+                </header>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="bg-surface-dark p-6 rounded-xl border border-border-dark relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4 opacity-10"><span className="material-symbols-outlined text-6xl text-white">memory</span></div>
+                        <div className="text-sm text-slate-400 mb-2">vCPU Usage</div>
+                        <div className="text-2xl font-bold mb-4 text-white">12 Cores</div>
+                        <div className="w-full bg-surface-darker h-1.5 rounded-full overflow-hidden"><div className="bg-green-500 h-full w-[40%]"></div></div>
+                    </div>
+                    <div className="bg-surface-dark p-6 rounded-xl border border-border-dark relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4 opacity-10"><span className="material-symbols-outlined text-6xl text-white">hard_drive</span></div>
+                        <div className="text-sm text-slate-400 mb-2">Storage</div>
+                        <div className="text-2xl font-bold mb-4 text-white">450 GB</div>
+                        <div className="w-full bg-surface-darker h-1.5 rounded-full overflow-hidden"><div className="bg-blue-500 h-full w-[75%]"></div></div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // --- Screen 7: Roadmap ---
+        const ScreenRoadmap = () => (
+            <div className="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-white font-display flex flex-col pb-20">
+                <div className="p-6 border-b border-border-dark flex justify-between items-center bg-surface-dark">
+                    <h1 className="font-bold text-lg text-white">Product Roadmap</h1>
+                    <div className="flex -space-x-2">
+                         {[1,2,3].map(i => <div key={i} className="size-8 rounded-full bg-gray-600 border-2 border-surface-dark"></div>)}
+                    </div>
+                </div>
+                <div className="flex-1 overflow-x-auto p-6 flex gap-6">
+                    {['Planned', 'In Progress', 'Review', 'Launched'].map((col, i) => (
+                        <div key={col} className="w-72 shrink-0">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="font-bold text-sm text-slate-400 uppercase tracking-wider">{col}</h3>
+                                <span className="bg-surface-dark px-2 py-0.5 rounded text-xs text-slate-500">3</span>
+                            </div>
+                            <div className="space-y-3">
+                                {[1,2,3].map(item => (
+                                    <div key={item} className="bg-surface-dark p-4 rounded-lg border border-border-dark shadow-lg group hover:border-primary/50 transition-colors cursor-pointer">
+                                        <div className="flex flex-wrap gap-2 mb-2">
+                                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${i%2===0 ? 'bg-purple-500/10 text-purple-400' : 'bg-blue-500/10 text-blue-400'}`}>Enhancement</span>
+                                        </div>
+                                        <p className="text-sm font-medium text-slate-200">Implement real-time collaboration features for workspace #{i}{item}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+
+        // --- Screen 8: Executive ---
+        const ScreenExecutive = () => (
+            <div className="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-white font-display p-8 pb-24">
+                <h1 className="text-2xl font-bold mb-8 text-white">Executive Overview</h1>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    {[
+                        { l: 'ARR', v: '$2.4M', c: '+12%', pos: true },
+                        { l: 'Active Developers', v: '842', c: '+5%', pos: true },
+                        { l: 'Avg. Session', v: '4h 12m', c: '-2%', pos: false },
+                        { l: 'Server Costs', v: '$12k', c: '-8%', pos: true }, 
+                    ].map((s, i) => (
+                        <div key={i} className="bg-surface-dark p-6 rounded-xl border border-border-dark">
+                            <p className="text-sm text-slate-400 mb-1">{s.l}</p>
+                            <div className="flex items-end justify-between">
+                                <h2 className="text-3xl font-bold text-white">{s.v}</h2>
+                                <span className={`text-sm font-bold ${s.pos ? 'text-green-500' : 'text-red-500'}`}>{s.c}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="bg-surface-dark p-6 rounded-xl border border-border-dark h-80 flex items-center justify-center border-dashed border-2 border-border-dark/50">
+                        <p className="text-slate-500">Revenue Trend (Chart Placeholder)</p>
+                    </div>
+                    <div className="bg-surface-dark p-6 rounded-xl border border-border-dark h-80 flex items-center justify-center border-dashed border-2 border-border-dark/50">
+                        <p className="text-slate-500">User Growth (Chart Placeholder)</p>
+                    </div>
+                </div>
+            </div>
+        );
+
+         // --- Screen 9: Marketplace ---
+        const ScreenMarketplace = () => (
+            <div className="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-white font-display overflow-y-auto pb-24">
+                <div className="h-64 bg-gradient-to-r from-blue-900 to-indigo-900 relative flex items-center px-10">
+                    <div className="relative z-10 max-w-2xl">
+                        <h1 className="text-4xl font-bold mb-4 text-white">Marketplace</h1>
+                        <p className="text-blue-100 text-lg mb-6">Discover templates, plugins, and integrations to supercharge your workflow.</p>
+                        <div className="flex gap-4">
+                            <button className="bg-white text-blue-900 px-6 py-2 rounded-lg font-bold">Browse All</button>
+                            <button className="bg-blue-800/50 text-white px-6 py-2 rounded-lg font-bold backdrop-blur">Submit Plugin</button>
+                        </div>
+                    </div>
+                    <div className="absolute right-0 bottom-0 h-full w-1/2 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+                </div>
+                <div className="p-10">
+                    <h2 className="text-xl font-bold mb-6 text-white">Featured Collections</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {['React Starters', 'AI Tools', 'DevOps Kits'].map(c => (
+                            <div key={c} className="bg-surface-dark rounded-xl overflow-hidden border border-border-dark group cursor-pointer hover:-translate-y-1 transition-transform">
+                                <div className="h-32 bg-slate-800 relative group-hover:bg-slate-700 transition-colors"></div>
+                                <div className="p-4">
+                                    <h3 className="font-bold text-lg mb-1 text-white">{c}</h3>
+                                    <p className="text-sm text-slate-400">Curated set of essential tools.</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+
+        // --- Screen 11: SDK Manager ---
+        const ScreenSDK = () => (
+             <div className="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-white font-display p-6 pb-24">
+                <h1 className="text-2xl font-bold mb-6 text-white">SDK Manager</h1>
+                <div className="bg-surface-dark border border-border-dark rounded-xl overflow-hidden">
+                    <div className="grid grid-cols-12 bg-surface-darker p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-border-dark">
+                        <div className="col-span-5">Package</div>
+                        <div className="col-span-3">Installed Version</div>
+                        <div className="col-span-2">Latest</div>
+                        <div className="col-span-2 text-right">Action</div>
+                    </div>
+                    {[
+                        { name: 'Android SDK Platform', v: '33.0.2', l: '34.0.0', up: true },
+                        { name: 'iOS Simulator Runtime', v: '16.2', l: '16.4', up: true },
+                        { name: 'Node.js Runtime', v: '18.16.0', l: '18.16.0', up: false },
+                        { name: 'Python 3.11', v: '3.11.2', l: '3.11.4', up: true },
+                    ].map((sdk, i) => (
+                        <div key={i} className="grid grid-cols-12 p-4 items-center border-b border-border-dark last:border-0 hover:bg-white/5 transition-colors">
+                            <div className="col-span-5 font-medium flex items-center gap-3 text-white">
+                                <span className="material-symbols-outlined text-slate-500">folder_zip</span>
+                                {sdk.name}
+                            </div>
+                            <div className="col-span-3 text-slate-400 font-mono text-sm">{sdk.v}</div>
+                            <div className="col-span-2 text-slate-400 font-mono text-sm">{sdk.l}</div>
+                            <div className="col-span-2 text-right">
+                                {sdk.up ? (
+                                    <button className="text-xs bg-primary text-white px-3 py-1.5 rounded font-bold hover:bg-blue-600">Update</button>
+                                ) : (
+                                    <span className="text-xs text-green-500 font-bold flex items-center justify-end gap-1"><span className="material-symbols-outlined text-[14px]">check</span> Installed</span>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+             </div>
+        );
+
+        // --- Screen 12: Version Control ---
+        const ScreenVersionControl = () => (
+             <div className="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-white font-display flex pb-24">
+                <aside className="w-80 bg-surface-dark border-r border-border-dark flex flex-col">
+                    <div className="p-4 border-b border-border-dark">
+                        <h2 className="font-bold flex items-center gap-2 text-white"><span className="material-symbols-outlined">source_environment</span> Source Control</h2>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-2">
+                        <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 px-2 mt-4">Changes (3)</div>
+                        {['App.tsx', 'styles.css', 'package.json'].map(f => (
+                            <div key={f} className="flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 rounded cursor-pointer group">
+                                <span className="material-symbols-outlined text-yellow-500 text-[16px]">edit</span>
+                                <span className="text-sm text-slate-300 group-hover:text-white">{f}</span>
+                                <span className="ml-auto text-xs text-slate-500">M</span>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="p-4 border-t border-border-dark bg-surface-darker">
+                        <input className="w-full bg-surface-dark border border-border-dark rounded px-3 py-2 text-sm text-white mb-2" placeholder="Message (Enter to commit)" />
+                        <button className="w-full bg-primary text-white py-1.5 rounded text-sm font-bold">Commit Changes</button>
+                    </div>
+                </aside>
+                <main className="flex-1 bg-background-dark flex items-center justify-center text-slate-500">
+                    <div className="text-center">
+                        <span className="material-symbols-outlined text-6xl mb-4 opacity-20">difference</span>
+                        <p>Select a file to view diff</p>
+                    </div>
+                </main>
+             </div>
+        );
+
+        // --- Screen 13: Unified Master ---
+        const ScreenMaster = () => (
+             <div className="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-white font-display p-6 pb-24">
+                <h1 className="text-2xl font-bold mb-6 text-white">Unified Master Workspace</h1>
+                <div className="grid grid-cols-3 gap-6 h-[600px]">
+                    <div className="col-span-2 bg-surface-dark border border-border-dark rounded-xl p-4">
+                        <div className="h-6 flex items-center justify-between mb-4">
+                             <span className="text-xs font-bold text-slate-500 uppercase">Editor Active</span>
+                        </div>
+                        <div className="h-full bg-background-dark rounded border border-border-dark flex items-center justify-center text-slate-600">
+                            Editor Component Preview
+                        </div>
+                    </div>
+                     <div className="col-span-1 flex flex-col gap-6">
+                        <div className="flex-1 bg-surface-dark border border-border-dark rounded-xl p-4">
+                            <span className="text-xs font-bold text-slate-500 uppercase block mb-4">Terminal</span>
+                             <div className="font-mono text-xs text-green-400 space-y-1">
+                                <p>➜ build success</p>
+                                <p>➜ deployment starting...</p>
+                                <p>➜ 3s done</p>
+                             </div>
+                        </div>
+                        <div className="flex-1 bg-surface-dark border border-border-dark rounded-xl p-4">
+                            <span className="text-xs font-bold text-slate-500 uppercase block mb-4">AI Assistant</span>
+                            <div className="text-sm text-slate-300">"I noticed a potential memory leak in lines 45-50. detailed analysis available."</div>
+                        </div>
+                    </div>
+                </div>
+             </div>
+        );
+
+        // --- Router Setup ---
+        const App = () => {
+            return (
+                <MemoryRouter>
+                    <PrototypeNavigation />
+                    <Routes>
+                        <Route path="/" element={<ScreenCrossPlatform />} />
+                        <Route path="/community" element={<ScreenCommunity />} />
+                        <Route path="/cli" element={<ScreenCLI />} />
+                        <Route path="/extensions-hub" element={<ScreenExtensions />} />
+                        <Route path="/project-settings" element={<ScreenSettings />} />
+                        <Route path="/vm-billing" element={<ScreenBilling />} />
+                        <Route path="/roadmap" element={<ScreenRoadmap />} />
+                        <Route path="/executive" element={<ScreenExecutive />} />
+                        <Route path="/marketplace" element={<ScreenMarketplace />} />
+                        <Route path="/issues" element={<ScreenIssues />} />
+                        <Route path="/sdk-manager" element={<ScreenSDK />} />
+                        <Route path="/version-control" element={<ScreenVersionControl />} />
+                        <Route path="/master-workspace" element={<ScreenMaster />} />
+                    </Routes>
+                </MemoryRouter>
+            );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

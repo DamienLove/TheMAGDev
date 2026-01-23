@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cross-Platform Assist &amp; UI Inspector</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1b2436",
+                        "surface-light": "#ffffff",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["Space Grotesk", "monospace"], // Using Space Grotesk for mono feel as requested
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for technical look */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #232f48;
+            border-radius: 2px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b4d6e;
+        }
+        .tree-line {
+            position: absolute;
+            left: 23px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background-color: #232f48;
+            z-index: 0;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display text-slate-900 dark:text-white overflow-hidden relative">
+<!-- Top App Bar -->
+<header class="shrink-0 flex items-center bg-white dark:bg-[#111722] border-b border-slate-200 dark:border-[#232f48] px-4 py-3 justify-between z-20 shadow-sm">
+<div class="flex items-center gap-3">
+<button class="text-slate-500 dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-[#232f48] transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div>
+<h2 class="text-lg font-bold leading-tight tracking-tight">UI Inspector</h2>
+<div class="flex items-center gap-1.5">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+</span>
+<p class="text-slate-400 dark:text-[#92a4c9] text-xs font-medium tracking-wide">Connected: Pixel 7 Pro</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-slate-500 dark:text-[#92a4c9] flex size-8 items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-[#232f48]">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col relative overflow-hidden">
+<!-- Segmented Controls -->
+<div class="shrink-0 px-4 py-4 bg-background-light dark:bg-background-dark z-10">
+<div class="flex h-10 w-full items-center justify-center rounded-lg bg-slate-200 dark:bg-[#1b2436] p-1">
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-[4px] px-2 transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-[#2e3b52] has-[:checked]:shadow-sm has-[:checked]:text-primary text-slate-500 dark:text-[#92a4c9] text-xs font-bold uppercase tracking-wide">
+<span class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">android</span> Android</span>
+<input class="invisible w-0" name="platform-toggle" type="radio" value="Android"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-[4px] px-2 transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-[#2e3b52] has-[:checked]:shadow-sm has-[:checked]:text-primary text-slate-500 dark:text-[#92a4c9] text-xs font-bold uppercase tracking-wide">
+<span class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">phone_iphone</span> iOS</span>
+<input class="invisible w-0" name="platform-toggle" type="radio" value="iOS"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-[4px] px-2 transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-[#2e3b52] has-[:checked]:shadow-sm has-[:checked]:text-primary text-slate-500 dark:text-[#92a4c9] text-xs font-bold uppercase tracking-wide">
+<span class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">compare_arrows</span> Split</span>
+<input checked="" class="invisible w-0" name="platform-toggle" type="radio" value="Split View"/>
+</label>
+</div>
+</div>
+<!-- UI Hierarchy Tree -->
+<div class="flex-1 overflow-y-auto pb-48">
+<div class="px-4 pb-2">
+<h4 class="text-slate-400 dark:text-[#64748b] text-xs font-bold uppercase tracking-wider mb-2">Component Tree</h4>
+</div>
+<!-- Root Node -->
+<div class="relative group">
+<div class="flex items-center gap-3 bg-transparent hover:bg-slate-100 dark:hover:bg-[#1c2536] px-4 py-2 cursor-pointer transition-colors border-l-2 border-transparent hover:border-slate-300 dark:hover:border-[#3b4d6e]">
+<span class="material-symbols-outlined text-slate-400 dark:text-[#64748b] text-[16px]">expand_more</span>
+<div class="flex items-center justify-center rounded bg-slate-200 dark:bg-[#232f48] shrink-0 size-8 text-primary">
+<span class="material-symbols-outlined text-[18px]">layers</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200">AppScaffold</span>
+<span class="text-[10px] text-slate-400 font-mono">root</span>
+</div>
+</div>
+</div>
+<!-- Level 1 Node -->
+<div class="relative group pl-6">
+<div class="tree-line"></div>
+<div class="flex items-center gap-3 bg-transparent hover:bg-slate-100 dark:hover:bg-[#1c2536] px-4 py-2 cursor-pointer transition-colors border-l-2 border-transparent hover:border-slate-300 dark:hover:border-[#3b4d6e] relative z-10">
+<span class="material-symbols-outlined text-slate-400 dark:text-[#64748b] text-[16px]">expand_more</span>
+<div class="flex items-center justify-center rounded bg-slate-200 dark:bg-[#232f48] shrink-0 size-8 text-indigo-400">
+<span class="material-symbols-outlined text-[18px]">view_column</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200">Column</span>
+<span class="text-[10px] text-slate-400 font-mono">padding: 16.dp</span>
+</div>
+</div>
+</div>
+<!-- Level 2 Node (Selected) -->
+<div class="relative group pl-12">
+<div class="tree-line"></div>
+<div class="flex items-center justify-between gap-3 bg-primary/10 dark:bg-primary/20 px-4 py-2 cursor-pointer border-l-2 border-primary relative z-10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-[16px] rotate-90">subdirectory_arrow_right</span>
+<div class="flex items-center justify-center rounded bg-primary shrink-0 size-8 text-white shadow-lg shadow-primary/30">
+<span class="material-symbols-outlined text-[18px]">smart_button</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-primary dark:text-white">PrimaryButton</span>
+<span class="text-[10px] text-slate-500 dark:text-indigo-200 font-mono">id: btn_submit</span>
+</div>
+</div>
+<span class="flex h-2 w-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]" title="Issues Detected"></span>
+</div>
+<!-- Contextual Diff Panel (Shows because parent is selected) -->
+<div class="relative z-10 px-4 py-2 my-1 mr-4">
+<div class="bg-white dark:bg-[#151b26] border border-amber-500/30 rounded-lg overflow-hidden shadow-sm">
+<div class="flex items-center gap-2 bg-amber-500/10 px-3 py-1.5 border-b border-amber-500/20">
+<span class="material-symbols-outlined text-amber-500 text-[14px]">warning</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Property Mismatch</span>
+</div>
+<div class="grid grid-cols-2 divide-x divide-slate-200 dark:divide-slate-800">
+<div class="p-2 flex flex-col gap-1">
+<div class="flex items-center gap-1 mb-1">
+<span class="material-symbols-outlined text-[12px] text-slate-400">android</span>
+<span class="text-[10px] text-slate-500 font-bold">Android (Compose)</span>
+</div>
+<div class="font-mono text-[11px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 px-1.5 py-0.5 rounded border border-emerald-500/20">elevation: 4.dp</div>
+<div class="font-mono text-[11px] text-slate-600 dark:text-slate-400">corner: 8.dp</div>
+</div>
+<div class="p-2 flex flex-col gap-1 bg-slate-50/50 dark:bg-slate-900/30">
+<div class="flex items-center gap-1 mb-1">
+<span class="material-symbols-outlined text-[12px] text-slate-400">phone_iphone</span>
+<span class="text-[10px] text-slate-500 font-bold">iOS (SwiftUI)</span>
+</div>
+<div class="font-mono text-[11px] text-rose-500 dark:text-rose-400 bg-rose-500/5 px-1.5 py-0.5 rounded border border-rose-500/20">shadow: 0</div>
+<div class="font-mono text-[11px] text-slate-600 dark:text-slate-400">corner: 8.0</div>
+</div>
+</div>
+<div class="px-2 py-1 bg-slate-50 dark:bg-[#0f131a] border-t border-slate-200 dark:border-slate-800 flex justify-end">
+<button class="text-[10px] font-medium text-primary hover:text-blue-400">Auto-fix Mismatch</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Level 2 Node -->
+<div class="relative group pl-12">
+<div class="tree-line"></div>
+<div class="flex items-center gap-3 bg-transparent hover:bg-slate-100 dark:hover:bg-[#1c2536] px-4 py-2 cursor-pointer transition-colors border-l-2 border-transparent hover:border-slate-300 dark:hover:border-[#3b4d6e] relative z-10">
+<span class="material-symbols-outlined text-slate-400 dark:text-[#64748b] text-[16px] opacity-0">expand_more</span>
+<div class="flex items-center justify-center rounded bg-slate-200 dark:bg-[#232f48] shrink-0 size-8 text-purple-400">
+<span class="material-symbols-outlined text-[18px]">image</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200">UserAvatar</span>
+<span class="text-[10px] text-slate-400 font-mono">size: 48.dp</span>
+</div>
+</div>
+</div>
+<!-- Level 1 Node -->
+<div class="relative group pl-6">
+<div class="tree-line"></div>
+<div class="flex items-center gap-3 bg-transparent hover:bg-slate-100 dark:hover:bg-[#1c2536] px-4 py-2 cursor-pointer transition-colors border-l-2 border-transparent hover:border-slate-300 dark:hover:border-[#3b4d6e] relative z-10">
+<span class="material-symbols-outlined text-slate-400 dark:text-[#64748b] text-[16px]">expand_more</span>
+<div class="flex items-center justify-center rounded bg-slate-200 dark:bg-[#232f48] shrink-0 size-8 text-teal-400">
+<span class="material-symbols-outlined text-[18px]">tab</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200">BottomNav</span>
+<span class="text-[10px] text-slate-400 font-mono">h: 56.dp</span>
+</div>
+</div>
+</div>
+<div class="h-8"></div>
+</div>
+<!-- Logic Console (Bottom Fixed) -->
+<div class="absolute bottom-0 left-0 right-0 bg-white dark:bg-[#0c1018] border-t border-slate-200 dark:border-[#232f48] shadow-[0_-4px_20px_rgba(0,0,0,0.2)] flex flex-col h-[35%] transition-all duration-300 z-30">
+<!-- Console Handle / Header -->
+<div class="flex items-center justify-between px-4 py-2 bg-slate-50 dark:bg-[#131a26] border-b border-slate-200 dark:border-[#232f48] shrink-0 cursor-ns-resize">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 dark:text-[#64748b] text-[16px]">terminal</span>
+<h3 class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-[#92a4c9]">Logic Sync</h3>
+<span class="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-[#232f48] text-[9px] font-mono text-slate-500 dark:text-slate-400">Streaming</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors" title="Clear">
+<span class="material-symbols-outlined text-[16px]">block</span>
+</button>
+<button class="text-primary hover:text-blue-400 transition-colors" title="Filter">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+</button>
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Logs Area -->
+<div class="flex-1 overflow-y-auto p-2 font-mono text-xs space-y-1 bg-white dark:bg-[#0c1018]">
+<div class="flex gap-2 hover:bg-slate-50 dark:hover:bg-[#151b26] p-1 rounded">
+<span class="text-slate-400 shrink-0 select-none">[14:02:01]</span>
+<span class="text-purple-600 dark:text-purple-400 font-bold shrink-0">STATE</span>
+<span class="text-slate-700 dark:text-slate-300 truncate">App launched. SessionID: 8x92-a1</span>
+</div>
+<div class="flex gap-2 hover:bg-slate-50 dark:hover:bg-[#151b26] p-1 rounded">
+<span class="text-slate-400 shrink-0 select-none">[14:02:03]</span>
+<span class="text-emerald-600 dark:text-emerald-400 font-bold shrink-0">NET</span>
+<span class="text-slate-700 dark:text-slate-300 truncate">GET /api/user/profile <span class="text-emerald-500">200 OK</span></span>
+</div>
+<div class="flex gap-2 hover:bg-slate-50 dark:hover:bg-[#151b26] p-1 rounded bg-slate-100 dark:bg-[#161f30]">
+<span class="text-slate-400 shrink-0 select-none">[14:02:05]</span>
+<span class="text-blue-600 dark:text-blue-400 font-bold shrink-0">EVENT</span>
+<span class="text-slate-700 dark:text-slate-300 truncate">Button_Submit clicked</span>
+</div>
+<div class="flex gap-2 hover:bg-slate-50 dark:hover:bg-[#151b26] p-1 rounded">
+<span class="text-slate-400 shrink-0 select-none">[14:02:05]</span>
+<span class="text-amber-600 dark:text-amber-400 font-bold shrink-0">WARN</span>
+<span class="text-slate-700 dark:text-slate-300 break-all">Shadow property dropped on iOS layer. Use `shadowRadius` instead of elevation.</span>
+</div>
+<div class="flex gap-2 hover:bg-slate-50 dark:hover:bg-[#151b26] p-1 rounded">
+<span class="text-slate-400 shrink-0 select-none">[14:02:06]</span>
+<span class="text-purple-600 dark:text-purple-400 font-bold shrink-0">STATE</span>
+<span class="text-slate-700 dark:text-slate-300 truncate">isLoading: true -&gt; false</span>
+</div>
+<!-- Log Entry for New Data -->
+<div class="flex gap-2 hover:bg-slate-50 dark:hover:bg-[#151b26] p-1 rounded border-l-2 border-primary bg-primary/5 pl-2">
+<span class="text-slate-400 shrink-0 select-none">[14:02:07]</span>
+<span class="text-primary font-bold shrink-0">SYNC</span>
+<span class="text-slate-700 dark:text-slate-300 truncate">Model updated across 2 devices</span>
+</div>
+</div>
+</div>
+<!-- Floating Action Button -->
+<button class="absolute bottom-[38%] right-4 size-14 bg-primary rounded-2xl shadow-xl shadow-primary/40 flex items-center justify-center text-white z-40 hover:scale-105 active:scale-95 transition-transform group">
+<span class="material-symbols-outlined text-[28px] group-hover:rotate-12 transition-transform">ads_click</span>
+<div class="absolute right-full mr-3 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                Select Element
+            </div>
+</button>
+</main>
+</body></html>

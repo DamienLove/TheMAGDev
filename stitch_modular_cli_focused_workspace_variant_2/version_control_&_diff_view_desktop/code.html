@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Version Control &amp; Diff View Desktop</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1337ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101322",
+                        "diff-add-bg": "rgba(22, 163, 74, 0.15)",
+                        "diff-add-text": "#4ade80",
+                        "diff-del-bg": "rgba(220, 38, 38, 0.15)",
+                        "diff-del-text": "#f87171",
+                        "editor-bg": "#0c0e18"
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["Fira Code", "monospace"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for code editor */
+        .code-scroll::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        .code-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .code-scroll::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 5px;
+        }
+        .code-scroll::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+        .code-line-number {
+            user-select: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 font-display min-h-screen flex flex-col overflow-hidden">
+<!-- Top Toolbar -->
+<header class="h-14 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#15192b] flex items-center justify-between px-4 shrink-0 z-10">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+<span class="material-icons text-xl">folder_open</span>
+<span class="text-sm font-medium">mobile-app-v2</span>
+<span class="text-xs px-1 text-slate-400">/</span>
+<span class="text-sm font-medium text-slate-800 dark:text-white">src</span>
+<span class="text-xs px-1 text-slate-400">/</span>
+<span class="text-sm font-medium text-slate-800 dark:text-white">utils.ts</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<!-- Branch Selector -->
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-medium transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
+<span class="material-icons text-primary text-sm">call_split</span>
+<span>feature/ai-integration</span>
+<span class="text-xs bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded ml-1">HEAD</span>
+</button>
+<div class="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
+<!-- Git Actions -->
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-medium transition-colors text-slate-600 dark:text-slate-300">
+<span class="material-icons text-lg">arrow_downward</span>
+<span>Pull</span>
+</button>
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-medium transition-colors text-slate-600 dark:text-slate-300">
+<span class="material-icons text-lg">arrow_upward</span>
+<span>Push</span>
+<span class="bg-primary text-white text-[10px] font-bold px-1.5 rounded-full ml-1">2</span>
+</button>
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-sm font-medium transition-colors ml-2">
+<span class="material-icons text-lg">sync</span>
+<span>Sync</span>
+</button>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex -space-x-2">
+<img class="w-8 h-8 rounded-full border-2 border-white dark:border-[#15192b]" data-alt="User Avatar Alex" src="https://lh3.googleusercontent.com/aida-public/AB6AXuATpn00xf9CN9aZjwgQv0uTYPFmAyEXudiVovtUWVIqPe2FAXu88nCYvRZaiTGtGl2rQX6DiejPYEEtRbO1m8nOtQiIxB86Mg09CI2XDYFNO2AsNBOySEKLl2tHXFUjhc2bXwP4XqYmEmv3jlpKpruttJhvA96LadZ80rvNYFokKk5_MOulQE2dxUgjLbYX8r81BEUBCVpApRjvKZd5_oJXUSMDzCRS41UzkKXJFq7q7NU9T8K-nUxeu9slScYEQoISNk2jCQJX3tk"/>
+<img class="w-8 h-8 rounded-full border-2 border-white dark:border-[#15192b]" data-alt="User Avatar Sarah" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP6A5NxNq582uBQaIQW6xjuRqLsxWnNb6QReWO0ai9SjFkGZpGS7lBLgUZzpnMfiCIY6wMV5IISMHGgPBHJNpARtC19vYBRybaJBxr7FuhDgfc5FVZUJ0wGh6jsKgfXh8rANhyqTUJ-KimGMVq_aQVPjy7PbzTEuPyicw4o8bIqwNv6aozVKlst2s947JO1dECOTGYnCJELZVe1eLEqhRfg1Rm1flBE5Sbx5LIoi1Whgc86DO0wpVUt6jXyLd_Keavq1ld5o71nnc"/>
+</div>
+<button class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
+<span class="material-icons">settings</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<div class="flex flex-1 overflow-hidden">
+<!-- Sidebar: Source Control -->
+<aside class="w-80 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-[#121526] flex flex-col shrink-0 z-20">
+<!-- Sidebar Header -->
+<div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+<h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Source Control</h2>
+<div class="flex gap-1">
+<button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors" title="View as List">
+<span class="material-icons text-lg">list</span>
+</button>
+<button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors" title="Refresh">
+<span class="material-icons text-lg">refresh</span>
+</button>
+<button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors" title="More Actions">
+<span class="material-icons text-lg">more_horiz</span>
+</button>
+</div>
+</div>
+<!-- Commit Input Area -->
+<div class="p-4 space-y-3 border-b border-slate-200 dark:border-slate-800">
+<div class="relative">
+<textarea class="w-full bg-slate-50 dark:bg-[#0c0e18] border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none h-24 placeholder-slate-400" placeholder="Message (Ctrl+Enter to commit)"></textarea>
+<!-- AI Generate Button -->
+<button class="absolute bottom-2 right-2 p-1.5 rounded-md text-primary hover:bg-primary/10 transition-colors group" title="Generate with AI">
+<span class="material-icons text-lg group-hover:animate-pulse">auto_fix_high</span>
+</button>
+</div>
+<button class="w-full bg-primary hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg shadow-primary/20">
+<span class="material-icons text-sm">check</span>
+<span>Commit</span>
+</button>
+</div>
+<!-- Changes List -->
+<div class="flex-1 overflow-y-auto p-2 space-y-4">
+<!-- Staged Changes Section -->
+<div>
+<div class="flex items-center justify-between px-2 py-1 mb-1 group cursor-pointer">
+<div class="flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+<span class="material-icons text-sm transition-transform group-hover:text-primary">expand_more</span>
+<span>Staged Changes</span>
+<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-1.5 rounded-full text-[10px] ml-1">1</span>
+</div>
+</div>
+<div class="space-y-0.5">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer group">
+<span class="text-xs font-bold text-yellow-500 w-3 text-center">M</span>
+<span class="text-sm text-slate-700 dark:text-slate-300 truncate flex-1">src/config/theme.ts</span>
+<button class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-slate-200">
+<span class="material-icons text-sm">remove</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Changes Section -->
+<div>
+<div class="flex items-center justify-between px-2 py-1 mb-1 group cursor-pointer">
+<div class="flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+<span class="material-icons text-sm transition-transform group-hover:text-primary">expand_more</span>
+<span>Changes</span>
+<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-1.5 rounded-full text-[10px] ml-1">3</span>
+</div>
+<div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-slate-400 hover:text-primary" title="Stage All">
+<span class="material-icons text-sm">add</span>
+</button>
+<button class="text-slate-400 hover:text-red-500" title="Discard All">
+<span class="material-icons text-sm">undo</span>
+</button>
+</div>
+</div>
+<div class="space-y-0.5">
+<!-- Active Item -->
+<div class="flex items-center gap-2 px-3 py-1.5 rounded bg-primary/10 border-l-2 border-primary cursor-pointer group">
+<span class="text-xs font-bold text-yellow-500 w-3 text-center">M</span>
+<span class="text-sm font-medium text-primary truncate flex-1">src/utils/data-processing.ts</span>
+<div class="flex gap-1 opacity-100">
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="Open File">
+<span class="material-icons text-sm">open_in_new</span>
+</button>
+<button class="text-slate-400 hover:text-primary" title="Stage">
+<span class="material-icons text-sm">add</span>
+</button>
+</div>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer group">
+<span class="text-xs font-bold text-green-500 w-3 text-center">A</span>
+<span class="text-sm text-slate-700 dark:text-slate-300 truncate flex-1">src/components/NewFeature.tsx</span>
+<button class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-primary">
+<span class="material-icons text-sm">add</span>
+</button>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer group">
+<span class="text-xs font-bold text-red-500 w-3 text-center">D</span>
+<span class="text-sm text-slate-700 dark:text-slate-300 truncate flex-1">src/legacy/old_api.js</span>
+<button class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-primary">
+<span class="material-icons text-sm">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Diff Editor Area -->
+<main class="flex-1 flex flex-col min-w-0 bg-[#fbfbfb] dark:bg-[#0c0e18] relative">
+<!-- Editor Tabs / Breadcrumbs -->
+<div class="h-10 flex items-center bg-slate-100 dark:bg-[#15192b] border-b border-slate-200 dark:border-slate-800 px-4">
+<div class="flex items-center gap-2 text-xs font-mono text-slate-500">
+<span class="px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Working Tree</span>
+<span class="material-icons text-sm text-slate-400">compare_arrows</span>
+<span class="px-2 py-1 rounded bg-primary/20 text-primary border border-primary/30">HEAD (index)</span>
+</div>
+<div class="ml-auto flex items-center gap-2">
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs flex items-center gap-1">
+<span class="material-icons text-sm">visibility</span>
+                        Ignore Whitespace
+                    </button>
+<div class="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-2"></div>
+<button class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded">
+<span class="material-icons text-sm">vertical_split</span>
+</button>
+<button class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded">
+<span class="material-icons text-sm">horizontal_split</span>
+</button>
+</div>
+</div>
+<!-- Diff Content -->
+<div class="flex-1 flex relative overflow-hidden font-mono text-sm leading-6">
+<!-- Center Gutter / Actions (Floating) -->
+<div class="absolute left-1/2 top-0 bottom-0 w-px bg-slate-200 dark:bg-slate-800 z-10 transform -translate-x-1/2 flex flex-col items-center py-4">
+<!-- Interactive Action Buttons appearing between panes -->
+<div class="absolute top-[160px] z-20">
+<button class="bg-white dark:bg-slate-700 shadow-md border border-slate-200 dark:border-slate-600 rounded-full w-6 h-6 flex items-center justify-center text-slate-500 hover:text-primary hover:scale-110 transition-all" title="Revert Block">
+<span class="material-icons text-[14px]">arrow_back</span>
+</button>
+</div>
+<div class="absolute top-[340px] z-20">
+<button class="bg-white dark:bg-slate-700 shadow-md border border-slate-200 dark:border-slate-600 rounded-full w-6 h-6 flex items-center justify-center text-slate-500 hover:text-primary hover:scale-110 transition-all" title="Stage Block">
+<span class="material-icons text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Left Pane: Original -->
+<div class="flex-1 flex flex-col bg-white dark:bg-[#0f111a] code-scroll overflow-y-auto overflow-x-auto w-1/2">
+<div class="sticky top-0 left-0 right-0 bg-slate-50 dark:bg-[#121420] border-b border-slate-200 dark:border-slate-800 px-4 py-1 text-xs text-slate-500 flex justify-between">
+<span>Original</span>
+<span class="opacity-50">src/utils/data-processing.ts</span>
+</div>
+<div class="flex min-w-max pb-10">
+<!-- Line Numbers -->
+<div class="flex flex-col text-right pr-4 pl-2 py-4 select-none text-slate-300 dark:text-slate-600 bg-slate-50 dark:bg-[#121420] border-r border-slate-200 dark:border-slate-800 text-xs leading-6">
+<span>42</span>
+<span>43</span>
+<span>44</span>
+<span>45</span>
+<span>46</span>
+<span>47</span>
+<span>48</span>
+<span>49</span>
+<span>50</span>
+<span>51</span>
+<span>52</span>
+<span>53</span>
+<span>54</span>
+<span>55</span>
+</div>
+<!-- Code -->
+<div class="flex-1 py-4 text-slate-600 dark:text-slate-300">
+<div class="px-4">  /**</div>
+<div class="px-4">   * Process raw data input</div>
+<div class="px-4">   */</div>
+<div class="px-4">  export const processData = (data: any[]) =&gt; {</div>
+<div class="px-4">    if (!data || data.length === 0) return [];</div>
+<div class="px-4"> </div>
+<div class="px-4 bg-diff-del-bg w-full block relative group">
+<span class="absolute left-0 top-0 bottom-0 w-1 bg-red-500/50"></span>
+<span class="text-diff-del-text">    // Legacy processing method</span>
+</div>
+<div class="px-4 bg-diff-del-bg w-full block relative group">
+<span class="absolute left-0 top-0 bottom-0 w-1 bg-red-500/50"></span>
+<span class="text-diff-del-text">    return data.map(item =&gt; ({</span>
+</div>
+<div class="px-4 bg-diff-del-bg w-full block relative group">
+<span class="absolute left-0 top-0 bottom-0 w-1 bg-red-500/50"></span>
+<span class="text-diff-del-text">      id: item.id,</span>
+</div>
+<div class="px-4 bg-diff-del-bg w-full block relative group">
+<span class="absolute left-0 top-0 bottom-0 w-1 bg-red-500/50"></span>
+<span class="text-diff-del-text">      value: parseInt(item.val)</span>
+</div>
+<div class="px-4 bg-diff-del-bg w-full block relative group">
+<span class="absolute left-0 top-0 bottom-0 w-1 bg-red-500/50"></span>
+<span class="text-diff-del-text">    }));</span>
+</div>
+<div class="px-4">  }</div>
+<div class="px-4">}</div>
+</div>
+</div>
+</div>
+<!-- Right Pane: Modified -->
+<div class="flex-1 flex flex-col bg-white dark:bg-[#0c0e18] code-scroll overflow-y-auto overflow-x-auto w-1/2">
+<div class="sticky top-0 left-0 right-0 bg-slate-50 dark:bg-[#121420] border-b border-slate-200 dark:border-slate-800 px-4 py-1 text-xs text-slate-500 flex justify-between">
+<span>Modified</span>
+<span class="opacity-50">src/utils/data-processing.ts</span>
+</div>
+<div class="flex min-w-max pb-10">
+<!-- Line Numbers -->
+<div class="flex flex-col text-right pr-4 pl-2 py-4 select-none text-slate-300 dark:text-slate-600 bg-slate-50 dark:bg-[#121420] border-r border-slate-200 dark:border-slate-800 text-xs leading-6">
+<span>42</span>
+<span>43</span>
+<span>44</span>
+<span>45</span>
+<span>46</span>
+<span>47</span>
+<span>48</span>
+<span>49</span>
+<span>50</span>
+<span>51</span>
+<span>52</span>
+<span>53</span>
+<span>54</span>
+<span>55</span>
+<span>56</span>
+<span>57</span>
+</div>
+<!-- Code -->
+<div class="flex-1 py-4 text-slate-600 dark:text-slate-300">
+<div class="px-4">  /**</div>
+<div class="px-4">   * Process raw data input</div>
+<div class="px-4">   */</div>
+<div class="px-4">  export const processData = (data: any[]) =&gt; {</div>
+<div class="px-4">    if (!data || data.length === 0) return [];</div>
+<div class="px-4"> </div>
+<div class="px-4 bg-diff-add-bg w-full block relative group">
+<span class="absolute left-0 top-0 bottom-0 w-1 bg-green-500/50"></span>
+<span class="text-diff-add-text">    // Optimized processing with validation</span>
+</div>
+<div class="px-4 bg-diff-add-bg w-full block relative group">
+<span class="absolute left-0 top-0 bottom-0 w-1 bg-green-500/50"></span>
+<span class="text-diff-add-text">    return data.reduce((acc, item) =&gt; {</span>
+</div>
+<div class="px-4 bg-diff-add-bg w-full block relative group">
+<span class="absolute left-0 top-0 bottom-0 w-1 bg-green-500/50"></span>
+<span class="text-diff-add-text">      if (item.active) {</span>
+</div>
+<div class="px-4 bg-diff-add-bg w-full block relative group">
+<span class="absolute left-0 top-0 bottom-0 w-1 bg-green-500/50"></span>
+<span class="text-diff-add-text">        acc.push({</span>
+</div>
+<div class="px-4 bg-diff-add-bg w-full block relative group">
+<span class="absolute left-0 top-0 bottom-0 w-1 bg-green-500/50"></span>
+<span class="text-diff-add-text">          id: item.id,</span>
+</div>
+<div class="px-4 bg-diff-add-bg w-full block relative group">
+<span class="absolute left-0 top-0 bottom-0 w-1 bg-green-500/50"></span>
+<span class="text-diff-add-text">          value: Number(item.val) || 0,</span>
+</div>
+<div class="px-4 bg-diff-add-bg w-full block relative group">
+<span class="absolute left-0 top-0 bottom-0 w-1 bg-green-500/50"></span>
+<span class="text-diff-add-text">          timestamp: new Date().toISOString()</span>
+</div>
+<div class="px-4 bg-diff-add-bg w-full block relative group">
+<span class="absolute left-0 top-0 bottom-0 w-1 bg-green-500/50"></span>
+<span class="text-diff-add-text">        });</span>
+</div>
+<div class="px-4 bg-diff-add-bg w-full block relative group">
+<span class="absolute left-0 top-0 bottom-0 w-1 bg-green-500/50"></span>
+<span class="text-diff-add-text">      }</span>
+</div>
+<div class="px-4 bg-diff-add-bg w-full block relative group">
+<span class="absolute left-0 top-0 bottom-0 w-1 bg-green-500/50"></span>
+<span class="text-diff-add-text">      return acc;</span>
+</div>
+<div class="px-4 bg-diff-add-bg w-full block relative group">
+<span class="absolute left-0 top-0 bottom-0 w-1 bg-green-500/50"></span>
+<span class="text-diff-add-text">    }, []);</span>
+</div>
+<div class="px-4">  }</div>
+<div class="px-4">}</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Diff Minimap / Stats (Bottom overlay) -->
+<div class="absolute bottom-6 right-8 bg-white/90 dark:bg-[#15192b]/90 backdrop-blur-sm border border-slate-200 dark:border-slate-700 shadow-xl rounded-lg p-3 flex items-center gap-4 text-xs z-30 animate-fade-in-up">
+<div class="flex items-center gap-1.5">
+<div class="w-3 h-3 bg-red-500/20 rounded-full border border-red-500/50"></div>
+<span class="font-mono text-red-500">-5 lines</span>
+</div>
+<div class="flex items-center gap-1.5">
+<div class="w-3 h-3 bg-green-500/20 rounded-full border border-green-500/50"></div>
+<span class="font-mono text-green-500">+11 lines</span>
+</div>
+<div class="h-4 w-px bg-slate-300 dark:bg-slate-700"></div>
+<span class="text-slate-500">UTF-8</span>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Debugger Variable Inspector</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "background-dark": "#0a0e17",
+                        "surface-dark": "#161b27",
+                        "debug-green": "#4ade80",
+                        "debug-yellow": "#fbbf24",
+                        "debug-red": "#f87171",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+            font-size: 20px;
+        }
+        .tree-row {
+            @apply flex items-center py-2 px-3 border-b border-gray-800/50 hover:bg-white/5 transition-colors;
+        }
+        .mono-text {
+            @apply font-mono text-[13px] leading-tight;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0e17;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2d3748;
+            border-radius: 2px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark text-slate-300 font-display antialiased overflow-hidden h-screen flex flex-col">
+<header class="shrink-0 bg-surface-dark border-b border-gray-800 px-4 py-3 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded bg-emerald-500/10 text-emerald-500 active:bg-emerald-500/20">
+<span class="material-symbols-outlined !fill-1">play_arrow</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-blue-500/10 text-blue-400 active:bg-blue-500/20">
+<span class="material-symbols-outlined">step_over</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-blue-500/10 text-blue-400 active:bg-blue-500/20">
+<span class="material-symbols-outlined">step_into</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-blue-500/10 text-blue-400 active:bg-blue-500/20">
+<span class="material-symbols-outlined">step_out</span>
+</button>
+<div class="w-[1px] h-6 bg-gray-700 mx-1"></div>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-red-500/10 text-red-500 active:bg-red-500/20">
+<span class="material-symbols-outlined !fill-1">stop</span>
+</button>
+</div>
+<div class="flex items-center gap-1 bg-background-dark/50 px-2 py-1 rounded border border-gray-800">
+<span class="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="text-[10px] font-mono text-gray-400">PID: 4029</span>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto bg-background-dark">
+<div class="border-b border-gray-800">
+<div class="flex items-center justify-between px-4 py-2 bg-white/5">
+<span class="text-[11px] font-bold uppercase tracking-widest text-gray-500">Watch Expressions</span>
+<button class="text-primary hover:text-blue-400">
+<span class="material-symbols-outlined !text-[18px]">add</span>
+</button>
+</div>
+<div class="tree-row">
+<span class="material-symbols-outlined text-gray-600 mr-1 !text-[16px]">visibility</span>
+<div class="mono-text flex-1">
+<span class="text-blue-400">user.isActive</span>: <span class="text-emerald-400 italic">true</span>
+</div>
+</div>
+<div class="tree-row bg-primary/5">
+<span class="material-symbols-outlined text-gray-600 mr-1 !text-[16px]">visibility</span>
+<div class="mono-text flex-1">
+<span class="text-blue-400">cart.total</span>: <span class="text-orange-400">124.50</span>
+</div>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between px-4 py-2 bg-white/5">
+<span class="text-[11px] font-bold uppercase tracking-widest text-gray-500">Variables (Local Scope)</span>
+<span class="text-[10px] font-mono text-gray-600">app_main.dart:42</span>
+</div>
+<div class="flex flex-col">
+<div class="tree-row bg-white/[0.02]">
+<span class="material-symbols-outlined text-gray-500 !text-[18px]">arrow_drop_down</span>
+<span class="material-symbols-outlined text-blue-500 mr-2 !text-[18px]">data_object</span>
+<div class="mono-text flex-1">
+<span class="font-bold text-slate-200">currentUser</span>
+<span class="text-gray-500 ml-2">UserProfile</span>
+</div>
+</div>
+<div class="tree-row pl-10">
+<div class="mono-text flex-1">
+<span class="text-blue-400">uid</span>: <span class="text-orange-300">"usr_8821"</span>
+<span class="text-[10px] text-gray-600 ml-2 uppercase">String</span>
+</div>
+</div>
+<div class="tree-row pl-10">
+<div class="mono-text flex-1">
+<span class="text-blue-400">loginCount</span>: <span class="text-emerald-400">12</span>
+<span class="text-[10px] text-gray-600 ml-2 uppercase">Int</span>
+</div>
+</div>
+<div class="tree-row pl-10">
+<span class="material-symbols-outlined text-gray-500 !text-[18px]">arrow_right</span>
+<div class="mono-text flex-1">
+<span class="text-blue-400">permissions</span>
+<span class="text-gray-500 ml-2">List(3)</span>
+</div>
+</div>
+<div class="tree-row">
+<span class="w-5"></span> 
+<span class="material-symbols-outlined text-purple-400 mr-2 !text-[18px]">variables</span>
+<div class="mono-text flex-1">
+<span class="font-bold text-slate-200">isLoading</span>: <span class="text-emerald-400 italic">false</span>
+<span class="text-[10px] text-gray-600 ml-2 uppercase">Bool</span>
+</div>
+</div>
+<div class="tree-row">
+<span class="material-symbols-outlined text-gray-500 !text-[18px]">arrow_right</span>
+<span class="material-symbols-outlined text-yellow-500 mr-2 !text-[18px]">terminal</span>
+<div class="mono-text flex-1">
+<span class="font-bold text-slate-200">context</span>
+<span class="text-gray-500 ml-2">BuildContext</span>
+</div>
+</div>
+<div class="tree-row">
+<span class="material-symbols-outlined text-gray-500 !text-[18px]">arrow_right</span>
+<span class="material-symbols-outlined text-blue-500 mr-2 !text-[18px]">view_module</span>
+<div class="mono-text flex-1">
+<span class="font-bold text-slate-200">themeData</span>
+<span class="text-gray-500 ml-2">ThemeConfig</span>
+</div>
+</div>
+<div class="tree-row">
+<span class="w-5"></span>
+<span class="material-symbols-outlined text-purple-400 mr-2 !text-[18px]">variables</span>
+<div class="mono-text flex-1">
+<span class="font-bold text-slate-200">screenTitle</span>: <span class="text-orange-300">"Dashboard"</span>
+<span class="text-[10px] text-gray-600 ml-2 uppercase">String</span>
+</div>
+</div>
+<div class="tree-row">
+<span class="material-symbols-outlined text-gray-500 !text-[18px]">arrow_right</span>
+<span class="material-symbols-outlined text-blue-500 mr-2 !text-[18px]">data_object</span>
+<div class="mono-text flex-1">
+<span class="font-bold text-slate-200">networkState</span>
+<span class="text-gray-500 ml-2">SocketConnection</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<nav class="shrink-0 bg-surface-dark border-t border-gray-800 pb-8 pt-2">
+<div class="flex justify-around items-center">
+<div class="flex flex-col items-center gap-1 text-gray-500">
+<span class="material-symbols-outlined">code</span>
+<span class="text-[10px] font-medium">Source</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined !fill-1">bug_report</span>
+<span class="text-[10px] font-medium">Debugger</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-gray-500">
+<span class="material-symbols-outlined">terminal</span>
+<span class="text-[10px] font-medium">Console</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-gray-500">
+<span class="material-symbols-outlined">timeline</span>
+<span class="text-[10px] font-medium">Profile</span>
+</div>
+</div>
+</nav>
+<div class="absolute bottom-20 left-1/2 -translate-x-1/2 bg-surface-dark border border-gray-700 px-4 py-2 rounded-full shadow-2xl flex items-center gap-3">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-debug-yellow"></span>
+<span class="text-[11px] font-mono text-slate-300">Breakpoint hit: line 42</span>
+</div>
+<div class="h-3 w-[1px] bg-gray-700"></div>
+<button class="text-[11px] font-bold text-primary">CONTINUE</button>
+</div>
+
+</body></html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Detached IDE Tool Window</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111722",
+                        "surface-dark": "#192233",
+                        "surface-dark-lighter": "#232f48",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for dark IDE aesthetic */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111722; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #232f48; 
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #33415c; 
+        }
+        .graph-gradient {
+            background: linear-gradient(180deg, rgba(19, 91, 236, 0.2) 0%, rgba(19, 91, 236, 0) 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display antialiased selection:bg-primary/30">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 flex items-center bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md p-4 pb-2 justify-between border-b border-gray-200 dark:border-gray-800">
+<div class="flex items-center gap-3">
+<div class="text-primary flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+<span class="material-symbols-outlined text-[24px]">terminal</span>
+</div>
+<div class="flex flex-col">
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight">Resources &amp; SDKs</h2>
+<span class="text-slate-500 dark:text-slate-400 text-xs font-normal">Remote: Project_Alpha</span>
+</div>
+</div>
+<button class="flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg bg-surface-dark-lighter hover:bg-surface-dark-lighter/80 transition-colors group">
+<span class="text-slate-400 group-hover:text-primary text-sm font-bold leading-normal tracking-wide transition-colors">Re-dock</span>
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary text-[18px] transition-colors">open_in_new_down</span>
+</button>
+</header>
+<main class="flex-1 flex flex-col p-4 gap-6 pb-20">
+<!-- Section: System Resources -->
+<section class="flex flex-col gap-4">
+<div class="flex items-center justify-between px-1">
+<h3 class="text-slate-900 dark:text-white tracking-tight text-xl font-bold leading-tight">System Resources</h3>
+<span class="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-[10px] font-bold uppercase tracking-wider border border-green-500/30">Live</span>
+</div>
+<!-- CPU Card -->
+<div class="flex flex-col rounded-xl bg-white dark:bg-surface-dark p-4 shadow-sm border border-gray-100 dark:border-gray-800">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-3">
+<div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500">
+<span class="material-symbols-outlined">memory</span>
+</div>
+<div>
+<p class="text-slate-900 dark:text-white text-base font-bold leading-tight">Build Process: CPU</p>
+<p class="text-slate-500 dark:text-[#92a4c9] text-sm font-normal">4 core • Active Build</p>
+</div>
+</div>
+<div class="text-right">
+<span class="text-2xl font-bold text-primary">45%</span>
+</div>
+</div>
+<!-- Visualization Area -->
+<div class="relative h-24 w-full rounded-lg overflow-hidden bg-background-light dark:bg-background-dark border border-gray-100 dark:border-gray-800/50">
+<div class="absolute bottom-0 left-0 right-0 h-16 graph-gradient z-0"></div>
+<!-- Simulated Sparkline using CSS clip-path for demonstration purposes -->
+<div class="absolute bottom-0 left-0 right-0 h-full w-full z-10" style="background: linear-gradient(90deg, transparent 0%, transparent 100%);">
+<svg class="w-full h-full absolute bottom-0" preserveaspectratio="none" viewbox="0 0 100 40">
+<path d="M0,35 Q10,30 20,32 T40,25 T60,15 T80,20 T100,10 V40 H0 Z" fill="url(#gradient-cpu)" opacity="0.4" stroke="none"></path>
+<path d="M0,35 Q10,30 20,32 T40,25 T60,15 T80,20 T100,10" fill="none" stroke="#135bec" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+<defs>
+<lineargradient id="gradient-cpu" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" style="stop-color:#135bec;stop-opacity:0.5"></stop>
+<stop offset="100%" style="stop-color:#135bec;stop-opacity:0"></stop>
+</lineargradient>
+</defs>
+</svg>
+</div>
+<div class="absolute top-2 right-2 flex gap-1">
+<button class="bg-surface-dark-lighter hover:bg-primary text-white text-[10px] px-2 py-1 rounded transition-colors">Details</button>
+</div>
+</div>
+</div>
+<!-- RAM Card -->
+<div class="flex flex-col rounded-xl bg-white dark:bg-surface-dark p-4 shadow-sm border border-gray-100 dark:border-gray-800">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-3">
+<div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500">
+<span class="material-symbols-outlined">dataset</span>
+</div>
+<div>
+<p class="text-slate-900 dark:text-white text-base font-bold leading-tight">Memory: RAM</p>
+<p class="text-slate-500 dark:text-[#92a4c9] text-sm font-normal">Heap Size: 4GB</p>
+</div>
+</div>
+<div class="text-right flex flex-col items-end">
+<span class="text-2xl font-bold text-purple-400">1.2<span class="text-sm text-gray-500 ml-1">GB</span></span>
+</div>
+</div>
+<!-- Visualization Area -->
+<div class="relative h-24 w-full rounded-lg overflow-hidden bg-background-light dark:bg-background-dark border border-gray-100 dark:border-gray-800/50">
+<div class="absolute bottom-0 left-0 right-0 h-full w-full z-10">
+<svg class="w-full h-full absolute bottom-0" preserveaspectratio="none" viewbox="0 0 100 40">
+<path d="M0,38 Q15,35 30,36 T50,32 T70,34 T100,30 V40 H0 Z" fill="url(#gradient-ram)" opacity="0.4" stroke="none"></path>
+<path d="M0,38 Q15,35 30,36 T50,32 T70,34 T100,30" fill="none" stroke="#a855f7" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+<defs>
+<lineargradient id="gradient-ram" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" style="stop-color:#a855f7;stop-opacity:0.5"></stop>
+<stop offset="100%" style="stop-color:#a855f7;stop-opacity:0"></stop>
+</lineargradient>
+</defs>
+</svg>
+</div>
+<div class="absolute top-2 right-2 flex gap-1">
+<button class="bg-surface-dark-lighter hover:bg-purple-600 text-white text-[10px] px-2 py-1 rounded transition-colors">GC</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Installed SDKs -->
+<section class="flex flex-col gap-4">
+<h3 class="text-slate-900 dark:text-white tracking-tight text-xl font-bold leading-tight px-1">Installed SDKs</h3>
+<div class="flex flex-col gap-3">
+<!-- SDK Item: Python (Update Available) -->
+<div class="flex items-center p-3 rounded-lg bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 hover:border-primary/50 transition-colors group/sdk">
+<div class="w-12 h-12 rounded bg-surface-dark-lighter flex items-center justify-center shrink-0 mr-4" data-alt="Python Logo placeholder">
+<!-- Using text as fallback for logo -->
+<span class="font-bold text-yellow-400 text-lg">Py</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-1">
+<h4 class="text-white font-bold truncate">Python</h4>
+<span class="bg-primary/20 text-primary text-[10px] px-1.5 py-0.5 rounded font-medium uppercase">Update</span>
+</div>
+<p class="text-[#92a4c9] text-xs">v3.11.0 → <span class="text-white">v3.12.1</span></p>
+</div>
+<button class="ml-2 h-9 px-4 rounded-lg bg-primary hover:bg-blue-600 text-white text-sm font-semibold transition-colors flex items-center gap-1 shrink-0">
+<span class="hidden sm:inline">Update</span>
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+</div>
+<!-- SDK Item: Node (Up to date) -->
+<div class="flex items-center p-3 rounded-lg bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 hover:border-gray-600 transition-colors">
+<div class="w-12 h-12 rounded bg-surface-dark-lighter flex items-center justify-center shrink-0 mr-4" data-alt="NodeJS Logo placeholder">
+<span class="font-bold text-green-500 text-lg">JS</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-1">
+<h4 class="text-white font-bold truncate">Node.js</h4>
+<span class="bg-green-500/10 text-green-500 text-[10px] px-1.5 py-0.5 rounded font-medium uppercase">Stable</span>
+</div>
+<p class="text-[#92a4c9] text-xs">v18.16.0 (LTS)</p>
+</div>
+<button class="ml-2 h-9 w-9 rounded-lg bg-surface-dark-lighter hover:bg-gray-700 text-white transition-colors flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+<!-- SDK Item: Go (Up to date) -->
+<div class="flex items-center p-3 rounded-lg bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 hover:border-gray-600 transition-colors">
+<div class="w-12 h-12 rounded bg-surface-dark-lighter flex items-center justify-center shrink-0 mr-4" data-alt="GoLang Logo placeholder">
+<span class="font-bold text-cyan-400 text-lg">Go</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-1">
+<h4 class="text-white font-bold truncate">Go</h4>
+<span class="bg-green-500/10 text-green-500 text-[10px] px-1.5 py-0.5 rounded font-medium uppercase">Stable</span>
+</div>
+<p class="text-[#92a4c9] text-xs">v1.20.4</p>
+</div>
+<button class="ml-2 h-9 w-9 rounded-lg bg-surface-dark-lighter hover:bg-gray-700 text-white transition-colors flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+<!-- SDK Item: Docker (Warning) -->
+<div class="flex items-center p-3 rounded-lg bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 hover:border-orange-500/50 transition-colors">
+<div class="w-12 h-12 rounded bg-surface-dark-lighter flex items-center justify-center shrink-0 mr-4" data-alt="Docker Logo placeholder">
+<span class="font-bold text-blue-400 text-lg">Dk</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-1">
+<h4 class="text-white font-bold truncate">Docker Desktop</h4>
+<span class="bg-orange-500/20 text-orange-400 text-[10px] px-1.5 py-0.5 rounded font-medium uppercase">Restart</span>
+</div>
+<p class="text-[#92a4c9] text-xs">Engine Stopped</p>
+</div>
+<button class="ml-2 h-9 px-4 rounded-lg bg-surface-dark-lighter border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 transition-colors flex items-center gap-1 shrink-0">
+<span class="text-xs font-bold">Start</span>
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Status Footer -->
+<footer class="fixed bottom-0 left-0 right-0 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur border-t border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center justify-between z-50">
+<div class="flex items-center gap-2">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+</span>
+<p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Connected • 12ms latency</p>
+</div>
+<div class="text-xs text-slate-400 dark:text-slate-600 font-mono">
+                 v2.4.0-build.89
+             </div>
+</footer>
+</div>
+</body></html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IDE Resource Performance Monitor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1e293b",
+                        "neon-green": "#0bda5e",
+                        "neon-orange": "#fa6238",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for table if needed */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display antialiased selection:bg-primary/30">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden pb-20">
+<!-- Header -->
+<header class="sticky top-0 z-50 flex items-center justify-between bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md px-4 py-3 border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="text-lg font-bold leading-tight tracking-tight">System Telemetry</h2>
+</div>
+<div class="flex items-center gap-2 px-2 py-1 bg-primary/10 rounded-full border border-primary/20">
+<div class="w-2 h-2 rounded-full bg-neon-green animate-pulse"></div>
+<p class="text-primary dark:text-[#92a4c9] text-xs font-bold tracking-wide">LIVE</p>
+</div>
+</header>
+<!-- Gauges Section -->
+<section class="p-4">
+<div class="grid grid-cols-3 gap-3">
+<!-- CPU Gauge -->
+<div class="flex flex-col items-center bg-white dark:bg-surface-dark rounded-xl p-3 shadow-sm border border-slate-200 dark:border-slate-700">
+<div class="relative w-20 h-20 flex items-center justify-center">
+<svg class="transform -rotate-90 w-full h-full" viewbox="0 0 36 36">
+<path class="text-slate-100 dark:text-slate-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-neon-green drop-shadow-[0_0_3px_rgba(11,218,94,0.5)]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="34, 100" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="text-lg font-bold tabular-nums">34%</span>
+</div>
+</div>
+<span class="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">CPU Load</span>
+</div>
+<!-- RAM Gauge -->
+<div class="flex flex-col items-center bg-white dark:bg-surface-dark rounded-xl p-3 shadow-sm border border-slate-200 dark:border-slate-700">
+<div class="relative w-20 h-20 flex items-center justify-center">
+<svg class="transform -rotate-90 w-full h-full" viewbox="0 0 36 36">
+<path class="text-slate-100 dark:text-slate-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-primary drop-shadow-[0_0_3px_rgba(19,91,236,0.5)]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="82, 100" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="text-lg font-bold tabular-nums">82%</span>
+</div>
+</div>
+<span class="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">RAM Usage</span>
+</div>
+<!-- Disk Gauge -->
+<div class="flex flex-col items-center bg-white dark:bg-surface-dark rounded-xl p-3 shadow-sm border border-slate-200 dark:border-slate-700">
+<div class="relative w-20 h-20 flex items-center justify-center">
+<svg class="transform -rotate-90 w-full h-full" viewbox="0 0 36 36">
+<path class="text-slate-100 dark:text-slate-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-slate-400 dark:text-slate-500" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="45, 100" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="text-lg font-bold tabular-nums">45%</span>
+</div>
+</div>
+<span class="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">Disk Space</span>
+</div>
+</div>
+</section>
+<!-- Charts Section -->
+<section class="flex flex-col gap-4 px-4 pb-2">
+<!-- Segmented Control -->
+<div class="flex p-1 bg-slate-200 dark:bg-surface-dark rounded-lg">
+<label class="flex-1 text-center cursor-pointer">
+<input checked="" class="peer hidden" name="chart-view" type="radio"/>
+<span class="block py-2 text-sm font-medium text-slate-500 dark:text-slate-400 rounded-md peer-checked:bg-white dark:peer-checked:bg-background-dark peer-checked:text-primary peer-checked:shadow-sm transition-all duration-200">
+                        Build Performance
+                    </span>
+</label>
+<label class="flex-1 text-center cursor-pointer">
+<input class="peer hidden" name="chart-view" type="radio"/>
+<span class="block py-2 text-sm font-medium text-slate-500 dark:text-slate-400 rounded-md peer-checked:bg-white dark:peer-checked:bg-background-dark peer-checked:text-primary peer-checked:shadow-sm transition-all duration-200">
+                        Memory Footprint
+                    </span>
+</label>
+</div>
+<!-- Chart -->
+<div class="bg-white dark:bg-surface-dark rounded-xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm">
+<div class="flex items-end justify-between mb-4">
+<div>
+<p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Avg Latency</p>
+<div class="flex items-baseline gap-2">
+<h3 class="text-2xl font-bold tracking-tight">240ms</h3>
+<span class="text-neon-green text-sm font-medium flex items-center">
+<span class="material-symbols-outlined text-sm mr-0.5">trending_down</span>
+                                -12ms
+                            </span>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="text-xs text-slate-500 dark:text-slate-400">Build</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-slate-600"></span>
+<span class="text-xs text-slate-500 dark:text-slate-400">Base</span>
+</div>
+</div>
+</div>
+<div class="relative h-40 w-full group">
+<!-- Grid Lines -->
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none">
+<div class="border-t border-slate-100 dark:border-slate-700/50 w-full h-0"></div>
+<div class="border-t border-slate-100 dark:border-slate-700/50 w-full h-0"></div>
+<div class="border-t border-slate-100 dark:border-slate-700/50 w-full h-0"></div>
+<div class="border-t border-slate-100 dark:border-slate-700/50 w-full h-0"></div>
+</div>
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 100 50">
+<defs>
+<lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#135bec" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="#135bec" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Area -->
+<path d="M0,40 Q10,35 20,38 T40,25 T60,30 T80,15 T100,20 V50 H0 Z" fill="url(#chartGradient)"></path>
+<!-- Line -->
+<path d="M0,40 Q10,35 20,38 T40,25 T60,30 T80,15 T100,20" fill="none" stroke="#135bec" stroke-linecap="round" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+<!-- Scrubbing Indicator (simulated) -->
+<line class="opacity-0 group-hover:opacity-100 transition-opacity" stroke="#92a4c9" stroke-dasharray="2 2" stroke-width="1" vector-effect="non-scaling-stroke" x1="60" x2="60" y1="0" y2="50"></line>
+<circle class="opacity-0 group-hover:opacity-100 transition-opacity" cx="60" cy="30" fill="#ffffff" r="3" stroke="#135bec" stroke-width="2" vector-effect="non-scaling-stroke"></circle>
+</svg>
+<!-- Hover Tooltip -->
+<div class="absolute top-1/4 left-[55%] bg-background-dark text-white text-[10px] px-2 py-1 rounded border border-slate-600 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                        285ms
+                    </div>
+</div>
+<div class="flex justify-between mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/50">
+<span class="text-[10px] font-medium text-slate-400 uppercase tracking-wide">T-10m</span>
+<span class="text-[10px] font-medium text-slate-400 uppercase tracking-wide">T-5m</span>
+<span class="text-[10px] font-medium text-slate-400 uppercase tracking-wide">Now</span>
+</div>
+</div>
+</section>
+<!-- Process Table Section -->
+<section class="flex flex-col flex-1 px-4 pt-2">
+<h3 class="text-base font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                Active Processes
+                <span class="px-1.5 py-0.5 rounded text-[10px] bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">12</span>
+</h3>
+<div class="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex flex-col">
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-2 px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+<div class="col-span-6">Process Name</div>
+<div class="col-span-2 text-right">CPU</div>
+<div class="col-span-4 text-right">Memory</div>
+</div>
+<!-- Table Rows -->
+<div class="divide-y divide-slate-100 dark:divide-slate-700/50">
+<!-- Row 1 -->
+<div class="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer group">
+<div class="col-span-6 flex flex-col justify-center overflow-hidden">
+<span class="text-sm font-medium text-slate-900 dark:text-white truncate">TypeScript Lang Srv</span>
+<span class="text-[10px] font-mono text-slate-500">PID: 4421</span>
+</div>
+<div class="col-span-2 text-right flex items-center justify-end">
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200 tabular-nums">12%</span>
+</div>
+<div class="col-span-4 text-right flex flex-col items-end justify-center">
+<span class="text-sm font-bold text-slate-900 dark:text-white tabular-nums">400 MB</span>
+<div class="w-full max-w-[60px] h-1 bg-slate-200 dark:bg-slate-700 rounded-full mt-1">
+<div class="h-full bg-primary rounded-full" style="width: 25%"></div>
+</div>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer border-l-2 border-l-transparent hover:border-l-primary">
+<div class="col-span-6 flex flex-col justify-center overflow-hidden">
+<span class="text-sm font-medium text-slate-900 dark:text-white truncate">Android Emulator</span>
+<span class="text-[10px] font-mono text-slate-500">PID: 9920</span>
+</div>
+<div class="col-span-2 text-right flex items-center justify-end">
+<span class="text-sm font-medium text-neon-orange tabular-nums">45%</span>
+</div>
+<div class="col-span-4 text-right flex flex-col items-end justify-center">
+<span class="text-sm font-bold text-slate-900 dark:text-white tabular-nums">2.1 GB</span>
+<div class="w-full max-w-[60px] h-1 bg-slate-200 dark:bg-slate-700 rounded-full mt-1">
+<div class="h-full bg-neon-orange rounded-full" style="width: 85%"></div>
+</div>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer">
+<div class="col-span-6 flex flex-col justify-center overflow-hidden">
+<span class="text-sm font-medium text-slate-900 dark:text-white truncate">LLM CLI Bridge</span>
+<span class="text-[10px] font-mono text-slate-500">PID: 1102</span>
+</div>
+<div class="col-span-2 text-right flex items-center justify-end">
+<span class="text-sm font-medium text-neon-green tabular-nums">5%</span>
+</div>
+<div class="col-span-4 text-right flex flex-col items-end justify-center">
+<span class="text-sm font-bold text-slate-900 dark:text-white tabular-nums">150 MB</span>
+<div class="w-full max-w-[60px] h-1 bg-slate-200 dark:bg-slate-700 rounded-full mt-1">
+<div class="h-full bg-neon-green rounded-full" style="width: 10%"></div>
+</div>
+</div>
+</div>
+<!-- Row 4 -->
+<div class="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer">
+<div class="col-span-6 flex flex-col justify-center overflow-hidden">
+<span class="text-sm font-medium text-slate-900 dark:text-white truncate">Git Sync</span>
+<span class="text-[10px] font-mono text-slate-500">PID: 5543</span>
+</div>
+<div class="col-span-2 text-right flex items-center justify-end">
+<span class="text-sm font-medium text-slate-700 dark:text-slate-200 tabular-nums">1%</span>
+</div>
+<div class="col-span-4 text-right flex flex-col items-end justify-center">
+<span class="text-sm font-bold text-slate-900 dark:text-white tabular-nums">45 MB</span>
+<div class="w-full max-w-[60px] h-1 bg-slate-200 dark:bg-slate-700 rounded-full mt-1">
+<div class="h-full bg-slate-500 rounded-full" style="width: 2%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Floating Action Button -->
+<div class="fixed bottom-6 right-6 z-50">
+<button class="flex items-center justify-center w-14 h-14 bg-primary text-white rounded-full shadow-lg shadow-primary/40 hover:scale-105 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[28px]">bolt</span>
+</button>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DevCloud | Developer Community &amp; Build Sharing</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1337ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101322",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #282b39;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen">
+<!-- Header Navigation -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-[#282b39] bg-white dark:bg-background-dark px-6 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-6">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">DevCloud IDE</h2>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white text-sm font-medium transition-colors" href="#">Editor</a>
+<a class="text-primary dark:text-white text-sm font-medium border-b-2 border-primary pb-1" href="#">Community</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white text-sm font-medium transition-colors" href="#">Marketplace</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white text-sm font-medium transition-colors" href="#">Docs</a>
+</nav>
+</div>
+<div class="flex flex-1 justify-end gap-4 items-center">
+<label class="hidden lg:flex flex-col min-w-40 h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full overflow-hidden border border-slate-200 dark:border-none">
+<div class="text-slate-400 dark:text-[#9da1b9] flex bg-slate-100 dark:bg-[#282b39] items-center justify-center pl-4">
+<span class="material-symbols-outlined text-xl">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 border-none bg-slate-100 dark:bg-[#282b39] text-slate-900 dark:text-white focus:ring-0 h-full placeholder:text-slate-400 dark:placeholder:text-[#9da1b9] px-2 text-sm" placeholder="Search (Cmd + K)"/>
+</div>
+</label>
+<div class="flex gap-2">
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-100 dark:bg-[#282b39] text-slate-600 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-100 dark:bg-[#282b39] text-slate-600 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary" data-alt="User profile avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD2mIB6bMp6xtet2f8FHNrjlAQ0OwgK14h9cwTgwZUu4UUeGVZKr_WH1p_gJIX2YOZtWoui2ZHe-mJKXU-xTsIE0dIsSQc7ouHBOYR9CZ4SjmxQyOqxdBEDo3n61DaZ0kfraaFec0zbEExi6H4G-Ep-Jz9I5WEXV6Wadj-kccPvsZ2rcg5iKCTUMqtRDhmWNszYcH9OPMtL3sNM7j-6FOgqlYtQ5EJhfMtRBRVW8RSY040RYgCEI1EPWpiuqKxO9A5kJdzlY8M5dK8");'></div>
+</div>
+</header>
+<main class="flex h-[calc(100vh-65px)] overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="w-64 hidden xl:flex flex-col justify-between border-r border-slate-200 dark:border-[#282b39] bg-white dark:bg-background-dark p-4">
+<div class="flex flex-col gap-6">
+<div class="px-2">
+<h1 class="text-slate-900 dark:text-white text-base font-bold">Developer Workspace</h1>
+<p class="text-slate-500 dark:text-[#9da1b9] text-xs font-normal">AI-Integrated Community</p>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary dark:bg-primary/20 dark:text-white cursor-pointer">
+<span class="material-symbols-outlined">home</span>
+<p class="text-sm font-semibold">Feed</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#282b39] text-slate-600 dark:text-slate-300 cursor-pointer transition-colors">
+<span class="material-symbols-outlined">terminal</span>
+<p class="text-sm font-medium">My Builds</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#282b39] text-slate-600 dark:text-slate-300 cursor-pointer transition-colors">
+<span class="material-symbols-outlined">forum</span>
+<p class="text-sm font-medium">Discussions</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#282b39] text-slate-600 dark:text-slate-300 cursor-pointer transition-colors">
+<span class="material-symbols-outlined">extension</span>
+<p class="text-sm font-medium">Plugins</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#282b39] text-slate-600 dark:text-slate-300 cursor-pointer transition-colors">
+<span class="material-symbols-outlined">collections_bookmark</span>
+<p class="text-sm font-medium">Bookmarks</p>
+</div>
+</div>
+<div class="mt-4">
+<p class="px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Chat Rooms</p>
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#282b39] text-slate-600 dark:text-slate-400 cursor-pointer">
+<span class="text-sm font-medium">#flutter</span>
+<span class="bg-primary text-white text-[10px] px-1.5 rounded-full">12</span>
+</div>
+<div class="flex items-center justify-between px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#282b39] text-slate-600 dark:text-slate-400 cursor-pointer">
+<span class="text-sm font-medium">#rust-lang</span>
+<span class="bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-[10px] px-1.5 rounded-full">3</span>
+</div>
+<div class="flex items-center justify-between px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#282b39] text-slate-600 dark:text-slate-400 cursor-pointer">
+<span class="text-sm font-medium">#nextjs-dev</span>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full flex items-center justify-center gap-2 rounded-lg h-11 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-blue-700 transition-all">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+<span>Share Build</span>
+</button>
+</aside>
+<!-- Central Feed -->
+<section class="flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center bg-slate-50 dark:bg-[#0a0c16]">
+<div class="max-w-[800px] w-full px-6 py-6 flex flex-col gap-6">
+<!-- Filters & Chips -->
+<div class="bg-white dark:bg-background-dark p-4 rounded-xl border border-slate-200 dark:border-[#282b39] shadow-sm">
+<div class="flex border-b border-slate-100 dark:border-[#3b3f54] gap-8 mb-4">
+<a class="flex flex-col items-center justify-center border-b-2 border-primary text-primary dark:text-white pb-3 pt-1" href="#">
+<p class="text-sm font-bold tracking-[0.015em]">All Builds</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-500 dark:text-[#9da1b9] pb-3 pt-1 hover:text-slate-700 dark:hover:text-white transition-colors" href="#">
+<p class="text-sm font-bold tracking-[0.015em]">Following</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-2 border-transparent text-slate-500 dark:text-[#9da1b9] pb-3 pt-1 hover:text-slate-700 dark:hover:text-white transition-colors" href="#">
+<p class="text-sm font-bold tracking-[0.015em]">My Snippets</p>
+</a>
+</div>
+<div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+<div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-slate-100 dark:bg-[#282b39] px-4 border border-slate-200 dark:border-none cursor-pointer hover:bg-primary/10 transition-colors">
+<p class="text-slate-700 dark:text-white text-xs font-medium">#nextjs</p>
+</div>
+<div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-slate-100 dark:bg-[#282b39] px-4 border border-slate-200 dark:border-none cursor-pointer hover:bg-primary/10 transition-colors">
+<p class="text-slate-700 dark:text-white text-xs font-medium">#rust</p>
+</div>
+<div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-slate-100 dark:bg-[#282b39] px-4 border border-slate-200 dark:border-none cursor-pointer hover:bg-primary/10 transition-colors">
+<p class="text-slate-700 dark:text-white text-xs font-medium">#tailwind</p>
+</div>
+<div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-slate-100 dark:bg-[#282b39] px-4 border border-slate-200 dark:border-none cursor-pointer hover:bg-primary/10 transition-colors">
+<p class="text-slate-700 dark:text-white text-xs font-medium">#flutter</p>
+</div>
+<div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-slate-100 dark:bg-[#282b39] px-4 border border-slate-200 dark:border-none cursor-pointer hover:bg-primary/10 transition-colors">
+<p class="text-slate-700 dark:text-white text-xs font-medium">#ai-agents</p>
+</div>
+</div>
+</div>
+<!-- Build Feed Card 1 -->
+<article class="bg-white dark:bg-background-dark rounded-xl border border-slate-200 dark:border-[#282b39] overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+<div class="p-4 border-b border-slate-100 dark:border-[#282b39] flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-cover bg-center" data-alt="Developer portrait" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAOi6yw9brgWcI25clii6u8u3plCUF5nbTAGUh63u4kvbFG97ZbQEmuIIkHHOFJO8-j7r8YK4FJOFz4XhN37FOXmCAiyIu2E_HJSQTUiblFoQcThIZq7j_bLniRnSS1GypEQLuyClsDP3_ojXSJ781putEDJ7btyPQc3UmQptuJcZWFruq6b0yh17hBeZ1AYCRENk4tGNboKDb4QaEEx-fkGUJGDojt6q0qJ6bi2x5XB39Ragh9MfRfmJgOVRHGMmmIVxBVWciRt2o');"></div>
+<div>
+<h4 class="text-sm font-bold text-slate-900 dark:text-white">Alex Rivero</h4>
+<p class="text-[11px] text-slate-500 dark:text-slate-400">Published 2h ago • <span class="text-primary font-semibold">Live Build</span></p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="p-1.5 text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">bookmark</span></button>
+<button class="p-1.5 text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">more_horiz</span></button>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-3">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Dynamic Data-Grid with Real-time WebSockets</h3>
+<p class="text-sm text-slate-600 dark:text-slate-300">A high-performance grid component optimized for 10k+ rows with sub-ms filtering. Built using React and TanStack Table.</p>
+<!-- Build Preview (Simulated Code/Demo) -->
+<div class="relative group rounded-lg overflow-hidden border border-slate-200 dark:border-[#3b3f54] bg-[#0d0e14]">
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+<button class="flex items-center gap-2 bg-primary text-white px-6 py-2.5 rounded-lg font-bold shadow-xl">
+<span class="material-symbols-outlined">play_arrow</span>
+                                    Run Live Demo
+                                </button>
+</div>
+<div class="p-4 font-mono text-xs text-slate-400 select-none">
+<div class="flex gap-2 mb-2">
+<div class="size-2.5 rounded-full bg-red-500"></div>
+<div class="size-2.5 rounded-full bg-yellow-500"></div>
+<div class="size-2.5 rounded-full bg-green-500"></div>
+</div>
+<p class="text-blue-400">import <span class="text-white">{ useTable }</span> from <span class="text-green-400">'@tanstack/react-table'</span>;</p>
+<p class="text-slate-500 mt-1">// High density data rendering engine</p>
+<p class="text-purple-400">const <span class="text-yellow-400">VirtualGrid</span> = () =&gt; {</p>
+<p class="pl-4">const [data, setData] = <span class="text-blue-400">useState</span>([]);</p>
+<p class="pl-4 text-slate-300">return ( <span class="text-slate-600">...</span> )</p>
+<p class="text-purple-400">}</p>
+</div>
+<div class="h-32 w-full bg-gradient-to-t from-background-dark/80 to-transparent flex items-end p-4">
+<div class="flex gap-2">
+<span class="px-2 py-0.5 bg-slate-800 text-slate-300 text-[10px] rounded uppercase font-bold tracking-tighter">React</span>
+<span class="px-2 py-0.5 bg-slate-800 text-slate-300 text-[10px] rounded uppercase font-bold tracking-tighter">TypeScript</span>
+</div>
+</div>
+</div>
+</div>
+<div class="px-4 py-3 bg-slate-50 dark:bg-[#141625] flex items-center justify-between border-t border-slate-100 dark:border-[#282b39]">
+<div class="flex gap-4">
+<button class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">thumb_up</span>
+<span class="text-sm font-bold">142</span>
+</button>
+<button class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">chat_bubble</span>
+<span class="text-sm font-bold">28</span>
+</button>
+<button class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">fork_right</span>
+<span class="text-sm font-bold">12</span>
+</button>
+</div>
+<button class="text-primary text-xs font-bold hover:underline">View All Files</button>
+</div>
+</article>
+<!-- Build Feed Card 2 -->
+<article class="bg-white dark:bg-background-dark rounded-xl border border-slate-200 dark:border-[#282b39] overflow-hidden shadow-sm">
+<div class="p-4 border-b border-slate-100 dark:border-[#282b39] flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-cover bg-center" data-alt="Developer profile" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDqz0uc2HZb-BU4_xwcKqGN9MgxmwOZmq4qD6LxIdBu77FPsVCaKHftM9uHKo2V1dBpxTySGhodWjXQaWgVp3eG3M-xoPt4Z_rJoClf_AEU9l_dsK_ozMAO3GtEU7sbNuC__iruLRgOUMpcxqrM3VrDh1LwdO5xMSoDi7IxWWlCwuypja-xmvbY3Ivi7c-MYPVdt0njQZJemt2XNR7EbPkbtFDcHu_mKvzF_6Fyb1d7SvjN1xEyVo0YqCFEzKuGJiI0w0TqFHf084U');"></div>
+<div>
+<h4 class="text-sm font-bold text-slate-900 dark:text-white">Sarah Chen</h4>
+<p class="text-[11px] text-slate-500 dark:text-slate-400">Published 5h ago • <span class="text-slate-400">Snippet</span></p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="p-1.5 text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">bookmark</span></button>
+<button class="p-1.5 text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">more_horiz</span></button>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-3">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Rust-powered Edge Function Boilerplate</h3>
+<p class="text-sm text-slate-600 dark:text-slate-300">Lightweight template for deploying WebAssembly functions to the edge. Optimized for low-latency API handling.</p>
+<div class="aspect-video w-full rounded-lg bg-gradient-to-br from-[#1337ec]/10 to-indigo-900/40 border border-slate-200 dark:border-[#3b3f54] flex items-center justify-center p-6 text-center">
+<div>
+<span class="material-symbols-outlined text-5xl text-primary mb-2">auto_fix_high</span>
+<p class="text-slate-900 dark:text-white font-bold">Template Preview</p>
+<p class="text-xs text-slate-500 dark:text-slate-400 max-w-40 mx-auto mt-1">Interactive shell for Cargo build available in full view</p>
+</div>
+</div>
+</div>
+<div class="px-4 py-3 bg-slate-50 dark:bg-[#141625] flex items-center justify-between border-t border-slate-100 dark:border-[#282b39]">
+<div class="flex gap-4">
+<button class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">thumb_up</span>
+<span class="text-sm font-bold">89</span>
+</button>
+<button class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">chat_bubble</span>
+<span class="text-sm font-bold">5</span>
+</button>
+</div>
+<button class="bg-primary text-white text-xs font-bold px-4 py-1.5 rounded-md hover:bg-blue-700 transition-colors">Fork Template</button>
+</div>
+</article>
+</div>
+</section>
+<!-- Right Intelligence Sidebar -->
+<aside class="w-80 hidden 2xl:flex flex-col border-l border-slate-200 dark:border-[#282b39] bg-white dark:bg-background-dark overflow-y-auto custom-scrollbar">
+<!-- Trending Builds Section -->
+<div class="p-5 border-b border-slate-100 dark:border-[#282b39]">
+<h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-orange-500 text-lg">trending_up</span>
+                    Trending Templates
+                </h3>
+<div class="flex flex-col gap-4">
+<div class="flex gap-3 items-center group cursor-pointer">
+<div class="w-12 h-12 rounded-lg bg-slate-100 dark:bg-[#282b39] flex items-center justify-center text-primary group-hover:bg-primary transition-colors group-hover:text-white">
+<span class="material-symbols-outlined">rocket_launch</span>
+</div>
+<div>
+<p class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">SaaS Starter Kit</p>
+<p class="text-[10px] text-slate-500 dark:text-slate-400">Next.js + Supabase + Stripe</p>
+</div>
+</div>
+<div class="flex gap-3 items-center group cursor-pointer">
+<div class="w-12 h-12 rounded-lg bg-slate-100 dark:bg-[#282b39] flex items-center justify-center text-primary group-hover:bg-primary transition-colors group-hover:text-white">
+<span class="material-symbols-outlined">psychology</span>
+</div>
+<div>
+<p class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">AI Agent Scaffold</p>
+<p class="text-[10px] text-slate-500 dark:text-slate-400">LangChain + Python SDK</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Active Discussions Section -->
+<div class="p-5 border-b border-slate-100 dark:border-[#282b39]">
+<h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary text-lg">forum</span>
+                    Active Discussions
+                </h3>
+<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-1 cursor-pointer">
+<p class="text-xs font-medium text-slate-900 dark:text-slate-200 hover:text-primary transition-colors">"Is it finally time to move from Redux to Jotai?"</p>
+<div class="flex items-center gap-2">
+<div class="flex -space-x-2">
+<div class="w-5 h-5 rounded-full border border-background-dark bg-cover" data-alt="Avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDSdMIP3vndBhwTiLBtcuUAmCovB7wZchsxjwc2Dzqbcz525fawBc1lfiGHw7EzdsWYIu4j6OBzD-Tkyh5-U6-2AnL1rs40fjsdBhM7aTEFCETPKstVla6im-snR8wYECOkJX7Nssh5GUr6dtUWSLLt3J_LopzYZCQRtt_nC3eqVm0phl1cHTJbhn2zi8QFGVWxm1CXyWMgrw1omFNbGRD-JMxb7l62loLk_eBRIg3uIeH5v6Y7rKtlFlTS9xUcaIrw3gXFS6DK2Po');"></div>
+<div class="w-5 h-5 rounded-full border border-background-dark bg-cover" data-alt="Avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCuWqBNeG9J_t1hAk50djPjaPdOUrVgU7nUar9KRJJmnA0YrB72RkgXKD5I2nPAgUXDDym2x94GKfrolMwvUZ834NasCdGGxg1_Q8wUfHt9O566PSAPh3S6VTOVRy7dlqjQjDiljd7tzNwjiROYxi1kBDLbOA9rQXt8wdlkLa1CwpCEwFxDdE4Q5KnB2cAWTXTUEdstAOS4dFtt5odLx2RKAqshQvTptd4tw4ELCXzPjD2NmgTzOik_X0_xn-Lj2hOF-l4cn0nC_TU');"></div>
+<div class="w-5 h-5 rounded-full border border-background-dark bg-cover" data-alt="Avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDVtmG1NlpFYmcm9MW9hH-6NTbKPW81wg-Q-SAHEVXu1LLQ5TLj1z_7vdoPck92HYHE44DW2p0ocbRyMskY9bcsUVsSsGSeqnpLX_yHUWiuzhk5kNYNKKV_9mLPZAxB_bLoYKL8KZtkp-Im0nJi1Ucn9QscB00LCqMqQ7LU5aYEDrkt24Pfqbr34Erhmtlbtta2f2xm8LJ49VU-ADJuYM232bZH7FWeRB4gba-43uosRPDoD_FyrsWcJfp5Rt-2Wv6HInn8mPXVbT4');"></div>
+</div>
+<span class="text-[10px] text-slate-500">12 participants</span>
+</div>
+</div>
+<div class="flex flex-col gap-1 cursor-pointer">
+<p class="text-xs font-medium text-slate-900 dark:text-slate-200 hover:text-primary transition-colors">"Optimizing Docker builds for Rust binaries..."</p>
+<div class="flex items-center gap-2">
+<div class="flex -space-x-2">
+<div class="w-5 h-5 rounded-full border border-background-dark bg-cover" data-alt="Avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAx-2dDsVnr9Psf3niOY6RJwFLtoW7-MfalOH4p6vYlAOP3XeRpYgfm8JbDyqLN1CJUVGwOOYUOP3Nqi2ZohMwgKcA9rXv-AXE_T1GHpg4NYFPSURvHRV6piZSAprS65QeFKJ2iEpfX6fFmaiYu0PDqAh9cPTZwz_TdRiPtPiKyTJ1E1trspsdhvDUVDNsgBv6qJU9sIn3Cp8fv4yWmr_Zj4XLwQv4LUKZcJmltukSqbahtWoMhv2xe7PdDkg_u20cnJU3H7LgXNS8');"></div>
+<div class="w-5 h-5 rounded-full border border-background-dark bg-cover" data-alt="Avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBh_pqVcA5aPf-Jfdf8f7LamobGGvggFwGBWUb-ZkBMOijXwH94Juq-8JOoILagXy-Y3F7sHhGcFCr3W0nhC-raSET6m3GBVcBsY0seNlR4YDln7EvTVkluq7ZpjzYM6hSo2thlMwCeCLydt_NXPPjpQPVxgxNBPmwoRqOK0U7MqI_1vlp3Mddmu3D_7lnC967qegULg8bk6lkiLFvO5z474lfPP5dDY2tTdB6-SQc5agfoZi_T5SnlJGgd-kJn9_LH2gaBzx9LPGs');"></div>
+</div>
+<span class="text-[10px] text-slate-500">8 participants</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Popular Plugins Section -->
+<div class="p-5">
+<h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-green-500 text-lg">extension</span>
+                    Popular Plugins
+                </h3>
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-[#1b1d2e] border border-slate-100 dark:border-[#282b39]">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm">auto_fix_normal</span>
+</div>
+<span class="text-[11px] font-bold">Auto-Doc Pro</span>
+</div>
+<span class="text-[10px] text-slate-400">4.9 ★</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-[#1b1d2e] border border-slate-100 dark:border-[#282b39]">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm">security</span>
+</div>
+<span class="text-[11px] font-bold">VulnScanner</span>
+</div>
+<span class="text-[10px] text-slate-400">4.7 ★</span>
+</div>
+<button class="w-full text-center py-2 text-xs font-bold text-slate-400 hover:text-white transition-colors">View All Plugins</button>
+</div>
+</div>
+<!-- Bottom Ad/Promo -->
+<div class="mt-auto p-4">
+<div class="bg-gradient-to-r from-primary to-indigo-600 rounded-xl p-4 relative overflow-hidden group">
+<div class="relative z-10">
+<p class="text-white text-xs font-bold">Unlock AI Pro</p>
+<p class="text-white/70 text-[10px] mt-1 mb-3">Unlimited builds, cloud hosting, and priority support.</p>
+<button class="bg-white text-primary text-[10px] font-bold px-3 py-1.5 rounded-lg hover:bg-slate-100">Upgrade Now</button>
+</div>
+<span class="material-symbols-outlined absolute -bottom-2 -right-2 text-6xl text-white/10 group-hover:scale-110 transition-transform">bolt</span>
+</div>
+</div>
+</aside>
+</main>
+</body></html>

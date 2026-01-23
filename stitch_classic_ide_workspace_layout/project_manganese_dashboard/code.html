@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Project Manganese Dashboard</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#9213ec",
+                        "primary-dark": "#7a10c4",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#1a1022",
+                        "surface-dark": "#251b2e",
+                        "surface-highlight": "#31243a",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "sans": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display antialiased overflow-x-hidden selection:bg-primary selection:text-white">
+<div class="relative flex min-h-screen w-full flex-col max-w-md mx-auto bg-background-light dark:bg-background-dark shadow-2xl overflow-hidden">
+<!-- Header -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-5 py-4 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-gray-200 dark:border-white/5">
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-[24px]">menu</span>
+</button>
+</div>
+<h1 class="text-lg font-bold tracking-tight uppercase text-primary">Manganese</h1>
+<div class="flex items-center gap-2">
+<button class="relative flex items-center justify-center size-10 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-[24px]">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-primary rounded-full ring-2 ring-background-light dark:ring-background-dark"></span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col gap-6 p-5 pb-24">
+<!-- Project Health Section -->
+<section>
+<div class="flex items-center justify-between mb-3">
+<h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Project Health</h2>
+<span class="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded">Live</span>
+</div>
+<div class="relative overflow-hidden rounded-xl bg-surface-dark border border-white/5 shadow-lg group">
+<div class="p-5 relative z-10">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-gray-400 text-sm font-medium mb-1">Build Success Rate</p>
+<div class="flex items-baseline gap-2">
+<h3 class="text-4xl font-bold tracking-tight text-white">98.5%</h3>
+<span class="text-[#0bda76] text-sm font-bold flex items-center">
+<span class="material-symbols-outlined text-[16px] mr-0.5">trending_up</span>
+                                        2.1%
+                                    </span>
+</div>
+</div>
+<div class="size-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">health_and_safety</span>
+</div>
+</div>
+<p class="text-xs text-gray-500 mt-2">Based on last 142 builds</p>
+</div>
+<!-- Background Chart Gradient -->
+<div class="absolute bottom-0 left-0 right-0 h-24 w-full opacity-30 pointer-events-none">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 400 100">
+<defs>
+<lineargradient id="healthGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#9213ec" stop-opacity="0.5"></stop>
+<stop offset="100%" stop-color="#9213ec" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<path d="M0,80 C50,80 50,40 100,40 C150,40 150,70 200,60 C250,50 250,20 300,20 C350,20 350,50 400,30 L400,100 L0,100 Z" fill="url(#healthGradient)"></path>
+<path d="M0,80 C50,80 50,40 100,40 C150,40 150,70 200,60 C250,50 250,20 300,20 C350,20 350,50 400,30" fill="none" stroke="#9213ec" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+</svg>
+</div>
+</div>
+</section>
+<!-- Team Velocity -->
+<section>
+<div class="flex items-center justify-between mb-3">
+<h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Team Velocity</h2>
+<button class="text-xs text-primary font-bold hover:text-primary-dark">View Details</button>
+</div>
+<div class="rounded-xl bg-surface-dark border border-white/5 p-5 shadow-lg">
+<div class="flex justify-between items-center mb-6">
+<div>
+<p class="text-sm text-gray-400">Commits vs Merges</p>
+<p class="text-xl font-bold text-white">High Activity</p>
+</div>
+<div class="flex gap-2">
+<span class="flex items-center gap-1 text-[10px] uppercase font-bold text-gray-400">
+<span class="size-2 rounded-full bg-primary"></span> Commits
+                            </span>
+<span class="flex items-center gap-1 text-[10px] uppercase font-bold text-gray-400">
+<span class="size-2 rounded-full bg-gray-500"></span> Merges
+                            </span>
+</div>
+</div>
+<div class="h-[140px] w-full">
+<svg fill="none" height="100%" preserveaspectratio="none" viewbox="-3 0 478 150" width="100%" xmlns="http://www.w3.org/2000/svg">
+<!-- Gradient Def -->
+<defs>
+<lineargradient gradientunits="userSpaceOnUse" id="velocity_gradient" x1="236" x2="236" y1="1" y2="149">
+<stop stop-color="#9213ec" stop-opacity="0.2"></stop>
+<stop offset="1" stop-color="#9213ec" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Fill Area -->
+<path d="M0 109C18.1538 109 18.1538 21 36.3077 21C54.4615 21 54.4615 41 72.6154 41C90.7692 41 90.7692 93 108.923 93C127.077 93 127.077 33 145.231 33C163.385 33 163.385 101 181.538 101C199.692 101 199.692 61 217.846 61C236 61 236 45 254.154 45C272.308 45 272.308 121 290.462 121C308.615 121 308.615 149 326.769 149C344.923 149 344.923 1 363.077 1C381.231 1 381.231 81 399.385 81C417.538 81 417.538 129 435.692 129C453.846 129 453.846 25 472 25V149H326.769H0V109Z" fill="url(#velocity_gradient)"></path>
+<!-- Line Path -->
+<path d="M0 109C18.1538 109 18.1538 21 36.3077 21C54.4615 21 54.4615 41 72.6154 41C90.7692 41 90.7692 93 108.923 93C127.077 93 127.077 33 145.231 33C163.385 33 163.385 101 181.538 101C199.692 101 199.692 61 217.846 61C236 61 236 45 254.154 45C272.308 45 272.308 121 290.462 121C308.615 121 308.615 149 326.769 149C344.923 149 344.923 1 363.077 1C381.231 1 381.231 81 399.385 81C417.538 81 417.538 129 435.692 129C453.846 129 453.846 25 472 25" stroke="#9213ec" stroke-linecap="round" stroke-width="3"></path>
+<!-- Secondary Line Path (Merges) -->
+<path d="M0 130 C30 130 30 90 60 90 C90 90 90 110 120 100 C150 90 150 50 180 60 C210 70 210 90 240 85 C270 80 270 110 300 105 C330 100 330 50 360 40 C390 30 390 70 420 70 C450 70 450 100 472 90" stroke="#6b7280" stroke-dasharray="4 4" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</div>
+<div class="flex justify-between mt-2 px-1">
+<span class="text-xs text-gray-500 font-medium">Mon</span>
+<span class="text-xs text-gray-500 font-medium">Tue</span>
+<span class="text-xs text-gray-500 font-medium">Wed</span>
+<span class="text-xs text-gray-500 font-medium">Thu</span>
+<span class="text-xs text-gray-500 font-medium">Fri</span>
+<span class="text-xs text-gray-500 font-medium">Sat</span>
+<span class="text-xs text-gray-500 font-medium">Sun</span>
+</div>
+</div>
+</section>
+<!-- Platform Coverage -->
+<section>
+<div class="flex items-center justify-between mb-3">
+<h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Platform Coverage</h2>
+</div>
+<div class="grid grid-cols-1 gap-3">
+<!-- iOS Card -->
+<div class="flex items-center justify-between p-4 rounded-xl bg-surface-dark border border-white/5 hover:bg-surface-highlight transition-colors">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-lg bg-[#1C1C1E] flex items-center justify-center border border-white/10">
+<span class="text-white text-[24px]" style="font-family: 'Material Symbols Outlined';">phone_iphone</span>
+</div>
+<div>
+<h3 class="text-white font-bold text-base">iOS</h3>
+<p class="text-xs text-gray-400">v2.1.0 • 12m ago</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-bold text-emerald-500">
+<span class="size-1.5 rounded-full bg-emerald-500"></span>
+                                Stable
+                            </span>
+</div>
+</div>
+<!-- Android Card -->
+<div class="flex items-center justify-between p-4 rounded-xl bg-surface-dark border border-white/5 hover:bg-surface-highlight transition-colors relative overflow-hidden">
+<!-- Progress bar at bottom for "building" state -->
+<div class="absolute bottom-0 left-0 h-1 bg-primary w-[45%]"></div>
+<div class="absolute bottom-0 left-0 h-1 bg-white/10 w-full"></div>
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-lg bg-[#1C1C1E] flex items-center justify-center border border-white/10">
+<span class="text-white text-[24px]" style="font-family: 'Material Symbols Outlined';">android</span>
+</div>
+<div>
+<h3 class="text-white font-bold text-base">Android</h3>
+<p class="text-xs text-gray-400">Building... 45%</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary animate-pulse">
+<span class="material-symbols-outlined text-[14px] animate-spin">autorenew</span>
+                                Building
+                            </span>
+</div>
+</div>
+<!-- Desktop Card -->
+<div class="flex items-center justify-between p-4 rounded-xl bg-surface-dark border border-white/5 hover:bg-surface-highlight transition-colors">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-lg bg-[#1C1C1E] flex items-center justify-center border border-white/10">
+<span class="text-white text-[24px]" style="font-family: 'Material Symbols Outlined';">desktop_windows</span>
+</div>
+<div>
+<h3 class="text-white font-bold text-base">Desktop</h3>
+<p class="text-xs text-red-400">Linker Error</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 px-2.5 py-1 text-xs font-bold text-red-500">
+<span class="material-symbols-outlined text-[14px]">error</span>
+                                Failed
+                            </span>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Activity Feed -->
+<section>
+<div class="flex items-center justify-between mb-3">
+<h2 class="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Recent Activity</h2>
+</div>
+<div class="flex flex-col gap-0 rounded-xl bg-surface-dark border border-white/5 overflow-hidden">
+<!-- Activity Item 1 -->
+<div class="flex gap-3 p-4 border-b border-white/5">
+<img alt="Sarah Avatar" class="size-10 rounded-full object-cover border border-white/10" data-alt="Woman profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAksnLltU6GnDaM_2p4DNQ8LnZ0RJ9XvEe1DQYg7LERyxLiJSk8v2_G5hFLZSEhGETERsQJ9R-_jlLNqbSrJNk3epg2wuBNFNOkZ6l9BQARbPny7yKQSu0JrU5Sg9pTaO117HF4VFCXDHay-x7LwyV25l45yXB4utdithaQDmdgtODZX5znZVZGsnireEBnEq_9ERIDGSfJeg-JT1DPB5MNnZ8xs65u9G3Dq29s9QVNk4zMjg_eIDrVdyaub1KxOf4NGI3-g9ih3tta"/>
+<div class="flex-1">
+<p class="text-sm text-white font-medium">Sarah pushed to <span class="text-primary font-mono bg-primary/10 px-1 rounded text-xs">feature/login</span></p>
+<p class="text-xs text-gray-500 mt-1">10 minutes ago</p>
+</div>
+</div>
+<!-- Activity Item 2 -->
+<div class="flex gap-3 p-4 border-b border-white/5 bg-primary/5">
+<div class="size-10 rounded-full bg-gray-800 flex items-center justify-center border border-white/10">
+<span class="material-symbols-outlined text-gray-400 text-sm">smart_toy</span>
+</div>
+<div class="flex-1">
+<p class="text-sm text-white font-medium">Auto-deploy triggered by CI</p>
+<p class="text-xs text-gray-500 mt-1">24 minutes ago</p>
+</div>
+</div>
+<!-- Activity Item 3 -->
+<div class="flex gap-3 p-4">
+<img alt="Mike Avatar" class="size-10 rounded-full object-cover border border-white/10" data-alt="Man profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLNqKDDUhxOpMKtcdmuClk6agDumzXkjNGfnS-cCzY8LMX1Yxv_n0edIVz44iPA3Se1AU6LGN81tqsZaOv8fAgOG8Kpslb6v6_47WuJMdMtdsi3yu4j6DZVuao0yskT8l3Sg5pTPwyPxMvK2cww50yL__wK3VMVJIF3RHZ_FEwwG8s5Ur2jnauGy0eHGw01UGy_Ml7eesQQcuVFJrazYyrpmW45fi5yyVzH77YZRenxTDdg7mJdDicT44O2MgzZ5loPDk860n-b0tZ"/>
+<div class="flex-1">
+<p class="text-sm text-white font-medium">Mike merged PR <span class="text-gray-400 font-mono">#402</span></p>
+<p class="text-xs text-gray-500 mt-1">1 hour ago</p>
+</div>
+</div>
+<a class="block p-3 text-center text-xs font-bold uppercase text-gray-500 hover:text-white hover:bg-white/5 transition-colors" href="#">View All Activity</a>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 w-full z-40 bg-background-dark/95 backdrop-blur-lg border-t border-white/5 pb-safe">
+<div class="max-w-md mx-auto flex items-center justify-around h-16 px-2">
+<button class="flex flex-col items-center justify-center w-full h-full text-primary gap-1">
+<span class="material-symbols-outlined font-variation-settings-fill">dashboard</span>
+<span class="text-[10px] font-bold">Dashboard</span>
+</button>
+<button class="flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-white transition-colors gap-1">
+<span class="material-symbols-outlined">code</span>
+<span class="text-[10px] font-bold">Code</span>
+</button>
+<div class="relative w-full h-full flex flex-col items-center justify-center">
+<button class="flex items-center justify-center size-12 rounded-full bg-primary text-white shadow-lg shadow-primary/40 -mt-6 hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">add</span>
+</button>
+<span class="text-[10px] font-bold text-gray-500 mt-1">New</span>
+</div>
+<button class="flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-white transition-colors gap-1">
+<span class="material-symbols-outlined">layers</span>
+<span class="text-[10px] font-bold">Builds</span>
+</button>
+<button class="flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-white transition-colors gap-1">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-bold">Settings</span>
+</button>
+</div>
+</nav>
+<!-- Safe area spacing for mobile browsers -->
+<div class="h-6 w-full bg-background-dark"></div>
+</div>
+<style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #31243a;
+            border-radius: 4px;
+        }
+        
+        /* Material Symbols variation settings for filled icons */
+        .font-variation-settings-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Safe area utility */
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+</body></html>

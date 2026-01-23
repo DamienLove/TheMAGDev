@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Visual Dependency Manager</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#135bec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622",
+              "card-dark": "#192233", // Matching example component card color
+              "card-dark-lighter": "#232f48", // Lighter shade for inputs/sub-elements
+            },
+            fontFamily: {
+              "display": ["Space Grotesk", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        /* Custom Scrollbar for Chips */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white min-h-screen flex flex-col overflow-x-hidden selection:bg-primary selection:text-white">
+<!-- Header / Top App Bar -->
+<header class="sticky top-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-[20px]">description</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-base font-bold leading-none tracking-tight">pubspec.yaml</h1>
+<p class="text-[10px] text-slate-500 dark:text-[#92a4c9] font-medium tracking-wide uppercase mt-0.5">Visual Mode</p>
+</div>
+</div>
+<div class="flex items-center gap-1">
+<button class="size-9 flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-card-dark-lighter transition-colors text-slate-500 dark:text-[#92a4c9]">
+<span class="material-symbols-outlined text-[20px]">code</span>
+</button>
+<button class="size-9 flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-card-dark-lighter transition-colors text-slate-500 dark:text-[#92a4c9]">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col gap-4 p-4 pb-24">
+<!-- Status Indicator (Sync Required) -->
+<div class="w-full">
+<div class="relative overflow-hidden rounded-xl bg-card-dark shadow-lg border border-slate-800/50">
+<!-- Decorative colored line -->
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-500"></div>
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 pl-5 gap-4">
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-amber-500 text-[18px]">warning</span>
+<h2 class="text-white font-bold text-sm">Out of Sync</h2>
+</div>
+<p class="text-[#92a4c9] text-xs leading-relaxed">
+                            3 packages have been modified in the visual editor. Run 'pub get' to resolve dependencies.
+                        </p>
+</div>
+<button class="flex shrink-0 items-center justify-center gap-2 h-9 px-4 rounded-lg bg-primary hover:bg-blue-600 text-white text-xs font-bold transition-all w-full sm:w-auto shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>Run pub get</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Search & Add Bar -->
+<div class="sticky top-[68px] z-10 -mx-4 px-4 py-2 bg-background-light dark:bg-background-dark/95 backdrop-blur-sm">
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-[#92a4c9]">search</span>
+</div>
+<input class="block w-full pl-10 pr-20 py-3 text-sm rounded-xl bg-white dark:bg-card-dark-lighter border-none ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-primary text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-[#92a4c9] transition-all" placeholder="Search packages on pub.dev..." type="text"/>
+<div class="absolute inset-y-0 right-1.5 flex items-center">
+<button class="flex items-center justify-center h-8 px-3 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white text-xs font-bold hover:bg-primary hover:text-white transition-colors">
+                        Add
+                    </button>
+</div>
+</div>
+</div>
+<!-- Filter Tabs -->
+<div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+<button class="flex shrink-0 items-center gap-2 h-9 px-4 rounded-lg bg-card-dark-lighter ring-1 ring-primary/50 text-white text-xs font-bold transition-all">
+<span class="material-symbols-outlined text-[16px] text-primary">deployed_code</span>
+                Dependencies
+                <span class="flex items-center justify-center h-4 min-w-[16px] px-1 rounded bg-primary text-[10px] text-white">12</span>
+</button>
+<button class="flex shrink-0 items-center gap-2 h-9 px-4 rounded-lg bg-transparent border border-slate-700 hover:bg-card-dark-lighter text-[#92a4c9] text-xs font-medium transition-all">
+<span class="material-symbols-outlined text-[16px]">build</span>
+                Dev Dependencies
+                <span class="flex items-center justify-center h-4 min-w-[16px] px-1 rounded bg-slate-800 text-[10px] text-slate-400">4</span>
+</button>
+<button class="flex shrink-0 items-center gap-2 h-9 px-4 rounded-lg bg-transparent border border-slate-700 hover:bg-card-dark-lighter text-[#92a4c9] text-xs font-medium transition-all">
+<span class="material-symbols-outlined text-[16px]">folder_open</span>
+                Overrides
+            </button>
+</div>
+<!-- Dependency List -->
+<div class="flex flex-col gap-3">
+<!-- Item 1: Update Available -->
+<div class="group flex flex-col gap-3 p-4 rounded-xl bg-card-dark border border-slate-800 hover:border-slate-700 transition-colors">
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-lg bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center text-primary border border-primary/20" data-alt="Generic package icon placeholder">
+<span class="material-symbols-outlined">extension</span>
+</div>
+<div>
+<h3 class="text-white text-base font-bold">google_fonts</h3>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-[10px] font-medium text-[#92a4c9] border border-slate-700 px-1 rounded">MIT</span>
+<span class="text-xs text-[#92a4c9]">v4.0.0</span>
+</div>
+</div>
+</div>
+<button class="p-2 -mr-2 text-slate-600 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+<!-- Update Action Strip -->
+<div class="flex items-center justify-between p-2 rounded-lg bg-card-dark-lighter/50 border border-primary/20">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-green-400 text-[16px]">arrow_circle_up</span>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-white">v5.1.0 available</span>
+<span class="text-[10px] text-green-400/80">Minor update compatible</span>
+</div>
+</div>
+<button class="h-7 px-3 rounded bg-primary hover:bg-blue-600 text-white text-xs font-bold transition-colors shadow-sm">
+                        Update
+                    </button>
+</div>
+</div>
+<!-- Item 2: Up to date -->
+<div class="group flex flex-col gap-3 p-4 rounded-xl bg-card-dark border border-slate-800 hover:border-slate-700 transition-colors opacity-90">
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-center gap-3">
+<!-- Gradient Icon Placeholder -->
+<div class="size-10 rounded-lg bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-700">
+<div class="w-full h-full bg-gradient-to-tr from-cyan-400 to-blue-600 opacity-80" data-alt="Flutter Bloc blue gradient icon"></div>
+</div>
+<div>
+<h3 class="text-white text-base font-medium">flutter_bloc</h3>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-[10px] font-medium text-[#92a4c9] border border-slate-700 px-1 rounded">MIT</span>
+<span class="text-xs text-green-500 flex items-center gap-1">
+<span class="size-1.5 rounded-full bg-green-500"></span>
+                                    v8.1.3 (Latest)
+                                </span>
+</div>
+</div>
+</div>
+<button class="p-2 -mr-2 text-slate-600 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+<!-- Item 3: Major Update Warning -->
+<div class="group flex flex-col gap-3 p-4 rounded-xl bg-card-dark border border-slate-800 hover:border-slate-700 transition-colors">
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-lg bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center text-orange-400 border border-orange-500/20" data-alt="Dio package icon placeholder">
+<span class="material-symbols-outlined">api</span>
+</div>
+<div>
+<h3 class="text-white text-base font-bold">dio</h3>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-[10px] font-medium text-[#92a4c9] border border-slate-700 px-1 rounded">MIT</span>
+<span class="text-xs text-[#92a4c9]">v4.0.6</span>
+</div>
+</div>
+</div>
+<button class="p-2 -mr-2 text-slate-600 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+<!-- Major Update Strip -->
+<div class="flex items-center justify-between p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-amber-500 text-[16px]">priority_high</span>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-amber-500">Major: v5.0.0</span>
+<span class="text-[10px] text-amber-500/80">Breaking changes likely</span>
+</div>
+</div>
+<button class="h-7 px-3 rounded bg-card-dark-lighter hover:bg-slate-700 text-white text-xs font-bold transition-colors border border-slate-700">
+                        View
+                    </button>
+</div>
+</div>
+<!-- Item 4: Up to date -->
+<div class="group flex flex-col gap-3 p-4 rounded-xl bg-card-dark border border-slate-800 hover:border-slate-700 transition-colors opacity-90">
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-lg bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-700">
+<div class="w-full h-full bg-gradient-to-bl from-purple-500 to-pink-500 opacity-80" data-alt="Provider package purple gradient icon"></div>
+</div>
+<div>
+<h3 class="text-white text-base font-medium">provider</h3>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-[10px] font-medium text-[#92a4c9] border border-slate-700 px-1 rounded">MIT</span>
+<span class="text-xs text-green-500 flex items-center gap-1">
+<span class="size-1.5 rounded-full bg-green-500"></span>
+                                    v6.0.5 (Latest)
+                                </span>
+</div>
+</div>
+</div>
+<button class="p-2 -mr-2 text-slate-600 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Actions / Info (Optional but helpful for mobile view) -->
+<footer class="fixed bottom-0 left-0 right-0 p-4 bg-background-dark/80 backdrop-blur-lg border-t border-slate-800 text-center">
+<p class="text-[10px] text-[#92a4c9]">Last synced: 2 minutes ago</p>
+</footer>
+</body></html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IDE Pull Request Review</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111722",
+                        "surface-dark": "#192233",
+                        "border-dark": "#232f48",
+                        "diff-red-bg": "rgba(220, 38, 38, 0.15)",
+                        "diff-red-text": "#fca5a5",
+                        "diff-green-bg": "rgba(22, 163, 74, 0.15)",
+                        "diff-green-text": "#86efac",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for code block */
+        .code-scroll::-webkit-scrollbar {
+            height: 4px;
+            width: 4px;
+        }
+        .code-scroll::-webkit-scrollbar-track {
+            background: #111722;
+        }
+        .code-scroll::-webkit-scrollbar-thumb {
+            background: #324467;
+            border-radius: 2px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display text-white overflow-hidden selection:bg-primary/30">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between bg-background-dark p-4 border-b border-border-dark shrink-0 z-20 relative">
+<button class="text-white/70 hover:text-white flex items-center justify-center p-2 rounded-full hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined" style="font-size: 24px;">arrow_back</span>
+</button>
+<div class="flex-1 px-4 text-center">
+<h2 class="text-white text-base font-bold leading-tight tracking-[-0.015em] truncate">PR #842: Refactor Auth Flow</h2>
+<div class="flex items-center justify-center gap-1 mt-0.5 opacity-60">
+<span class="material-symbols-outlined text-[14px]">call_split</span>
+<span class="text-xs font-mono">feature/auth-v2</span>
+<span class="text-xs mx-1">•</span>
+<span class="text-xs">3m ago</span>
+</div>
+</div>
+<button class="text-white hover:text-primary flex items-center justify-center p-2 rounded-lg bg-surface-dark border border-border-dark hover:border-primary/50 transition-all">
+<span class="material-symbols-outlined" style="font-size: 20px;">view_sidebar</span>
+</button>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col overflow-hidden relative">
+<!-- File Header & Controls -->
+<div class="bg-background-dark pt-4 pb-2 px-4 shrink-0 flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 overflow-hidden">
+<span class="material-symbols-outlined text-white/50 text-[20px]">description</span>
+<h3 class="text-white text-base font-bold tracking-tight truncate font-mono">src/auth/LoginController.ts</h3>
+</div>
+<span class="text-xs font-medium text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded border border-yellow-500/20">Modified</span>
+</div>
+<!-- View Toggles Chips -->
+<div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary text-white pl-4 pr-4 transition-transform active:scale-95 shadow-lg shadow-primary/20">
+<span class="text-xs font-bold uppercase tracking-wider">Unified</span>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-dark border border-border-dark hover:bg-white/5 text-white/70 pl-4 pr-4 transition-colors">
+<span class="text-xs font-medium uppercase tracking-wider">Split</span>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-dark border border-border-dark hover:bg-white/5 text-white/70 pl-4 pr-4 transition-colors">
+<span class="text-xs font-medium uppercase tracking-wider">Blame</span>
+</button>
+</div>
+</div>
+<!-- Diff Editor Area -->
+<div class="flex-1 overflow-y-auto overflow-x-hidden relative bg-[#0d1117] code-scroll w-full">
+<div class="w-full min-w-full font-mono text-sm leading-6">
+<!-- Unchanged Context -->
+<div class="flex group/line hover:bg-white/5">
+<div class="w-12 shrink-0 select-none text-right pr-3 text-slate-600 border-r border-border-dark bg-background-dark/50">11</div>
+<div class="w-12 shrink-0 select-none text-right pr-3 text-slate-600 border-r border-border-dark bg-background-dark/50">11</div>
+<div class="pl-4 pr-2 text-slate-400 whitespace-pre overflow-x-auto code-scroll">  /**</div>
+</div>
+<div class="flex group/line hover:bg-white/5">
+<div class="w-12 shrink-0 select-none text-right pr-3 text-slate-600 border-r border-border-dark bg-background-dark/50">12</div>
+<div class="w-12 shrink-0 select-none text-right pr-3 text-slate-600 border-r border-border-dark bg-background-dark/50">12</div>
+<div class="pl-4 pr-2 text-slate-400 whitespace-pre overflow-x-auto code-scroll">   * Authenticate user with credentials</div>
+</div>
+<div class="flex group/line hover:bg-white/5">
+<div class="w-12 shrink-0 select-none text-right pr-3 text-slate-600 border-r border-border-dark bg-background-dark/50">13</div>
+<div class="w-12 shrink-0 select-none text-right pr-3 text-slate-600 border-r border-border-dark bg-background-dark/50">13</div>
+<div class="pl-4 pr-2 text-slate-400 whitespace-pre overflow-x-auto code-scroll">   */</div>
+</div>
+<!-- Removed Line -->
+<div class="flex group/line bg-diff-red-bg border-l-2 border-red-500/50">
+<div class="w-12 shrink-0 select-none text-right pr-3 text-red-500/50 border-r border-red-900/30 bg-red-900/10">14</div>
+<div class="w-12 shrink-0 select-none text-right pr-3 text-slate-700 border-r border-red-900/30 bg-red-900/10"></div>
+<div class="pl-4 pr-2 text-diff-red-text whitespace-pre overflow-x-auto code-scroll flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-2 opacity-50 absolute left-[6.5rem]">remove</span>
+                        const user = await auth.login(email, pass);
+                    </div>
+</div>
+<!-- Added Line -->
+<div class="flex group/line bg-diff-green-bg border-l-2 border-green-500/50 relative">
+<div class="w-12 shrink-0 select-none text-right pr-3 text-slate-700 border-r border-green-900/30 bg-green-900/10"></div>
+<div class="w-12 shrink-0 select-none text-right pr-3 text-green-500/50 border-r border-green-900/30 bg-green-900/10">14</div>
+<div class="pl-4 pr-2 text-diff-green-text whitespace-pre overflow-x-auto code-scroll flex items-center">
+<span class="material-symbols-outlined text-[14px] mr-2 opacity-50 absolute left-[6.5rem]">add</span>
+                        const { user, token } = await auth.loginV2(credentials);
+                    </div>
+</div>
+<!-- Inline Comment Widget -->
+<div class="border-y border-border-dark bg-surface-dark/50 py-4 px-2 sm:px-4">
+<div class="max-w-3xl ml-[0px] md:ml-[6rem] bg-surface-dark border border-border-dark rounded-xl shadow-xl overflow-hidden">
+<!-- Comment Header -->
+<div class="flex items-center justify-between p-3 border-b border-border-dark bg-[#1e283a]">
+<div class="flex items-center gap-2">
+<div class="relative">
+<div class="size-6 rounded-full bg-gradient-to-tr from-blue-400 to-purple-500 overflow-hidden" data-alt="User Avatar Gradient"></div>
+<div class="absolute -bottom-0.5 -right-0.5 size-2.5 bg-green-500 border-2 border-[#1e283a] rounded-full"></div>
+</div>
+<span class="text-sm font-bold text-white">Alex Chen</span>
+<span class="text-xs text-slate-400">Reviewer</span>
+</div>
+<span class="text-xs text-slate-500 font-medium">2m ago</span>
+</div>
+<!-- Comment Body -->
+<div class="p-3">
+<p class="text-sm text-slate-300 leading-relaxed">
+                                Good catch moving to V2. Make sure we handle the <span class="text-primary bg-primary/10 px-1 rounded font-mono text-xs">token</span> expiry here properly before returning the user object.
+                            </p>
+</div>
+<!-- Reply Input -->
+<div class="p-2 bg-background-dark/30 border-t border-border-dark flex gap-2">
+<div class="flex-1 relative">
+<input class="w-full bg-background-dark border border-border-dark rounded-lg py-2 pl-3 pr-10 text-sm text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder-slate-600" placeholder="Reply..." type="text"/>
+<button class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+<span class="material-symbols-outlined text-[18px]">sentiment_satisfied</span>
+</button>
+</div>
+<button class="bg-primary hover:bg-blue-600 text-white rounded-lg px-3 py-1 flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+</div>
+<!-- Thread Connector Line -->
+<div class="absolute left-[3rem] top-[6.5rem] bottom-0 w-0.5 bg-border-dark/50 hidden md:block"></div>
+</div>
+<!-- More Code -->
+<div class="flex group/line hover:bg-white/5">
+<div class="w-12 shrink-0 select-none text-right pr-3 text-slate-600 border-r border-border-dark bg-background-dark/50">15</div>
+<div class="w-12 shrink-0 select-none text-right pr-3 text-slate-600 border-r border-border-dark bg-background-dark/50">15</div>
+<div class="pl-4 pr-2 text-slate-400 whitespace-pre overflow-x-auto code-scroll"></div>
+</div>
+<div class="flex group/line hover:bg-white/5">
+<div class="w-12 shrink-0 select-none text-right pr-3 text-slate-600 border-r border-border-dark bg-background-dark/50">16</div>
+<div class="w-12 shrink-0 select-none text-right pr-3 text-slate-600 border-r border-border-dark bg-background-dark/50">16</div>
+<div class="pl-4 pr-2 text-slate-400 whitespace-pre overflow-x-auto code-scroll">   if (!user) {</div>
+</div>
+<div class="flex group/line hover:bg-white/5">
+<div class="w-12 shrink-0 select-none text-right pr-3 text-slate-600 border-r border-border-dark bg-background-dark/50">17</div>
+<div class="w-12 shrink-0 select-none text-right pr-3 text-slate-600 border-r border-border-dark bg-background-dark/50">17</div>
+<div class="pl-4 pr-2 text-slate-400 whitespace-pre overflow-x-auto code-scroll">     throw new AuthenticationError();</div>
+</div>
+<div class="flex group/line hover:bg-white/5">
+<div class="w-12 shrink-0 select-none text-right pr-3 text-slate-600 border-r border-border-dark bg-background-dark/50">18</div>
+<div class="w-12 shrink-0 select-none text-right pr-3 text-slate-600 border-r border-border-dark bg-background-dark/50">18</div>
+<div class="pl-4 pr-2 text-slate-400 whitespace-pre overflow-x-auto code-scroll">   }</div>
+</div>
+<!-- Space for scrolling -->
+<div class="h-32"></div>
+</div>
+</div>
+<!-- PR Overview "Sheet" - Visualizing it as a bottom drawer peeking up -->
+<aside class="absolute bottom-0 left-0 right-0 bg-surface-dark border-t border-primary/30 rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.5)] transform translate-y-0 transition-transform duration-300 z-30 flex flex-col max-h-[40vh]">
+<!-- Drag Handle -->
+<div class="w-full flex items-center justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing">
+<div class="w-12 h-1.5 rounded-full bg-slate-600"></div>
+</div>
+<div class="px-5 py-2 flex-1 overflow-y-auto">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-white text-lg font-bold">PR Overview</h3>
+<span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-bold uppercase tracking-wider border border-green-500/20">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                        Open
+                    </span>
+</div>
+<p class="text-slate-400 text-sm mb-4">
+                    Updates the login method to V2 to support OAuth flows. This includes refactoring the controller and adding new test cases.
+                </p>
+<div class="space-y-4 relative pl-2">
+<!-- Timeline Line -->
+<div class="absolute left-[11px] top-2 bottom-2 w-0.5 bg-border-dark"></div>
+<!-- Commit 1 -->
+<div class="flex gap-3 items-start relative z-10">
+<div class="size-5 rounded-full bg-surface-dark border-2 border-slate-500 shrink-0 mt-0.5"></div>
+<div class="flex flex-col">
+<span class="text-xs font-mono text-primary font-bold">e4f9a2</span>
+<span class="text-sm text-white">Update API calls to V2 endpoints</span>
+</div>
+</div>
+<!-- Commit 2 -->
+<div class="flex gap-3 items-start relative z-10">
+<div class="size-5 rounded-full bg-surface-dark border-2 border-slate-500 shrink-0 mt-0.5"></div>
+<div class="flex flex-col">
+<span class="text-xs font-mono text-primary font-bold">b2d1c9</span>
+<span class="text-sm text-white">Fix lint errors in AuthController</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Sticky Footer Action -->
+<div class="p-4 bg-background-dark/95 border-t border-border-dark backdrop-blur-sm">
+<button class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined">merge</span>
+                    Merge Pull Request
+                </button>
+</div>
+</aside>
+<!-- Overlay backdrop for the sidebar (Optional, assuming interaction focused) -->
+<!-- <div class="absolute inset-0 bg-black/50 z-20 pointer-events-none opacity-0"></div> -->
+</main>
+</body></html>

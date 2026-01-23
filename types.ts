@@ -3,9 +3,12 @@ export enum View {
   Projects = 'PROJECTS',
   Editor = 'EDITOR',
   Design = 'DESIGN',
+  Build = 'BUILD',
+  Analytics = 'ANALYTICS',
   Infrastructure = 'INFRASTRUCTURE',
   Marketplace = 'MARKETPLACE',
   Support = 'SUPPORT',
+  Desktop = 'DESKTOP',
   Settings = 'SETTINGS'
 }
 

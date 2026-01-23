@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SDK &amp; Toolchain Manager</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1337ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101322",
+                        "surface-dark": "#1a1d2d",
+                        "surface-border": "#282b39",
+                        "text-secondary": "#9da1b9",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for technical feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111218; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #282b39; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3f4354; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden h-screen w-full flex">
+<!-- Left Sidebar -->
+<aside class="w-64 flex-shrink-0 border-r border-surface-border bg-background-dark hidden md:flex flex-col">
+<div class="h-16 flex items-center px-6 border-b border-surface-border">
+<div class="flex items-center gap-3">
+<div class="bg-primary/20 p-1.5 rounded-lg text-primary">
+<span class="material-symbols-outlined text-[24px]">terminal</span>
+</div>
+<div>
+<h1 class="text-white text-base font-bold leading-none">WebIDE Pro</h1>
+<p class="text-text-secondary text-xs font-normal mt-1">v2.4.0 (Stable)</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-text-secondary hover:bg-surface-border hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">code</span>
+<span class="text-sm font-medium">Code Editor</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-text-secondary hover:bg-surface-border hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">design_services</span>
+<span class="text-sm font-medium">Design System</span>
+</a>
+<div class="my-2 border-t border-surface-border mx-3"></div>
+<p class="px-3 text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">Configuration</p>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary border border-primary/20" href="#">
+<span class="material-symbols-outlined fill-1">dns</span>
+<span class="text-sm font-bold">Toolchain</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-text-secondary hover:bg-surface-border hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">cloud_upload</span>
+<span class="text-sm font-medium">Deployments</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-text-secondary hover:bg-surface-border hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-surface-border">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 border border-surface-border" data-alt="User profile avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAA2cVpwam96_SgKB4KCyKz4OnviYSLvxaYFFAmr6gWYFz9r9zm08XaJJhPTTXpe7497wQChZPxqx06t7Yg-DyN6QBnWv79VPtfvMHtIcuRvMDn8kIYg_d3T6CSkSJ33LE02jhNoSjf58j9cJh_irEAgvTJKgfovcLZjJSMOj3-jzVEezJU8tn8H3coDUlUU9z8Z06D06nGa3Xq221kMWZprtSkW7W2HPpfAyIt9IxdsgYrGzzAVxHCke9tTYkLAwd-Prp2MIOSHyg");'></div>
+<div class="flex flex-col overflow-hidden">
+<p class="text-white text-sm font-medium truncate">Dev Operations</p>
+<p class="text-text-secondary text-xs truncate">admin@webide.pro</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex flex-col flex-1 min-w-0">
+<!-- Top Navigation -->
+<header class="h-16 flex items-center justify-between px-6 border-b border-surface-border bg-background-dark/50 backdrop-blur-sm z-10">
+<div class="flex items-center gap-4">
+<button class="md:hidden text-text-secondary">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="flex items-center text-sm font-medium text-text-secondary">
+<span class="hover:text-white cursor-pointer transition-colors">Project</span>
+<span class="mx-2">/</span>
+<span class="hover:text-white cursor-pointer transition-colors">Settings</span>
+<span class="mx-2">/</span>
+<span class="text-white bg-surface-border px-2 py-0.5 rounded text-xs tracking-wide">ENVIRONMENT</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-dark border border-surface-border">
+<div class="size-2 rounded-full bg-green-500 animate-pulse"></div>
+<span class="text-xs text-text-secondary font-mono">Cloud Agent: Online</span>
+</div>
+<button class="text-text-secondary hover:text-white transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 size-2 bg-primary rounded-full"></span>
+</button>
+</div>
+</header>
+<!-- Main Workspace -->
+<main class="flex flex-1 overflow-hidden relative">
+<!-- Central Column (Scrollable) -->
+<div class="flex-1 overflow-y-auto p-6 lg:p-10 scroll-smooth">
+<div class="max-w-5xl mx-auto flex flex-col gap-8 pb-20">
+<!-- Page Header -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-start">
+<h1 class="text-4xl font-black text-white tracking-tight">Environment Configuration</h1>
+<button class="flex items-center gap-2 bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-[20px]">sync</span>
+                                Check Updates
+                            </button>
+</div>
+<p class="text-text-secondary max-w-2xl">Manage SDKs, build tools, and container dependencies. Tools run directly in your cloud container workspace.</p>
+</div>
+<!-- Filter & Search Toolbar -->
+<div class="flex flex-wrap gap-4 items-center bg-surface-dark p-2 rounded-xl border border-surface-border">
+<div class="flex items-center px-3 gap-2 flex-1 min-w-[200px]">
+<span class="material-symbols-outlined text-text-secondary">search</span>
+<input class="bg-transparent border-none text-white placeholder-text-secondary focus:ring-0 text-sm w-full font-normal" placeholder="Search packages (e.g. Android SDK, CMake)..." type="text"/>
+</div>
+<div class="h-6 w-px bg-surface-border hidden sm:block"></div>
+<div class="flex items-center gap-2 overflow-x-auto p-1">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-border text-white text-xs font-medium whitespace-nowrap">
+<span>Platform: All</span>
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-transparent hover:bg-surface-border text-text-secondary hover:text-white transition-colors text-xs font-medium whitespace-nowrap">
+<span>Status: All</span>
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Section: Mobile Platforms -->
+<section class="flex flex-col gap-4">
+<h3 class="text-lg font-bold text-white uppercase tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-text-secondary">smartphone</span>
+                            Mobile Platforms
+                        </h3>
+<div class="bg-surface-dark border border-surface-border rounded-xl overflow-hidden shadow-sm">
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-4 p-4 border-b border-surface-border bg-surface-dark/50 text-xs font-bold text-text-secondary uppercase tracking-wider">
+<div class="col-span-4">Package Name</div>
+<div class="col-span-3 text-center">Version</div>
+<div class="col-span-3">Status</div>
+<div class="col-span-2 text-right">Actions</div>
+</div>
+<!-- Row 1: Android SDK -->
+<div class="grid grid-cols-12 gap-4 p-4 items-center border-b border-surface-border/50 hover:bg-white/5 transition-colors group">
+<div class="col-span-4 flex items-center gap-3">
+<div class="size-10 rounded-lg bg-[#3DDC84]/20 flex items-center justify-center text-[#3DDC84]">
+<span class="material-symbols-outlined">android</span>
+</div>
+<div class="flex flex-col">
+<span class="text-white font-medium">Android SDK Platform</span>
+<span class="text-text-secondary text-xs">API Level 34</span>
+</div>
+</div>
+<div class="col-span-3 flex justify-center">
+<div class="flex items-center gap-2 px-2 py-1 rounded bg-surface-border/50 border border-surface-border">
+<span class="text-white text-xs font-mono">34.0.0</span>
+<div class="w-px h-3 bg-surface-border"></div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-7 h-4 bg-surface-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<div class="col-span-3">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-green-500"></span>
+<span class="text-green-500 text-xs font-bold uppercase">Installed</span>
+</div>
+</div>
+<div class="col-span-2 flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-border rounded text-text-secondary hover:text-white" title="Settings">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<button class="p-2 hover:bg-red-500/20 rounded text-text-secondary hover:text-red-400" title="Uninstall">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+<!-- Row 2: Android NDK -->
+<div class="grid grid-cols-12 gap-4 p-4 items-center border-b border-surface-border/50 hover:bg-white/5 transition-colors group">
+<div class="col-span-4 flex items-center gap-3">
+<div class="size-10 rounded-lg bg-[#3DDC84]/20 flex items-center justify-center text-[#3DDC84]">
+<span class="material-symbols-outlined">developer_board</span>
+</div>
+<div class="flex flex-col">
+<span class="text-white font-medium">Android NDK</span>
+<span class="text-text-secondary text-xs">Side-by-side</span>
+</div>
+</div>
+<div class="col-span-3 flex justify-center">
+<div class="flex items-center gap-2 px-2 py-1 rounded bg-surface-border/50 border border-surface-border">
+<span class="text-white text-xs font-mono">25.2.95</span>
+<div class="w-px h-3 bg-surface-border"></div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-7 h-4 bg-surface-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<div class="col-span-3">
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-yellow-500 animate-pulse"></span>
+<span class="text-yellow-500 text-xs font-bold uppercase">Update Available</span>
+</div>
+<span class="text-[10px] text-text-secondary">v26.1 -&gt;</span>
+</div>
+</div>
+</div>
+<div class="col-span-2 flex justify-end gap-2 opacity-100">
+<button class="flex items-center gap-1 bg-primary/20 hover:bg-primary/30 text-primary px-3 py-1.5 rounded-md text-xs font-bold transition-colors">
+<span class="material-symbols-outlined text-[16px]">download</span>
+                                        UPDATE
+                                    </button>
+</div>
+</div>
+<!-- Row 3: iOS Toolchain -->
+<div class="grid grid-cols-12 gap-4 p-4 items-center hover:bg-white/5 transition-colors group">
+<div class="col-span-4 flex items-center gap-3">
+<div class="size-10 rounded-lg bg-gray-700/50 flex items-center justify-center text-white">
+<span class="material-symbols-outlined">phone_iphone</span>
+</div>
+<div class="flex flex-col">
+<span class="text-white font-medium">iOS Toolchain</span>
+<span class="text-text-secondary text-xs">Xcode Command Line Tools</span>
+</div>
+</div>
+<div class="col-span-3 flex justify-center text-text-secondary text-xs italic">
+                                    Not configured
+                                </div>
+<div class="col-span-3">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-red-500"></span>
+<span class="text-red-500 text-xs font-bold uppercase">Missing</span>
+</div>
+<p class="text-[10px] text-text-secondary mt-1">Requires macOS host bridge</p>
+</div>
+<div class="col-span-2 flex justify-end gap-2 opacity-60 group-hover:opacity-100">
+<button class="p-2 hover:bg-surface-border rounded text-text-secondary hover:text-white" title="Configure Bridge">
+<span class="material-symbols-outlined text-[20px]">link</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Desktop & Web -->
+<section class="flex flex-col gap-4">
+<h3 class="text-lg font-bold text-white uppercase tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-text-secondary">desktop_windows</span>
+                            Desktop &amp; Web
+                        </h3>
+<div class="bg-surface-dark border border-surface-border rounded-xl overflow-hidden shadow-sm">
+<!-- Header Hidden for compactness/consistency -->
+<!-- Row 1: MSVC -->
+<div class="grid grid-cols-12 gap-4 p-4 items-center border-b border-surface-border/50 hover:bg-white/5 transition-colors group relative overflow-hidden">
+<!-- Active Download Progress BG -->
+<div class="absolute bottom-0 left-0 h-[2px] bg-primary w-[45%] z-10"></div>
+<div class="col-span-4 flex items-center gap-3 relative z-20">
+<div class="size-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+<span class="material-symbols-outlined">window</span>
+</div>
+<div class="flex flex-col">
+<span class="text-white font-medium">Windows Build Tools</span>
+<span class="text-text-secondary text-xs">MSVC v143</span>
+</div>
+</div>
+<div class="col-span-3 flex justify-center relative z-20">
+<div class="flex items-center gap-2 px-2 py-1 rounded bg-surface-border/50 border border-surface-border">
+<span class="text-white text-xs font-mono">14.36.00</span>
+<div class="w-px h-3 bg-surface-border"></div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-7 h-4 bg-surface-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<div class="col-span-3 relative z-20">
+<div class="flex flex-col gap-1 w-full max-w-[140px]">
+<div class="flex justify-between text-[10px] font-bold text-primary uppercase">
+<span>Downloading</span>
+<span>45%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-border rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[45%]"></div>
+</div>
+<span class="text-[10px] text-text-secondary">2.4 MB/s • 1m remaining</span>
+</div>
+</div>
+<div class="col-span-2 flex justify-end gap-2 relative z-20">
+<button class="p-2 hover:bg-surface-border rounded text-text-secondary hover:text-white" title="Pause">
+<span class="material-symbols-outlined text-[20px]">pause</span>
+</button>
+<button class="p-2 hover:bg-surface-border rounded text-text-secondary hover:text-white" title="Cancel">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+</div>
+<!-- Row 2: CMake -->
+<div class="grid grid-cols-12 gap-4 p-4 items-center border-b border-surface-border/50 hover:bg-white/5 transition-colors group">
+<div class="col-span-4 flex items-center gap-3">
+<div class="size-10 rounded-lg bg-orange-500/20 flex items-center justify-center text-orange-500">
+<span class="material-symbols-outlined">terminal</span>
+</div>
+<div class="flex flex-col">
+<span class="text-white font-medium">CMake</span>
+<span class="text-text-secondary text-xs">Build System</span>
+</div>
+</div>
+<div class="col-span-3 flex justify-center">
+<div class="flex items-center gap-2 px-2 py-1 rounded bg-surface-border/50 border border-surface-border">
+<span class="text-white text-xs font-mono">3.26.4</span>
+<div class="w-px h-3 bg-surface-border"></div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-7 h-4 bg-surface-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<div class="col-span-3">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-green-500"></span>
+<span class="text-green-500 text-xs font-bold uppercase">Installed</span>
+</div>
+</div>
+<div class="col-span-2 flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-border rounded text-text-secondary hover:text-white" title="Settings">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+</div>
+<!-- Row 3: Ninja -->
+<div class="grid grid-cols-12 gap-4 p-4 items-center hover:bg-white/5 transition-colors group">
+<div class="col-span-4 flex items-center gap-3">
+<div class="size-10 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
+<span class="material-symbols-outlined">speed</span>
+</div>
+<div class="flex flex-col">
+<span class="text-white font-medium">Ninja</span>
+<span class="text-text-secondary text-xs">Build System</span>
+</div>
+</div>
+<div class="col-span-3 flex justify-center">
+<div class="flex items-center gap-2 px-2 py-1 rounded bg-surface-border/50 border border-surface-border">
+<span class="text-white text-xs font-mono">1.11.1</span>
+<div class="w-px h-3 bg-surface-border"></div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-7 h-4 bg-surface-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<div class="col-span-3">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-green-500"></span>
+<span class="text-green-500 text-xs font-bold uppercase">Installed</span>
+</div>
+</div>
+<div class="col-span-2 flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-border rounded text-text-secondary hover:text-white" title="Settings">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Right Sidebar (System Health) -->
+<aside class="w-80 border-l border-surface-border bg-background-dark p-6 overflow-y-auto hidden xl:block z-10">
+<div class="flex flex-col gap-6">
+<h2 class="text-sm font-bold text-text-secondary uppercase tracking-wider mb-2">System Health</h2>
+<!-- AI Insight Card -->
+<div class="p-4 rounded-xl bg-gradient-to-br from-indigo-900/40 to-surface-dark border border-indigo-500/30 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-2 opacity-20">
+<span class="material-symbols-outlined text-4xl">auto_awesome</span>
+</div>
+<div class="flex items-center gap-2 mb-2 text-indigo-400">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+<span class="text-xs font-bold uppercase">AI Insight</span>
+</div>
+<p class="text-sm text-gray-200 leading-snug mb-3">
+                            Your Android NDK version (25.2.95) conflicts with project <code class="bg-black/30 px-1 rounded text-xs font-mono">gradle.properties</code>.
+                        </p>
+<button class="text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 rounded transition-colors w-full">
+                            Auto-Fix Config
+                        </button>
+</div>
+<!-- Storage Meter -->
+<div class="flex flex-col gap-3 p-4 rounded-xl bg-surface-dark border border-surface-border">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-white">
+<span class="material-symbols-outlined text-[20px]">hard_drive</span>
+<span class="text-sm font-bold">Container Storage</span>
+</div>
+<span class="text-xs text-text-secondary">45%</span>
+</div>
+<div class="h-2 w-full bg-surface-border rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 w-[45%]"></div>
+</div>
+<div class="flex justify-between text-xs text-text-secondary font-mono">
+<span>45GB Used</span>
+<span>100GB Total</span>
+</div>
+</div>
+<!-- Environment Variables -->
+<div class="flex flex-col gap-3">
+<h3 class="text-xs font-bold text-text-secondary uppercase tracking-wider">Detected Variables</h3>
+<div class="flex flex-col gap-2">
+<div class="flex flex-col p-3 rounded-lg bg-surface-dark border border-surface-border hover:border-primary/50 transition-colors cursor-pointer group">
+<span class="text-[10px] text-text-secondary font-mono uppercase mb-1">JAVA_HOME</span>
+<div class="flex items-center justify-between">
+<span class="text-xs text-white truncate w-48 font-mono">/usr/lib/jvm/java-17</span>
+<span class="material-symbols-outlined text-[14px] text-green-500 opacity-0 group-hover:opacity-100">check_circle</span>
+</div>
+</div>
+<div class="flex flex-col p-3 rounded-lg bg-surface-dark border border-surface-border hover:border-primary/50 transition-colors cursor-pointer group">
+<span class="text-[10px] text-text-secondary font-mono uppercase mb-1">ANDROID_HOME</span>
+<div class="flex items-center justify-between">
+<span class="text-xs text-white truncate w-48 font-mono">/opt/android-sdk</span>
+<span class="material-symbols-outlined text-[14px] text-green-500 opacity-0 group-hover:opacity-100">check_circle</span>
+</div>
+</div>
+<div class="flex flex-col p-3 rounded-lg bg-surface-dark border border-surface-border hover:border-primary/50 transition-colors cursor-pointer group">
+<span class="text-[10px] text-text-secondary font-mono uppercase mb-1">CMAKE_PATH</span>
+<div class="flex items-center justify-between">
+<span class="text-xs text-white truncate w-48 font-mono">/usr/bin/cmake</span>
+<span class="material-symbols-outlined text-[14px] text-green-500 opacity-0 group-hover:opacity-100">check_circle</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</main>
+</div>
+</body></html>

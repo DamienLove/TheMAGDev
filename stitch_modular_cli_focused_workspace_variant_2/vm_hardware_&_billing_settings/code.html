@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VM Hardware &amp; Billing Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1337ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101322",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark font-display overflow-x-hidden text-slate-900 dark:text-white">
+<!-- Top Navigation -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-[#282b39] bg-white dark:bg-[#111218] px-10 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<div class="size-8 text-primary">
+<svg class="w-full h-full" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M44 11.2727C44 14.0109 39.8386 16.3957 33.69 17.6364C39.8386 18.877 44 21.2618 44 24C44 26.7382 39.8386 29.123 33.69 30.3636C39.8386 31.6043 44 33.9891 44 36.7273C44 40.7439 35.0457 44 24 44C12.9543 44 4 40.7439 4 36.7273C4 33.9891 8.16144 31.6043 14.31 30.3636C8.16144 29.123 4 26.7382 4 24C4 21.2618 8.16144 18.877 14.31 17.6364C8.16144 16.3957 4 14.0109 4 11.2727C4 7.25611 12.9543 4 24 4C35.0457 4 44 7.25611 44 11.2727Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">CloudIDE</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<div class="hidden md:flex items-center gap-9">
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Projects</a>
+<a class="text-sm font-medium leading-normal text-primary" href="#">Settings</a>
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Docs</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary hover:bg-primary/90 transition-colors text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Deploy Changes</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-slate-200 dark:border-slate-700" data-alt="User avatar profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDdjDNKT1q4SOkDlswiP9Svyfhtc6ag-iFz8eaZeE2D7CGeGVvuLjof1p888hGbMl-qI8zErmy0V_pJkF142C2YSpbrXBA_ZVSxiHb3L6WBIe6_6zvcRUiztEOLYf0KlaQ3pVacB4HoyBquPCO4nvwQfenYhFg6gcJIFWpBM5oWOf9g49zd1Zo2p9lYaaTJTHJZWQ9qcdx1O6ZSyVQ5tLGjU_QEZC6tAuM6BErkZieWafoq2F5NLqQQAbfoHY11ynJNM4FST0ApDyw");'></div>
+</div>
+</div>
+</header>
+<div class="layout-container flex h-full grow flex-col">
+<div class="px-4 md:px-10 lg:px-40 flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1 pb-20">
+<!-- Page Heading -->
+<div class="flex flex-wrap justify-between gap-3 p-4">
+<div class="flex min-w-72 flex-col gap-3">
+<h1 class="text-4xl font-black leading-tight tracking-[-0.033em]">Hardware &amp; Billing</h1>
+<p class="text-slate-500 dark:text-[#9da1b9] text-base font-normal leading-normal">Configure your Virtual Machine resources and manage subscription tiers.</p>
+</div>
+</div>
+<!-- Status Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4">
+<div class="flex flex-1 gap-3 rounded-lg border border-slate-200 dark:border-[#3b3f54] bg-white dark:bg-[#1c1d27] p-4 items-center shadow-sm">
+<div class="text-primary" data-icon="Circle" data-size="24px" data-weight="regular">
+<span class="material-symbols-outlined">stop_circle</span>
+</div>
+<h2 class="text-base font-bold leading-tight">Status: Stopped</h2>
+</div>
+<div class="flex flex-1 gap-3 rounded-lg border border-slate-200 dark:border-[#3b3f54] bg-white dark:bg-[#1c1d27] p-4 items-center shadow-sm">
+<div class="text-primary" data-icon="GlobeSimple" data-size="24px" data-weight="regular">
+<span class="material-symbols-outlined">public</span>
+</div>
+<h2 class="text-base font-bold leading-tight">Region: US-East-1</h2>
+</div>
+<div class="flex flex-1 gap-3 rounded-lg border border-slate-200 dark:border-[#3b3f54] bg-white dark:bg-[#1c1d27] p-4 items-center shadow-sm">
+<div class="text-primary" data-icon="WifiHigh" data-size="24px" data-weight="regular">
+<span class="material-symbols-outlined">wifi</span>
+</div>
+<h2 class="text-base font-bold leading-tight">IP: 192.168.1.1</h2>
+</div>
+</div>
+<!-- Compute Configuration Section -->
+<h2 class="text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-8">Compute Configuration</h2>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4">
+<!-- Sliders Column -->
+<div class="lg:col-span-2 flex flex-col gap-6 rounded-xl border border-slate-200 dark:border-[#3b3f54] bg-white dark:bg-[#1c1d27] p-6 shadow-sm">
+<!-- vCPU Slider -->
+<div class="@container">
+<div class="relative flex w-full flex-col items-start justify-between gap-4">
+<div class="flex justify-between w-full">
+<label class="text-base font-bold leading-normal flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400">memory</span>
+                                        vCPU Cores
+                                    </label>
+<span class="text-primary font-bold bg-primary/10 px-2 py-1 rounded text-sm">8 Cores</span>
+</div>
+<div class="flex h-[38px] w-full pt-1.5 px-2">
+<div class="relative flex h-2 w-full items-center rounded-full bg-slate-200 dark:bg-[#3b3f54]">
+<!-- Track -->
+<div class="absolute h-full rounded-full bg-primary" style="width: 25%;"></div>
+<!-- Thumb -->
+<div class="absolute flex flex-col items-center gap-1 top-1/2 -translate-y-1/2" style="left: 25%;">
+<div class="size-5 rounded-full bg-white border-4 border-primary shadow-lg cursor-pointer hover:scale-110 transition-transform"></div>
+</div>
+<!-- Labels -->
+<div class="absolute -bottom-8 left-0 text-xs text-slate-400 font-medium">2</div>
+<div class="absolute -bottom-8 right-0 text-xs text-slate-400 font-medium">32</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RAM Slider -->
+<div class="@container mt-4">
+<div class="relative flex w-full flex-col items-start justify-between gap-4">
+<div class="flex justify-between w-full">
+<label class="text-base font-bold leading-normal flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400">storage</span>
+                                        RAM (Memory)
+                                    </label>
+<span class="text-primary font-bold bg-primary/10 px-2 py-1 rounded text-sm">16 GB</span>
+</div>
+<div class="flex h-[38px] w-full pt-1.5 px-2">
+<div class="relative flex h-2 w-full items-center rounded-full bg-slate-200 dark:bg-[#3b3f54]">
+<!-- Track -->
+<div class="absolute h-full rounded-full bg-primary" style="width: 40%;"></div>
+<!-- Thumb -->
+<div class="absolute flex flex-col items-center gap-1 top-1/2 -translate-y-1/2" style="left: 40%;">
+<div class="size-5 rounded-full bg-white border-4 border-primary shadow-lg cursor-pointer hover:scale-110 transition-transform"></div>
+</div>
+<!-- Labels -->
+<div class="absolute -bottom-8 left-0 text-xs text-slate-400 font-medium">4GB</div>
+<div class="absolute -bottom-8 right-0 text-xs text-slate-400 font-medium">128GB</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Disk Slider -->
+<div class="@container mt-4">
+<div class="relative flex w-full flex-col items-start justify-between gap-4">
+<div class="flex justify-between w-full">
+<label class="text-base font-bold leading-normal flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400">hard_drive</span>
+                                        Disk Space (NVMe)
+                                    </label>
+<span class="text-primary font-bold bg-primary/10 px-2 py-1 rounded text-sm">500 GB</span>
+</div>
+<div class="flex h-[38px] w-full pt-1.5 px-2">
+<div class="relative flex h-2 w-full items-center rounded-full bg-slate-200 dark:bg-[#3b3f54]">
+<!-- Track -->
+<div class="absolute h-full rounded-full bg-primary" style="width: 25%;"></div>
+<!-- Thumb -->
+<div class="absolute flex flex-col items-center gap-1 top-1/2 -translate-y-1/2" style="left: 25%;">
+<div class="size-5 rounded-full bg-white border-4 border-primary shadow-lg cursor-pointer hover:scale-110 transition-transform"></div>
+</div>
+<!-- Labels -->
+<div class="absolute -bottom-8 left-0 text-xs text-slate-400 font-medium">50GB</div>
+<div class="absolute -bottom-8 right-0 text-xs text-slate-400 font-medium">2TB</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Cost Calculator Card -->
+<div class="flex flex-col rounded-xl bg-slate-900 dark:bg-[#000000] p-6 shadow-lg border border-slate-700 dark:border-slate-800 relative overflow-hidden group">
+<!-- Abstract Background Decoration -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
+<div class="relative z-10 flex flex-col h-full justify-between">
+<div>
+<h3 class="text-white/60 text-sm font-medium uppercase tracking-wider mb-1">Estimated Cost</h3>
+<div class="flex items-baseline gap-1 mt-2">
+<span class="text-4xl font-bold text-white">$0.12</span>
+<span class="text-lg text-white/60 font-medium">/ hour</span>
+</div>
+<div class="text-sm text-primary font-medium mt-1">Approx. $86.40 / month</div>
+</div>
+<div class="my-6 border-t border-white/10"></div>
+<div class="space-y-3">
+<div class="flex justify-between text-sm">
+<span class="text-white/60">Base Instance</span>
+<span class="text-white font-medium">$0.04</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-white/60">vCPU (8)</span>
+<span class="text-white font-medium">$0.04</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-white/60">RAM (16GB)</span>
+<span class="text-white font-medium">$0.02</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-white/60">Storage (500GB)</span>
+<span class="text-white font-medium">$0.02</span>
+</div>
+</div>
+<div class="mt-6 p-3 bg-white/5 rounded-lg flex items-start gap-2">
+<span class="material-symbols-outlined text-white/50 text-sm mt-0.5">info</span>
+<p class="text-xs text-white/50 leading-relaxed">
+                                    Costs are only incurred while the VM status is "Running". Stopped instances only incur storage costs.
+                                </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Subscription Tiers -->
+<h2 class="text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-8">Subscription Plans</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+<!-- Free Tier -->
+<div class="flex flex-col p-6 rounded-xl border border-slate-200 dark:border-[#3b3f54] bg-white dark:bg-[#1c1d27] hover:border-slate-300 dark:hover:border-slate-500 transition-colors">
+<div class="mb-4">
+<h3 class="text-xl font-bold mb-1">Free</h3>
+<p class="text-slate-500 dark:text-[#9da1b9] text-sm">Perfect for hobbyists and students.</p>
+</div>
+<div class="text-3xl font-bold mb-6">$0<span class="text-base font-normal text-slate-500 dark:text-[#9da1b9]">/mo</span></div>
+<ul class="space-y-3 mb-8 flex-1">
+<li class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-green-500 text-lg">check_circle</span>
+                                2 vCPU Limit
+                            </li>
+<li class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-green-500 text-lg">check_circle</span>
+                                4GB RAM Cap
+                            </li>
+<li class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-green-500 text-lg">check_circle</span>
+                                Standard Support
+                            </li>
+<li class="flex items-center gap-3 text-sm text-slate-400">
+<span class="material-symbols-outlined text-slate-600 text-lg">cancel</span>
+                                AI Copilot
+                            </li>
+</ul>
+<button class="w-full py-2 px-4 rounded-lg border border-slate-300 dark:border-slate-600 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Current Plan</button>
+</div>
+<!-- Pro Tier (Selected) -->
+<div class="flex flex-col p-6 rounded-xl border-2 border-primary bg-slate-50 dark:bg-[#151725] relative overflow-hidden shadow-xl shadow-primary/10">
+<div class="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-lg">POPULAR</div>
+<div class="mb-4">
+<h3 class="text-xl font-bold mb-1 text-primary">Pro</h3>
+<p class="text-slate-500 dark:text-[#9da1b9] text-sm">For professional developers.</p>
+</div>
+<div class="text-3xl font-bold mb-6">$29<span class="text-base font-normal text-slate-500 dark:text-[#9da1b9]">/mo</span></div>
+<ul class="space-y-3 mb-8 flex-1">
+<li class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                                Unlocked Scaling
+                            </li>
+<li class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                                Priority Builds
+                            </li>
+<li class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                                AI Copilot Included
+                            </li>
+<li class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                                Advanced Analytics
+                            </li>
+</ul>
+<button class="w-full py-2 px-4 rounded-lg bg-primary text-white font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/25">Upgrade to Pro</button>
+</div>
+<!-- Enterprise Tier -->
+<div class="flex flex-col p-6 rounded-xl border border-slate-200 dark:border-[#3b3f54] bg-white dark:bg-[#1c1d27] hover:border-slate-300 dark:hover:border-slate-500 transition-colors">
+<div class="mb-4">
+<h3 class="text-xl font-bold mb-1">Enterprise</h3>
+<p class="text-slate-500 dark:text-[#9da1b9] text-sm">For teams requiring security.</p>
+</div>
+<div class="text-3xl font-bold mb-6">$99<span class="text-base font-normal text-slate-500 dark:text-[#9da1b9]">/mo</span></div>
+<ul class="space-y-3 mb-8 flex-1">
+<li class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-green-500 text-lg">check_circle</span>
+                                VPC Peering
+                            </li>
+<li class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-green-500 text-lg">check_circle</span>
+                                SSO (SAML/OIDC)
+                            </li>
+<li class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-green-500 text-lg">check_circle</span>
+                                Dedicated Instances
+                            </li>
+<li class="flex items-center gap-3 text-sm">
+<span class="material-symbols-outlined text-green-500 text-lg">check_circle</span>
+                                24/7 Phone Support
+                            </li>
+</ul>
+<button class="w-full py-2 px-4 rounded-lg border border-slate-300 dark:border-slate-600 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Contact Sales</button>
+</div>
+</div>
+<!-- Footer Action Bar -->
+<div class="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-[#111218]/80 backdrop-blur-md border-t border-slate-200 dark:border-[#282b39] flex justify-center z-40">
+<div class="flex gap-4 w-full max-w-[960px] justify-end">
+<button class="px-6 py-2 rounded-lg font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                            Cancel
+                        </button>
+<button class="px-6 py-2 rounded-lg bg-primary text-white font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">save</span>
+                            Save Configuration
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

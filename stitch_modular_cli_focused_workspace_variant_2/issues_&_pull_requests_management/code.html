@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Issues &amp; Pull Requests - IDE Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1337ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101322",
+                        "surface-dark": "#18181b", // Slightly lighter for panes
+                        "surface-hover": "#282b39",
+                        "border-color": "#282b39",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                        "mono": ["monospace"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for a cleaner IDE look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111218; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #282b39; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3f4356; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="shrink-0 flex items-center justify-between whitespace-nowrap border-b border-solid border-border-color bg-[#111218] px-6 py-3">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-white">
+<div class="size-6 text-primary">
+<span class="material-symbols-outlined text-3xl">terminal</span>
+</div>
+<h2 class="text-white text-lg font-bold leading-tight tracking-[-0.015em]">IDE Studio</h2>
+</div>
+<!-- Context Navigation -->
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-[#9da1b9] hover:text-white text-sm font-medium transition-colors" href="#">Code</a>
+<a class="text-white text-sm font-medium transition-colors border-b-2 border-primary py-4" href="#">Issues</a>
+<a class="text-[#9da1b9] hover:text-white text-sm font-medium transition-colors" href="#">Pull Requests</a>
+<a class="text-[#9da1b9] hover:text-white text-sm font-medium transition-colors" href="#">Actions</a>
+<a class="text-[#9da1b9] hover:text-white text-sm font-medium transition-colors" href="#">Projects</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<!-- Global Search -->
+<label class="hidden lg:flex flex-col min-w-40 h-9 w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-[#1e2029] border border-[#282b39] focus-within:border-primary/50 transition-colors">
+<div class="text-[#9da1b9] flex items-center justify-center pl-3">
+<span class="material-symbols-outlined text-[18px]">search</span>
+</div>
+<input class="flex w-full min-w-0 flex-1 bg-transparent text-white focus:outline-none placeholder:text-[#9da1b9] px-3 text-sm" placeholder="Search..."/>
+<div class="text-[#9da1b9] flex items-center justify-center pr-3 text-xs font-mono border-l border-[#282b39] pl-2 my-1">
+                        ⌘K
+                    </div>
+</div>
+</label>
+<div class="flex gap-2">
+<button class="flex size-9 items-center justify-center rounded-lg bg-[#282b39] text-white hover:bg-[#323648] transition-colors">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="flex size-9 items-center justify-center rounded-lg bg-[#282b39] text-white hover:bg-[#323648] transition-colors">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-9 ml-2 border border-[#282b39]" data-alt="User Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAGTsZH-6PNOgiXIcjerKD7X0c54WV0SXUkpRv39LiMc1z1ntyrlRTS7Yw2Pj9tSy5IdnIhutiYzzdCNad8Ncwdr8okNuERWWJ8ZGb8VVyDAHmyXgdYVYi6mg0M-xmYiiC31dtyQ3wTYR8BdVVjc1puHmsr45iQNl5s0AU3YKRP8wK1MqCiml56xGRcuzgxndGvsoKRquy__IKGlwAMMNCS5BeemEp6wcZ9kX2f1Gn-SsXZx9VGoKXoYgKt9aETx2IF6OpKwtigkwM");'></div>
+</div>
+</div>
+</header>
+<!-- Main Content: Three Pane Layout -->
+<div class="flex flex-1 overflow-hidden">
+<!-- Left Pane: List View -->
+<aside class="w-80 lg:w-96 flex flex-col border-r border-border-color bg-[#111218] shrink-0">
+<!-- Toolbar -->
+<div class="p-3 border-b border-border-color flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<h3 class="text-white text-sm font-bold">Issues</h3>
+<button class="text-xs text-primary font-medium hover:underline">View all</button>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#9da1b9] text-[18px]">filter_list</span>
+<input class="w-full bg-[#1e2029] border border-[#282b39] rounded-lg py-1.5 pl-9 pr-3 text-sm text-white placeholder:text-[#9da1b9] focus:outline-none focus:border-primary/50" placeholder="Filter issues..."/>
+</div>
+<!-- Chips -->
+<div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+<button class="flex shrink-0 items-center gap-1 rounded bg-primary/20 px-2 py-1 text-xs font-medium text-primary border border-primary/20">
+<span>Open</span>
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+<button class="flex shrink-0 items-center gap-1 rounded bg-[#282b39] px-2 py-1 text-xs font-medium text-[#9da1b9] hover:text-white transition-colors">
+<span>Assigned to me</span>
+</button>
+<button class="flex shrink-0 items-center gap-1 rounded bg-[#282b39] px-2 py-1 text-xs font-medium text-[#9da1b9] hover:text-white transition-colors">
+<span>Created by me</span>
+</button>
+</div>
+</div>
+<!-- List Items -->
+<div class="flex-1 overflow-y-auto">
+<!-- Active Item -->
+<div class="group flex cursor-pointer flex-col gap-1 border-l-[3px] border-primary bg-surface-hover/50 p-4 hover:bg-surface-hover transition-colors">
+<div class="flex items-start justify-between gap-2">
+<h4 class="text-sm font-medium text-white line-clamp-2">Refactor Login Sequence for iOS</h4>
+<span class="shrink-0 text-xs text-[#9da1b9]">2h</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-[#9da1b9]">
+<span class="flex items-center text-green-400 gap-1"><span class="material-symbols-outlined text-[14px] fill-current">adjust</span> #402</span>
+<span>•</span>
+<span class="flex items-center gap-1"><img class="size-4 rounded-full" data-alt="user avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUuuzNAb7e2GuVKfJsID2rw61jXdfFjlAcL325uSZb80MTN2m9s5Oh51gqrOseTLrcGUz6QgRZUIdiS9NtEZWSDfM2hyR6csE7otJ-6DKIS4Ik_kJ_bS3He5VIXhr_NOyAz9zxeZHRjQmp48ap4AI4WPD7f5LfwmoLWkl-ykZgSmwaG6RGwoyWGFivmBWb1KoaM322TJLQ9I7XHy0bMfg-ooRfYIO4eoDizSnS9WOHqIMt2ojlabJsEIc_a5xQEG5ubzbfVbYqpHw"/> jdoe</span>
+</div>
+<div class="mt-2 flex gap-1">
+<span class="rounded px-1.5 py-0.5 text-[10px] font-medium bg-red-500/10 text-red-400 border border-red-500/20">Bug</span>
+<span class="rounded px-1.5 py-0.5 text-[10px] font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">High Priority</span>
+</div>
+</div>
+<!-- Inactive Item 1 -->
+<div class="group flex cursor-pointer flex-col gap-1 border-l-[3px] border-transparent border-b border-border-color/30 p-4 hover:bg-surface-hover/30 transition-colors">
+<div class="flex items-start justify-between gap-2">
+<h4 class="text-sm font-medium text-[#e4e4e7] line-clamp-2">Fix Android Build failure on CI</h4>
+<span class="shrink-0 text-xs text-[#9da1b9]">5h</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-[#9da1b9]">
+<span class="flex items-center text-green-400 gap-1"><span class="material-symbols-outlined text-[14px] fill-current">adjust</span> #401</span>
+<span>•</span>
+<span class="flex items-center gap-1"><img class="size-4 rounded-full" data-alt="user avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmyfFZow13JCM-dJEy5dFAtRTxdsPG902kSC_MFtPwYojIJnDfA_lvllp2TBkg1KnTrwvlPS34JOsrzAlm5iGiguzXZ9ersxomJr-hLOBA7DKwTvSrLcuk3AOa4XPJ5C_Lp5OIHAS6L6uCO8n3fiftomN7xvomP5TsrStvmBVsj9Z_cn8CRKVEcOuFvfEN8L-ixCfef7fF0eEWSSDH3jpPXCcqdjBDSYBsKrXvK_32JSNyuSmvP9tMqytWPUVro0sfXFESZgND2Dg"/> sarah_dev</span>
+</div>
+</div>
+<!-- Inactive Item 2 -->
+<div class="group flex cursor-pointer flex-col gap-1 border-l-[3px] border-transparent border-b border-border-color/30 p-4 hover:bg-surface-hover/30 transition-colors">
+<div class="flex items-start justify-between gap-2">
+<h4 class="text-sm font-medium text-[#e4e4e7] line-clamp-2">Update API keys for Stripe integration in Production environment</h4>
+<span class="shrink-0 text-xs text-[#9da1b9]">1d</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-[#9da1b9]">
+<span class="flex items-center text-purple-400 gap-1"><span class="material-symbols-outlined text-[14px] fill-current">check_circle</span> #399</span>
+<span>•</span>
+<span class="flex items-center gap-1"><img class="size-4 rounded-full" data-alt="user avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxHCEqH-PawOL5HyHagGmAyk7S6fD4NCZz6bUsq9QXqFBe6BSt7zSe5qNIj7AAYlvjkQFRuZK63rWC5fobp7NnFculTFBTNUCt_itjKjI8yNR996Rx4QwzeHtzl9N1fOGmlSTWyU-xLCWs6AN8VQuIUAcJWH1cI92UyvqP4IIaC_8oQKGz7xiJs2YPVctPfkyXrCnivx07oQZIgvUEW_0MfmHS3C6M-x71yL-inn_BCPtKOubB6giS0bFMX8d8T3q7L6uIjf1hfAo"/> mike_r</span>
+</div>
+<div class="mt-2 flex gap-1">
+<span class="rounded px-1.5 py-0.5 text-[10px] font-medium bg-gray-500/10 text-gray-400 border border-gray-500/20">Chore</span>
+</div>
+</div>
+<!-- Inactive Item 3 -->
+<div class="group flex cursor-pointer flex-col gap-1 border-l-[3px] border-transparent border-b border-border-color/30 p-4 hover:bg-surface-hover/30 transition-colors">
+<div class="flex items-start justify-between gap-2">
+<h4 class="text-sm font-medium text-[#e4e4e7] line-clamp-2">Optimize image loading on dashboard</h4>
+<span class="shrink-0 text-xs text-[#9da1b9]">2d</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-[#9da1b9]">
+<span class="flex items-center text-green-400 gap-1"><span class="material-symbols-outlined text-[14px] fill-current">adjust</span> #395</span>
+<span>•</span>
+<span class="flex items-center gap-1"><img class="size-4 rounded-full" data-alt="user avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCa3EM6KrVj1yOw_ejZo2Uzhkqsv7Yh4j-queydN0XIblZauZh73I5giDLPlWjwgya_sUzV3CYR5RBs8CwXgD2CpghBlDtsquxYcDsfu29Xiae3wi4FIaG6AvTKzqYyQdM7AoezPkp4VVHr5kzFgGuJC-O1Af0b2fBQv8zjj_wXWtjcRu-J-CaZCG8eYN7OMOWFQxUJsb7_QzaBcviK9NSdGKD1U7TNTs2XgUZFKVzuzVPuQplL2LNZ_YtuyOq1ecFfo2pP1-2hKQ4"/> alex_w</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Center Pane: Detailed View -->
+<main class="flex-1 flex flex-col min-w-0 bg-background-dark/50 relative">
+<!-- Detail Header -->
+<div class="shrink-0 border-b border-border-color p-5 flex items-start justify-between bg-[#111218]/80 backdrop-blur-sm z-10 sticky top-0">
+<div class="flex flex-col gap-3 flex-1 min-w-0 mr-4">
+<div class="flex items-center gap-3 text-sm text-[#9da1b9]">
+<span class="font-mono">frontend/ios-app</span>
+<span class="text-[#282b39]">/</span>
+<span class="font-mono">#402</span>
+</div>
+<h1 class="text-2xl font-bold text-white leading-tight">Refactor Login Sequence for iOS</h1>
+<div class="flex items-center gap-3">
+<span class="flex items-center gap-1.5 rounded-full bg-green-500/10 px-2.5 py-1 text-xs font-medium text-green-400 border border-green-500/20">
+<span class="material-symbols-outlined text-[16px] fill-current">adjust</span> Open
+                        </span>
+<span class="text-sm text-[#9da1b9]">Opened by <strong class="text-white">jdoe</strong> 2 hours ago • 3 comments</span>
+</div>
+</div>
+<div class="flex gap-2 shrink-0">
+<button class="h-9 px-3 rounded-lg border border-[#282b39] bg-[#18181b] text-white text-sm font-medium hover:bg-[#282b39] transition-colors">Edit</button>
+<button class="h-9 px-3 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">New Issue</button>
+</div>
+</div>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-5 md:p-8 scroll-smooth">
+<div class="max-w-4xl mx-auto space-y-8">
+<!-- AI Insight Block -->
+<div class="rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 to-transparent p-4 relative overflow-hidden group/ai">
+<div class="absolute -right-4 -top-4 size-24 bg-primary/10 blur-3xl rounded-full pointer-events-none"></div>
+<div class="flex gap-3">
+<div class="shrink-0 mt-0.5 text-primary">
+<span class="material-symbols-outlined">auto_awesome</span>
+</div>
+<div class="space-y-2 flex-1">
+<div class="flex items-center justify-between">
+<h5 class="text-sm font-bold text-white">AI Insight</h5>
+<button class="text-[10px] uppercase tracking-wider text-primary font-bold hover:text-white transition-colors">Expand Analysis</button>
+</div>
+<p class="text-sm text-[#e4e4e7] leading-relaxed">
+                                    This issue suggests a significant refactor of the authentication module. 
+                                    <strong>Risk Level: Low.</strong> The proposed changes isolate platform-specific logic. 
+                                    Recommendation: Verify compatibility with the new OAuth2 flow introduced in <a class="text-primary hover:underline" href="#">#380</a>.
+                                </p>
+</div>
+</div>
+</div>
+<!-- Description -->
+<div class="prose prose-invert max-w-none">
+<p class="text-[#e4e4e7] text-base leading-relaxed">
+                            Currently, the iOS login sequence handles token refreshing directly within the view controller. This leads to code duplication and makes it hard to test.
+                        </p>
+<p class="text-[#e4e4e7] text-base leading-relaxed">
+                            We should move this logic to a shared `AuthManager` class that can be reused across the app.
+                        </p>
+<h3 class="text-lg font-bold text-white mt-6 mb-2">Proposed Changes</h3>
+<ul class="list-disc list-inside text-[#9da1b9] space-y-1">
+<li>Create `AuthManager` singleton.</li>
+<li>Migrate refresh token logic from `LoginViewController`.</li>
+<li>Add unit tests for the new manager.</li>
+</ul>
+<h3 class="text-lg font-bold text-white mt-6 mb-2">Code Snippet</h3>
+<div class="relative mt-2 rounded-lg bg-[#0d0e12] border border-[#282b39] p-4 font-mono text-sm overflow-x-auto">
+<button class="absolute right-2 top-2 rounded p-1 text-[#9da1b9] hover:bg-[#282b39] hover:text-white">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+<pre class="text-[#a1a1aa]"><span class="text-purple-400">class</span> <span class="text-yellow-200">AuthManager</span> {
+    <span class="text-purple-400">static let</span> shared = <span class="text-yellow-200">AuthManager</span>()
+    
+    <span class="text-purple-400">func</span> <span class="text-blue-400">refreshToken</span>() <span class="text-purple-400">async throws</span> -&gt; <span class="text-yellow-200">String</span> {
+        <span class="text-gray-500">// TODO: Implementation details</span>
+    }
+}</pre>
+</div>
+</div>
+<!-- Timeline Divider -->
+<div class="relative py-4">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-[#282b39]"></div>
+</div>
+<div class="relative flex justify-center">
+<span class="bg-background-dark px-2 text-xs text-[#9da1b9]">Activity</span>
+</div>
+</div>
+<!-- Comment 1 -->
+<div class="flex gap-4">
+<img class="size-8 rounded-full border border-[#282b39]" data-alt="Commenter Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBin50QZpz-FaL80gdeZrdMp31xX9CY4hWoAQjFSpXMhkBJYXxLXxI4GwPOi6r1o_ovb7bH5myiA-sDszHiLA1GTVA4quxwCAa3AC14Qi5p7yxmfB25JPfyCqXhE81eh9wA6d-KNJgE3yrL0OOel9AEB_0XTRfT4hnM52tqz1sMBL1BKKlUoVx6D21FctXAhWLBYfBccRPO9oAN0mGFCWjf26PPgjtAgrvyfilsU-NjFkKMl8bLB1A1UUnXkQCI9fq8AY6WYXUZvew"/>
+<div class="flex-1 rounded-lg border border-[#282b39] bg-[#18181b] overflow-hidden">
+<div class="flex items-center justify-between bg-[#1e2029] px-4 py-2 border-b border-[#282b39]">
+<div class="flex items-center gap-2">
+<span class="text-sm font-bold text-white">mike_r</span>
+<span class="text-xs text-[#9da1b9]">commented 1 hour ago</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="rounded p-1 text-[#9da1b9] hover:text-white"><span class="material-symbols-outlined text-[16px]">mood</span></button>
+</div>
+</div>
+<div class="p-4 text-sm text-[#e4e4e7]">
+                                Looks good. Does this affect the Android implementation as well, or is that already separated?
+                            </div>
+</div>
+</div>
+<!-- Timeline Event -->
+<div class="flex gap-4 pl-12 items-center my-2">
+<div class="size-6 rounded-full bg-[#282b39] flex items-center justify-center text-[#9da1b9]">
+<span class="material-symbols-outlined text-[14px]">label</span>
+</div>
+<div class="text-sm text-[#9da1b9]">
+<strong class="text-white">jdoe</strong> added the <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-500/10 text-red-400 border border-red-500/20">Bug</span> label
+                        </div>
+</div>
+<!-- Comment Input -->
+<div class="flex gap-4 pt-4">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-8 border border-[#282b39]" data-alt="Current User Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAirOaN2bEymykUYzvN9gKKzgFte8sr0zoEa9KysB4cSgJunRm-BnxxsB99b2hijuQ__cUbq7X7SA0BaCXcPWUaTozPxImY0YjZ0WbBgrvbSu29Esv8PZvYG-RsnLQKLAidG1hmJFkOmyFkxCL3vp1yrgzdNBe04uawFH8JCQHeC2WpywvdG6FZWsgMtg_Ia6SfGSC8P70dyRymFBmM7LIsm87T_yq6O6plLYEwLB7z286J4YPvHyNGRAYL5NW0Q-9bHomUuHYoccA");'></div>
+<div class="flex-1 rounded-lg border border-[#282b39] bg-[#18181b] focus-within:ring-1 focus-within:ring-primary/50 transition-shadow">
+<div class="flex items-center gap-1 border-b border-[#282b39] p-2">
+<button class="rounded p-1.5 text-[#9da1b9] hover:bg-[#282b39] hover:text-white transition-colors"><span class="material-symbols-outlined text-[18px]">format_bold</span></button>
+<button class="rounded p-1.5 text-[#9da1b9] hover:bg-[#282b39] hover:text-white transition-colors"><span class="material-symbols-outlined text-[18px]">format_italic</span></button>
+<button class="rounded p-1.5 text-[#9da1b9] hover:bg-[#282b39] hover:text-white transition-colors"><span class="material-symbols-outlined text-[18px]">code</span></button>
+<button class="rounded p-1.5 text-[#9da1b9] hover:bg-[#282b39] hover:text-white transition-colors"><span class="material-symbols-outlined text-[18px]">link</span></button>
+<div class="w-px h-4 bg-[#282b39] mx-1"></div>
+<button class="rounded p-1.5 text-primary hover:bg-primary/10 transition-colors flex items-center gap-1 text-xs font-medium px-2">
+<span class="material-symbols-outlined text-[16px]">auto_awesome</span> AI Draft
+                                </button>
+</div>
+<textarea class="w-full bg-transparent p-4 text-sm text-white placeholder:text-[#9da1b9] focus:outline-none resize-none" placeholder="Leave a comment" rows="4"></textarea>
+<div class="flex justify-end p-2 gap-2">
+<button class="px-3 py-1.5 text-xs font-medium text-white hover:bg-[#282b39] rounded transition-colors">Close Issue</button>
+<button class="px-3 py-1.5 text-xs font-bold text-white bg-primary hover:bg-primary/90 rounded transition-colors">Comment</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Right Pane: Metadata Sidebar -->
+<aside class="w-72 hidden xl:flex flex-col border-l border-border-color bg-[#111218] overflow-y-auto">
+<!-- Section: Assignees -->
+<div class="p-4 border-b border-border-color/50">
+<div class="flex items-center justify-between mb-2 group cursor-pointer">
+<h4 class="text-xs font-bold text-[#9da1b9] uppercase tracking-wider group-hover:text-white transition-colors">Assignees</h4>
+<span class="material-symbols-outlined text-[#9da1b9] text-[16px] group-hover:text-white">settings</span>
+</div>
+<div class="flex items-center gap-2 mb-2 p-1 hover:bg-[#282b39] rounded cursor-pointer transition-colors">
+<img class="size-5 rounded-full" data-alt="Assignee Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFTirhWSCsnoSlw_wAByynO9gLj7kMY9CCHML218wM7bBK3mJiQbpD77CrqseWhesV5xLetxGkMBItDUUIWFLEBNzcUoF8vLsgJPhE1MqxpdUtzkmcEm6kAV0KjAJ8HYxRDsDv8jTDqX3be3iDlSIQpwFH_mvAsRh3VurWCUVJdsZCuCh5G3BbLJjSU93MyomWlClYWz_wIrtx830rltWuYYwJK6JGYLlO-r_cy5_8ces4Lb-LaH9ulLcDls9zWTuE7e9IlZp1_A8"/>
+<span class="text-sm text-white">jdoe</span>
+</div>
+<button class="text-xs text-[#9da1b9] hover:text-primary flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px]">add</span> Assign yourself
+                </button>
+</div>
+<!-- Section: Labels -->
+<div class="p-4 border-b border-border-color/50">
+<div class="flex items-center justify-between mb-3 group cursor-pointer">
+<h4 class="text-xs font-bold text-[#9da1b9] uppercase tracking-wider group-hover:text-white transition-colors">Labels</h4>
+<span class="material-symbols-outlined text-[#9da1b9] text-[16px] group-hover:text-white">settings</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<button class="flex items-center gap-1 rounded-full bg-red-500/10 px-2.5 py-0.5 text-xs font-medium text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors">
+                        Bug
+                    </button>
+<button class="flex items-center gap-1 rounded-full bg-blue-500/10 px-2.5 py-0.5 text-xs font-medium text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-colors">
+                        High Priority
+                    </button>
+</div>
+</div>
+<!-- Section: Projects -->
+<div class="p-4 border-b border-border-color/50">
+<div class="flex items-center justify-between mb-2 group cursor-pointer">
+<h4 class="text-xs font-bold text-[#9da1b9] uppercase tracking-wider group-hover:text-white transition-colors">Projects</h4>
+<span class="material-symbols-outlined text-[#9da1b9] text-[16px] group-hover:text-white">settings</span>
+</div>
+<div class="text-sm text-[#9da1b9]">None yet</div>
+</div>
+<!-- Section: Milestone -->
+<div class="p-4 border-b border-border-color/50">
+<div class="flex items-center justify-between mb-2 group cursor-pointer">
+<h4 class="text-xs font-bold text-[#9da1b9] uppercase tracking-wider group-hover:text-white transition-colors">Milestone</h4>
+<span class="material-symbols-outlined text-[#9da1b9] text-[16px] group-hover:text-white">settings</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-[#9da1b9]">flag</span>
+<div class="w-full">
+<div class="flex justify-between text-xs mb-1">
+<span class="text-white font-medium">v2.0 Release</span>
+<span class="text-[#9da1b9]">84%</span>
+</div>
+<div class="h-1.5 w-full bg-[#282b39] rounded-full overflow-hidden">
+<div class="h-full bg-green-500 w-[84%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section: Reviewers -->
+<div class="p-4 border-b border-border-color/50">
+<div class="flex items-center justify-between mb-2 group cursor-pointer">
+<h4 class="text-xs font-bold text-[#9da1b9] uppercase tracking-wider group-hover:text-white transition-colors">Reviewers</h4>
+<span class="material-symbols-outlined text-[#9da1b9] text-[16px] group-hover:text-white">settings</span>
+</div>
+<div class="flex items-center gap-2 mb-2 p-1 hover:bg-[#282b39] rounded cursor-pointer transition-colors opacity-50">
+<img class="size-5 rounded-full grayscale" data-alt="Reviewer Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAijLpyXQ4Yqh2t1M3bDvKlZLlKeGuMtIi7-O6j9Fbh4mCZBkoYRUtZyWj4nxz6Wi0-YYgArRWeby8PlRFsOy-b9WxOUi51z02ClkgFsK57wru2AKN4dEBIbNaAZE4-DDdRMlvKHiDYfiD14CPa_7AkDNQiXpSKYe1xDtswn8TnG-g9xCWDgWRZMOYE6LR9EtWmYlU2Wj7QJu8mwTOI5I3Jf-yo3an7GZ7dLMWNMmE4996aX_TljTwFpKQgQLoa4PpyFNrU45gV2ZQ"/>
+<span class="text-sm text-[#9da1b9]">mike_r <span class="text-[10px] italic">(pending)</span></span>
+</div>
+</div>
+<div class="mt-auto p-4 text-xs text-[#525565] flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+<span>Lock conversation</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">push_pin</span>
+<span>Pin issue</span>
+</div>
+<div class="flex items-center gap-2 text-red-900/50 hover:text-red-500 cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+<span>Delete issue</span>
+</div>
+</div>
+</aside>
+</div>
+</body></html>

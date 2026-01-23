@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IDE Multi-Platform Build View</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1e293b",
+                        "accent-success": "#10b981",
+                        "accent-warning": "#f59e0b",
+                        "accent-error": "#ef4444",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for code editor */
+        .code-scroll::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .code-scroll::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .code-scroll::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden h-screen flex flex-col">
+<!-- Top Navigation -->
+<header class="bg-white dark:bg-[#111722] border-b border-slate-200 dark:border-slate-800 p-4 shrink-0 z-20">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="bg-primary/20 p-2 rounded-lg text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">terminal</span>
+</div>
+<div>
+<h1 class="text-lg font-bold leading-none tracking-tight">OmniApp</h1>
+<div class="flex items-center gap-1 mt-1 opacity-70">
+<span class="material-symbols-outlined text-[14px]">rebase</span>
+<span class="text-xs font-mono">feat/login-ui</span>
+</div>
+</div>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg">play_arrow</span>
+<span class="hidden sm:inline">Build All</span>
+</button>
+</div>
+<!-- Quick Chip Navigation -->
+<div class="flex gap-2 mt-4 overflow-x-auto pb-1 no-scrollbar">
+<div class="flex h-7 items-center justify-center gap-x-1.5 rounded-full bg-primary/20 px-3 border border-primary/30">
+<span class="material-symbols-outlined text-primary text-[16px]">tune</span>
+<p class="text-primary text-xs font-bold whitespace-nowrap">build.yaml</p>
+</div>
+<div class="flex h-7 items-center justify-center gap-x-1.5 rounded-full bg-slate-100 dark:bg-slate-800 px-3 border border-transparent dark:border-slate-700">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 text-[16px]">deployed_code</span>
+<p class="text-slate-600 dark:text-slate-300 text-xs font-medium whitespace-nowrap">Artifacts</p>
+</div>
+<div class="flex h-7 items-center justify-center gap-x-1.5 rounded-full bg-slate-100 dark:bg-slate-800 px-3 border border-transparent dark:border-slate-700">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 text-[16px]">history</span>
+<p class="text-slate-600 dark:text-slate-300 text-xs font-medium whitespace-nowrap">History</p>
+</div>
+</div>
+</header>
+<!-- Main Content Area: Split View -->
+<main class="flex-1 flex flex-col overflow-hidden relative">
+<!-- Top Half: Code Editor (Collapsible/Scrollable) -->
+<div class="shrink-0 max-h-[35vh] overflow-hidden flex flex-col bg-[#0f1115] border-b border-slate-700">
+<div class="flex items-center justify-between px-4 py-2 bg-[#1e293b] border-b border-slate-700/50">
+<span class="text-xs font-mono text-slate-400 flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px]">description</span>
+                    configuration: build.yaml
+                </span>
+<span class="text-[10px] text-accent-success uppercase font-bold tracking-wider flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-accent-success"></span>
+                    Saved
+                </span>
+</div>
+<div class="flex-1 overflow-auto p-4 code-scroll font-mono text-sm leading-relaxed">
+<div class="flex">
+<div class="flex flex-col text-slate-600 select-none pr-4 text-right border-r border-slate-700/50 mr-4">
+<span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span>
+</div>
+<div class="text-slate-300 whitespace-pre">
+<span class="text-pink-400">version:</span> <span class="text-emerald-400">1.2.0</span>
+<span class="text-pink-400">project_name:</span> <span class="text-emerald-400">"OmniApp"</span>
+<span class="text-blue-400">targets:</span>
+<span class="text-purple-400">-</span> <span class="text-pink-400">os:</span> <span class="text-yellow-300">ios</span>
+<span class="text-pink-400">version:</span> <span class="text-emerald-400">17.0</span>
+<span class="text-pink-400">signing:</span> <span class="text-emerald-400">auto</span>
+<span class="text-purple-400">-</span> <span class="text-pink-400">os:</span> <span class="text-yellow-300">android</span>
+<span class="text-pink-400">sdk:</span> <span class="text-emerald-400">34</span>
+<span class="text-pink-400">flavor:</span> <span class="text-emerald-400">prod</span>
+<span class="text-purple-400">-</span> <span class="text-pink-400">os:</span> <span class="text-yellow-300">windows</span>
+<span class="text-pink-400">arch:</span> <span class="text-emerald-400">x64</span>
+<span class="text-pink-400">msix:</span> <span class="text-emerald-400">true</span></div>
+</div>
+</div>
+</div>
+<!-- Bottom Half: Build Panel -->
+<div class="flex-1 bg-background-light dark:bg-background-dark overflow-hidden flex flex-col">
+<div class="px-4 py-3 flex items-center justify-between shrink-0">
+<h3 class="text-lg font-bold tracking-tight">Build Status</h3>
+<button class="p-1 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors text-slate-500">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto px-4 pb-24 space-y-3">
+<!-- Windows Card: Building -->
+<div class="bg-white dark:bg-[#1e293b] rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700/50 relative overflow-hidden group">
+<div class="absolute top-0 left-0 h-1 bg-accent-warning w-[45%] z-10 animate-pulse"></div>
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-[#0078D4]/10 flex items-center justify-center text-[#0078D4]">
+<span class="material-symbols-outlined">window</span>
+</div>
+<div>
+<h4 class="font-bold text-sm">Windows</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">Target: x64</p>
+</div>
+</div>
+<span class="px-2 py-1 rounded text-[10px] font-bold uppercase bg-accent-warning/10 text-accent-warning border border-accent-warning/20 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] animate-spin">refresh</span>
+                            Building
+                        </span>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs text-slate-500 font-mono">
+<span>Compiling modules...</span>
+<span>45%</span>
+</div>
+<div class="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-accent-warning rounded-full w-[45%]"></div>
+</div>
+<div class="pt-2 flex gap-2">
+<button class="flex-1 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-300 transition-colors">
+                                View Logs
+                            </button>
+<button class="px-3 py-1.5 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded transition-colors">
+                                Cancel
+                            </button>
+</div>
+</div>
+</div>
+<!-- Android Card: Success -->
+<div class="bg-white dark:bg-[#1e293b] rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700/50">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-[#3DDC84]/10 flex items-center justify-center text-[#3DDC84]">
+<span class="material-symbols-outlined">android</span>
+</div>
+<div>
+<h4 class="font-bold text-sm">Android</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">sdk: 34</p>
+</div>
+</div>
+<span class="px-2 py-1 rounded text-[10px] font-bold uppercase bg-accent-success/10 text-accent-success border border-accent-success/20 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">check_circle</span>
+                            Done
+                        </span>
+</div>
+<div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 dark:border-slate-700/50">
+<span class="text-xs text-slate-400">Duration: 2m 14s</span>
+<button class="flex items-center gap-1 text-xs font-bold text-primary hover:text-primary/80 transition-colors">
+<span class="material-symbols-outlined text-[16px]">download</span>
+                            Download APK
+                        </button>
+</div>
+</div>
+<!-- iOS Card: Ready/Queued -->
+<div class="bg-white dark:bg-[#1e293b] rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700/50 opacity-90">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-slate-500/10 flex items-center justify-center text-slate-500 dark:text-slate-300">
+<span class="material-symbols-outlined">phone_iphone</span>
+</div>
+<div>
+<h4 class="font-bold text-sm">iOS</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">v17.0</p>
+</div>
+</div>
+<span class="px-2 py-1 rounded text-[10px] font-bold uppercase bg-slate-500/10 text-slate-500 dark:text-slate-400 border border-slate-500/20 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">hourglass_empty</span>
+                            Ready
+                        </span>
+</div>
+<div class="mt-2 flex justify-end">
+<button class="text-xs font-bold text-primary hover:text-primary/80 transition-colors flex items-center gap-1 px-3 py-1.5 rounded-md bg-primary/10">
+<span class="material-symbols-outlined text-[14px]">rocket_launch</span>
+                            Deploy
+                        </button>
+</div>
+</div>
+<!-- MacOS Card: Queued -->
+<div class="bg-white dark:bg-[#1e293b] rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700/50 opacity-60">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-slate-500/10 flex items-center justify-center text-slate-500 dark:text-slate-300">
+<span class="material-symbols-outlined">laptop_mac</span>
+</div>
+<div>
+<h4 class="font-bold text-sm">macOS</h4>
+<p class="text-xs text-slate-500 dark:text-slate-400">Universal</p>
+</div>
+</div>
+<span class="px-2 py-1 rounded text-[10px] font-bold uppercase bg-slate-500/10 text-slate-500 dark:text-slate-400 border border-slate-500/20">
+                            Queued
+                        </span>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Action Button / Log Console Toggle -->
+<div class="absolute bottom-6 right-4 z-30">
+<button class="bg-[#1e293b] hover:bg-[#2a3855] text-white p-3 rounded-full shadow-lg border border-slate-700 flex items-center justify-center transition-all hover:scale-105 active:scale-95 group">
+<span class="material-symbols-outlined text-accent-warning animate-pulse absolute -top-1 -right-1 text-sm bg-[#1e293b] rounded-full">circle</span>
+<span class="material-symbols-outlined">terminal</span>
+</button>
+</div>
+<!-- Bottom Sheet (Log Console Preview) -->
+<div class="absolute bottom-0 w-full bg-[#0f1115] border-t border-slate-700/50 rounded-t-2xl shadow-2xl transform translate-y-[calc(100%-48px)] hover:translate-y-[calc(100%-120px)] transition-transform duration-300 ease-out z-20 cursor-pointer">
+<div class="w-12 h-1 bg-slate-600 rounded-full mx-auto my-3"></div>
+<div class="px-4 pb-2 border-b border-slate-800 flex justify-between items-center">
+<h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Live Terminal</h4>
+<div class="flex gap-2">
+<span class="w-2 h-2 rounded-full bg-accent-warning animate-pulse"></span>
+<span class="text-[10px] text-slate-500">Windows: Building...</span>
+</div>
+</div>
+<div class="p-4 font-mono text-xs text-slate-400 h-64 overflow-hidden relative">
+<div class="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-[#0f1115] to-transparent pointer-events-none"></div>
+<p>&gt; initiating build sequence...</p>
+<p class="text-green-500">&gt; [success] android artifact generated.</p>
+<p>&gt; [info] starting windows compilation (x64)</p>
+<p>&gt; linking libraries...</p>
+<p>&gt; checking dependencies...</p>
+<p class="text-yellow-500">&gt; [warn] potential overflow in module core.lib</p>
+<p>&gt; optimizing assets...</p>
+<p>&gt; compressing resources...</p>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Standard IDE style) -->
+<nav class="shrink-0 bg-[#111722] border-t border-slate-800 px-6 py-3 flex justify-between items-center z-40">
+<button class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300">
+<span class="material-symbols-outlined">code</span>
+<span class="text-[10px] font-medium">Code</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300">
+<span class="material-symbols-outlined">search</span>
+<span class="text-[10px] font-medium">Search</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary relative">
+<div class="absolute -top-1 -right-1 w-2 h-2 bg-accent-warning rounded-full"></div>
+<span class="material-symbols-outlined font-bold">build_circle</span>
+<span class="text-[10px] font-bold">Build</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-500 hover:text-slate-300">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-medium">Settings</span>
+</button>
+</nav>
+</body></html>

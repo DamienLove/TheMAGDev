@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Community Tutorials &amp; Guides</title>
+<!-- Google Fonts: Space Grotesk & Material Symbols -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                        "card-dark": "#182234",
+                        "card-darker": "#131b29",
+                        "text-secondary": "#90a4cb",
+                        "code-bg": "#0d1117",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for code blocks */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .syntax-keyword { color: #c678dd; }
+        .syntax-func { color: #61afef; }
+        .syntax-string { color: #98c379; }
+        .syntax-comment { color: #5c6370; font-style: italic; }
+        .syntax-tag { color: #e06c75; }
+        .syntax-attr { color: #d19a66; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-gray-100 dark:bg-black font-display antialiased selection:bg-primary/30 selection:text-white">
+<!-- Mobile Container Wrapper -->
+<div class="relative mx-auto flex h-full min-h-screen w-full max-w-md flex-col bg-background-light dark:bg-background-dark shadow-2xl overflow-hidden">
+<!-- Sticky Header -->
+<header class="sticky top-0 z-50 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-gray-200 dark:border-white/5 px-4 py-3 flex items-center justify-between">
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-800 dark:text-white">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="text-lg font-bold text-gray-900 dark:text-white tracking-tight">Knowledge Base</h1>
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-800 dark:text-white">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<!-- Main Scrollable Content -->
+<main class="flex-1 overflow-y-auto no-scrollbar pb-24">
+<!-- Search Bar -->
+<div class="px-4 py-4">
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-text-secondary group-focus-within:text-primary transition-colors">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-3 border-none rounded-xl bg-white dark:bg-card-dark text-gray-900 dark:text-white placeholder-text-secondary focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-card-darker transition-all shadow-sm" placeholder="Search guides, snippets, authors..." type="text"/>
+</div>
+</div>
+<!-- Filter Tabs -->
+<div class="px-4 pb-6 overflow-x-auto no-scrollbar">
+<div class="flex space-x-2">
+<button class="px-4 py-2 rounded-full bg-primary text-white text-sm font-bold shadow-lg shadow-primary/25 whitespace-nowrap">All</button>
+<button class="px-4 py-2 rounded-full bg-white dark:bg-card-dark text-text-secondary hover:text-gray-900 dark:hover:text-white text-sm font-medium border border-gray-200 dark:border-white/5 whitespace-nowrap transition-colors">Official Guides</button>
+<button class="px-4 py-2 rounded-full bg-white dark:bg-card-dark text-text-secondary hover:text-gray-900 dark:hover:text-white text-sm font-medium border border-gray-200 dark:border-white/5 whitespace-nowrap transition-colors">Community</button>
+<button class="px-4 py-2 rounded-full bg-white dark:bg-card-dark text-text-secondary hover:text-gray-900 dark:hover:text-white text-sm font-medium border border-gray-200 dark:border-white/5 whitespace-nowrap transition-colors">Snippets</button>
+</div>
+</div>
+<!-- Featured Guide -->
+<div class="px-4 mb-8">
+<div class="flex items-center justify-between mb-3">
+<h2 class="text-xl font-bold text-gray-900 dark:text-white">Featured</h2>
+<span class="text-xs font-medium text-primary cursor-pointer">View all</span>
+</div>
+<div class="group relative flex flex-col rounded-2xl bg-white dark:bg-card-dark shadow-md overflow-hidden transition-transform hover:scale-[1.02] active:scale-[0.98]">
+<div class="h-48 w-full bg-cover bg-center relative" data-alt="Code editor screen with dark theme syntax highlighting" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBNhfIVt4_B2xo_53jDzjZeOdsncQs75TdzYhsRUiXz5GiZovVK5LrgRiCNOIgjp2K_vn84p8KD9-pf3MgfL8o1mXsZMg4wp9smHFwjM7ahzS2yMBI_3qBlbPOeHIJRvBDwx1guFEahxBQIV6xmmX0lFWU1Lm17DsazvRNZk5M5PEmpO_iDYqsuGOZMozaPC1PDjkfnC70R9jnTu8UQxlguKhrCPZlkGVLuG20hCuU9qMFeEKUtVncKVSzemb_cTSJCGyJa-EzgxLrI');">
+<div class="absolute inset-0 bg-gradient-to-t from-card-dark via-transparent to-transparent opacity-90"></div>
+<div class="absolute top-3 right-3 bg-black/60 backdrop-blur-sm px-2 py-1 rounded text-xs font-bold text-white flex items-center gap-1 border border-white/10">
+<span class="material-symbols-outlined text-[14px] text-primary">verified</span> Official
+                        </div>
+</div>
+<div class="p-5 relative -mt-12">
+<div class="flex gap-2 mb-2">
+<span class="px-2 py-0.5 rounded bg-primary/20 text-primary text-xs font-bold border border-primary/20">Android</span>
+<span class="px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 text-xs font-bold border border-orange-500/20">Intermediate</span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 dark:text-white leading-tight mb-2">Optimizing Android Builds</h3>
+<p class="text-sm text-text-secondary line-clamp-2 mb-4">Learn how to reduce your build times by up to 50% using the new caching layer and Gradle daemon configuration.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 p-[1px]">
+<img alt="Author" class="h-full w-full rounded-full object-cover border-2 border-card-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClhmOhEY7H3_uIZ7ZtSNOW_7drGmBQcTOy9flCyxEA7dN05chesdYpC1yjRKDXgYI50nOUfRNOfnsJyqkwuL0nfsiNrhBP6st2TrMCu9ed9l-U61Rg1_0HWZXkJ-_I2ryBvWKVTzUmnsVFgtjKyMzCMY9lhQa6AS46GcB7OHt9lWncJOdcI1yzTlSLLYJ4uEyDycfwq0pbrmBKaaEiPojcvlY6v8aoZnjNGLOTOc6kiSraHoBVIcUdbRXSBlG22481yrbrO15USyHE"/>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-gray-900 dark:text-white">Alex Chen</span>
+<span class="text-[10px] text-text-secondary">IDE Team • 5 min read</span>
+</div>
+</div>
+<button class="p-2 rounded-full hover:bg-white/5 text-text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined">bookmark_border</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Guides Grid -->
+<div class="px-4 mb-8">
+<h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Newest Guides</h2>
+<div class="grid grid-cols-2 gap-4">
+<!-- Card 1 -->
+<div class="flex flex-col gap-2 group cursor-pointer">
+<div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-card-darker">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="React logo styling with neon glow" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAOerUcBR7GM12alSkT_JXcHiXucJLKGyWoEd0it3t47oQsuiQpTsEL3gRRu1_4xcbRqZ0zNK8p4U5zPc-F-dKKojYetan4OPnhSFJkR9HZrw0zCUghYSN4bgm9bEcJUwtDX7UEMdpmq1I2CG3zhVkcnkgq-23KfJDZWtwiMZEl0Ad0HTGprCGmDSESvE6j0MHrhZ6Z6bAiTDgepQVS3WbIbs31R63SiDQW93pbACuI8jqzk3EWLIn5tPQSKCB4iEMJKaKDYnRuCNOx');"></div>
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+</div>
+<div class="flex flex-col gap-1">
+<h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug line-clamp-2 group-hover:text-primary transition-colors">React Native Animation Basics</h4>
+<div class="flex items-center gap-1.5">
+<img alt="User" class="w-4 h-4 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgs_hC5MKGFx3BAG6TsLhcoF32aJQ9jpkr7znrxNV3Mq41KFY4sbBdO7xrL_canZlHW9q0efYBpteumEaYqTJYkqEPl_BLSd5LO4WkxhzYAMG1D3l4DlhT3gJmPatRsbmnhqII7KZVLVBrNgbSz_hFodAmwDs_ST1TQmn2Y0rjl18qvPWqYssr4cPoPjCDtq9CgYiTH1FRAg0MmkByubLWhpRaVNnt9mppu15B3gWIAZ6q67p0zg0Tt3-RE3s-EMBMCL8CbT4Zk5cN"/>
+<span class="text-xs text-text-secondary">@SarahCodes</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="flex flex-col gap-2 group cursor-pointer">
+<div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-card-darker">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="Server rack blue lights" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCENkbMTed_JQ0aX-ewrfZXZXIMO_oGesWLocuc8MwfiSrAOL-lHzzxW_mLlV6V_Yc-tqvmo_JK22lVxetRmYDMRi_zfhOhcwXGAvAws_1vFridsI7stXAFxGowO7VHSJuSyoSYdh8RyKQ6ba4kXf4ZrJ6XQiP8eXZweI2X7alMqleNWyTtm2oTJlLWCq42kTCCc3LQIkFZnfoIsXfblyxPmPNXlZrXqMI0L-JU8hezlBzNJny8GwTuesEipRiRR9AZ82cag8mSpd4Z');"></div>
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+</div>
+<div class="flex flex-col gap-1">
+<h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug line-clamp-2 group-hover:text-primary transition-colors">Deploying to AWS Lambda</h4>
+<div class="flex items-center gap-1.5">
+<img alt="User" class="w-4 h-4 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5leRjeKmao4PWT2KMtOwPGhwqdWTJb7cfNtbGsuL8L9MvWLkh4kC2AJ_j5j9EADXPA2l2A76WoYkQuIVNXpHITCfkuOShJitbgMwSRZRKwL5vtrkgIO6wUni6duxWnqMHVWsw8fkLj--MRAjwkWwTta5wVcUxIM5Au7c1Wzr5CTASMkbU4ppnK7JP62jd893IE2Z80qrDV0d-QvlhztCl_AWg6Lws4MxNI0j9SZvWlJOVpxQEDTB_ecmRXDr0EKN3VDCvQgoW7JTO"/>
+<span class="text-xs text-text-secondary">@DevDave</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Reader View / Snippet Demo Section -->
+<!-- This section simulates the view when a user clicks a tutorial -->
+<div class="border-t border-gray-200 dark:border-white/5 pt-8 pb-8 bg-white dark:bg-card-dark rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.2)]">
+<div class="px-6">
+<div class="flex items-center gap-2 mb-4 text-primary">
+<span class="material-symbols-outlined text-sm">menu_book</span>
+<span class="text-xs font-bold uppercase tracking-wider">Reading Now</span>
+</div>
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Custom MCP Server Setup</h1>
+<div class="flex items-center gap-3 mb-6">
+<img alt="Author" class="w-10 h-10 rounded-full border-2 border-background-light dark:border-background-dark" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9WTLZpx0SI1LX6isRZwaT7R0hYunluaHLapn2o9K0_XW1r3HTO0Grk8j5KJa8DRlHRyg2WiiS3CfQSps7RQ5JQsA5ouQMOxdnKmvCsRaCQVau0BimqXsflOKFCuf5DcdvxzEsJUvKMJQHmOKNX2C-iodH2tc9JDMULwcPogA-oWvxwDJUIcWdMrogBSAygqkH1bb4M62u8Imcn14RIb4muKF_kX2k6TGkOd0YxpLTHY3vfCNi2Sb1Mq5Rr8cGIp21EzUIHyL7yWS6"/>
+<div>
+<div class="text-sm font-bold text-gray-900 dark:text-white">Marcus Reed</div>
+<div class="text-xs text-text-secondary">Posted 2 hours ago</div>
+</div>
+</div>
+<div class="prose prose-sm dark:prose-invert text-text-secondary mb-6 leading-relaxed">
+<p>Setting up a custom Model Context Protocol (MCP) server allows you to bridge your local development environment with advanced AI contexts. Here is the basic configuration needed to get started.</p>
+</div>
+<!-- Code Snippet Component -->
+<div class="relative rounded-lg overflow-hidden border border-gray-200 dark:border-white/10 bg-code-bg shadow-xl mb-6">
+<div class="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/5">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-red-500/80"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-green-500/80"></span>
+</div>
+<span class="text-xs font-mono text-text-secondary">server.js</span>
+<div class="w-8"></div> <!-- spacer -->
+</div>
+<div class="p-4 overflow-x-auto">
+<pre class="font-mono text-xs leading-6"><code class="language-javascript"><span class="text-gray-600 dark:text-gray-500 select-none mr-3">1</span><span class="syntax-keyword">const</span> <span class="syntax-func">MCPServer</span> = <span class="syntax-keyword">require</span>(<span class="syntax-string">'@mcp/core'</span>);
+<span class="text-gray-600 dark:text-gray-500 select-none mr-3">2</span>
+<span class="text-gray-600 dark:text-gray-500 select-none mr-3">3</span><span class="syntax-comment">// Initialize the context server</span>
+<span class="text-gray-600 dark:text-gray-500 select-none mr-3">4</span><span class="syntax-keyword">const</span> server = <span class="syntax-keyword">new</span> <span class="syntax-func">MCPServer</span>({
+<span class="text-gray-600 dark:text-gray-500 select-none mr-3">5</span>  port: <span class="syntax-string">3000</span>,
+<span class="text-gray-600 dark:text-gray-500 select-none mr-3">6</span>  auth: <span class="syntax-keyword">true</span>,
+<span class="text-gray-600 dark:text-gray-500 select-none mr-3">7</span>  context: {
+<span class="text-gray-600 dark:text-gray-500 select-none mr-3">8</span>    project: <span class="syntax-string">'demo-app'</span>
+<span class="text-gray-600 dark:text-gray-500 select-none mr-3">9</span>  }
+<span class="text-gray-600 dark:text-gray-500 select-none mr-3">10</span>});
+<span class="text-gray-600 dark:text-gray-500 select-none mr-3">11</span>
+<span class="text-gray-600 dark:text-gray-500 select-none mr-3">12</span>server.<span class="syntax-func">start</span>().<span class="syntax-func">then</span>(() =&gt; {
+<span class="text-gray-600 dark:text-gray-500 select-none mr-3">13</span>  console.<span class="syntax-func">log</span>(<span class="syntax-string">'Ready!'</span>);
+<span class="text-gray-600 dark:text-gray-500 select-none mr-3">14</span>});</code></pre>
+</div>
+<!-- Floating Action Button inside Code Block Context -->
+<div class="absolute bottom-4 right-4">
+<button class="flex items-center gap-2 bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg shadow-primary/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+<span class="material-symbols-outlined text-[16px]">code</span>
+                                Open Snippet in Editor
+                            </button>
+</div>
+</div>
+<!-- Comments Section -->
+<div class="mt-8">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold text-gray-900 dark:text-white">Discussion (12)</h3>
+<span class="text-xs font-bold text-primary cursor-pointer">View all</span>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Comment 1 -->
+<div class="flex gap-3">
+<img alt="Commenter" class="w-8 h-8 rounded-full mt-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBt6cpAw6Of5mzGADlCmh9LKS75761s4XkRqJO52o6nfESULG6_olSbGt-_jXHNtJphG-mjFJUKqfDNmVGLVHfryncB7pG34IzbGApP9Utinfw5er8Bkopwhzq38uMEl7PFu9V-fWCJ8u6JFAjXfKbZZVrenOLhPCS_rccvAx_-2-P8L-5ccsF8J9pFocm4WKvR2AYt7MwtJooW6eAcoNueXDLChcg12nCjQRkar7kK0g8jBX9YZFnSDLCyf6fMHCj2_U5pNdvhYHAw"/>
+<div class="flex-1 bg-gray-50 dark:bg-black/20 p-3 rounded-lg rounded-tl-none">
+<div class="flex justify-between items-center mb-1">
+<span class="text-xs font-bold text-gray-900 dark:text-white">@jason_k</span>
+<span class="text-[10px] text-text-secondary">20m</span>
+</div>
+<p class="text-xs text-text-secondary">Does this work with the latest v2.0 update? I had issues with the auth param.</p>
+</div>
+</div>
+<!-- Comment 2 -->
+<div class="flex gap-3">
+<img alt="Commenter" class="w-8 h-8 rounded-full mt-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7dH6xngytkzKn3ZOYdT-qFc63WX1niLX7DlCXLlzzNEjLxEEZ8tcZJS6x8c0USvqQEA84_HnzauFD-QbnoVoB2U_0RCevO9PNf-J9mRmbUVM_kIiKpJVHhI7LkYQse6pDWyCaExItyxRyTOntMuRzh7q3rADMKxgdDjKLW60KCAmkI-D1ssWVRwvvT1P4bXJVuGpYLNQ-Gb8ZNPrt6kt3J15H55LD6FiVUT93BrNp7GNyRo2-FLVhHtxa2ijcltwNjZt8D4tJnXc2"/>
+<div class="flex-1 bg-gray-50 dark:bg-black/20 p-3 rounded-lg rounded-tl-none">
+<div class="flex justify-between items-center mb-1">
+<span class="text-xs font-bold text-gray-900 dark:text-white">@frontend_wiz</span>
+<span class="text-[10px] text-text-secondary">1h</span>
+</div>
+<p class="text-xs text-text-secondary">Great snippet! Saved me a ton of time figuring out the config object.</p>
+</div>
+</div>
+</div>
+<!-- Add Comment Input -->
+<div class="mt-4 flex gap-2">
+<div class="h-8 w-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white text-xs font-bold shrink-0">ME</div>
+<div class="flex-1 relative">
+<input class="w-full bg-gray-100 dark:bg-black/30 border-none rounded-full py-2 px-4 text-xs text-white focus:ring-1 focus:ring-primary" placeholder="Add to the discussion..." type="text"/>
+<button class="absolute right-1 top-1 p-1 bg-primary text-white rounded-full h-6 w-6 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Action Button (Global) -->
+<button class="absolute bottom-6 right-6 h-14 w-14 bg-primary text-white rounded-full shadow-2xl shadow-primary/40 flex items-center justify-center transition-transform hover:scale-110 active:scale-95 z-40 group">
+<span class="material-symbols-outlined text-[28px] group-hover:rotate-90 transition-transform">add</span>
+<span class="absolute right-full mr-3 bg-white dark:bg-card-dark text-gray-900 dark:text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Write Guide</span>
+</button>
+<!-- Bottom Navigation (Contextual) -->
+<nav class="sticky bottom-0 bg-white/90 dark:bg-[#101622]/95 backdrop-blur-lg border-t border-gray-200 dark:border-white/5 flex justify-around items-center h-16 px-2 z-50">
+<a class="flex flex-col items-center justify-center w-full h-full text-text-secondary hover:text-primary gap-1" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-primary gap-1" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="text-[10px] font-medium">Guides</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-text-secondary hover:text-primary gap-1" href="#">
+<span class="material-symbols-outlined">code</span>
+<span class="text-[10px] font-medium">Editor</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-text-secondary hover:text-primary gap-1" href="#">
+<span class="material-symbols-outlined">forum</span>
+<span class="text-[10px] font-medium">Community</span>
+</a>
+</nav>
+</div>
+</body></html>

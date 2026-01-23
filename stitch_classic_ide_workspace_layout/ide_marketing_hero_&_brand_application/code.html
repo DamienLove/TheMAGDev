@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Flux - Code Anywhere</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7f0df2",
+                        "secondary": "#db2777",
+                        "background-light": "#f7f5f8",
+                        "background-dark": "#121212", /* Deep charcoal as requested */
+                        "surface-dark": "#1e1e1e",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Space Grotesk", "sans-serif"], /* Using Space Grotesk for body too per user preference for font consistency */
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                    backgroundImage: {
+                        'hero-glow': 'radial-gradient(circle at center, rgba(127, 13, 242, 0.25) 0%, rgba(18, 18, 18, 0) 70%)',
+                        'gradient-primary': 'linear-gradient(135deg, #7f0df2 0%, #db2777 100%)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom styles for glassmorphism effects */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased overflow-x-hidden">
+<!-- Main Container -->
+<div class="relative flex h-auto min-h-screen w-full flex-col dark group/design-root">
+<!-- Ambient Background Glow -->
+<div class="absolute inset-0 pointer-events-none overflow-hidden">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] h-[600px] bg-hero-glow opacity-60"></div>
+</div>
+<!-- Navigation Bar -->
+<header class="flex items-center p-4 pb-2 justify-between relative z-50">
+<div class="flex items-center gap-2 text-white">
+<!-- Logo Icon -->
+<div class="flex items-center justify-center size-8 rounded-lg bg-gradient-to-br from-primary to-secondary">
+<span class="material-symbols-outlined text-white text-[20px]">terminal</span>
+</div>
+<h2 class="text-white text-xl font-bold tracking-tight">Flux</h2>
+</div>
+<button class="flex items-center justify-center size-10 rounded-full text-white hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-[28px]">menu</span>
+</button>
+</header>
+<!-- Hero Content Section -->
+<main class="flex-1 flex flex-col items-center justify-start pt-6 pb-8 relative z-10 w-full max-w-md mx-auto">
+<!-- Headline -->
+<div class="px-5 text-center mb-4">
+<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-5">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+<span class="text-xs font-medium text-gray-300 tracking-wide uppercase">v2.0 Now Live</span>
+</div>
+<h1 class="text-white text-[42px] leading-[1.1] font-bold tracking-tight mb-4">
+                    Code Anywhere.<br/>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Build Everything.</span>
+</h1>
+<p class="text-gray-400 text-lg font-normal leading-relaxed max-w-[320px] mx-auto">
+                    The first true cross-platform IDE in your browser. Zero setup, infinite power.
+                </p>
+</div>
+<!-- Primary CTA -->
+<div class="w-full px-5 mb-8">
+<button class="w-full relative group cursor-pointer overflow-hidden rounded-xl h-14 bg-gradient-primary text-white text-lg font-bold shadow-[0_0_20px_rgba(127,13,242,0.3)] transition-all hover:shadow-[0_0_30px_rgba(127,13,242,0.5)] hover:scale-[1.02]">
+<div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+<span class="relative flex items-center justify-center gap-2">
+                        Start Coding for Free
+                        <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</span>
+</button>
+<div class="mt-3 text-center">
+<span class="text-xs text-gray-500">No credit card required · Free tier forever</span>
+</div>
+</div>
+<!-- 3D IDE Interface Visualization -->
+<div class="@container w-full px-2 mb-8 relative">
+<!-- Decorative Elements behind image -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/20 blur-[60px] rounded-full -z-10"></div>
+<!-- Main Image Container -->
+<div class="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-[#0d0d0d]">
+<!-- Main IDE Screenshot -->
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Abstract 3D rendering of a dark code editor interface with colorful syntax highlighting and glowing panels" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBroddpwOzWnIipE7hrlBqewMBIm-WpjcOS9HtetafSNWUKO1Np8rCtd2VRYENKGlu-OgH7oBtEPlX-wnx-G7_bfBx44FXq0QDzM6o6NANXZykgHWZ2SK0Tw2fJRfeVxm2DhO23N25ssS-Ih1CtB4xXyo02eTnq1_2rVCti0dwDeDByNo66dihGGU-pKrARy26Q19SF6yHyOMrN6spQa1w4WvbcW2QKsotlsEbnDpS0yc7gga4Ir5C13hNOMQTKreasPwpLBavjuOBJ'); opacity: 0.8;">
+</div>
+<!-- Overlay Gradient -->
+<div class="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent"></div>
+<!-- Floating UI Elements (Simulating 3D pop-outs) -->
+<div class="absolute top-4 right-4 w-32 glass-panel p-3 rounded-lg border-l-4 border-l-green-400 animate-[float_4s_ease-in-out_infinite] shadow-lg">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-green-400 text-sm">android</span>
+<span class="text-[10px] text-white font-bold">Emulator</span>
+</div>
+<div class="h-16 bg-black/50 rounded flex items-center justify-center">
+<span class="text-[8px] text-gray-400">App Preview</span>
+</div>
+</div>
+<div class="absolute bottom-8 left-4 w-40 glass-panel p-3 rounded-lg border-l-4 border-l-primary animate-[float_5s_ease-in-out_infinite_reverse] shadow-lg z-10">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-sm">auto_awesome</span>
+<span class="text-[10px] text-white font-bold">Flux AI</span>
+</div>
+<div class="space-y-1">
+<div class="h-1.5 w-3/4 bg-white/20 rounded"></div>
+<div class="h-1.5 w-full bg-white/10 rounded"></div>
+<div class="h-1.5 w-1/2 bg-white/10 rounded"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Social Proof -->
+<div class="w-full px-5 pb-6">
+<div class="flex flex-col items-center justify-center gap-3">
+<p class="text-sm text-gray-400 font-medium">Trusted by 100k+ developers at</p>
+<div class="flex items-center justify-center gap-6 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+<!-- Logos simulated with icons/text for layout -->
+<div class="flex items-center gap-1 text-white font-bold text-lg">
+<span class="material-symbols-outlined">rocket_launch</span>
+<span class="hidden xs:inline">SpaceX</span>
+</div>
+<div class="flex items-center gap-1 text-white font-bold text-lg">
+<span class="material-symbols-outlined">cloud_circle</span>
+<span class="hidden xs:inline">Vercel</span>
+</div>
+<div class="flex items-center gap-1 text-white font-bold text-lg">
+<span class="material-symbols-outlined">deployed_code</span>
+<span class="hidden xs:inline">Stripe</span>
+</div>
+</div>
+<div class="mt-4 flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/5">
+<div class="flex -space-x-2">
+<img alt="User Avatar 1" class="inline-block h-6 w-6 rounded-full ring-2 ring-[#121212]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDD72qzYfhVXUXJ7f00__GOhw13PbTIh5w0hGugQp4vBLeBuO_tmpzFy-oaVc5O9-DjVk238GiYZ9eLUuO5FyORkiia5X1AKST7bYHYpquUXRDI_9vTimQYQ7Mk1MwXhrn06g-JqCUIWCvRwb2ZBKThtk9idzdTgKby3vx-nlzA6yiZ4XEQcq_Vk2zPhbhtPbvUo8YU-xFo4wJpMrwxUp6AVQ92xV82_qpDmuV9gR1IW5BGm2KdAoTX_NPB73FxCmuMcijIwMEfzNZP"/>
+<img alt="User Avatar 2" class="inline-block h-6 w-6 rounded-full ring-2 ring-[#121212]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9LW1NNmXxREN-_cTqFEKbR0Tn64kzdEwb3wQclRoS4XtxtwvY_d0fAkKXK6fBawZEzyIvWWKMGBe125lqhWlizNbdbIJPrSpQjk9MJtQGnVdDAUji-F1dty7IEPf3qv5-54aRXVhiRjHtQZJ4dysK19PGtEWgK4U7bzQQvVhtAVgXA7-evoTs6yjFLaGEslCrXUqIrLt5OL0x20k-BBWQfr2R6W-TW38fd1qW-PKGDEYm_SK76_fDnfxvYZtPBGI9VBSX-siEpab1"/>
+<img alt="User Avatar 3" class="inline-block h-6 w-6 rounded-full ring-2 ring-[#121212]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYYVqD4Nf8XcqBx0YP-tg0Vr3eHNui9z3rpo0FNsPYPIiygOw2pyGLv66eg-he-vif3gRhXSs4c2pwrVrq4oE3T5G41Q4MxW_gbsHTvHIj1iwjj7rYzfcBY2sS2Kg5SqaVZ5GbeG5_JWwYnpE9qNK-mc1P4DJblk8GphQtghGf-rKJe-2RZXTfAcuQyx-ag0dMF1DgrPQ6SKhppU24M55Xk4ZA-tilRXty_5WeWsiM7Fjv8d68Ywn9tiARvdL0IzPaiHf0lvp_QmWr"/>
+</div>
+<div class="flex flex-col">
+<div class="flex text-yellow-500 text-[10px]">
+<span class="material-symbols-outlined text-[12px] filled">star</span>
+<span class="material-symbols-outlined text-[12px] filled">star</span>
+<span class="material-symbols-outlined text-[12px] filled">star</span>
+<span class="material-symbols-outlined text-[12px] filled">star</span>
+<span class="material-symbols-outlined text-[12px] filled">star</span>
+</div>
+</div>
+<span class="text-xs text-white font-bold ml-1">4.9/5</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Spacer -->
+<div class="h-safe-area bg-[#121212]"></div>
+</div>
+<style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* Utility for filled material icons */
+        .material-symbols-outlined.filled {
+          font-variation-settings:
+          'FILL' 1,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+    </style>
+</body></html>

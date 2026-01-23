@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Unified Visual Inspector Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1e293b",
+                        "surface-light": "#ffffff",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }.custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+</style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-white font-display overflow-x-hidden flex flex-col">
+<header class="sticky top-0 z-50 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center px-4 py-3 justify-between">
+<button class="text-slate-900 dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Visual Inspector</h2>
+<div class="flex w-auto items-center justify-end gap-2">
+<div class="flex items-center gap-1.5 px-2 py-1 bg-green-500/10 rounded-full border border-green-500/20">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+</span>
+<p class="text-green-600 dark:text-green-400 text-xs font-bold uppercase tracking-wider">Synced</p>
+</div>
+</div>
+</div>
+<div class="flex justify-between items-center gap-2 px-4 pb-3 pt-1">
+<div class="flex gap-2">
+<button class="p-2 text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary active:bg-slate-200 dark:active:bg-slate-800 rounded-lg transition-all" title="Refresh All">
+<span class="material-symbols-outlined">autorenew</span>
+</button>
+<button class="p-2 text-primary bg-primary/10 rounded-lg border border-primary/20 transition-all" title="Inspect Mode Active">
+<span class="material-symbols-outlined fill">data_object</span>
+</button>
+<button class="p-2 text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary active:bg-slate-200 dark:active:bg-slate-800 rounded-lg transition-all" title="Network Conditions">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</div>
+<div class="flex items-center gap-2 bg-slate-200 dark:bg-slate-800 rounded-lg p-1">
+<button class="px-2 py-1 rounded bg-white dark:bg-slate-700 shadow-sm text-xs font-medium">Split</button>
+<button class="px-2 py-1 rounded hover:bg-white/50 dark:hover:bg-slate-700/50 text-slate-500 text-xs font-medium">Focus</button>
+</div>
+</div>
+</header>
+<main class="flex-1 flex flex-col p-4 gap-5 pb-8">
+<section>
+<div class="flex items-center justify-between mb-3">
+<h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quick Preview</h3>
+<span class="text-xs text-primary font-medium cursor-pointer hover:underline">View All Devices</span>
+</div>
+<div class="flex overflow-x-auto gap-4 pb-2 snap-x snap-mandatory -mx-4 px-4 scrollbar-hide">
+<div class="snap-center shrink-0 flex flex-col gap-2">
+<div class="relative w-[140px] aspect-[9/18] bg-[#000] border border-slate-600 dark:border-slate-700 rounded-[1rem] p-[2px] shadow-lg">
+<div class="w-full h-full rounded-[0.9rem] overflow-hidden bg-slate-900 relative">
+<div class="absolute top-2 left-1/2 -translate-x-1/2 w-2 h-2 bg-black rounded-full z-20 ring-1 ring-slate-800"></div>
+<div class="w-full h-full bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBb5jFYnLJZi4uCwSCCC-YB-vnh_okDM0DkeQDt-rQGtvvqx7jweROsX9v6aQ3nWcFwf5hxsNEorKa8dz-wM8gaflLavLvrl_rcaRjwiZr4WxwWUP1CfyOpmVGje7zxHftvfyPVk1QOxS-s0ct8VVbIJsKT15VUuyM6HaAinEyN0ee_Zimkp410LGKOs5RlBw9BPsc9ZdZybdsbrNfAWdRd5tnrwK-wDYn6V_j7j46v0jaqCxabI-AYXpRkeAeKoqQC-MM7C-dDF88p');">
+<div class="absolute inset-0 border-2 border-primary/60 z-30 pointer-events-none rounded-[0.9rem]"></div>
+</div>
+</div>
+</div>
+<p class="text-center text-xs font-bold text-slate-700 dark:text-slate-300">Pixel 7</p>
+</div>
+<div class="snap-center shrink-0 flex flex-col gap-2">
+<div class="relative w-[140px] aspect-[9/18] bg-[#000] border border-slate-600 dark:border-slate-700 rounded-[1.2rem] p-[2px] shadow-lg opacity-70 hover:opacity-100 transition-opacity">
+<div class="w-full h-full rounded-[1.1rem] overflow-hidden bg-slate-900 relative">
+<div class="absolute top-1.5 left-1/2 -translate-x-1/2 w-[30%] h-[12px] bg-black rounded-full z-20"></div>
+<div class="w-full h-full bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAoRhfU3_QtJ5RHCsBfGJ0cdGUy415Uo9M27eOnpig3s21ASMrPqGZ_RyGdR0TomqDzMBC2R4ZBHqJLe3wmVdnhxEjgT0WroJr6gpo1-KFwjVwgT3J5Y9UTvADSMOv4PgDwj_zWwE1rJqt3Yai48yhvfA0da0QB6s-ibxIQvyuNI8XoLJrOmJiubCBPB6HV5RZU1XGiuMBnewFzAeocGO_BlK8vPZSEnlHdY4Lrq2CBSq9J6b6jaHq_weuWb5A6hWRvLmy27mLyW37c'); filter: hue-rotate(180deg) invert(0.9);"></div>
+</div>
+</div>
+<p class="text-center text-xs font-medium text-slate-500 dark:text-slate-500">iPhone 15</p>
+</div>
+<div class="snap-center shrink-0 flex flex-col gap-2">
+<div class="w-[140px] aspect-[9/18] border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-[1rem] flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary">add_circle</span>
+</div>
+<p class="text-center text-xs font-medium text-slate-500">Add Device</p>
+</div>
+</div>
+</section>
+<section class="flex flex-col gap-4">
+<div class="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex flex-col h-[320px]">
+<div class="flex items-center justify-between px-3 py-2 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+<h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-base text-primary">account_tree</span>
+                    Component Tree
+                </h3>
+<div class="flex gap-1">
+<span class="px-1.5 py-0.5 rounded text-[10px] bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 font-mono">Flutter</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400 font-mono">Compose</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-2 custom-scrollbar font-mono text-sm">
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-1 p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer text-slate-500">
+<span class="material-symbols-outlined text-sm">expand_more</span>
+<span class="material-symbols-outlined text-sm text-purple-400">widgets</span>
+<span>MyApp</span>
+</div>
+<div class="pl-4 flex flex-col gap-0.5 border-l border-slate-200 dark:border-slate-700 ml-2">
+<div class="flex items-center gap-1 p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer text-slate-500">
+<span class="material-symbols-outlined text-sm">expand_more</span>
+<span class="material-symbols-outlined text-sm text-blue-400">layers</span>
+<span>MaterialApp</span>
+</div>
+<div class="pl-4 flex flex-col gap-0.5 border-l border-slate-200 dark:border-slate-700 ml-2">
+<div class="flex items-center justify-between p-1 bg-primary/10 rounded cursor-pointer text-primary font-medium border border-primary/20">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm fill">expand_more</span>
+<span class="material-symbols-outlined text-sm fill">web_asset</span>
+<span>DashboardScreen</span>
+</div>
+<span class="text-[10px] px-1 bg-primary text-white rounded">Inspect</span>
+</div>
+<div class="pl-4 flex flex-col gap-0.5 border-l border-slate-200 dark:border-slate-700 ml-2">
+<div class="flex items-center gap-1 p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer text-slate-500">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="material-symbols-outlined text-sm text-green-400">view_column</span>
+<span>HeaderColumn</span>
+</div>
+<div class="flex items-center gap-1 p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer text-slate-500">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="material-symbols-outlined text-sm text-orange-400">smart_button</span>
+<span>ActionBtn</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4">
+<div class="flex items-center gap-2 mb-3 text-amber-500">
+<span class="material-symbols-outlined fill">warning</span>
+<h3 class="text-sm font-bold text-slate-900 dark:text-white">Platform Mismatch Detected</h3>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-2">
+<div class="p-2 bg-slate-50 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
+<div class="flex items-center gap-1.5 mb-2 border-b border-slate-200 dark:border-slate-700 pb-1">
+<span class="material-symbols-outlined text-sm text-green-500">android</span>
+<span class="text-xs font-bold text-slate-700 dark:text-slate-300">Android</span>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-xs">
+<span class="text-slate-500">Property</span>
+<span class="font-mono text-slate-700 dark:text-slate-300">Elevation</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-slate-500">Value</span>
+<span class="font-mono text-primary font-bold">4.0 dp</span>
+</div>
+</div>
+</div>
+<div class="p-2 bg-slate-50 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 relative overflow-hidden">
+<div class="absolute -right-3 -top-3 w-8 h-8 bg-amber-500/10 rounded-full flex items-center justify-center">
+<div class="w-16 h-1 bg-amber-500/50 rotate-45 transform translate-y-3"></div>
+</div>
+<div class="flex items-center gap-1.5 mb-2 border-b border-slate-200 dark:border-slate-700 pb-1">
+<span class="material-symbols-outlined text-sm text-slate-900 dark:text-white">smartphone</span>
+<span class="text-xs font-bold text-slate-700 dark:text-slate-300">iOS</span>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-xs">
+<span class="text-slate-500">Property</span>
+<span class="font-mono text-slate-700 dark:text-slate-300">Shadow</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-slate-500">Value</span>
+<span class="font-mono text-red-400 font-bold">Radius: 8px</span>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full py-1.5 text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded border border-amber-200 dark:border-amber-900/50 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">auto_fix_high</span>
+                Auto-Normalize Styles
+            </button>
+</div>
+</section>
+<section class="flex flex-col gap-2 mt-2">
+<h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">Logic Stream</h3>
+<div class="bg-[#101622] rounded-lg border border-slate-800 shadow-inner p-3 font-mono text-xs overflow-hidden h-[160px] relative">
+<div class="absolute top-0 left-0 w-full h-[1px] bg-green-500/30 shadow-[0_0_10px_rgba(34,197,94,0.5)] animate-[scan_3s_linear_infinite] z-10 pointer-events-none"></div>
+<div class="flex flex-col gap-1.5 h-full overflow-y-auto custom-scrollbar">
+<div class="flex gap-2 text-slate-500">
+<span>10:42:01.002</span>
+<span class="text-blue-400 font-bold">LIFECYCLE</span>
+<span>DashboardScreen.initState()</span>
+</div>
+<div class="flex gap-2 text-slate-500">
+<span>10:42:01.450</span>
+<span class="text-green-400 font-bold">NETWORK</span>
+<span>GET /api/v1/analytics <span class="text-slate-600">200 OK</span></span>
+</div>
+<div class="flex gap-2 text-slate-300 bg-slate-800/50 px-1 rounded -mx-1">
+<span class="text-slate-500">10:42:02.105</span>
+<span class="text-purple-400 font-bold">STATE</span>
+<span>Notifier updated: user_preferences</span>
+</div>
+<div class="flex gap-2 text-slate-500">
+<span>10:42:02.110</span>
+<span class="text-amber-400 font-bold">WARN</span>
+<span>Elevation mismatch ignored on iOS context</span>
+</div>
+<div class="flex gap-2 text-slate-500 opacity-50">
+<span>10:42:03.000</span>
+<span class="text-blue-400 font-bold">LIFECYCLE</span>
+<span>Widget rebuild scheduled</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-green-500">➜</span>
+<span class="w-2 h-4 bg-slate-500 animate-pulse"></span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<style>
+    @keyframes scan {
+        0% { top: 0; opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { top: 100%; opacity: 0; }
+    }
+</style>
+
+</body></html>

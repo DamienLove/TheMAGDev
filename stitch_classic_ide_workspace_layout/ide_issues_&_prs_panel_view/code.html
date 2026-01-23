@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IDE Mobile View</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;700&amp;family=Fira+Code:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111722",
+                        "surface-dark": "#1e293b",
+                        "border-dark": "#324467",
+                        "text-secondary": "#92a4c9",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                        "mono": ["Fira Code", "monospace"],
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for code editor */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white h-screen w-full overflow-hidden flex flex-col relative">
+<!-- Top Navigation Bar -->
+<header class="flex items-center bg-[#111722] p-4 pb-2 justify-between border-b border-[#324467] shrink-0 z-20 relative">
+<div class="flex items-center gap-3">
+<button class="text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-[#232f48] transition-colors">
+<span class="material-symbols-outlined text-2xl">menu</span>
+</button>
+<div class="flex flex-col">
+<h2 class="text-white text-lg font-bold leading-tight tracking-[-0.015em]">OmniApp</h2>
+<div class="flex items-center gap-1 text-[#92a4c9] text-xs font-medium">
+<span class="material-symbols-outlined text-[14px]">call_split</span>
+<span>main</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-end gap-3">
+<button class="size-9 flex items-center justify-center rounded-lg bg-[#232f48] text-green-400">
+<span class="material-symbols-outlined text-[20px]">play_arrow</span>
+</button>
+<button class="size-9 flex items-center justify-center rounded-lg bg-[#232f48] text-white">
+<span class="material-symbols-outlined text-[20px]">build</span>
+</button>
+</div>
+</header>
+<!-- Contextual PR Banner (ActionPanel) -->
+<div class="bg-[#111722] border-b border-[#324467] z-10 relative">
+<div class="px-4 py-3 flex items-center justify-between gap-3">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 mb-0.5">
+<span class="material-symbols-outlined text-[#135bec] text-lg">alt_route</span>
+<p class="text-white text-sm font-bold leading-tight truncate">Viewing PR #42: Login Fix</p>
+</div>
+<p class="text-[#92a4c9] text-xs">Authored by @sarah_dev • 2h ago</p>
+</div>
+<button class="flex shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-[#135bec] text-white text-xs font-medium leading-normal hover:bg-blue-600 transition-colors">
+<span class="truncate">Review</span>
+</button>
+</div>
+</div>
+<!-- Main Content Area: Code Editor -->
+<main class="flex-1 relative bg-[#0d1117] overflow-hidden flex">
+<!-- Line Numbers -->
+<div class="w-12 bg-[#0d1117] flex flex-col items-end pt-4 pr-3 text-[#324467] font-mono text-xs select-none border-r border-[#324467]/30">
+<div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div>
+</div>
+<!-- Code Content -->
+<div class="flex-1 p-4 font-mono text-xs md:text-sm leading-6 text-gray-300 overflow-auto no-scrollbar whitespace-pre">
+<span class="text-[#ff7b72]">import</span> { AuthService } <span class="text-[#ff7b72]">from</span> <span class="text-[#a5d6ff]">'./auth.service'</span>;
+<span class="text-[#ff7b72]">import</span> { User } <span class="text-[#ff7b72]">from</span> <span class="text-[#a5d6ff]">'./models/user'</span>;
+
+<span class="text-[#8b949e]">/**
+ * Authenticates user credentials against the API
+ * Fixes issue #204 where null tokens caused crash
+ */</span>
+<span class="text-[#ff7b72]">export class</span> <span class="text-[#d2a8ff]">LoginController</span> {
+  
+  <span class="text-[#ff7b72]">constructor</span>(<span class="text-[#ff7b72]">private</span> auth: <span class="text-[#d2a8ff]">AuthService</span>) {}
+
+  <span class="text-[#d2a8ff]">async</span> <span class="text-[#d2a8ff]">handleLogin</span>(req: <span class="text-[#d2a8ff]">Request</span>, res: <span class="text-[#d2a8ff]">Response</span>) {
+    <span class="text-[#ff7b72]">try</span> {
+      <span class="text-[#ff7b72]">const</span> { email, password } = req.body;
+      
+      <span class="bg-[#1e293b] block w-full border-l-2 border-[#135bec] pl-2 -ml-2"><span class="text-[#8b949e]">// Validate input before processing</span>
+<span class="text-[#ff7b72]">if</span> (!email || !password) {
+        <span class="text-[#ff7b72]">throw new</span> <span class="text-[#d2a8ff]">Error</span>(<span class="text-[#a5d6ff]">'Missing credentials'</span>);
+      }</span>
+<span class="text-[#ff7b72]">const</span> token = <span class="text-[#ff7b72]">await</span> <span class="text-[#79c0ff]">this</span>.auth.<span class="text-[#d2a8ff]">login</span>(email, password);
+      
+      <span class="text-[#ff7b72]">return</span> res.<span class="text-[#d2a8ff]">json</span>({ success: <span class="text-[#79c0ff]">true</span>, token });
+    } <span class="text-[#ff7b72]">catch</span> (error) {
+      <span class="text-[#8b949e]">console</span>.<span class="text-[#d2a8ff]">error</span>(<span class="text-[#a5d6ff]">'Login failed'</span>, error);
+      <span class="text-[#ff7b72]">return</span> res.<span class="text-[#d2a8ff]">status</span>(<span class="text-[#79c0ff]">401</span>).<span class="text-[#d2a8ff]">send</span>({ error: <span class="text-[#a5d6ff]">'Unauthorized'</span> });
+    }
+  }
+}
+        </div>
+</main>
+<!-- Source Control Drawer (Side Panel) -->
+<!-- Positioned absolutely to simulate the "open" state described -->
+<aside class="absolute inset-y-0 left-0 w-[85%] max-w-[360px] bg-[#111722] border-r border-[#324467] shadow-[4px_0_24px_rgba(0,0,0,0.5)] z-40 flex flex-col transform transition-transform duration-300 ease-out">
+<!-- Drawer Header -->
+<div class="px-4 py-5 flex items-center justify-between">
+<h3 class="text-white text-xl font-bold tracking-tight">Source Control</h3>
+<div class="flex gap-2">
+<button class="text-[#92a4c9] hover:text-white transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+<button class="text-[#92a4c9] hover:text-white transition-colors">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+</div>
+</div>
+<!-- Segmented Buttons (Tabs) -->
+<div class="px-4 pb-4">
+<div class="flex h-10 w-full items-center justify-center rounded-lg bg-[#232f48] p-1">
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md px-2 transition-all hover:bg-white/5 text-[#92a4c9] has-[:checked]:bg-[#111722] has-[:checked]:text-white has-[:checked]:shadow-sm">
+<span class="truncate text-sm font-medium">Issues</span>
+<input class="invisible w-0 absolute" name="view-toggle" type="radio" value="Issues"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md px-2 transition-all hover:bg-white/5 text-[#92a4c9] has-[:checked]:bg-[#111722] has-[:checked]:text-white has-[:checked]:shadow-sm">
+<span class="truncate text-sm font-medium">Pull Requests</span>
+<input checked="" class="invisible w-0 absolute" name="view-toggle" type="radio" value="Pull Requests"/>
+</label>
+</div>
+</div>
+<!-- Search Bar -->
+<div class="px-4 pb-4">
+<div class="flex w-full items-center rounded-lg bg-[#232f48] h-10 px-3 gap-2 border border-transparent focus-within:border-[#135bec]">
+<span class="material-symbols-outlined text-[#92a4c9] text-[20px]">search</span>
+<input class="w-full bg-transparent border-none text-white text-sm placeholder:text-[#92a4c9] focus:ring-0 p-0" placeholder="Filter PRs..."/>
+</div>
+</div>
+<!-- Scrollable List Content -->
+<div class="flex-1 overflow-y-auto">
+<!-- PR List Section -->
+<div class="flex flex-col">
+<!-- Section Header -->
+<div class="px-4 py-2 bg-[#111722]/50 flex items-center justify-between">
+<span class="text-xs font-bold text-[#92a4c9] uppercase tracking-wider">Active</span>
+<span class="text-xs bg-[#232f48] text-white px-2 py-0.5 rounded-full">3</span>
+</div>
+<!-- PR Item 1 (Active) -->
+<div class="group relative flex items-start gap-3 p-4 hover:bg-[#232f48] transition-colors border-l-2 border-[#135bec] bg-[#232f48]/30 cursor-pointer">
+<div class="mt-0.5 text-[#135bec]">
+<span class="material-symbols-outlined text-[20px]">alt_route</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0 gap-1">
+<div class="flex justify-between items-start gap-2">
+<p class="text-white text-sm font-medium leading-tight line-clamp-2">Login Fix: Null pointer exception on auth</p>
+<span class="text-[10px] font-bold text-white bg-[#135bec] px-1.5 py-0.5 rounded">Review</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-[#92a4c9]">
+<span>#42</span>
+<span>•</span>
+<div class="flex items-center gap-1">
+<img alt="" class="size-4 rounded-full bg-gray-600 object-cover" data-alt="User Avatar Sarah" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWZZDeCGCtJus3WrHj4mbeCSoa4Qoq0Xp-kLR2yk8a3lGanVJmo1D-dcWZs5Fku7gG-pdCY9uOX_V-hJikZzi6hYfkGTE-WSSzXyJsOuupam0DEo8aG38dfCgnEJ16IavkPQLpJp45oWvu62ybxU2BYMnfq0m6aGXO6O-DvlCR1sqNrDsClrEtCmbbImlVkFVr60my0JzR1I6Q5kY1vfSyRLkGhWzolZ1KdZRB8I4iGmrQVVqCwzTyPPdQGWm3w8q3-LoANXZa_T7l"/>
+<span>sarah_dev</span>
+</div>
+</div>
+</div>
+</div>
+<!-- PR Item 2 -->
+<div class="group relative flex items-start gap-3 p-4 hover:bg-[#232f48] transition-colors border-l-2 border-transparent cursor-pointer">
+<div class="mt-0.5 text-[#92a4c9]">
+<span class="material-symbols-outlined text-[20px]">edit_note</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0 gap-1">
+<div class="flex justify-between items-start gap-2">
+<p class="text-white text-sm font-medium leading-tight line-clamp-1">Refactor Auth Middleware</p>
+<span class="text-[10px] font-bold text-[#92a4c9] bg-[#232f48] px-1.5 py-0.5 rounded border border-[#324467]">Draft</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-[#92a4c9]">
+<span>#45</span>
+<span>•</span>
+<div class="flex items-center gap-1">
+<img alt="" class="size-4 rounded-full bg-gray-600 object-cover" data-alt="User Avatar Alex" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCg6OmOdjlSfDE9gw73HMvAFElz74OtRuG3FdiiI-ydYpx0T5XRXFDId-kUtlQpR5dMjTukFrDpT7995lgXX4oVtTfoufyfpO9RRkIomYMhoPSs6arBFZQn3WeoP61JoaGZfoRX2UFfiu2MkXxmShnG36Gn4Fu1dZdXHi-yRX8i11M2tFUnEclWozqdDyQ2FFE-WXv8iqmYN4QjP9_HmtzAoDQ_O5p9QdmAqDsV4puaask32Z1_MX5LyupjmhTPz79kXv8-iZJC20IB"/>
+<span>alex_k</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Section Header -->
+<div class="px-4 py-2 mt-2 bg-[#111722]/50 flex items-center justify-between">
+<span class="text-xs font-bold text-[#92a4c9] uppercase tracking-wider">Merged</span>
+<span class="text-xs bg-[#232f48] text-white px-2 py-0.5 rounded-full">12</span>
+</div>
+<!-- PR Item 3 (Approved/Merged) -->
+<div class="group relative flex items-start gap-3 p-4 hover:bg-[#232f48] transition-colors border-l-2 border-transparent cursor-pointer opacity-75">
+<div class="mt-0.5 text-[#a855f7]">
+<span class="material-symbols-outlined text-[20px]">merge</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0 gap-1">
+<div class="flex justify-between items-start gap-2">
+<p class="text-[#92a4c9] text-sm font-medium leading-tight line-clamp-1 line-through">Fix Typo in README</p>
+<span class="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded">Merged</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-[#92a4c9]">
+<span>#39</span>
+<span>•</span>
+<div class="flex items-center gap-1">
+<img alt="" class="size-4 rounded-full bg-gray-600 object-cover" data-alt="User Avatar John" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8gBPlkzekH2wsGDq02-NCeurVuycfIogM-mTtysbNSbK6m-RQfhh6sjpoZQQaZMe2HPGhNk40YT7TcfqFOBKI5CTYNCWcb5lHEccbuUK1wAKiSpHpSDB36GdKdOwEf6kDOeFWDgw6MjPl9N43aSqyKXMIRBbxUgyweaUiMrMBTobX7CtbIQ0-jFyV9qnf1gh-G_7u_rAvozcetpQPlbBE9u6afftzaHzvAoa_BcEiM0YAXpTTaom0JZ0HskxZmc5scA4TF-uB6b5T"/>
+<span>john_doe</span>
+</div>
+</div>
+</div>
+</div>
+<!-- PR Item 4 -->
+<div class="group relative flex items-start gap-3 p-4 hover:bg-[#232f48] transition-colors border-l-2 border-transparent cursor-pointer opacity-75">
+<div class="mt-0.5 text-[#a855f7]">
+<span class="material-symbols-outlined text-[20px]">merge</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0 gap-1">
+<div class="flex justify-between items-start gap-2">
+<p class="text-[#92a4c9] text-sm font-medium leading-tight line-clamp-1 line-through">Update Color Palette</p>
+<span class="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded">Merged</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-[#92a4c9]">
+<span>#35</span>
+<span>•</span>
+<div class="flex items-center gap-1">
+<img alt="" class="size-4 rounded-full bg-gray-600 object-cover" data-alt="User Avatar Mike" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDtSQvFKdo0jYio2IGFzSKTROb_2cYSbqqzytlvai59cIyQxfgw6kNY3kIfOSDNuN_GEuOgu-dEQqTuUP1NWjn1HWrd8ttI5awz1b4jqsPoZV-js1pKNVnyStew2TNXmR_W05UuLAefjV4Tcz2xS25uy_67uvI_KKbJB6E8t6CLbGIoYy0wvsnVlUTg8Ju44n-vmfuF6G9GBrRHAe3YKWnNkuZGUP4VKrj-8OcnuvC0fvnDmjqOA7gbVNEyBSyTgnzWNbvZjCLccy_"/>
+<span>mike_b</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Drawer Footer Actions -->
+<div class="p-4 border-t border-[#324467] bg-[#101622]">
+<button class="w-full flex items-center justify-center gap-2 bg-[#232f48] hover:bg-[#324467] text-white py-2 rounded-lg text-sm font-medium transition-colors">
+<span class="material-symbols-outlined text-[18px]">sync</span>
+                Sync with Remote
+            </button>
+</div>
+</aside>
+<!-- Overlay Backdrop (Visual only, to show depth behind drawer) -->
+<div class="absolute inset-0 bg-black/40 z-30 pointer-events-none backdrop-blur-[1px]"></div>
+<!-- Bottom Status Bar -->
+<footer class="bg-[#111722] border-t border-[#324467] p-2 flex items-center justify-between text-xs z-50 relative shrink-0">
+<div class="flex items-center gap-4 px-2">
+<div class="flex items-center gap-1.5 text-emerald-400">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span class="font-mono">Build Success</span>
+</div>
+<div class="flex items-center gap-1.5 text-[#92a4c9]">
+<span class="material-symbols-outlined text-[14px]">terminal</span>
+<span class="font-mono">Terminal</span>
+</div>
+</div>
+<div class="flex items-center gap-2 px-2 text-[#92a4c9] font-mono">
+<span>Ln 12, Col 34</span>
+<span>UTF-8</span>
+</div>
+</footer>
+</body></html>

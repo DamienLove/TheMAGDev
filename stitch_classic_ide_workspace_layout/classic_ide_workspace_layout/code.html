@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Classic IDE Workspace</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "panel-dark": "#161b26",
+                        "sidebar-dark": "#111722",
+                        "border-dark": "#232f48",
+                        "syntax-keyword": "#c678dd",
+                        "syntax-string": "#98c379",
+                        "syntax-func": "#61afef",
+                        "syntax-comment": "#5c6370",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Scrollbar for IDE feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111722; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #232f48; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b4b66; 
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-300 font-display h-screen w-screen overflow-hidden flex flex-col text-sm selection:bg-primary/30 selection:text-white">
+<!-- Top Navigation / Toolbar -->
+<header class="h-14 bg-sidebar-dark border-b border-border-dark flex items-center justify-between px-3 shrink-0 z-50 shadow-sm">
+<!-- Left: Branding & Menu -->
+<div class="flex items-center gap-3">
+<button class="text-slate-400 hover:text-white transition-colors p-1">
+<span class="material-symbols-outlined text-2xl">menu</span>
+</button>
+<div class="flex flex-col">
+<span class="text-white font-bold leading-none tracking-tight">MySuperApp</span>
+<span class="text-[10px] text-slate-500 font-mono">v1.0.2 • workspace</span>
+</div>
+</div>
+<!-- Center: Platform Target (Hidden on very small screens, visible on others) -->
+<div class="hidden md:flex items-center bg-panel-dark rounded-full px-3 py-1.5 border border-border-dark gap-2">
+<span class="material-symbols-outlined text-base text-slate-400">phone_iphone</span>
+<span class="text-xs font-semibold text-slate-200">Pixel 6 Pro (API 33)</span>
+<span class="material-symbols-outlined text-sm text-slate-500">expand_more</span>
+</div>
+<!-- Right: Actions -->
+<div class="flex items-center gap-1">
+<div class="md:hidden flex items-center bg-panel-dark rounded-lg px-2 py-1 border border-border-dark mr-2">
+<span class="material-symbols-outlined text-base text-slate-400">android</span>
+</div>
+<button class="p-2 hover:bg-white/5 rounded-lg text-green-400 flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined fill-1">play_arrow</span>
+</button>
+<button class="p-2 hover:bg-white/5 rounded-lg text-orange-400 flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined">bug_report</span>
+</button>
+<button class="p-2 hover:bg-white/5 rounded-lg text-slate-400 flex items-center justify-center transition-colors ml-1 border-l border-border-dark pl-3">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Main Workspace Area -->
+<div class="flex-1 flex overflow-hidden relative">
+<!-- Activity Bar (Left Rail) -->
+<aside class="w-12 bg-sidebar-dark border-r border-border-dark flex flex-col items-center py-3 gap-6 shrink-0 z-40">
+<div class="group relative">
+<div class="absolute left-0 top-0 bottom-0 w-[2px] bg-primary rounded-r-full"></div>
+<button class="text-white p-2">
+<span class="material-symbols-outlined">folder_open</span>
+</button>
+</div>
+<button class="text-slate-500 hover:text-white transition-colors p-2">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="text-slate-500 hover:text-white transition-colors p-2 relative">
+<span class="material-symbols-outlined">source_environment</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full"></span>
+</button>
+<button class="text-slate-500 hover:text-white transition-colors p-2">
+<span class="material-symbols-outlined">extension</span>
+</button>
+<div class="flex-1"></div>
+<button class="text-slate-500 hover:text-white transition-colors p-2 mb-2">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+<button class="text-slate-500 hover:text-white transition-colors p-2">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</aside>
+<!-- Explorer Panel (Collapsible/Narrow) -->
+<!-- Hidden on very small screens, visible on larger phones/tablets -->
+<section class="w-[180px] bg-panel-dark border-r border-border-dark flex flex-col shrink-0 hidden sm:flex">
+<div class="h-9 flex items-center px-3 text-xs font-bold text-slate-400 tracking-wider">
+                EXPLORER
+                <span class="flex-1"></span>
+<span class="material-symbols-outlined text-base cursor-pointer">more_horiz</span>
+</div>
+<div class="flex-1 overflow-y-auto py-2">
+<!-- Project Root -->
+<div class="px-2 py-1 flex items-center gap-1 text-slate-300 hover:bg-white/5 cursor-pointer rounded-sm">
+<span class="material-symbols-outlined text-base">expand_more</span>
+<span class="font-bold truncate">MySuperApp</span>
+</div>
+<!-- Folders -->
+<div class="pl-6 pr-2 py-1 flex items-center gap-1.5 text-slate-400 hover:bg-white/5 cursor-pointer rounded-sm">
+<span class="material-symbols-outlined text-base">folder</span>
+<span class="truncate">.dart_tool</span>
+</div>
+<div class="pl-6 pr-2 py-1 flex items-center gap-1.5 text-slate-400 hover:bg-white/5 cursor-pointer rounded-sm">
+<span class="material-symbols-outlined text-base">folder</span>
+<span class="truncate">android</span>
+</div>
+<div class="pl-6 pr-2 py-1 flex items-center gap-1.5 text-slate-400 hover:bg-white/5 cursor-pointer rounded-sm">
+<span class="material-symbols-outlined text-base">folder</span>
+<span class="truncate">ios</span>
+</div>
+<!-- Expanded Folder -->
+<div class="pl-6 pr-2 py-1 flex items-center gap-1.5 text-slate-300 hover:bg-white/5 cursor-pointer rounded-sm">
+<span class="material-symbols-outlined text-base">expand_more</span>
+<span class="material-symbols-outlined text-base text-blue-400">folder_open</span>
+<span class="truncate">lib</span>
+</div>
+<!-- Files -->
+<div class="pl-10 pr-2 py-1 flex items-center gap-1.5 bg-white/5 text-white border-l-2 border-primary cursor-pointer">
+<span class="material-symbols-outlined text-base text-sky-400">data_object</span>
+<span class="truncate">main.dart</span>
+</div>
+<div class="pl-10 pr-2 py-1 flex items-center gap-1.5 text-slate-400 hover:bg-white/5 cursor-pointer">
+<span class="material-symbols-outlined text-base text-sky-400">data_object</span>
+<span class="truncate">app.dart</span>
+</div>
+<div class="pl-10 pr-2 py-1 flex items-center gap-1.5 text-slate-400 hover:bg-white/5 cursor-pointer">
+<span class="material-symbols-outlined text-base text-sky-400">data_object</span>
+<span class="truncate">theme.dart</span>
+</div>
+<div class="pl-6 pr-2 py-1 flex items-center gap-1.5 text-slate-400 hover:bg-white/5 cursor-pointer rounded-sm mt-1">
+<span class="material-symbols-outlined text-base">folder</span>
+<span class="truncate">test</span>
+</div>
+<div class="pl-6 pr-2 py-1 flex items-center gap-1.5 text-slate-400 hover:bg-white/5 cursor-pointer rounded-sm">
+<span class="material-symbols-outlined text-base text-yellow-600">description</span>
+<span class="truncate">pubspec.yaml</span>
+</div>
+</div>
+</section>
+<!-- Main Editor & Terminal Area -->
+<main class="flex-1 flex flex-col min-w-0 bg-background-dark relative">
+<!-- Editor Tabs -->
+<div class="flex items-center h-9 bg-sidebar-dark border-b border-border-dark overflow-x-auto no-scrollbar">
+<div class="h-full flex items-center px-3 gap-2 bg-background-dark border-t-2 border-t-primary text-white border-r border-border-dark min-w-fit pr-8 relative group">
+<span class="material-symbols-outlined text-sm text-sky-400">data_object</span>
+<span class="text-xs font-mono">main.dart</span>
+<button class="absolute right-2 opacity-0 group-hover:opacity-100 hover:text-white text-slate-500">
+<span class="material-symbols-outlined text-sm">close</span>
+</button>
+</div>
+<div class="h-full flex items-center px-3 gap-2 text-slate-500 hover:bg-panel-dark border-r border-border-dark min-w-fit cursor-pointer">
+<span class="material-symbols-outlined text-sm text-yellow-600">description</span>
+<span class="text-xs font-mono">pubspec.yaml</span>
+</div>
+<div class="h-full flex items-center px-3 gap-2 text-slate-500 hover:bg-panel-dark border-r border-border-dark min-w-fit cursor-pointer">
+<span class="material-symbols-outlined text-sm text-sky-400">data_object</span>
+<span class="text-xs font-mono">app.dart</span>
+</div>
+</div>
+<!-- Editor Content -->
+<div class="flex-1 overflow-auto relative font-mono text-sm leading-6">
+<!-- Line Numbers -->
+<div class="absolute left-0 top-0 bottom-0 w-10 bg-sidebar-dark border-r border-border-dark text-slate-600 text-right pr-2 py-4 select-none">
+                    1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16<br/>17<br/>18
+                </div>
+<!-- Code -->
+<div class="pl-12 pr-4 py-4 whitespace-pre">
+<span class="text-syntax-keyword">import</span> <span class="text-syntax-string">'package:flutter/material.dart'</span>;
+
+<span class="text-syntax-keyword">void</span> main() {
+  runApp(<span class="text-syntax-keyword">const</span> MyApp());
+}
+
+<span class="text-syntax-keyword">class</span> <span class="text-syntax-func">MyApp</span> <span class="text-syntax-keyword">extends</span> <span class="text-syntax-func">StatelessWidget</span> {
+  <span class="text-syntax-keyword">const</span> MyApp({<span class="text-syntax-keyword">super</span>.key});
+
+  <span class="text-syntax-comment">// This widget is the root of your application.</span>
+<span class="text-syntax-keyword">@override</span>
+<span class="text-syntax-func">Widget</span> build(<span class="text-syntax-func">BuildContext</span> context) {
+    <span class="text-syntax-keyword">return</span> <span class="text-syntax-func">MaterialApp</span>(
+      title: <span class="text-syntax-string">'Flutter Demo'</span>,
+      theme: <span class="text-syntax-func">ThemeData</span>(
+        colorScheme: <span class="text-syntax-func">ColorScheme</span>.fromSeed(
+          seedColor: <span class="text-syntax-func">Colors</span>.deepPurple
+        ),
+        useMaterial3: <span class="text-syntax-keyword">true</span>,
+      ),
+      home: <span class="text-syntax-keyword">const</span> <span class="text-syntax-func">MyHomePage</span>(title: <span class="text-syntax-string">'Home Page'</span>),
+    );
+  }
+}</div>
+</div>
+<!-- Bottom Terminal Panel -->
+<div class="h-[180px] bg-sidebar-dark border-t border-border-dark flex flex-col shrink-0">
+<div class="flex items-center gap-6 px-4 h-9 border-b border-border-dark">
+<button class="text-xs font-bold text-slate-500 hover:text-white uppercase">Problems</button>
+<button class="text-xs font-bold text-slate-500 hover:text-white uppercase">Output</button>
+<button class="text-xs font-bold text-slate-500 hover:text-white uppercase">Debug Console</button>
+<button class="text-xs font-bold text-white uppercase border-b-2 border-primary h-full">Terminal</button>
+<div class="flex-1"></div>
+<button class="text-slate-500 hover:text-white"><span class="material-symbols-outlined text-sm">keyboard_arrow_down</span></button>
+<button class="text-slate-500 hover:text-white"><span class="material-symbols-outlined text-sm">close</span></button>
+</div>
+<div class="flex-1 p-3 font-mono text-xs overflow-auto text-slate-300">
+<p class="mb-1"><span class="text-green-400">➜</span> <span class="text-blue-400">mysuperapp</span> git:(<span class="text-red-400">main</span>) <span class="text-yellow-400">✗</span> flutter run</p>
+<p class="mb-1 text-slate-400">Launching lib/main.dart on Android SDK built for x86 in debug mode...</p>
+<p class="mb-1 text-slate-400">Running Gradle task 'assembleDebug'...</p>
+<p class="mb-1 text-slate-400">✓  Built build/app/outputs/flutter-apk/app-debug.apk.</p>
+<p class="mb-1"><span class="text-blue-400">D/EGL_emulation( 6219):</span> app_time_stats: avg=14.32ms min=3.21ms max=342.12ms count=42</p>
+</div>
+</div>
+<!-- Floating Action Button for Mobile AI Toggle (Since we might need to hide the panel on tiny screens) -->
+<button class="absolute bottom-[200px] right-4 sm:hidden bg-primary text-white p-3 rounded-full shadow-lg z-50 flex items-center justify-center">
+<span class="material-symbols-outlined">smart_toy</span>
+</button>
+</main>
+<!-- AI Assistant Panel (Drawer/Collapsible) -->
+<!-- "On the right... panel is open" -->
+<aside class="w-[280px] hidden lg:flex flex-col bg-panel-dark border-l border-border-dark shrink-0 z-30">
+<div class="h-9 px-3 border-b border-border-dark flex items-center justify-between">
+<span class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">smart_toy</span>
+                    AI Assistant
+                </span>
+<div class="flex gap-1">
+<button class="text-slate-500 hover:text-white p-1"><span class="material-symbols-outlined text-sm">history</span></button>
+<button class="text-slate-500 hover:text-white p-1"><span class="material-symbols-outlined text-sm">close</span></button>
+</div>
+</div>
+<!-- Chat Area -->
+<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+<!-- System/Welcome -->
+<div class="flex gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 border border-primary/30">
+<span class="material-symbols-outlined text-primary text-xs">smart_toy</span>
+</div>
+<div class="flex flex-col gap-1 max-w-[85%]">
+<span class="text-[10px] text-slate-500 font-bold">AI ASSISTANT</span>
+<div class="bg-sidebar-dark border border-border-dark p-3 rounded-lg rounded-tl-none text-slate-300 text-xs leading-relaxed">
+                            Hello! I'm ready to help you with your Flutter code. Ask me to generate widgets, debug errors, or explain concepts.
+                        </div>
+</div>
+</div>
+<!-- User Message -->
+<div class="flex gap-3 flex-row-reverse">
+<div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-white text-xs">person</span>
+</div>
+<div class="flex flex-col gap-1 items-end max-w-[85%]">
+<span class="text-[10px] text-slate-500 font-bold">YOU</span>
+<div class="bg-primary p-3 rounded-lg rounded-tr-none text-white text-xs leading-relaxed">
+                            Can you refactor the <code>MyApp</code> widget to use a stateful widget instead?
+                        </div>
+</div>
+</div>
+<!-- AI Response -->
+<div class="flex gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 border border-primary/30">
+<span class="material-symbols-outlined text-primary text-xs">smart_toy</span>
+</div>
+<div class="flex flex-col gap-1 max-w-[90%]">
+<span class="text-[10px] text-slate-500 font-bold">AI ASSISTANT</span>
+<div class="bg-sidebar-dark border border-border-dark p-3 rounded-lg rounded-tl-none text-slate-300 text-xs leading-relaxed">
+                            Sure! Converting to a <code>StatefulWidget</code> allows you to manage mutable state. Here is the updated code:
+                            
+                            <div class="mt-2 bg-[#0d1117] p-2 rounded border border-border-dark font-mono text-[10px] overflow-x-auto text-slate-400">
+<span class="text-syntax-keyword">class</span> MyApp <span class="text-syntax-keyword">extends</span> StatefulWidget {<br/>
+                                  <span class="text-syntax-keyword">const</span> MyApp({Key? key}) : <span class="text-syntax-keyword">super</span>(key: key);<br/><br/>
+                                  <span class="text-syntax-keyword">@override</span><br/>
+                                  State&lt;MyApp&gt; createState() =&gt; _MyAppState();<br/>
+                                }
+                            </div>
+<div class="mt-2 flex gap-2">
+<button class="px-2 py-1 bg-white/5 hover:bg-white/10 rounded text-[10px] border border-white/10 flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">content_copy</span> Copy
+                                </button>
+<button class="px-2 py-1 bg-white/5 hover:bg-white/10 rounded text-[10px] border border-white/10 flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">add_circle</span> Insert
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-3 border-t border-border-dark bg-sidebar-dark">
+<div class="relative">
+<textarea class="w-full bg-panel-dark border border-border-dark rounded-md py-2 pl-3 pr-10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-primary resize-none h-10 leading-relaxed" placeholder="Ask anything..."></textarea>
+<button class="absolute right-2 top-2 text-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined text-lg">send</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Mobile Overlay for AI (Visible on small screens if 'Open') -->
+<!-- Simulating the 'Open' state on a phone width by overlaying -->
+<aside class="absolute top-0 right-0 w-[85%] h-full bg-panel-dark border-l border-border-dark flex flex-col z-50 shadow-2xl lg:hidden transform transition-transform duration-300 translate-x-0">
+<div class="h-9 px-3 border-b border-border-dark flex items-center justify-between bg-sidebar-dark">
+<span class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">smart_toy</span>
+                    AI Assistant
+                </span>
+<button class="text-slate-500 hover:text-white p-1"><span class="material-symbols-outlined text-sm">close</span></button>
+</div>
+<div class="flex-1 p-4 overflow-y-auto">
+<div class="flex flex-col gap-4">
+<!-- Simplified Chat for Mobile Overlay -->
+<div class="flex gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 border border-primary/30">
+<span class="material-symbols-outlined text-primary text-xs">smart_toy</span>
+</div>
+<div class="bg-sidebar-dark border border-border-dark p-3 rounded-lg rounded-tl-none text-slate-300 text-xs">
+                             How can I help you code today?
+                         </div>
+</div>
+</div>
+</div>
+<div class="p-3 border-t border-border-dark bg-sidebar-dark">
+<div class="relative">
+<input class="w-full bg-panel-dark border border-border-dark rounded-md py-2 pl-3 pr-10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-primary" placeholder="Type a message..." type="text"/>
+<button class="absolute right-2 top-1.5 text-primary hover:text-white">
+<span class="material-symbols-outlined text-lg">send</span>
+</button>
+</div>
+</div>
+</aside>
+</div>
+</body></html>

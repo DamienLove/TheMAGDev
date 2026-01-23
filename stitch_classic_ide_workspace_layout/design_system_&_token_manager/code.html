@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Design System &amp; Token Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 2px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden">
+<div class="relative flex h-screen w-full flex-col overflow-hidden max-w-md mx-auto border-x border-slate-800 shadow-2xl">
+<!-- Header -->
+<header class="flex items-center justify-between px-4 py-3 bg-background-light dark:bg-background-dark shrink-0 z-10 border-b border-slate-800/50">
+<h2 class="text-xl font-bold leading-tight tracking-tight flex-1">Design Tokens</h2>
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined">sync</span>
+</button>
+<div class="size-8 rounded-full bg-gradient-to-br from-primary to-purple-500 p-[2px]">
+<img alt="User Profile" class="rounded-full size-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFkaemU4_id83VyOM0gd2mc20skGlFdd3g4jF_Z9Axbnsoht4Q9mF59je-aTGGMTA7A99NFd7e3kA8zXowxFh_zP7zU9jlMiAwbn6PQMZSZJjUu5XgvAQLstgr0jTxK1iDvv-pj0XPiAWLPe37tUI3Foyek1pDVU9pCi4QNPNKHU4gvPf-9THyyieR1XNIzl2nS91yat1AehonYnbbca1WfQZaR6k49yfEh1bQTMagRajxCMSKFQsyJOA-wXb2mwJcTSzCoa0N4QVk"/>
+</div>
+</div>
+</header>
+<!-- Scrollable Content -->
+<main class="flex-1 overflow-y-auto scroll-smooth pb-24">
+<!-- Category Tabs -->
+<div class="sticky top-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md px-4 py-3 border-b border-slate-800/50">
+<div class="flex h-10 w-full items-center justify-center rounded-lg bg-slate-200 dark:bg-[#222f49] p-1">
+<label class="group flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-[4px] px-2 has-[:checked]:bg-white dark:has-[:checked]:bg-[#101623] has-[:checked]:shadow-sm transition-all duration-200">
+<span class="truncate text-xs sm:text-sm font-medium text-slate-500 dark:text-[#90a4cb] group-has-[:checked]:text-primary dark:group-has-[:checked]:text-white">Colors</span>
+<input checked="" class="invisible w-0 absolute" name="token-category" type="radio" value="Colors"/>
+</label>
+<label class="group flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-[4px] px-2 has-[:checked]:bg-white dark:has-[:checked]:bg-[#101623] has-[:checked]:shadow-sm transition-all duration-200">
+<span class="truncate text-xs sm:text-sm font-medium text-slate-500 dark:text-[#90a4cb] group-has-[:checked]:text-primary dark:group-has-[:checked]:text-white">Type</span>
+<input class="invisible w-0 absolute" name="token-category" type="radio" value="Type"/>
+</label>
+<label class="group flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-[4px] px-2 has-[:checked]:bg-white dark:has-[:checked]:bg-[#101623] has-[:checked]:shadow-sm transition-all duration-200">
+<span class="truncate text-xs sm:text-sm font-medium text-slate-500 dark:text-[#90a4cb] group-has-[:checked]:text-primary dark:group-has-[:checked]:text-white">Space</span>
+<input class="invisible w-0 absolute" name="token-category" type="radio" value="Space"/>
+</label>
+<label class="group flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-[4px] px-2 has-[:checked]:bg-white dark:has-[:checked]:bg-[#101623] has-[:checked]:shadow-sm transition-all duration-200">
+<span class="truncate text-xs sm:text-sm font-medium text-slate-500 dark:text-[#90a4cb] group-has-[:checked]:text-primary dark:group-has-[:checked]:text-white">Shadows</span>
+<input class="invisible w-0 absolute" name="token-category" type="radio" value="Shadows"/>
+</label>
+</div>
+</div>
+<!-- Primary Color Editor -->
+<section class="p-4">
+<h3 class="text-slate-800 dark:text-white text-lg font-bold mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">palette</span>
+                    Primary System
+                </h3>
+<div class="flex flex-col sm:flex-row gap-4 rounded-xl bg-white dark:bg-[#182234] p-4 shadow-sm border border-slate-200 dark:border-slate-800">
+<div class="flex-1 flex flex-col justify-between gap-4">
+<div>
+<p class="text-slate-400 dark:text-[#90a4cb] text-xs font-medium uppercase tracking-wider mb-1">Variable Name</p>
+<p class="text-slate-900 dark:text-white text-lg font-bold font-mono">--color-primary</p>
+</div>
+<div>
+<p class="text-slate-400 dark:text-[#90a4cb] text-xs font-medium uppercase tracking-wider mb-1">Hex Value</p>
+<div class="flex items-center gap-2">
+<span class="size-3 rounded-full bg-green-500 animate-pulse"></span>
+<p class="text-primary font-bold text-xl">#0D59F2</p>
+</div>
+</div>
+</div>
+<div class="relative w-full sm:w-32 aspect-video sm:aspect-square rounded-lg overflow-hidden group cursor-pointer shadow-inner">
+<div class="absolute inset-0 bg-primary z-0 transition-colors duration-300"></div>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/40 transition-opacity z-10">
+<span class="material-symbols-outlined text-white">edit</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Live Preview -->
+<section class="px-4 py-2">
+<div class="flex items-center justify-between mb-3">
+<h3 class="text-slate-800 dark:text-white text-lg font-bold">Live Preview</h3>
+<span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wide border border-primary/20">Updated</span>
+</div>
+<div class="rounded-xl bg-slate-100 dark:bg-[#0c101a] p-5 border border-slate-200 dark:border-slate-800 relative overflow-hidden">
+<!-- Abstract Background Grid -->
+<div class="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" style="background-image: radial-gradient(#90a4cb 1px, transparent 1px); background-size: 20px 20px;">
+</div>
+<div class="relative z-10 space-y-4">
+<!-- Preview: Button -->
+<div class="flex items-center justify-between gap-4">
+<span class="text-xs text-slate-500 dark:text-slate-400 w-16">Active</span>
+<button class="flex-1 bg-primary hover:bg-blue-600 text-white font-medium py-2.5 px-4 rounded-lg shadow-lg shadow-primary/25 transition-all active:scale-95 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">send</span>
+                                Submit Action
+                            </button>
+</div>
+<!-- Preview: Input -->
+<div class="flex items-center justify-between gap-4">
+<span class="text-xs text-slate-500 dark:text-slate-400 w-16">Focus</span>
+<div class="flex-1 relative">
+<input class="w-full bg-white dark:bg-[#182234] border-2 border-primary text-slate-900 dark:text-white text-sm rounded-lg px-3 py-2.5 outline-none shadow-sm" readonly="" type="text" value="design_tokens"/>
+<span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-primary text-sm">check_circle</span>
+</div>
+</div>
+<!-- Preview: Toggle -->
+<div class="flex items-center justify-between gap-4">
+<span class="text-xs text-slate-500 dark:text-slate-400 w-16">Switch</span>
+<div class="flex-1 flex items-center">
+<div class="w-11 h-6 bg-primary rounded-full relative cursor-pointer shadow-inner">
+<div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm"></div>
+</div>
+<span class="ml-3 text-sm font-medium text-slate-700 dark:text-slate-300">Sync Enabled</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Global Grid -->
+<section class="px-4 py-4">
+<h3 class="text-slate-800 dark:text-white text-lg font-bold mb-3">Global Variables</h3>
+<div class="grid grid-cols-2 gap-3">
+<!-- Color Swatches -->
+<div class="col-span-2 grid grid-cols-4 gap-3 bg-white dark:bg-[#182234] p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+<div class="flex flex-col items-center gap-2">
+<div class="size-10 rounded-full bg-[#ec4899] shadow-sm ring-2 ring-transparent hover:ring-white/20 cursor-pointer"></div>
+<span class="text-[10px] text-slate-500 dark:text-slate-400">Pink</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="size-10 rounded-full bg-[#10b981] shadow-sm ring-2 ring-transparent hover:ring-white/20 cursor-pointer"></div>
+<span class="text-[10px] text-slate-500 dark:text-slate-400">Teal</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="size-10 rounded-full bg-[#f59e0b] shadow-sm ring-2 ring-transparent hover:ring-white/20 cursor-pointer"></div>
+<span class="text-[10px] text-slate-500 dark:text-slate-400">Amber</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="size-10 rounded-full border-2 border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-slate-400 text-sm">add</span>
+</div>
+<span class="text-[10px] text-slate-500 dark:text-slate-400">Add</span>
+</div>
+</div>
+<!-- Spacing -->
+<div class="bg-white dark:bg-[#182234] p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between h-32">
+<div class="flex items-center gap-2 text-slate-400 dark:text-[#90a4cb]">
+<span class="material-symbols-outlined text-lg">space_bar</span>
+<span class="text-xs font-bold uppercase">Spacing</span>
+</div>
+<div class="flex items-end gap-1 h-12">
+<div class="w-2 bg-slate-300 dark:bg-slate-600 h-[25%] rounded-t-sm"></div>
+<div class="w-2 bg-slate-300 dark:bg-slate-600 h-[50%] rounded-t-sm"></div>
+<div class="w-2 bg-primary h-[100%] rounded-t-sm shadow-[0_0_10px_rgba(13,89,242,0.5)]"></div>
+<div class="w-2 bg-slate-300 dark:bg-slate-600 h-[75%] rounded-t-sm"></div>
+</div>
+<span class="text-sm font-bold dark:text-white">Base: 4px</span>
+</div>
+<!-- Typography -->
+<div class="bg-white dark:bg-[#182234] p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between h-32">
+<div class="flex items-center gap-2 text-slate-400 dark:text-[#90a4cb]">
+<span class="material-symbols-outlined text-lg">text_fields</span>
+<span class="text-xs font-bold uppercase">Type</span>
+</div>
+<div class="flex flex-col">
+<span class="text-2xl font-bold dark:text-white leading-none">Aa</span>
+<span class="text-xs text-slate-500 dark:text-slate-400 mt-1">Space Grotesk</span>
+</div>
+<span class="text-sm font-bold dark:text-white">Regular 400</span>
+</div>
+</div>
+</section>
+<!-- Style Guide List -->
+<section class="px-4 py-2">
+<div class="flex items-center justify-between mb-3">
+<h3 class="text-slate-800 dark:text-white text-lg font-bold">Style Guide</h3>
+<button class="text-xs text-primary font-medium hover:underline">View All</button>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Item 1 -->
+<div class="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-[#182234] border border-slate-200 dark:border-slate-800 hover:border-primary/50 dark:hover:border-primary/50 transition-colors cursor-pointer group">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded bg-slate-100 dark:bg-[#222f49] flex items-center justify-center text-slate-500 dark:text-slate-300 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">smart_button</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold dark:text-white">Action Button</span>
+<span class="text-[10px] text-slate-400 dark:text-slate-500">Components/Buttons/Primary</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="bg-green-500/10 text-green-600 dark:text-green-400 text-[10px] font-bold px-2 py-0.5 rounded-full">42 uses</span>
+<span class="material-symbols-outlined text-slate-300 dark:text-slate-600 text-sm">chevron_right</span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-[#182234] border border-slate-200 dark:border-slate-800 hover:border-primary/50 dark:hover:border-primary/50 transition-colors cursor-pointer group">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded bg-slate-100 dark:bg-[#222f49] flex items-center justify-center text-slate-500 dark:text-slate-300 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">input</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold dark:text-white">Text Field</span>
+<span class="text-[10px] text-slate-400 dark:text-slate-500">Components/Forms/Input</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-bold px-2 py-0.5 rounded-full">15 uses</span>
+<span class="material-symbols-outlined text-slate-300 dark:text-slate-600 text-sm">chevron_right</span>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-[#182234] border border-slate-200 dark:border-slate-800 hover:border-primary/50 dark:hover:border-primary/50 transition-colors cursor-pointer group">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded bg-slate-100 dark:bg-[#222f49] flex items-center justify-center text-slate-500 dark:text-slate-300 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">call_to_action</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold dark:text-white">Hero Card</span>
+<span class="text-[10px] text-slate-400 dark:text-slate-500">Components/Cards/Hero</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-bold px-2 py-0.5 rounded-full">12 uses</span>
+<span class="material-symbols-outlined text-slate-300 dark:text-slate-600 text-sm">chevron_right</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Fixed Bottom Action -->
+<div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-[#101622] via-[#101622]/90 to-transparent pointer-events-none flex justify-center pb-6">
+<button class="pointer-events-auto shadow-[0_8px_30px_rgb(13,89,242,0.4)] flex items-center justify-center gap-3 bg-primary hover:bg-blue-600 text-white text-base font-bold py-3.5 px-8 rounded-full w-full max-w-xs transition-transform active:scale-95 group">
+<span class="material-symbols-outlined group-hover:animate-bounce">download</span>
+                Export Tokens
+            </button>
+</div>
+</div>
+</body></html>

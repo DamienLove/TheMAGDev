@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Resource Usage &amp; Billing Overview</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "secondary": "#10b981", // Emerald
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                        "card-dark": "#1a1f2e",
+                        "card-light": "#ffffff",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display antialiased overflow-x-hidden selection:bg-primary selection:text-white">
+<div class="relative flex min-h-screen w-full flex-col max-w-md mx-auto shadow-2xl bg-background-light dark:bg-background-dark">
+<!-- Header -->
+<header class="sticky top-0 z-50 flex items-center justify-between p-4 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<div class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-tight">Usage &amp; Billing</h2>
+<div class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</div>
+</header>
+<!-- Main Scrollable Content -->
+<main class="flex-1 flex flex-col gap-6 p-4 pb-24">
+<!-- Hero Cost Section -->
+<section class="flex flex-col gap-2">
+<div class="flex items-baseline justify-between">
+<h1 class="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">$42.50</h1>
+<span class="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold border border-emerald-500/20">
+                        +12% vs last month
+                    </span>
+</div>
+<p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Current Month Spend • Next invoice Nov 01</p>
+<!-- Chart Container -->
+<div class="mt-4 w-full h-48 bg-card-light dark:bg-card-dark rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-800 relative overflow-hidden">
+<div class="flex justify-between items-center mb-4">
+<p class="text-xs font-bold uppercase tracking-wider text-slate-400">Daily Trend (30d)</p>
+<div class="flex gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="text-[10px] text-slate-400">Compute</span>
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="text-[10px] text-slate-400">Storage</span>
+</div>
+</div>
+<!-- SVG Chart -->
+<div class="absolute bottom-0 left-0 right-0 h-32 w-full px-2">
+<svg class="overflow-visible" fill="none" height="100%" preserveaspectratio="none" viewbox="0 0 400 120" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<lineargradient gradientunits="userSpaceOnUse" id="chartGradient" x1="200" x2="200" y1="0" y2="120">
+<stop stop-color="#0d59f2" stop-opacity="0.3"></stop>
+<stop offset="1" stop-color="#0d59f2" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Line Path -->
+<path d="M0 80 C40 80, 50 40, 90 50 C130 60, 150 20, 200 40 C250 60, 280 30, 320 30 C360 30, 380 90, 400 70 V 120 H 0 V 80 Z" fill="url(#chartGradient)"></path>
+<path d="M0 80 C40 80, 50 40, 90 50 C130 60, 150 20, 200 40 C250 60, 280 30, 320 30 C360 30, 380 90, 400 70" fill="none" stroke="#0d59f2" stroke-linecap="round" stroke-width="3"></path>
+<!-- Highlight Points -->
+<circle class="fill-background-light dark:fill-background-dark stroke-emerald-400" cx="200" cy="40" r="4" stroke-width="2"></circle>
+<circle class="fill-background-light dark:fill-background-dark stroke-primary" cx="320" cy="30" r="4" stroke-width="2"></circle>
+</svg>
+</div>
+<!-- X Axis Labels -->
+<div class="absolute bottom-2 left-4 right-4 flex justify-between text-[10px] text-slate-400 font-mono">
+<span>Sep 15</span>
+<span>Oct 01</span>
+<span>Oct 15</span>
+</div>
+</div>
+</section>
+<!-- Active Instance Section -->
+<section>
+<div class="flex items-center justify-between mb-3 px-1">
+<h3 class="text-lg font-bold">Active Instance</h3>
+<a class="text-xs font-bold text-primary hover:text-primary/80" href="#">View All</a>
+</div>
+<div class="bg-card-light dark:bg-card-dark rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-800">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+<span class="material-symbols-outlined text-white text-[20px]">terminal</span>
+</div>
+<div>
+<h4 class="font-bold text-base leading-tight">Dev-Environment-Pro-X1</h4>
+<div class="flex items-center gap-2 mt-1">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+</span>
+<span class="text-xs font-medium text-emerald-600 dark:text-emerald-400">Running</span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<p class="text-[10px] uppercase text-slate-500 dark:text-slate-400 font-bold tracking-wider mb-0.5">Uptime</p>
+<p class="text-sm font-mono font-medium">14h 32m</p>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-2 py-4 border-t border-slate-100 dark:border-slate-700/50">
+<div class="flex flex-col items-center gap-1 p-2 rounded-lg bg-background-light dark:bg-slate-800/50">
+<span class="material-symbols-outlined text-slate-400 text-[18px]">memory</span>
+<span class="text-xs font-bold">8 vCPU</span>
+</div>
+<div class="flex flex-col items-center gap-1 p-2 rounded-lg bg-background-light dark:bg-slate-800/50">
+<span class="material-symbols-outlined text-slate-400 text-[18px]">developer_board</span>
+<span class="text-xs font-bold">16GB RAM</span>
+</div>
+<div class="flex flex-col items-center gap-1 p-2 rounded-lg bg-background-light dark:bg-slate-800/50">
+<span class="material-symbols-outlined text-slate-400 text-[18px]">hard_drive</span>
+<span class="text-xs font-bold">100GB</span>
+</div>
+</div>
+<div class="mt-4 flex gap-3">
+<button class="flex-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-900 dark:text-white h-10 rounded-lg text-sm font-bold transition-colors">
+                            Reboot
+                        </button>
+<button class="flex-1 bg-primary hover:bg-blue-600 text-white h-10 rounded-lg text-sm font-bold shadow-lg shadow-blue-500/20 transition-colors">
+                            Manage
+                        </button>
+</div>
+</div>
+</section>
+<!-- Payment Method -->
+<section>
+<h3 class="text-lg font-bold mb-3 px-1">Payment Method</h3>
+<div class="bg-card-light dark:bg-card-dark rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-8 rounded bg-slate-100 dark:bg-slate-700 flex items-center justify-center relative overflow-hidden border border-slate-200 dark:border-slate-600">
+<!-- Abstract card pattern -->
+<div class="absolute inset-0 bg-gradient-to-tr from-slate-200 to-transparent dark:from-slate-600 opacity-50"></div>
+<span class="font-bold text-[10px] italic z-10">VISA</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold">•••• 4242</span>
+<span class="text-xs text-slate-500 dark:text-slate-400">Expires 12/25</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<button class="text-primary text-xs font-bold hover:underline">Edit</button>
+<div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20">
+<span class="material-symbols-outlined text-indigo-500 text-[12px]">account_balance_wallet</span>
+<span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-300">Credits: $12.00</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Billing History -->
+<section>
+<div class="flex items-center justify-between mb-3 px-1">
+<h3 class="text-lg font-bold">Billing History</h3>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+</button>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Invoice Item 1 -->
+<div class="group flex items-center justify-between p-3 rounded-lg bg-card-light dark:bg-card-dark border border-slate-200 dark:border-slate-800 hover:border-primary/50 transition-all">
+<div class="flex items-center gap-4">
+<div class="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:text-primary group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-[20px]">description</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="text-sm font-bold text-slate-900 dark:text-white">Invoice #2023-10</span>
+<span class="text-xs text-slate-500 dark:text-slate-400">Oct 01, 2023</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex flex-col items-end">
+<span class="text-sm font-bold">$120.00</span>
+<span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">Paid</span>
+</div>
+<button aria-label="Download Invoice" class="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+</div>
+</div>
+<!-- Invoice Item 2 -->
+<div class="group flex items-center justify-between p-3 rounded-lg bg-card-light dark:bg-card-dark border border-slate-200 dark:border-slate-800 hover:border-primary/50 transition-all">
+<div class="flex items-center gap-4">
+<div class="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:text-primary group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-[20px]">description</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="text-sm font-bold text-slate-900 dark:text-white">Invoice #2023-09</span>
+<span class="text-xs text-slate-500 dark:text-slate-400">Sep 01, 2023</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex flex-col items-end">
+<span class="text-sm font-bold">$98.50</span>
+<span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">Paid</span>
+</div>
+<button aria-label="Download Invoice" class="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+</div>
+</div>
+<!-- Invoice Item 3 -->
+<div class="group flex items-center justify-between p-3 rounded-lg bg-card-light dark:bg-card-dark border border-slate-200 dark:border-slate-800 hover:border-primary/50 transition-all">
+<div class="flex items-center gap-4">
+<div class="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:text-primary group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-[20px]">description</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="text-sm font-bold text-slate-900 dark:text-white">Invoice #2023-08</span>
+<span class="text-xs text-slate-500 dark:text-slate-400">Aug 01, 2023</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex flex-col items-end">
+<span class="text-sm font-bold">$105.00</span>
+<span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">Paid</span>
+</div>
+<button aria-label="Download Invoice" class="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Floating Action for Quick Add (Optional but useful in IDE context) -->
+<div class="fixed bottom-6 right-6 lg:hidden z-50">
+<button class="w-14 h-14 bg-primary text-white rounded-full shadow-lg shadow-blue-600/40 flex items-center justify-center hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[28px]">add</span>
+</button>
+</div>
+</div>
+</body></html>

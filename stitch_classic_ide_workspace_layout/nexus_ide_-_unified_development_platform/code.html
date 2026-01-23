@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Nexus IDE - Unified Development Platform</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "primary-dark": "#0e45b5",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1a1d24",
+                        "surface-darker": "#151920",
+                        "surface-highlight": "#253145",
+                        "text-secondary": "#92a4c9",
+                        "neon-green": "#0bda5e",
+                        "neon-blue": "#3b82f6",
+                        "neon-purple": "#a855f7",
+                        "neon-orange": "#fa6238",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                        "mono": ["JetBrains Mono", "Fira Code", "monospace"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'neon-green': '0 0 10px rgba(11, 218, 94, 0.3)',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 3s linear infinite',
+                    }
+                },
+            },
+        }
+    </script>
+
+    <!-- React & Router Dependencies -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/history@5/umd/history.development.js"></script>
+    <script src="https://unpkg.com/react-router@6.3.0/umd/react-router.development.js"></script>
+    <script src="https://unpkg.com/react-router-dom@6.3.0/umd/react-router-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background-color: #101622;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        h1, h2, h3, h4, h5, h6, .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Code block scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #314368;
+            border-radius: 20px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { createRoot } = ReactDOM;
+        const { MemoryRouter, Routes, Route, Link, useNavigate, useLocation } = ReactRouterDOM;
+
+        // --- Navigation Wrapper Component ---
+        const AppShell = ({ children }) => {
+            const navigate = useNavigate();
+            const location = useLocation();
+
+            // Only show bottom nav on screens that aren't splash or login
+            const hideNav = ['/', '/login'].includes(location.pathname);
+
+            return (
+                <div className="relative min-h-screen bg-background-dark text-white max-w-[480px] mx-auto shadow-2xl border-x border-slate-800 flex flex-col">
+                    <div className="flex-1 flex flex-col relative overflow-hidden">
+                        {children}
+                    </div>
+                    
+                    {!hideNav && (
+                        <nav className="shrink-0 z-50 bg-[#101622]/95 backdrop-blur-md border-t border-slate-800 pb-[env(safe-area-inset-bottom)]">
+                            <div className="flex items-center justify-around h-16">
+                                <Link to="/dashboard" className={`flex flex-col items-center gap-1 w-16 transition-colors ${location.pathname === '/dashboard' ? 'text-primary' : 'text-slate-400 hover:text-white'}`}>
+                                    <span className={`material-symbols-outlined text-[24px] ${location.pathname === '/dashboard' ? 'fill' : ''}`}>home</span>
+                                    <span className="text-[10px] font-medium">Home</span>
+                                </Link>
+                                <Link to="/editor" className={`flex flex-col items-center gap-1 w-16 transition-colors ${location.pathname === '/editor' ? 'text-primary' : 'text-slate-400 hover:text-white'}`}>
+                                    <span className="material-symbols-outlined text-[24px]">code</span>
+                                    <span className="text-[10px] font-medium">Editor</span>
+                                </Link>
+                                <Link to="/ops" className={`flex flex-col items-center gap-1 w-16 transition-colors ${location.pathname === '/ops' ? 'text-primary' : 'text-slate-400 hover:text-white'}`}>
+                                    <span className="material-symbols-outlined text-[24px]">rocket_launch</span>
+                                    <span className="text-[10px] font-medium">Ops</span>
+                                </Link>
+                                <Link to="/community" className={`flex flex-col items-center gap-1 w-16 transition-colors ${location.pathname === '/community' ? 'text-primary' : 'text-slate-400 hover:text-white'}`}>
+                                    <span className="material-symbols-outlined text-[24px]">forum</span>
+                                    <span className="text-[10px] font-medium">Social</span>
+                                </Link>
+                                <Link to="/settings" className={`flex flex-col items-center gap-1 w-16 transition-colors ${location.pathname === '/settings' ? 'text-primary' : 'text-slate-400 hover:text-white'}`}>
+                                    <span className="material-symbols-outlined text-[24px]">settings</span>
+                                    <span className="text-[10px] font-medium">Config</span>
+                                </Link>
+                            </div>
+                        </nav>
+                    )}
+                </div>
+            );
+        };
+
+        // --- Screen Components ---
+
+        // Screen 10: Splash Screen
+        const SplashScreen = () => {
+            const navigate = useNavigate();
+            useEffect(() => {
+                const timer = setTimeout(() => navigate('/login'), 2500);
+                return () => clearTimeout(timer);
+            }, [navigate]);
+
+            return (
+                <div className="h-full flex flex-col items-center justify-between overflow-hidden relative p-6">
+                    <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-primary/10 blur-[80px] rounded-full pointer-events-none z-0"></div>
+                    <div className="h-10"></div>
+                    <div className="z-10 flex flex-col items-center justify-center w-full max-w-xs flex-1">
+                        <div className="flex flex-col items-center gap-6 mb-12 animate-pulse-slow">
+                            <div className="w-24 h-24 bg-center bg-no-repeat bg-contain rounded-xl shadow-2xl shadow-primary/20 ring-1 ring-white/10" 
+                                style={{backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDEjjk3gZ0NcD1GJTWw0OdJbkfzP4mspzPewlsLpH9AYuqc5XNdUVkeh1uRRlxPTiH3KzVghRmAdUin7E6pts0_HSPcqp7kQeZQMlIL_3Acm4k2SbH2WMq3B1tS2gK3VdLgedog-rP6HdE2tUVoPikXzm4lrdFBE-I0MCzwmwUU8TUPGOWXImbw5fa7kyz-PPVzDRmNiaGYvPK6JTqHU4uMqZHFPZMsbD5dkNTz9FpmgTmw1phwqrIpkCIZnwC8U3-iOvdLn8yrDKiT")'}}>
+                            </div>
+                            <h1 className="text-4xl font-bold tracking-tight text-white font-display">Nexus IDE</h1>
+                        </div>
+                        <div className="w-full flex flex-col gap-4">
+                            <div className="rounded-full bg-[#324467] overflow-hidden">
+                                <div className="h-1.5 rounded-full bg-primary shadow-[0_0_15px_rgba(19,91,236,0.6)] relative overflow-hidden w-[65%]"></div>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <p className="text-[#92a4c9] text-sm font-medium">Loading Modules...</p>
+                                <span className="text-xs text-primary font-mono">65%</span>
+                            </div>
+                            <div className="mt-4 flex flex-col gap-2 pt-4 border-t border-white/5">
+                                <div className="flex items-center gap-3 text-slate-400">
+                                    <span className="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+                                    <span className="text-xs font-mono">Verifying Token...</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-slate-300">
+                                    <span className="material-symbols-outlined text-[16px] animate-spin">sync</span>
+                                    <span className="text-xs font-mono">Syncing Extensions...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="z-10 pb-8 w-full flex flex-col items-center gap-1 opacity-60">
+                        <p className="text-[#92a4c9] text-xs font-normal tracking-widest uppercase">v2.4.0-beta</p>
+                    </div>
+                </div>
+            );
+        };
+
+        // Screen 13: Login
+        const LoginScreen = () => {
+            const navigate = useNavigate();
+            return (
+                <div className="h-full flex items-center justify-center p-4 relative overflow-hidden bg-background-dark">
+                    <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary/10 blur-[120px]"></div>
+                    <div className="relative z-10 w-full max-w-[400px] bg-surface-dark rounded-2xl border border-white/5 overflow-hidden flex flex-col p-6">
+                        <div className="flex flex-col items-center text-center mb-6">
+                            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center shadow-lg shadow-primary/30 mb-5">
+                                <span className="material-symbols-outlined text-white text-4xl">deployed_code</span>
+                            </div>
+                            <h1 className="text-white text-3xl font-bold font-display tracking-tight mb-2">Welcome back</h1>
+                            <p className="text-gray-400 text-sm">Code anywhere, deploy everywhere.</p>
+                        </div>
+                        <div className="flex flex-col gap-3 mb-6">
+                            <button onClick={() => navigate('/dashboard')} className="flex w-full items-center justify-center rounded-lg h-12 px-4 bg-[#24292F] hover:bg-[#2c323a] text-white font-display text-sm font-semibold">
+                                <span className="material-symbols-outlined mr-3 text-[22px]">code</span>
+                                Continue with GitHub
+                            </button>
+                            <button onClick={() => navigate('/dashboard')} className="flex w-full items-center justify-center rounded-lg h-12 px-4 bg-[#FC6D26] hover:bg-[#e65e1b] text-white font-display text-sm font-semibold">
+                                <span className="material-symbols-outlined mr-3 text-[22px]">source_environment</span>
+                                Continue with GitLab
+                            </button>
+                        </div>
+                        <div className="relative flex py-2 items-center mb-6">
+                            <div className="flex-grow border-t border-white/10"></div>
+                            <span className="flex-shrink-0 mx-4 text-gray-400 text-xs font-display uppercase tracking-widest">Or use email</span>
+                            <div className="flex-grow border-t border-white/10"></div>
+                        </div>
+                        <div className="space-y-4">
+                            <div className="relative">
+                                <span className="material-symbols-outlined absolute left-3 top-3 text-gray-400 text-[20px]">mail</span>
+                                <input className="block w-full rounded-lg border-0 bg-transparent py-3 pl-10 text-white ring-1 ring-inset ring-white/10 placeholder:text-gray-400 focus:ring-2 focus:ring-primary sm:text-sm" placeholder="name@company.com" type="email"/>
+                            </div>
+                            <button onClick={() => navigate('/dashboard')} className="w-full rounded-lg bg-primary py-3 text-sm font-bold text-white hover:bg-blue-600 transition-all font-display">Log In</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Screen 7: Command Center (Dashboard)
+        const DashboardScreen = () => {
+            return (
+                <div className="flex-1 flex flex-col h-full bg-background-dark">
+                    <header className="flex items-center justify-between px-4 pt-6 pb-2 bg-background-dark z-10">
+                        <button className="text-slate-400 hover:text-primary p-2 -ml-2 rounded-full">
+                            <span className="material-symbols-outlined text-3xl">menu</span>
+                        </button>
+                        <h1 className="text-xl font-bold tracking-tight font-display">Command Center</h1>
+                        <div className="size-10 rounded-full overflow-hidden border border-slate-700 relative">
+                            <img className="object-cover size-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3zH1cUNoKok9wWXRjvqq-ADHyDGGS5jXHjRMLauJBUzIbks_fQXtD-iKSZDlJd58aNUU4LaXQZoR5NUm6dSsdOfYRgJl5Wsm62pHy5GBtv_vv1J02QMMoCoSYuB4kJM1a5gQRSo52HbfSSczpefePcrTuYeGH9UTDELmTM3G4DNlSydimOFoGpkH0LXCywSQ-cJh4sZSf75ah8lXmplWKS3YDlqU4mkCVhbtY8HrH2lckuXuPeZK4j5p6qMnzIFa6r7xyI6NlakIA" />
+                            <div className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full border-2 border-background-dark"></div>
+                        </div>
+                    </header>
+                    <main className="flex-1 overflow-y-auto no-scrollbar pb-6">
+                        <div className="px-4 py-4 sticky top-0 z-20 bg-background-dark/95 backdrop-blur-sm">
+                            <div className="relative flex w-full items-center rounded-lg h-12 bg-surface-dark border border-slate-700">
+                                <div className="flex items-center justify-center pl-4 pr-2 text-slate-500">
+                                    <span className="material-symbols-outlined text-2xl">search</span>
+                                </div>
+                                <input className="h-full w-full bg-transparent px-2 text-base text-white placeholder:text-slate-500 focus:outline-none font-medium" placeholder="Search..." />
+                            </div>
+                        </div>
+                        <div className="px-4 grid grid-cols-2 gap-4">
+                            <Link to="/layout" className="flex flex-col gap-4 rounded-lg bg-surface-dark p-5 border border-slate-700 hover:border-primary transition-all">
+                                <div className="flex items-start justify-between w-full">
+                                    <div className="p-2.5 rounded-lg bg-blue-500/20 text-blue-400"><span className="material-symbols-outlined text-3xl">dns</span></div>
+                                    <div className="size-2 rounded-full bg-green-500"></div>
+                                </div>
+                                <div><h2 className="text-base font-bold font-display">Workspace</h2><p className="text-xs text-slate-400">8-Core / 16GB</p></div>
+                            </Link>
+                            <Link to="/ai-hub" className="flex flex-col gap-4 rounded-lg bg-surface-dark p-5 border border-slate-700 hover:border-purple-500 transition-all">
+                                <div className="flex items-start justify-between w-full">
+                                    <div className="p-2.5 rounded-lg bg-purple-500/20 text-purple-400"><span className="material-symbols-outlined text-3xl">auto_awesome</span></div>
+                                    <div className="size-2 rounded-full bg-green-500"></div>
+                                </div>
+                                <div><h2 className="text-base font-bold font-display">AI Hub</h2><p className="text-xs text-slate-400">Copilot Active</p></div>
+                            </Link>
+                            <Link to="/sdks" className="flex flex-col gap-4 rounded-lg bg-surface-dark p-5 border border-slate-700 hover:border-cyan-500 transition-all">
+                                <div className="flex items-start justify-between w-full">
+                                    <div className="p-2.5 rounded-lg bg-cyan-500/20 text-cyan-400"><span className="material-symbols-outlined text-3xl">layers</span></div>
+                                    <div className="size-2 rounded-full bg-amber-500"></div>
+                                </div>
+                                <div><h2 className="text-base font-bold font-display">SDKs</h2><p className="text-xs text-slate-400">Updates Avail.</p></div>
+                            </Link>
+                            <Link to="/editor" className="flex flex-col gap-4 rounded-lg bg-surface-dark p-5 border border-slate-700 hover:border-orange-500 transition-all">
+                                <div className="flex items-start justify-between w-full">
+                                    <div className="p-2.5 rounded-lg bg-orange-500/20 text-orange-400"><span className="material-symbols-outlined text-3xl">terminal</span></div>
+                                </div>
+                                <div><h2 className="text-base font-bold font-display">Editor</h2><p className="text-xs text-slate-400">JetBrains Mono</p></div>
+                            </Link>
+                            <Link to="/integrations" className="flex flex-col gap-4 rounded-lg bg-surface-dark p-5 border border-slate-700 hover:border-indigo-500 transition-all">
+                                <div className="flex items-start justify-between w-full">
+                                    <div className="p-2.5 rounded-lg bg-indigo-500/20 text-indigo-400"><span className="material-symbols-outlined text-3xl">extension</span></div>
+                                </div>
+                                <div><h2 className="text-base font-bold font-display">Integrations</h2><p className="text-xs text-slate-400">Manage APIs</p></div>
+                            </Link>
+                            <Link to="/marketplace" className="flex flex-col gap-4 rounded-lg bg-surface-dark p-5 border border-slate-700 hover:border-pink-500 transition-all">
+                                <div className="flex items-start justify-between w-full">
+                                    <div className="p-2.5 rounded-lg bg-pink-500/20 text-pink-400"><span className="material-symbols-outlined text-3xl">storefront</span></div>
+                                </div>
+                                <div><h2 className="text-base font-bold font-display">Market</h2><p className="text-xs text-slate-400">New Plugins</p></div>
+                            </Link>
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        // Screen 17: Mobile Editor
+        const EditorScreen = () => {
+            return (
+                <div className="flex-1 flex flex-col h-full bg-[#111722] overflow-hidden">
+                    <header className="flex items-center bg-[#111722] p-4 pb-2 justify-between border-b border-[#324467] shrink-0 z-20">
+                        <div className="flex items-center gap-3">
+                            <div className="flex flex-col">
+                                <h2 className="text-white text-lg font-bold leading-tight font-display">OmniApp</h2>
+                                <div className="flex items-center gap-1 text-[#92a4c9] text-xs font-medium font-mono"><span className="material-symbols-outlined text-[14px]">call_split</span><span>main</span></div>
+                            </div>
+                        </div>
+                        <div className="flex items-center justify-end gap-3">
+                            <Link to="/debugger" className="size-9 flex items-center justify-center rounded-lg bg-[#232f48] text-green-400"><span className="material-symbols-outlined text-[20px]">play_arrow</span></Link>
+                            <Link to="/inspector" className="size-9 flex items-center justify-center rounded-lg bg-[#232f48] text-white"><span className="material-symbols-outlined text-[20px]">build</span></Link>
+                        </div>
+                    </header>
+                    <main className="flex-1 relative bg-[#0d1117] overflow-hidden flex font-mono text-xs md:text-sm">
+                        <div className="w-12 bg-[#0d1117] flex flex-col items-end pt-4 pr-3 text-[#324467] border-r border-[#324467]/30 select-none">
+                            {[...Array(16).keys()].map(i => <div key={i}>{i+1}</div>)}
+                        </div>
+                        <div className="flex-1 p-4 text-gray-300 overflow-auto no-scrollbar whitespace-pre">
+                            <span className="text-[#ff7b72]">import</span> {'{ AuthService }'} <span className="text-[#ff7b72]">from</span> <span className="text-[#a5d6ff]">'./auth.service'</span>;{'\n'}
+                            <span className="text-[#ff7b72]">export class</span> <span className="text-[#d2a8ff]">LoginController</span> {'{'}{'\n'}
+                            {'  '}<span className="text-[#ff7b72]">constructor</span>(<span className="text-[#ff7b72]">private</span> auth: <span class="text-[#d2a8ff]">AuthService</span>) {'{}'}{'\n'}
+                            {'  '}<span className="text-[#d2a8ff]">async</span> <span className="text-[#d2a8ff]">handleLogin</span>(req, res) {'{'}{'\n'}
+                            {'    '}<span className="text-[#ff7b72]">try</span> {'{'}{'\n'}
+                            {'      '}<span className="text-[#ff7b72]">const</span> {'{ email, password }'} = req.body;{'\n'}
+                            {'      '}<span className="text-[#ff7b72]">const</span> token = <span className="text-[#ff7b72]">await</span> <span className="text-[#79c0ff]">this</span>.auth.<span className="text-[#d2a8ff]">login</span>(email, password);{'\n'}
+                            {'      '}<span className="text-[#ff7b72]">return</span> res.<span className="text-[#d2a8ff]">json</span>({'{ success: '}<span className="text-[#79c0ff]">true</span>, token {'}'});{'\n'}
+                            {'    '} {'}'} <span className="text-[#ff7b72]">catch</span> (error) {'{'}{'\n'}
+                            {'      '}<span className="text-[#8b949e]">console</span>.<span className="text-[#d2a8ff]">error</span>(<span className="text-[#a5d6ff]">'Login failed'</span>, error);{'\n'}
+                            {'    '} {'}'}{'\n'}
+                            {'  '} {'}'}{'\n'}
+                            {'}'}
+                        </div>
+                    </main>
+                    <footer className="bg-[#111722] border-t border-[#324467] p-2 flex items-center justify-between text-xs font-mono text-[#92a4c9]">
+                        <div className="flex gap-4"><span className="flex items-center gap-1 text-emerald-400"><span className="material-symbols-outlined text-[14px]">check_circle</span> Build Success</span></div>
+                        <div className="flex gap-2"><span>Ln 12, Col 34</span><span>UTF-8</span></div>
+                    </footer>
+                </div>
+            );
+        };
+
+        // Screen 20: Operations Hub
+        const OpsScreen = () => {
+            return (
+                <div className="flex-1 flex flex-col h-full bg-background-dark font-display">
+                    <header className="sticky top-0 z-50 flex items-center justify-between bg-background-dark/90 backdrop-blur-md px-4 py-3 border-b border-slate-800">
+                        <h2 className="text-lg font-bold text-white">Unified Ops Hub</h2>
+                        <div className="flex items-center gap-2 px-3 py-1 bg-surface-darker/50 rounded-full border border-slate-700">
+                            <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-green opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-neon-green"></span></span>
+                            <p className="text-xs font-bold text-neon-green">ONLINE</p>
+                        </div>
+                    </header>
+                    <div className="p-4 space-y-6 flex-1 overflow-y-auto">
+                        <section>
+                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 ml-1">Live System Health</h3>
+                            <div className="grid grid-cols-3 gap-3">
+                                <div className="flex flex-col items-center bg-surface-dark rounded-2xl p-3 border border-slate-800 relative overflow-hidden">
+                                    <div className="text-sm font-bold text-white mb-2">34%</div>
+                                    <span className="text-[10px] font-bold uppercase text-slate-400">CPU</span>
+                                </div>
+                                <div className="flex flex-col items-center bg-surface-dark rounded-2xl p-3 border border-slate-800 relative overflow-hidden">
+                                    <div className="text-sm font-bold text-white mb-2">72%</div>
+                                    <span className="text-[10px] font-bold uppercase text-slate-400">RAM</span>
+                                </div>
+                                <div className="flex flex-col items-center bg-surface-dark rounded-2xl p-3 border border-slate-800 relative overflow-hidden">
+                                    <div className="text-sm font-bold text-white mb-2">58</div>
+                                    <span className="text-[10px] font-bold uppercase text-slate-400">FPS</span>
+                                </div>
+                            </div>
+                        </section>
+                        <section>
+                            <div className="bg-surface-dark rounded-xl p-5 border border-slate-700 shadow-lg">
+                                <div className="flex justify-between items-center mb-3">
+                                    <div><h3 className="text-base font-bold text-white">Release Readiness</h3><p className="text-xs text-slate-400">v2.4.0-rc3</p></div>
+                                    <div className="text-2xl font-bold text-neon-green">94%</div>
+                                </div>
+                                <div className="w-full h-2 bg-slate-700 rounded-full mb-4 overflow-hidden">
+                                    <div className="h-full bg-gradient-to-r from-neon-blue to-neon-green" style={{width: '94%'}}></div>
+                                </div>
+                                <button className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-lg font-bold flex items-center justify-center gap-2">
+                                    <span className="material-symbols-outlined">rocket_launch</span> ONE-CLICK DEPLOY
+                                </button>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            );
+        };
+
+        // Screen 15: Community
+        const CommunityScreen = () => {
+            return (
+                <div className="flex-1 flex flex-col h-full bg-background-dark font-display">
+                    <header className="sticky top-0 z-30 bg-background-dark/95 backdrop-blur-md border-b border-white/10 p-4">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl font-bold">Community</h2>
+                            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30">
+                                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb6Ds-gt7Z-upleOglvngoKo2GO4ZJRWhIcOl2cGWPd1gCz1_o0NLah_P6iCbFXvulh223AQP-QNNISyOel1T93Y_FhIL3XRZHbNAxxIoVeZVpthbWunEt_EzVDUEBmx1FaLjKMrmoaKnv0k71BPQeW3VGx89kS45u8ejDDQkTvpQtbQREYgEFhQcRg33qMMYJJG7QcCr1n1eDrYAPFlnLzuSec7h9AcA9wvt3-n3KKXPv00u9xHNwDqYqz8O4GjR_oPQ7ACDVGYqd" className="w-full h-full rounded-full object-cover" />
+                            </div>
+                        </div>
+                    </header>
+                    <main className="flex-1 p-4 space-y-6 overflow-y-auto">
+                        <div className="relative flex items-center bg-surface-dark rounded-xl shadow-lg border border-white/5">
+                            <span className="material-symbols-outlined text-[24px] text-purple-400 pl-3">colors_spark</span>
+                            <input className="w-full pl-3 pr-4 py-3.5 bg-transparent border-none text-white focus:ring-0" placeholder="Ask AI or search..." />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            <button className="flex flex-col items-start gap-2 p-3 rounded-xl bg-surface-dark border border-white/5 hover:bg-surface-highlight transition-colors text-left">
+                                <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center"><span className="material-symbols-outlined text-[20px]">help</span></div>
+                                <div><span className="block text-sm font-bold">Help Center</span><span className="text-[10px] text-gray-400">Docs</span></div>
+                            </button>
+                            <button className="flex flex-col items-start gap-2 p-3 rounded-xl bg-surface-dark border border-white/5 hover:bg-surface-highlight transition-colors text-left">
+                                <div className="w-8 h-8 rounded-lg bg-green-500/10 text-green-500 flex items-center justify-center"><span className="material-symbols-outlined text-[20px]">forum</span></div>
+                                <div><span className="block text-sm font-bold text-primary">Q&A Hub</span><span className="text-[10px] text-gray-400">Discuss</span></div>
+                            </button>
+                        </div>
+                        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 p-5 shadow-lg text-white">
+                            <h3 className="text-lg font-bold mb-1">Stuck on a bug?</h3>
+                            <p className="text-xs text-indigo-100 mb-3">AI analysis of error logs.</p>
+                            <button className="flex items-center gap-2 px-4 py-2 bg-white text-indigo-700 rounded-lg text-xs font-bold">Start Chat</button>
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        // Screen 22: Settings
+        const SettingsScreen = () => {
+            return (
+                <div className="flex-1 flex flex-col h-full bg-background-dark font-display">
+                    <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-background-dark/80 border-b border-white/5 p-4">
+                        <div className="flex w-full items-center rounded-xl bg-[#232f48]/50 border border-white/5 px-4 h-11">
+                            <span className="material-symbols-outlined text-[#92a4c9] text-[20px]">search</span>
+                            <input className="w-full bg-transparent border-none text-white placeholder:text-[#92a4c9] focus:ring-0" placeholder="Search settings..." />
+                        </div>
+                    </header>
+                    <main className="flex-1 p-4 space-y-6 overflow-y-auto">
+                        <section className="bg-surface-dark rounded-2xl p-4 border border-white/5 flex items-center gap-4">
+                            <div className="bg-center bg-cover rounded-full h-14 w-14 ring-2 ring-primary/20" style={{backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBis0IDPaKo4GVUPDF_MJRsP5UtnBgF-5DruTqKcluUr2U4FDSaJN6aHSImI3lHmAVfbIqqUWXNL8YMF6xoVOZAPS12agi8Wp8unj6ckmGyJ_pBTnzdy2uzBnYOmwq0pFNczZn__qP2XwwTEna7yD98212p2p7MY7HeFJnLOrPK2gakFO-t47__pSjMVDRAN7H19JRV4btvu1ReK6SaE6Wr1qvNw91aMGATTEsnsoZ5JIFp3r1DHC8JlCWPXFpFkvw-VwrCYhRBnoAZ")'}}></div>
+                            <div><h2 className="text-white text-lg font-bold">Alex Dev</h2><p className="text-[#92a4c9] text-sm">@alex_codes</p></div>
+                        </section>
+                        <div className="flex flex-col bg-surface-dark rounded-2xl border border-white/5 overflow-hidden divide-y divide-white/5">
+                            {[
+                                {icon: 'lock', title: 'Account', sub: '2FA, API Keys'},
+                                {icon: 'cloud', title: 'Workspace', sub: 'VM, Billing'},
+                                {icon: 'psychology', title: 'AI Settings', sub: 'Copilot, MCP'},
+                                {icon: 'palette', title: 'Editor UI', sub: 'Themes, Fonts'},
+                                {icon: 'terminal', title: 'SDKs', sub: 'Toolchains'},
+                            ].map((item, i) => (
+                                <button key={i} className="flex items-center gap-4 px-4 py-4 w-full hover:bg-white/5 transition-colors text-left">
+                                    <div className="flex items-center justify-center rounded-xl bg-[#232f48] text-white shrink-0 size-12"><span className="material-symbols-outlined">{item.icon}</span></div>
+                                    <div className="flex-1"><p className="text-white text-base font-medium">{item.title}</p><p className="text-[#92a4c9] text-sm">{item.sub}</p></div>
+                                    <span className="material-symbols-outlined text-[#92a4c9]">chevron_right</span>
+                                </button>
+                            ))}
+                        </div>
+                        <button className="w-full rounded-xl bg-surface-dark border border-red-500/20 py-3.5 text-red-500 font-medium hover:bg-red-500/10 transition-colors">Sign Out</button>
+                    </main>
+                </div>
+            );
+        };
+        
+        // --- Other Screens as Routes ---
+        const MarketplaceScreen = () => {
+            const navigate = useNavigate();
+            return (
+                <div className="flex-1 flex flex-col bg-background-dark h-full overflow-hidden font-display">
+                    <div className="flex items-center bg-background-dark p-4 pb-2 justify-between sticky top-0 z-50 border-b border-slate-800">
+                        <button onClick={() => navigate(-1)} className="text-white flex size-10 items-center justify-center rounded-full hover:bg-slate-800"><span className="material-symbols-outlined">arrow_back</span></button>
+                        <h2 className="text-white text-lg font-bold">Marketplace</h2>
+                        <div className="w-10"></div>
+                    </div>
+                    <div className="p-4 space-y-4 overflow-y-auto flex-1">
+                        {['Flutter DevTools', 'Prisma ORM', 'Dracula Theme'].map((item, i) => (
+                            <div key={i} className="flex gap-4 p-4 rounded-xl bg-surface-dark border border-slate-800">
+                                <div className={`size-12 rounded-xl flex items-center justify-center text-white ${i===0?'bg-orange-500':i===1?'bg-purple-600':'bg-teal-500'}`}>
+                                    <span className="material-symbols-outlined">{i===0?'flutter_dash':i===1?'database':'terminal'}</span>
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="text-white font-bold">{item}</h4>
+                                    <p className="text-slate-400 text-xs mt-1">Essential tool.</p>
+                                </div>
+                                <button className="bg-primary px-4 py-1.5 rounded-lg text-xs font-bold self-center">Install</button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const DebuggerScreen = () => {
+             const navigate = useNavigate();
+             return (
+                 <div className="flex-1 flex flex-col bg-background-dark font-mono text-xs overflow-hidden">
+                     <header className="flex items-center p-4 border-b border-slate-800 justify-between">
+                         <button onClick={() => navigate(-1)} className="text-white"><span className="material-symbols-outlined">arrow_back</span></button>
+                         <h2 className="text-white font-bold font-display text-base">Debugger</h2>
+                         <div className="flex gap-2">
+                             <button className="bg-primary text-white p-2 rounded-lg"><span className="material-symbols-outlined text-lg">play_arrow</span></button>
+                         </div>
+                     </header>
+                     <div className="flex-1 p-4 overflow-y-auto space-y-2">
+                         <div className="flex gap-2 text-slate-500 border-b border-slate-800 pb-2"><span>10:42:01</span><span className="text-blue-400 font-bold">[Info]</span><span>App started on port 8080.</span></div>
+                         <div className="flex gap-2 text-slate-500 border-b border-slate-800 pb-2 bg-red-900/10 p-1"><span>10:42:12</span><span className="text-red-400 font-bold">[Error]</span><span>NullPointerException at login.tsx:45</span></div>
+                         <div className="flex gap-2 text-slate-500 border-b border-slate-800 pb-2"><span>10:42:15</span><span className="text-blue-400 font-bold">[Info]</span><span>Fetching config...</span></div>
+                     </div>
+                 </div>
+             );
+        };
+        
+        const IntegrationsScreen = () => {
+            const navigate = useNavigate();
+            return (
+                <div className="flex-1 flex flex-col bg-background-dark font-display h-full">
+                     <header className="flex items-center p-4 border-b border-slate-800 justify-between">
+                        <button onClick={() => navigate(-1)} className="text-white"><span className="material-symbols-outlined">arrow_back</span></button>
+                        <h2 className="text-white font-bold">Integrations</h2>
+                        <span className="material-symbols-outlined text-primary">add</span>
+                    </header>
+                    <div className="p-4 space-y-4 overflow-y-auto">
+                        <div className="bg-surface-dark p-4 rounded-xl border border-slate-800">
+                            <div className="flex gap-3 mb-2">
+                                <div className="size-10 bg-green-600 rounded-lg flex items-center justify-center text-white"><span className="material-symbols-outlined">shop</span></div>
+                                <div><h3 className="font-bold text-white">Google Play</h3><span className="text-xs text-green-500">Connected</span></div>
+                            </div>
+                        </div>
+                        <div className="bg-surface-dark p-4 rounded-xl border border-slate-800">
+                            <div className="flex gap-3 mb-2">
+                                <div className="size-10 bg-blue-600 rounded-lg flex items-center justify-center text-white"><span className="material-symbols-outlined">dataset</span></div>
+                                <div><h3 className="font-bold text-white">App Store</h3><span className="text-xs text-green-500">Connected</span></div>
+                            </div>
+                        </div>
+                        <div className="bg-surface-dark p-4 rounded-xl border border-red-900/50">
+                            <div className="flex gap-3 mb-2">
+                                <div className="size-10 bg-slate-800 rounded-lg flex items-center justify-center text-orange-400"><span className="material-symbols-outlined">cloud_off</span></div>
+                                <div><h3 className="font-bold text-white">AWS S3</h3><span className="text-xs text-red-500">Error: Expired</span></div>
+                            </div>
+                             <button className="text-xs bg-red-900/30 text-red-400 px-3 py-1 rounded border border-red-900/50 mt-2">Reconnect</button>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+
+        const LayoutScreen = () => {
+             const navigate = useNavigate();
+             return (
+                 <div className="flex-1 bg-background-dark font-display flex flex-col h-full">
+                     <header className="flex items-center p-4 border-b border-slate-800 justify-between">
+                        <button onClick={() => navigate(-1)} className="text-white">Done</button>
+                        <h2 className="text-white font-bold">Layout</h2>
+                        <div className="w-8"></div>
+                    </header>
+                    <div className="p-4 overflow-y-auto">
+                        <div className="bg-surface-dark border border-slate-800 rounded-xl p-4 mb-4">
+                            <div className="text-white text-sm font-bold mb-2">Active Workspace</div>
+                            <div className="aspect-video bg-[#111722] rounded border border-slate-800 p-2 flex gap-1">
+                                <div className="w-8 bg-primary/20 border border-primary/50 rounded h-full animate-pulse"></div>
+                                <div className="flex-1 bg-[#232f48] rounded h-full"></div>
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tools</div>
+                            <div className="bg-surface-dark p-3 rounded-xl border border-slate-800 flex justify-between items-center text-white">
+                                <div className="flex gap-2 items-center"><span className="material-symbols-outlined">folder</span> Explorer</div>
+                                <span className="material-symbols-outlined text-primary">toggle_on</span>
+                            </div>
+                             <div className="bg-surface-dark p-3 rounded-xl border border-slate-800 flex justify-between items-center text-white">
+                                <div className="flex gap-2 items-center"><span className="material-symbols-outlined">terminal</span> Terminal</div>
+                                <span className="material-symbols-outlined text-primary">toggle_on</span>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+             )
+        }
+        
+        const AIHubScreen = () => {
+            const navigate = useNavigate();
+            return (
+                <div className="flex-1 bg-background-dark font-display flex flex-col h-full">
+                    <header className="flex items-center p-4 border-b border-slate-800 gap-3">
+                         <button onClick={() => navigate(-1)} className="text-white"><span className="material-symbols-outlined">arrow_back</span></button>
+                         <h1 className="text-xl font-bold text-white">AI Engine Hub</h1>
+                    </header>
+                    <div className="p-4 space-y-4 overflow-y-auto">
+                        <div className="bg-surface-dark rounded-xl p-4 border border-primary/30 relative overflow-hidden">
+                             <div className="absolute top-3 right-3 flex items-center gap-1 text-[10px] text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20"><span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> RUNNING</div>
+                             <div className="flex gap-4 items-center mb-4">
+                                <div className="size-10 rounded bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg"><span className="material-symbols-outlined">smart_toy</span></div>
+                                <div><h4 className="text-white font-bold">Llama-3-8b</h4><p className="text-slate-400 text-xs font-mono">GGUF • 8k ctx</p></div>
+                             </div>
+                             <div className="bg-surface-darker rounded p-2 border border-slate-800 mb-3">
+                                 <div className="flex justify-between text-[10px] text-slate-400 font-bold mb-1"><span>VRAM</span><span>5.8GB / 16GB</span></div>
+                                 <div className="h-1 bg-slate-700 rounded-full"><div className="h-full bg-primary w-[36%] rounded-full"></div></div>
+                             </div>
+                             <button className="w-full py-2 bg-red-500/10 text-red-400 text-xs font-bold border border-red-500/20 rounded-lg">STOP INSTANCE</button>
+                        </div>
+                        <div className="p-4 border-b border-slate-800">
+                             <h3 className="text-xs font-bold text-slate-400 uppercase mb-4">Generation Settings</h3>
+                             <div className="mb-4">
+                                 <div className="flex justify-between text-white text-sm mb-2"><span>Temperature</span><span className="font-mono text-xs bg-slate-800 px-1 rounded">0.7</span></div>
+                                 <input type="range" className="w-full accent-primary h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer" />
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+        
+        const SDKScreen = () => {
+             const navigate = useNavigate();
+             return (
+                 <div className="flex-1 bg-background-dark font-display flex flex-col h-full">
+                     <header className="flex items-center p-4 border-b border-slate-800 gap-3">
+                         <button onClick={() => navigate(-1)} className="text-white"><span className="material-symbols-outlined">arrow_back</span></button>
+                         <h1 className="text-xl font-bold text-white">SDK Manager</h1>
+                    </header>
+                    <div className="flex border-b border-slate-800 px-4 gap-6 overflow-x-auto no-scrollbar">
+                        <div className="border-b-2 border-primary text-white py-3 text-sm font-bold whitespace-nowrap">Android</div>
+                        <div className="border-b-2 border-transparent text-slate-500 py-3 text-sm font-bold whitespace-nowrap">iOS</div>
+                        <div className="border-b-2 border-transparent text-slate-500 py-3 text-sm font-bold whitespace-nowrap">Web</div>
+                    </div>
+                    <div className="p-4 space-y-3 overflow-y-auto">
+                        <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 flex gap-3 items-start">
+                             <input type="checkbox" checked readOnly className="mt-1 bg-transparent border-slate-600 text-primary rounded focus:ring-0" />
+                             <div className="flex-1">
+                                 <h3 className="text-white font-bold">Android 14.0</h3>
+                                 <div className="flex gap-2 mt-1"><span className="text-xs text-green-400 bg-green-500/10 px-1 rounded">Installed</span><span className="text-xs text-slate-400">API 34</span></div>
+                             </div>
+                             <button className="size-8 rounded-full hover:bg-white/10 flex items-center justify-center text-slate-400"><span className="material-symbols-outlined text-[20px]">delete</span></button>
+                        </div>
+                         <div className="bg-surface-dark border border-slate-800 rounded-xl p-4 flex gap-3 items-start">
+                             <input type="checkbox" className="mt-1 bg-transparent border-slate-600 rounded focus:ring-0" />
+                             <div className="flex-1">
+                                 <h3 className="text-white font-bold">Android 13.0</h3>
+                                 <div className="flex gap-2 mt-1"><span className="text-xs text-amber-400 bg-amber-500/10 px-1 rounded">Update</span><span className="text-xs text-slate-400">API 33</span></div>
+                             </div>
+                             <button className="size-8 rounded-full bg-primary/10 text-primary flex items-center justify-center"><span className="material-symbols-outlined text-[20px]">download</span></button>
+                        </div>
+                    </div>
+                 </div>
+             )
+        }
+
+        // --- Router Configuration ---
+        const Main = () => {
+            return (
+                <AppShell>
+                    <Routes>
+                        <Route path="/" element={<SplashScreen />} />
+                        <Route path="/login" element={<LoginScreen />} />
+                        <Route path="/dashboard" element={<DashboardScreen />} />
+                        <Route path="/editor" element={<EditorScreen />} />
+                        <Route path="/ops" element={<OpsScreen />} />
+                        <Route path="/community" element={<CommunityScreen />} />
+                        <Route path="/settings" element={<SettingsScreen />} />
+                        <Route path="/marketplace" element={<MarketplaceScreen />} />
+                        <Route path="/debugger" element={<DebuggerScreen />} />
+                        <Route path="/integrations" element={<IntegrationsScreen />} />
+                        <Route path="/layout" element={<LayoutScreen />} />
+                        <Route path="/ai-hub" element={<AIHubScreen />} />
+                        <Route path="/sdks" element={<SDKScreen />} />
+                        <Route path="/inspector" element={<EditorScreen />} /> {/* Reuse editor for simplicity */}
+                    </Routes>
+                </AppShell>
+            );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(
+            <MemoryRouter>
+                <Main />
+            </MemoryRouter>
+        );
+    </script>
+</body>
+</html>

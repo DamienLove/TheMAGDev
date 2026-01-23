@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DevStudio Pro - CLI Workspace</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1337ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101322",
+                        "surface-dark": "#1c1d27",
+                        "border-dark": "#282b39",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for high-density look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111218; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #282b39; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b3f54; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden h-screen flex flex-col">
+<!-- Top Navigation -->
+<header class="flex-none flex items-center justify-between whitespace-nowrap border-b border-solid border-border-dark bg-[#111218] px-6 py-2">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3 text-white">
+<div class="size-8 flex items-center justify-center bg-primary rounded-lg text-white">
+<span class="material-symbols-outlined text-[20px]">terminal</span>
+</div>
+<h2 class="text-white text-lg font-bold leading-tight tracking-tight">DevStudio Pro</h2>
+</div>
+<!-- Context Menu -->
+<div class="hidden md:flex items-center gap-6 text-[#9da1b9]">
+<a class="hover:text-white text-sm font-medium transition-colors" href="#">File</a>
+<a class="hover:text-white text-sm font-medium transition-colors" href="#">Edit</a>
+<a class="hover:text-white text-sm font-medium transition-colors" href="#">View</a>
+<a class="hover:text-white text-sm font-medium transition-colors" href="#">Go</a>
+<a class="hover:text-white text-sm font-medium transition-colors" href="#">Run</a>
+<a class="hover:text-white text-sm font-medium transition-colors" href="#">Terminal</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<label class="hidden lg:flex flex-col min-w-40 h-9">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-[#1c1d27] border border-border-dark group-focus-within:border-primary">
+<div class="text-[#9da1b9] flex items-center justify-center pl-3">
+<span class="material-symbols-outlined text-[18px]">search</span>
+</div>
+<input class="flex w-full min-w-0 flex-1 bg-transparent text-white border-none focus:ring-0 placeholder:text-[#5f637a] px-3 text-sm" placeholder="Search files, symbols..."/>
+<div class="text-[#5f637a] flex items-center justify-center pr-3 text-xs font-mono">⌘K</div>
+</div>
+</label>
+<div class="flex gap-2">
+<button class="flex items-center justify-center rounded-lg h-9 w-9 bg-border-dark hover:bg-primary/20 hover:text-primary transition-colors text-white">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<button class="flex items-center justify-center rounded-lg h-9 w-9 bg-border-dark hover:bg-primary/20 hover:text-primary transition-colors text-white relative">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-primary rounded-full border border-[#111218]"></span>
+</button>
+<button class="flex items-center justify-center rounded-lg h-9 px-4 bg-primary text-white text-sm font-bold hover:bg-blue-600 transition-colors">
+<span>Deploy</span>
+<span class="material-symbols-outlined text-[16px] ml-2">rocket_launch</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Build Status Dashboard (High Density) -->
+<div class="flex-none bg-[#0d0e12] border-b border-border-dark py-2 px-6">
+<div class="flex items-center justify-between gap-4 overflow-x-auto no-scrollbar">
+<div class="flex items-center gap-4">
+<span class="text-[#9da1b9] text-xs uppercase tracking-wider font-bold">Build Targets</span>
+<!-- Android -->
+<div class="flex items-center gap-3 bg-[#1c1d27] rounded px-3 py-1.5 border border-border-dark/50">
+<span class="material-symbols-outlined text-[#4ade80] text-[16px]">android</span>
+<div class="flex flex-col">
+<span class="text-white text-xs font-bold leading-none">Android</span>
+<span class="text-[#4ade80] text-[10px] font-medium leading-none mt-0.5">Ready v2.1.0</span>
+</div>
+</div>
+<!-- iOS -->
+<div class="flex items-center gap-3 bg-[#1c1d27] rounded px-3 py-1.5 border border-primary/40 relative overflow-hidden group">
+<div class="absolute inset-0 bg-primary/5 w-[45%]"></div> <!-- Progress Bar -->
+<span class="material-symbols-outlined text-white text-[16px]">phone_iphone</span>
+<div class="flex flex-col relative z-10">
+<span class="text-white text-xs font-bold leading-none">iOS</span>
+<span class="text-primary text-[10px] font-medium leading-none mt-0.5 animate-pulse">Building 45%...</span>
+</div>
+</div>
+<!-- Windows -->
+<div class="flex items-center gap-3 bg-[#1c1d27] rounded px-3 py-1.5 border border-border-dark/50">
+<span class="material-symbols-outlined text-[#9da1b9] text-[16px]">desktop_windows</span>
+<div class="flex flex-col">
+<span class="text-[#9da1b9] text-xs font-bold leading-none">Windows</span>
+<span class="text-[#5f637a] text-[10px] font-medium leading-none mt-0.5">Idle</span>
+</div>
+</div>
+<!-- Linux -->
+<div class="flex items-center gap-3 bg-[#1c1d27] rounded px-3 py-1.5 border border-red-900/50">
+<span class="material-symbols-outlined text-[#fa6538] text-[16px]">terminal</span>
+<div class="flex flex-col">
+<span class="text-white text-xs font-bold leading-none">Linux</span>
+<span class="text-[#fa6538] text-[10px] font-medium leading-none mt-0.5">Failed (Dep Error)</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 border-l border-border-dark pl-4">
+<div class="text-right">
+<div class="text-[10px] text-[#9da1b9]">Last successful build</div>
+<div class="text-xs text-white font-mono">14m ago (main)</div>
+</div>
+<button class="text-[#9da1b9] hover:text-white">
+<span class="material-symbols-outlined">refresh</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Main Workspace (Split View) -->
+<div class="flex-1 flex flex-col min-h-0">
+<!-- Top Half: Editor & Explorer (Compressed Height ~40%) -->
+<div class="h-[40%] flex border-b border-border-dark min-h-[200px]">
+<!-- Sidebar: File Explorer -->
+<div class="w-64 flex-none flex flex-col bg-[#111218] border-r border-border-dark hidden md:flex">
+<div class="h-9 flex items-center px-4 border-b border-border-dark justify-between">
+<span class="text-xs font-bold text-[#9da1b9] uppercase tracking-wider">Explorer</span>
+<span class="material-symbols-outlined text-[14px] text-[#9da1b9] cursor-pointer hover:text-white">more_horiz</span>
+</div>
+<div class="flex-1 overflow-y-auto p-2 font-mono text-sm">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2 px-2 py-1 text-white bg-primary/10 rounded cursor-pointer">
+<span class="material-symbols-outlined text-[16px] text-primary">folder_open</span>
+<span>src</span>
+</div>
+<div class="pl-4 flex flex-col gap-1">
+<div class="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-surface-dark rounded">
+<span class="material-symbols-outlined text-[16px]">folder</span>
+<span>components</span>
+</div>
+<div class="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-surface-dark rounded">
+<span class="material-symbols-outlined text-[16px]">folder</span>
+<span>screens</span>
+</div>
+<div class="flex items-center gap-2 px-2 py-1 text-white bg-primary/20 rounded cursor-pointer border-l-2 border-primary">
+<span class="material-symbols-outlined text-[16px] text-[#61dafb]">code</span>
+<span>App.tsx</span>
+</div>
+<div class="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-surface-dark rounded">
+<span class="material-symbols-outlined text-[16px] text-yellow-400">code</span>
+<span>utils.ts</span>
+</div>
+</div>
+<div class="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-surface-dark rounded mt-1">
+<span class="material-symbols-outlined text-[16px]">folder</span>
+<span>assets</span>
+</div>
+<div class="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-surface-dark rounded">
+<span class="material-symbols-outlined text-[16px] text-red-400">description</span>
+<span>package.json</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Editor Area -->
+<div class="flex-1 flex flex-col bg-[#111218]">
+<!-- Editor Tabs -->
+<div class="h-9 flex items-center bg-[#0d0e12] border-b border-border-dark">
+<div class="h-full flex items-center px-4 bg-[#111218] border-r border-border-dark border-t-2 border-t-primary text-white text-xs font-medium gap-2">
+<span class="material-symbols-outlined text-[14px] text-[#61dafb]">code</span>
+                        App.tsx
+                        <span class="material-symbols-outlined text-[14px] hover:bg-white/20 rounded p-0.5 cursor-pointer">close</span>
+</div>
+<div class="h-full flex items-center px-4 text-[#9da1b9] hover:bg-[#1c1d27] border-r border-border-dark text-xs font-medium gap-2 cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[14px] text-yellow-400">code</span>
+                        utils.ts
+                    </div>
+<div class="h-full flex items-center px-4 text-[#9da1b9] hover:bg-[#1c1d27] border-r border-border-dark text-xs font-medium gap-2 cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[14px] text-red-400">description</span>
+                        package.json
+                    </div>
+</div>
+<!-- Code Content -->
+<div class="flex-1 overflow-auto p-4 font-mono text-sm relative">
+<!-- Line Numbers -->
+<div class="absolute left-0 top-4 bottom-0 w-12 flex flex-col items-end pr-3 text-[#4b5064] select-none">
+<div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div>
+</div>
+<!-- Code -->
+<div class="pl-12 text-[#d4d4d4]">
+<div class="leading-6"><span class="text-[#c586c0]">import</span> React <span class="text-[#c586c0]">from</span> <span class="text-[#ce9178]">'react'</span>;</div>
+<div class="leading-6"><span class="text-[#c586c0]">import</span> { View, Text, StyleSheet } <span class="text-[#c586c0]">from</span> <span class="text-[#ce9178]">'react-native'</span>;</div>
+<div class="leading-6"> </div>
+<div class="leading-6"><span class="text-[#569cd6]">const</span> <span class="text-[#dcdcaa]">App</span> = () <span class="text-[#569cd6]">=&gt;</span> {</div>
+<div class="leading-6 pl-4"><span class="text-[#c586c0]">return</span> (</div>
+<div class="leading-6 pl-8"><span class="text-[#808080]">&lt;</span><span class="text-[#569cd6]">View</span> <span class="text-[#9cdcfe]">style</span>={<span class="text-[#9cdcfe]">styles.container</span>}<span class="text-[#808080]">&gt;</span></div>
+<div class="leading-6 pl-12"><span class="text-[#808080]">&lt;</span><span class="text-[#569cd6]">Text</span> <span class="text-[#9cdcfe]">style</span>={<span class="text-[#9cdcfe]">styles.title</span>}<span class="text-[#808080]">&gt;</span>Hello DevStudio<span class="text-[#808080]">&lt;/</span><span class="text-[#569cd6]">Text</span><span class="text-[#808080]">&gt;</span></div>
+<div class="leading-6 pl-12"><span class="text-[#808080]">&lt;</span><span class="text-[#569cd6]">Text</span><span class="text-[#808080]">&gt;</span>Building for all platforms.<span class="text-[#808080]">&lt;/</span><span class="text-[#569cd6]">Text</span><span class="text-[#808080]">&gt;</span></div>
+<div class="leading-6 pl-8"><span class="text-[#808080]">&lt;/</span><span class="text-[#569cd6]">View</span><span class="text-[#808080]">&gt;</span></div>
+<div class="leading-6 pl-4">);</div>
+<div class="leading-6">};</div>
+<div class="leading-6"> </div>
+<div class="leading-6"><span class="text-[#569cd6]">const</span> styles = <span class="text-[#4ec9b0]">StyleSheet</span>.<span class="text-[#dcdcaa]">create</span>({</div>
+<div class="leading-6 pl-4">container: {</div>
+<div class="leading-6 pl-8">flex: <span class="text-[#b5cea8]">1</span>,</div>
+<div class="leading-6 pl-8">backgroundColor: <span class="text-[#ce9178]">'#000'</span>,</div>
+<div class="leading-6 pl-4">}</div>
+<div class="leading-6">});</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Half: Dominant Terminal Area (h-[60%]) -->
+<div class="flex-1 flex flex-col min-h-0 bg-[#0d0e12] relative z-0">
+<!-- Terminal Header / Toolbar -->
+<div class="h-10 flex-none flex items-center justify-between border-b border-border-dark bg-[#1c1d27] px-2">
+<div class="flex items-center h-full">
+<button class="h-full px-4 flex items-center gap-2 border-b-2 border-primary text-white text-xs font-bold bg-[#111218]">
+<span class="material-symbols-outlined text-[16px]">terminal</span>
+                        Terminal 1 (npm start)
+                    </button>
+<button class="h-full px-4 flex items-center gap-2 border-b-2 border-transparent hover:bg-[#282b39] text-[#9da1b9] hover:text-white transition-colors text-xs font-medium">
+<span class="material-symbols-outlined text-[16px]">integration_instructions</span>
+                        Git Status
+                        <span class="bg-primary/20 text-primary text-[10px] px-1.5 rounded-full ml-1">2</span>
+</button>
+<button class="h-full px-4 flex items-center gap-2 border-b-2 border-transparent hover:bg-[#282b39] text-[#9da1b9] hover:text-white transition-colors text-xs font-medium">
+<span class="material-symbols-outlined text-[16px] text-[#fa6538]">error</span>
+                        Build Logs
+                    </button>
+<button class="ml-2 w-6 h-6 flex items-center justify-center rounded hover:bg-[#3b3f54] text-[#9da1b9]">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-[10px] text-[#5f637a] uppercase font-bold tracking-widest">CLI Assistant Active</span>
+<button class="flex items-center justify-center rounded w-8 h-8 hover:bg-[#3b3f54] text-[#9da1b9]">
+<span class="material-symbols-outlined text-[18px]">dock_to_right</span>
+</button>
+<button class="flex items-center justify-center rounded w-8 h-8 hover:bg-[#3b3f54] text-[#9da1b9]">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</div>
+<!-- Terminal Content Area -->
+<div class="flex-1 flex min-h-0">
+<!-- CLI Output -->
+<div class="flex-1 bg-[#0d0e12] p-4 font-mono text-sm overflow-y-auto text-[#d4d4d4]">
+<div class="mb-2 text-[#6a737d]"># Server initialized on port 8080</div>
+<div class="mb-1"><span class="text-[#4ade80]">➜</span> <span class="text-[#61dafb]">~/projects/devstudio</span> <span class="text-[#facc15]">git:(main)</span> npm run android</div>
+<div class="mb-2 text-[#9da1b9]">&gt; devstudio-app@0.1.0 android</div>
+<div class="mb-1">info JS server already running.</div>
+<div class="mb-1">info Installing the app...</div>
+<div class="mb-1 text-[#6a737d]">80 tasks [==================  ] 90%</div>
+<div class="mb-1">deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.</div>
+<div class="mb-1 text-[#4ade80]">BUILD SUCCESSFUL in 14s</div>
+<div class="mb-4">29 actionable tasks: 2 executed, 27 up-to-date</div>
+<div class="mb-1"><span class="text-[#4ade80]">➜</span> <span class="text-[#61dafb]">~/projects/devstudio</span> <span class="text-[#facc15]">git:(main)</span> npm run linux</div>
+<div class="mb-2 text-[#9da1b9]">&gt; devstudio-app@0.1.0 linux</div>
+<div class="mb-1">...</div>
+<div class="mb-1 text-[#fa6538]">Error: Missing dependency: libgtk-3-dev</div>
+<div class="mb-1 text-[#fa6538]">at /usr/bin/make (Line 42)</div>
+<div class="mb-1 text-[#fa6538]">Command failed with exit code 1.</div>
+<div class="mt-4 flex items-center gap-2">
+<span class="text-[#4ade80]">➜</span> <span class="text-[#61dafb]">~/projects/devstudio</span> <span class="text-[#facc15]">git:(main)</span>
+<span class="w-2.5 h-5 bg-[#9da1b9] animate-pulse block"></span>
+</div>
+</div>
+<!-- AI Assistant Pane (Embedded/Docked) -->
+<div class="w-80 border-l border-border-dark bg-[#111218] flex flex-col hidden lg:flex">
+<div class="p-3 border-b border-border-dark flex items-center gap-2 bg-[#1c1d27]">
+<div class="bg-primary/20 p-1 rounded">
+<span class="material-symbols-outlined text-[16px] text-primary">smart_toy</span>
+</div>
+<span class="text-xs font-bold text-white">CLI Assistant</span>
+</div>
+<div class="flex-1 overflow-y-auto p-3 flex flex-col gap-4">
+<!-- AI Message -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span class="text-[10px] text-[#9da1b9]">Analysis</span>
+</div>
+<div class="bg-surface-dark border border-border-dark rounded-lg p-3">
+<p class="text-xs text-[#d4d4d4] leading-relaxed">
+                                    I detected a build failure on the Linux target. It seems you are missing <code class="bg-[#282b39] px-1 rounded text-primary">libgtk-3-dev</code>.
+                                </p>
+</div>
+</div>
+<!-- Action Suggestion -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span class="text-[10px] text-[#9da1b9]">Suggested Fix</span>
+</div>
+<div class="bg-[#101322] border border-primary/30 rounded-lg p-3 group hover:border-primary transition-colors cursor-pointer">
+<div class="flex items-center justify-between mb-2">
+<span class="text-[10px] text-primary font-bold uppercase">Run Command</span>
+<span class="material-symbols-outlined text-[14px] text-primary opacity-0 group-hover:opacity-100 transition-opacity">play_arrow</span>
+</div>
+<code class="text-xs font-mono text-white block">sudo apt-get install libgtk-3-dev</code>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span class="text-[10px] text-[#9da1b9]">Related</span>
+</div>
+<div class="bg-surface-dark border border-border-dark rounded-lg p-3">
+<p class="text-xs text-[#9da1b9] leading-relaxed">
+                                    Check <code class="text-white">package.json</code> for other linux dependencies.
+                                </p>
+</div>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-3 border-t border-border-dark bg-[#1c1d27]">
+<div class="relative">
+<input class="w-full bg-[#111218] border border-border-dark rounded-lg py-2 pl-3 pr-8 text-xs text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#5f637a]" placeholder="Ask AI about this error..." type="text"/>
+<button class="absolute right-2 top-1.5 text-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[16px]">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Status Bar -->
+<div class="flex-none h-6 bg-primary text-white flex items-center px-4 justify-between text-[10px] font-mono">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">source</span>
+<span>main*</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">sync</span>
+<span>0↓ 1↑</span>
+</div>
+<div class="flex items-center gap-1 opacity-80">
+<span class="material-symbols-outlined text-[12px]">error</span>
+<span>0 Errors</span>
+</div>
+<div class="flex items-center gap-1 opacity-80">
+<span class="material-symbols-outlined text-[12px]">warning</span>
+<span>2 Warnings</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span>Ln 12, Col 34</span>
+<span>UTF-8</span>
+<span>TypeScript React</span>
+<div class="flex items-center gap-1 cursor-pointer hover:underline">
+<span class="material-symbols-outlined text-[12px]">wifi</span>
+<span>Online</span>
+</div>
+</div>
+</div>
+</body></html>

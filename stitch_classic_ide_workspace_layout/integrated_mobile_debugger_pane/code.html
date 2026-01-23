@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Integrated Mobile Debugger Pane</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                        "background-darker": "#0b0f17",
+                        "surface-dark": "#1e293b",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Scrollbar for Webkit */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased overflow-hidden h-screen flex flex-col text-slate-900 dark:text-white">
+<!-- Top App Bar -->
+<header class="shrink-0 flex items-center bg-background-light dark:bg-background-dark px-4 py-3 justify-between border-b border-gray-200 dark:border-white/5 z-20">
+<button class="text-slate-900 dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</button>
+<div class="flex flex-col items-center">
+<h2 class="text-slate-900 dark:text-white text-base font-bold leading-tight tracking-wide">Thread: Main</h2>
+<span class="text-amber-500 text-xs font-medium tracking-wider uppercase">[Paused]</span>
+</div>
+<button class="text-slate-900 dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-2xl">settings</span>
+</button>
+</header>
+<!-- Main Content Area (Split View) -->
+<main class="flex-1 flex flex-col h-full overflow-hidden relative">
+<!-- Section 1: Call Stack (Top ~40%) -->
+<section class="h-[40%] flex flex-col bg-background-light dark:bg-background-dark border-b border-gray-200 dark:border-white/10 shrink-0">
+<div class="px-4 py-2 bg-gray-50 dark:bg-white/5 flex justify-between items-center">
+<h4 class="text-slate-500 dark:text-[#90a4cb] text-xs font-bold uppercase tracking-wider">Call Stack</h4>
+<span class="text-slate-400 dark:text-white/30 text-xs">3 frames</span>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar">
+<!-- Active Frame -->
+<div class="flex items-center gap-3 px-4 py-3 justify-between bg-primary/10 border-l-4 border-primary">
+<div class="flex items-center gap-3 overflow-hidden">
+<div class="text-white flex items-center justify-center rounded-lg bg-primary shrink-0 size-10 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-xl">terminal</span>
+</div>
+<div class="flex flex-col justify-center min-w-0">
+<p class="text-primary text-sm font-bold leading-tight truncate font-display">main()</p>
+<p class="text-slate-500 dark:text-blue-200/60 text-xs font-normal truncate font-mono mt-0.5">index.js:15</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary text-xl">arrow_left</span>
+</div>
+<!-- Stack Frame -->
+<div class="flex items-center gap-3 px-4 py-3 justify-between hover:bg-gray-100 dark:hover:bg-white/5 transition-colors border-l-4 border-transparent">
+<div class="flex items-center gap-3 overflow-hidden">
+<div class="text-slate-500 dark:text-white/60 flex items-center justify-center rounded-lg bg-gray-200 dark:bg-[#222f49] shrink-0 size-10">
+<span class="material-symbols-outlined text-xl">code</span>
+</div>
+<div class="flex flex-col justify-center min-w-0">
+<p class="text-slate-700 dark:text-white/90 text-sm font-medium leading-tight truncate">fetchData()</p>
+<p class="text-slate-500 dark:text-[#90a4cb] text-xs font-normal truncate font-mono mt-0.5">api.js:42</p>
+</div>
+</div>
+</div>
+<!-- Stack Frame -->
+<div class="flex items-center gap-3 px-4 py-3 justify-between hover:bg-gray-100 dark:hover:bg-white/5 transition-colors border-l-4 border-transparent">
+<div class="flex items-center gap-3 overflow-hidden">
+<div class="text-slate-500 dark:text-white/60 flex items-center justify-center rounded-lg bg-gray-200 dark:bg-[#222f49] shrink-0 size-10">
+<span class="material-symbols-outlined text-xl">touch_app</span>
+</div>
+<div class="flex flex-col justify-center min-w-0">
+<p class="text-slate-700 dark:text-white/90 text-sm font-medium leading-tight truncate">onPress()</p>
+<p class="text-slate-500 dark:text-[#90a4cb] text-xs font-normal truncate font-mono mt-0.5">Button.tsx:10</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2: Inspector (Bottom ~60%) -->
+<section class="flex-1 flex flex-col bg-white dark:bg-background-darker relative z-10 shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
+<!-- Tabs -->
+<div class="flex items-center px-2 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#151c2b]">
+<button class="relative px-4 py-3 text-sm font-bold text-primary">
+                    Variables
+                    <div class="absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-t-full"></div>
+</button>
+<button class="relative px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors">
+                    Watch
+                </button>
+<button class="relative px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors">
+                    Console
+                </button>
+</div>
+<!-- Content: Variable Tree -->
+<div class="flex-1 overflow-y-auto p-4 pb-24 custom-scrollbar font-mono text-sm">
+<!-- Variable Item: Collapsed -->
+<div class="group flex items-start py-1 cursor-pointer select-none">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500 text-lg mr-1 transform transition-transform group-hover:text-white">arrow_right</span>
+<div class="flex flex-wrap items-baseline gap-2">
+<span class="text-purple-600 dark:text-purple-400 font-bold">localScope:</span>
+<span class="text-slate-500 dark:text-slate-500 italic">Object { ... }</span>
+</div>
+</div>
+<!-- Variable Item: Expanded -->
+<div class="group flex flex-col py-1 cursor-pointer select-none">
+<div class="flex items-start">
+<span class="material-symbols-outlined text-slate-600 dark:text-white text-lg mr-1 transform rotate-90">arrow_right</span>
+<div class="flex flex-wrap items-baseline gap-2">
+<span class="text-purple-600 dark:text-purple-400 font-bold">currentUser:</span>
+<span class="text-slate-400 dark:text-slate-500">Object</span>
+</div>
+</div>
+<!-- Nested Properties -->
+<div class="pl-6 border-l border-gray-200 dark:border-white/10 ml-2.5 mt-1 space-y-1.5">
+<div class="flex items-baseline gap-2 hover:bg-white/5 rounded px-1">
+<span class="text-blue-600 dark:text-blue-300">id:</span>
+<span class="text-orange-600 dark:text-orange-400">4021</span>
+</div>
+<div class="flex items-baseline gap-2 hover:bg-white/5 rounded px-1">
+<span class="text-blue-600 dark:text-blue-300">name:</span>
+<span class="text-green-600 dark:text-green-400">"Alex Dev"</span>
+</div>
+<div class="flex items-baseline gap-2 hover:bg-white/5 rounded px-1">
+<span class="text-blue-600 dark:text-blue-300">isAdmin:</span>
+<span class="text-pink-600 dark:text-pink-400 font-bold">true</span>
+</div>
+<div class="flex items-baseline gap-2 hover:bg-white/5 rounded px-1">
+<span class="text-blue-600 dark:text-blue-300">lastLogin:</span>
+<span class="text-green-600 dark:text-green-400">"2023-10-27T08:30:00Z"</span>
+</div>
+<!-- Nested Array -->
+<div class="pt-1">
+<div class="flex items-start cursor-pointer">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500 text-lg mr-1 -ml-1.5">arrow_right</span>
+<div class="flex flex-wrap items-baseline gap-2">
+<span class="text-blue-600 dark:text-blue-300">roles:</span>
+<span class="text-slate-400 dark:text-slate-500">Array(2)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Variable Item: Collapsed -->
+<div class="group flex items-start py-1 cursor-pointer select-none">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500 text-lg mr-1 transform transition-transform group-hover:text-white">arrow_right</span>
+<div class="flex flex-wrap items-baseline gap-2">
+<span class="text-purple-600 dark:text-purple-400 font-bold">global:</span>
+<span class="text-slate-500 dark:text-slate-500 italic">Window</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Floating Debug Toolbar -->
+<div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-[320px] px-4">
+<div class="flex items-center justify-between bg-surface-dark/95 backdrop-blur-md border border-white/10 rounded-full shadow-2xl shadow-black/50 p-1.5 h-16">
+<!-- Resume -->
+<button class="group flex items-center justify-center size-12 rounded-full bg-primary hover:bg-primary/90 text-white transition-all shadow-lg shadow-primary/30 active:scale-95">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<!-- Divider -->
+<div class="w-px h-6 bg-white/10 mx-1"></div>
+<!-- Step Over -->
+<button class="flex items-center justify-center size-12 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-all active:scale-95" title="Step Over">
+<span class="material-symbols-outlined text-[26px]">redo</span>
+</button>
+<!-- Step Into -->
+<button class="flex items-center justify-center size-12 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-all active:scale-95" title="Step Into">
+<span class="material-symbols-outlined text-[26px]">arrow_downward</span>
+</button>
+<!-- Step Out -->
+<button class="flex items-center justify-center size-12 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-all active:scale-95" title="Step Out">
+<span class="material-symbols-outlined text-[26px]">arrow_upward</span>
+</button>
+<!-- Divider -->
+<div class="w-px h-6 bg-white/10 mx-1"></div>
+<!-- Stop -->
+<button class="flex items-center justify-center size-12 rounded-full hover:bg-red-500/20 text-red-400 hover:text-red-500 transition-all active:scale-95" title="Stop">
+<span class="material-symbols-outlined text-[26px]" style="font-variation-settings: 'FILL' 1;">stop</span>
+</button>
+</div>
+</div>
+</main>
+</body></html>
