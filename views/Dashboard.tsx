@@ -38,7 +38,7 @@ const Dashboard: React.FC = () => {
   const [platforms, setPlatforms] = useState<PlatformStatus[]>([
     { name: 'iOS App Store', version: 'v2.1.0', status: 'Stable', timestamp: '12m ago', icon: 'phone_iphone' },
     { name: 'Android Play Store', version: 'v2.1.1-rc', status: 'Building', timestamp: 'Syncing assets...', icon: 'android', progress: 45 },
-    { name: 'Nexus Desktop', version: 'v1.4.0', status: 'Failed', timestamp: 'Linker Error', icon: 'desktop_windows' },
+    { name: 'TheMAG.dev Desktop', version: 'v1.4.0', status: 'Failed', timestamp: 'Linker Error', icon: 'desktop_windows' },
   ]);
 
   const [activities, setActivities] = useState<ActivityItem[]>([

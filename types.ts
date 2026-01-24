@@ -9,7 +9,8 @@ export enum View {
   Marketplace = 'MARKETPLACE',
   Support = 'SUPPORT',
   Desktop = 'DESKTOP',
-  Settings = 'SETTINGS'
+  Settings = 'SETTINGS',
+  Extensions = 'EXTENSIONS'
 }
 
 export interface Metric {

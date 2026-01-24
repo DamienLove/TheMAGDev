@@ -129,7 +129,7 @@ const Analytics: React.FC = () => {
             <section className="bg-indigo-600 p-6 rounded-2xl shadow-2xl shadow-indigo-500/20 relative overflow-hidden group">
                <div className="absolute -top-4 -right-4 size-24 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000"></div>
                <h4 className="text-white font-bold mb-2">Predictive Scaling</h4>
-               <p className="text-indigo-100 text-[11px] leading-relaxed mb-4">Nexus AI predicts a 24% surge in traffic over the weekend. Enable automated load balancing?</p>
+               <p className="text-indigo-100 text-[11px] leading-relaxed mb-4">TheMAG.dev AI predicts a 24% surge in traffic over the weekend. Enable automated load balancing?</p>
                <button className="w-full py-2 bg-white text-indigo-600 rounded-lg text-xs font-bold shadow-xl active:scale-95 transition-all">Enable Auto-Scale</button>
             </section>
          </aside>

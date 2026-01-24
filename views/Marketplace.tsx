@@ -34,8 +34,8 @@ const Marketplace: React.FC = () => {
     },
     { 
       id: 'ext-2', 
-      name: 'Nexus Copilot', 
-      author: 'Nexus AI', 
+      name: 'TheMAG.dev Copilot', 
+      author: 'TheMAG.dev AI', 
       description: 'Generative AI assistant specialized in cloud-native architecture and infrastructure-as-code.', 
       downloads: '850K', 
       rating: 4.8, 
@@ -60,7 +60,7 @@ const Marketplace: React.FC = () => {
       id: 'ext-4', 
       name: 'Dracula Obsidian', 
       author: 'Zeno Rocha', 
-      description: 'The legendary dark theme optimized for the Nexus high-contrast display engine.', 
+      description: 'The legendary dark theme optimized for the TheMAG.dev high-contrast display engine.', 
       downloads: '4.2M', 
       rating: 5.0, 
       icon: 'palette', 
@@ -92,7 +92,7 @@ const Marketplace: React.FC = () => {
       installed: false,
       color: 'bg-orange-600'
     }
-  ];
+  ]);
 
   const categories = [
     { name: 'Popular', icon: 'trending_up' },
@@ -133,7 +133,7 @@ const Marketplace: React.FC = () => {
     <div className="flex-1 bg-zinc-950 overflow-y-auto p-8 font-sans">
       <header className="mb-8 flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1 uppercase tracking-tight">Nexus Marketplace</h1>
+          <h1 className="text-2xl font-bold text-white mb-1 uppercase tracking-tight">TheMAG.dev Marketplace</h1>
           <p className="text-zinc-400 text-sm">Expand your development environment with verified extensions.</p>
         </div>
         <div className="flex bg-zinc-900 rounded-lg p-1 border border-zinc-800">

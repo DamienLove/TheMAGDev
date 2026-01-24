@@ -27,14 +27,14 @@ const CommunitySupport: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    { id: '1', sender: 'ai', text: "Hello! I'm Nexus AI, your development assistant. I can help you with build errors, configuration issues, and platform questions. How can I assist you today?", timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
+    { id: '1', sender: 'ai', text: "Hello! I'm TheMAG.dev AI, your development assistant. I can help you with build errors, configuration issues, and platform questions. How can I assist you today?", timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
   ]);
 
   const aiResponses: Record<string, string> = {
     'build': "Build errors can often be resolved by:\n\n1. Clearing your build cache: `npm run clean`\n2. Reinstalling dependencies: `rm -rf node_modules && npm install`\n3. Checking for TypeScript errors: `npx tsc --noEmit`\n\nWould you like me to analyze a specific error message?",
     'deploy': "For deployment issues, ensure:\n\n1. Your environment variables are configured correctly\n2. The build output directory matches your hosting config\n3. All API endpoints are using the correct production URLs\n\nWhat specific deployment error are you seeing?",
     'error': "I'd be happy to help debug that error! Could you share:\n\n1. The full error message\n2. What action triggered the error\n3. Your current environment (Node version, OS)\n\nThis will help me provide a more accurate solution.",
-    'default': "That's a great question! Based on common patterns, I'd suggest checking the Nexus documentation for detailed guides. Is there a specific aspect you'd like me to elaborate on?"
+    'default': "That's a great question! Based on common patterns, I'd suggest checking the TheMAG.dev documentation for detailed guides. Is there a specific aspect you'd like me to elaborate on?"
   };
 
   const scrollToBottom = () => {
@@ -103,7 +103,7 @@ const CommunitySupport: React.FC = () => {
     },
     {
       id: 'q-3',
-      title: 'Establishing secure MCP bridge between local Docker and Nexus Cloud',
+      title: 'Establishing secure MCP bridge between local Docker and TheMAG.dev Cloud',
       preview: "I'm having trouble with the authentication handshake when connecting my local Model Context Protocol server. The CORS policy seems to block the websocket initialization...",
       author: '@m_foster',
       authorAvatar: 'MF',
@@ -236,7 +236,7 @@ const CommunitySupport: React.FC = () => {
               <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                  <span className="material-symbols-rounded text-6xl text-indigo-400">psychology</span>
               </div>
-              <h4 className="text-sm font-bold text-white mb-2 relative z-10">Nexus AI Insights</h4>
+              <h4 className="text-sm font-bold text-white mb-2 relative z-10">TheMAG.dev AI Insights</h4>
               <p className="text-xs text-indigo-200/60 leading-relaxed mb-4 relative z-10">Get instant automated resolutions for common build errors using our fine-tuned LLM.</p>
               <button
                 onClick={() => setShowAiChat(true)}
@@ -265,7 +265,7 @@ const CommunitySupport: React.FC = () => {
                   <span className="material-symbols-rounded text-white text-lg">smart_toy</span>
                 </div>
                 <div>
-                  <span className="text-sm font-bold text-white">Nexus AI</span>
+                  <span className="text-sm font-bold text-white">TheMAG.dev AI</span>
                   <div className="flex items-center gap-1">
                     <span className="size-1.5 rounded-full bg-emerald-500"></span>
                     <span className="text-[10px] text-zinc-500">Online</span>
@@ -319,7 +319,7 @@ const CommunitySupport: React.FC = () => {
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Ask Nexus AI..."
+                  placeholder="Ask TheMAG.dev AI..."
                   className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-4 pr-12 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500"
                 />
                 <button
@@ -330,7 +330,7 @@ const CommunitySupport: React.FC = () => {
                 </button>
               </div>
               <div className="flex justify-between items-center mt-2 text-[10px] text-zinc-600">
-                <span>Powered by Nexus LLM</span>
+                <span>Powered by TheMAG.dev LLM</span>
                 <button onClick={() => setChatMessages([chatMessages[0]])} className="text-indigo-400 hover:underline">Clear Chat</button>
               </div>
             </div>

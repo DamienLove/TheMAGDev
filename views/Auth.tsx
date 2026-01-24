@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { GithubAuthProvider, createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { auth } from '../firebaseConfig';
+import { ensureUserProfile } from '../src/services/userProfile';
 
 interface AuthProps {
   onLogin: () => void;
@@ -11,27 +14,63 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simulate secure authentication handshake and JWT acquisition
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
+
+    setErrorMessage('');
     if (mode === 'RESET') {
-      alert('Password reset link sent to your corporate email.');
-      setMode('LOGIN');
-      setLoading(false);
-      return;
+      try {
+        await sendPasswordResetEmail(auth, email);
+        alert('Password reset link sent to your email.');
+        setMode('LOGIN');
+        return;
+      } catch (error: any) {
+        setErrorMessage(error?.message || 'Failed to send password reset email.');
+        return;
+      } finally {
+        setLoading(false);
+      }
     }
 
-    // Secure session initialization
-    const secureToken = btoa(`${email}:${Date.now()}`); // Mock JWT
-    sessionStorage.setItem('nexus_auth_token', secureToken);
-    
-    setLoading(false);
-    onLogin();
+    try {
+      if (mode === 'SIGNUP') {
+        const credential = await createUserWithEmailAndPassword(auth, email, password);
+        await ensureUserProfile(credential.user);
+        const token = await credential.user.getIdToken();
+        sessionStorage.setItem('themag_auth_token', token);
+        onLogin();
+      } else {
+        const credential = await signInWithEmailAndPassword(auth, email, password);
+        await ensureUserProfile(credential.user);
+        const token = await credential.user.getIdToken();
+        sessionStorage.setItem('themag_auth_token', token);
+        onLogin();
+      }
+    } catch (error: any) {
+      setErrorMessage(error?.message || 'Authentication failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGithubLogin = async () => {
+    setLoading(true);
+    setErrorMessage('');
+    try {
+      const provider = new GithubAuthProvider();
+      const credential = await signInWithPopup(auth, provider);
+      await ensureUserProfile(credential.user);
+      const token = await credential.user.getIdToken();
+      sessionStorage.setItem('themag_auth_token', token);
+      onLogin();
+    } catch (error: any) {
+      setErrorMessage(error?.message || 'GitHub sign-in failed.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,14 +79,14 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-600/5 blur-[100px] pointer-events-none"></div>
 
-      <div className="relative z-10 w-full max-w-[400px] bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl shadow-indigo-500/10 overflow-hidden flex flex-col mx-4">
+        <div className="relative z-10 w-full max-w-[400px] bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl shadow-indigo-500/10 overflow-hidden flex flex-col mx-4">
         {/* Header Section */}
         <div className="pt-8 pb-4 px-6 flex flex-col items-center text-center">
-          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-400 flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-5">
-            <span className="material-symbols-rounded text-white text-3xl">deployed_code</span>
+          <div className="w-14 h-14 rounded-xl bg-zinc-950/70 border border-zinc-800 flex items-center justify-center shadow-lg shadow-indigo-500/10 mb-5">
+            <img src="/branding/STLOGO.png" alt="TheMAG.dev" className="w-10 h-10 object-contain" />
           </div>
           <h1 className="text-white text-2xl font-bold tracking-tight mb-2">
-            {mode === 'LOGIN' && 'Sign in to Nexus'}
+            {mode === 'LOGIN' && 'Sign in to TheMAG.dev'}
             {mode === 'SIGNUP' && 'Create Workspace'}
             {mode === 'RESET' && 'Reset Access'}
           </h1>
@@ -61,14 +100,16 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
         {mode === 'LOGIN' && (
           <div className="px-6 py-4 flex flex-col gap-3 border-b border-zinc-800/50">
             <button 
-              onClick={onLogin}
+              onClick={handleGithubLogin}
+              disabled={loading}
               className="group flex w-full items-center justify-center rounded-lg h-11 px-4 bg-[#24292F] hover:bg-[#2c323a] text-white transition-all duration-200"
             >
               <span className="material-symbols-rounded mr-3 text-[20px]">terminal</span>
               <span className="text-sm font-semibold tracking-wide">Continue with GitHub</span>
             </button>
             <button 
-              onClick={onLogin}
+              onClick={() => setErrorMessage('SSO is not configured yet.')}
+              disabled={loading}
               className="group flex w-full items-center justify-center rounded-lg h-11 px-4 bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-white transition-all duration-200"
             >
               <span className="material-symbols-rounded mr-3 text-[20px]">public</span>
@@ -86,6 +127,11 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="px-6 pb-8 flex flex-col gap-4">
+          {errorMessage && (
+            <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-200">
+              {errorMessage}
+            </div>
+          )}
           <div className="space-y-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-zinc-500 uppercase ml-1">Work Email</label>

@@ -14,7 +14,7 @@ interface Dependency {
 }
 
 const BuildSystem: React.FC = () => {
-  const [selectedProject, setSelectedProject] = useState('NexusCore:app');
+  const [selectedProject, setSelectedProject] = useState('TheMAGCore:app');
   const [isOfflineMode, setIsOfflineMode] = useState(false);
 
   const tasks: Record<string, BuildTask[]> = {
@@ -77,9 +77,9 @@ const BuildSystem: React.FC = () => {
                       onChange={(e) => setSelectedProject(e.target.value)}
                       className="appearance-none w-full bg-zinc-950 border border-zinc-800 rounded-lg py-2 pl-3 pr-10 text-xs font-bold text-zinc-200 focus:outline-none focus:border-indigo-500 transition-all cursor-pointer"
                     >
-                       <option>NexusCore</option>
-                       <option>NexusCore:app</option>
-                       <option>NexusCore:infrastructure</option>
+                       <option>TheMAGCore</option>
+                       <option>TheMAGCore:app</option>
+                       <option>TheMAGCore:infrastructure</option>
                     </select>
                     <span className="absolute right-2 top-1/2 -translate-y-1/2 material-symbols-rounded text-zinc-600 pointer-events-none">arrow_drop_down</span>
                  </div>

@@ -1,0 +1,15 @@
+TheMAG.dev Task Status
+=======================
+Last updated: 2026-01-24 16:33
+
+Current objectives:
+- User: enable Firebase Auth providers and run admin seeding script
+- User: deploy Firestore rules + Firebase Functions
+- Verify live site layout/modules after refresh
+
+Status:
+- Admin/Pro badge added to header.
+- Modules pop-out + drag/resize + module tabs added in workspace.
+- Bottom panel resize handle + scroll fixes applied.
+- FTP deploy completed to https://magstack.rf.gd/
+- agent.md created with requirement to update TASKS_STATUS.txt before/after work.

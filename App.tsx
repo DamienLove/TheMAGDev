@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import AppLayout from './components/AppLayout';
 import { View } from './types';
 import Dashboard from './views/Dashboard';
@@ -12,33 +12,84 @@ import CommunitySupport from './views/CommunitySupport';
 import DesktopWorkspace from './views/DesktopWorkspace';
 import Projects from './views/Projects';
 import Auth from './views/Auth';
+import Settings from './views/Settings';
+import ExtensionMarketplace from './views/ExtensionMarketplace';
 import Paywall from './components/Paywall';
 import { useRevenueCat } from './src/hooks/useRevenueCat';
+import LoadingScreen from './src/components/LoadingScreen';
+import { SettingsProvider } from './src/contexts/SettingsContext';
+import { onAuthStateChanged, signOut, User } from 'firebase/auth';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { auth, db } from './firebaseConfig';
+import { UserProfile } from './src/services/userProfile';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.Dashboard);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
-  
+  const [authUser, setAuthUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+
   // RevenueCat Integration
   const { isPro, currentOffering, purchasePackage, loading: rcLoading } = useRevenueCat();
 
-  // Check for existing session
+  // Firebase auth session
   useEffect(() => {
-    const token = sessionStorage.getItem('nexus_auth_token');
-    if (token) {
-      setIsAuthenticated(true);
-    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setAuthUser(user);
+      setIsAuthenticated(Boolean(user));
+      setAuthLoading(false);
+    });
+    return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (!authUser) {
+      setUserProfile(null);
+      setProfileLoading(false);
+      return;
+    }
+    setProfileLoading(true);
+    const ref = doc(db, 'users', authUser.uid);
+    const unsubscribe = onSnapshot(
+      ref,
+      (snap) => {
+        setUserProfile(snap.exists() ? ({ ...(snap.data() as UserProfile), uid: authUser.uid } as UserProfile) : null);
+        setProfileLoading(false);
+      },
+      () => setProfileLoading(false)
+    );
+    return () => unsubscribe();
+  }, [authUser]);
+
+  const isAdmin = Boolean(userProfile?.isAdmin || userProfile?.role === 'admin');
+  const profileIsPro = Boolean(userProfile?.isPro || userProfile?.plan === 'pro' || isAdmin);
+  const effectiveIsPro = Boolean(profileIsPro || isPro);
+
+  const displayName = userProfile?.displayName || authUser?.displayName || authUser?.email || 'Engineer';
+  const displayAvatar = useMemo(() => {
+    const value = displayName || 'User';
+    const parts = value.split(/[^\w]+/).filter(Boolean);
+    if (parts.length === 0) return 'U';
+    const initials = parts.slice(0, 2).map(p => p[0]?.toUpperCase()).join('');
+    return initials || value.slice(0, 2).toUpperCase();
+  }, [displayName]);
+
+  if (rcLoading || authLoading || profileLoading) {
+    return <LoadingScreen />;
+  }
+
   const handleLogout = () => {
-    sessionStorage.removeItem('nexus_auth_token');
+    sessionStorage.removeItem('themag_auth_token');
+    signOut(auth);
     setIsAuthenticated(false);
   };
 
   const handleRestrictedAccess = (view: View) => {
     // Example: Restrict 'Desktop' and 'Build' to Pro users
-    if ((view === View.Desktop || view === View.Build) && !isPro) {
+    if ((view === View.Desktop || view === View.Build) && !effectiveIsPro) {
       setShowPaywall(true);
     } else {
       setCurrentView(view);
@@ -57,45 +108,8 @@ const App: React.FC = () => {
       case View.Marketplace: return <Marketplace />;
       case View.Infrastructure: return <Infrastructure />;
       case View.Support: return <CommunitySupport />;
-      case View.Settings:
-        return (
-          <div className="flex-1 p-8 bg-zinc-950 text-white">
-            <h1 className="text-2xl font-bold mb-6">Settings</h1>
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 max-w-2xl mb-6">
-                <h3 className="text-lg font-medium mb-4">Account</h3>
-                <div className="flex items-center justify-between mb-6">
-                   <div>
-                       <p className="text-zinc-300">Current Session</p>
-                       <p className="text-xs text-zinc-500">Active since {new Date().toLocaleTimeString()}</p>
-                   </div>
-                   <button 
-                    onClick={handleLogout}
-                    className="px-4 py-2 bg-red-500/10 border border-red-500/50 text-red-500 rounded-lg hover:bg-red-500/20 transition-colors"
-                    >
-                    Log Out
-                    </button>
-                </div>
-            </div>
-            
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 max-w-2xl">
-                <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-                  Subscription 
-                  {isPro && <span className="text-xs bg-indigo-500 text-white px-2 py-0.5 rounded">PRO</span>}
-                </h3>
-                <p className="text-sm text-zinc-400 mb-4">
-                  {isPro ? "You have full access to TheMAG.dev Pro features." : "Upgrade to unlock Build Systems and Desktop Workspace."}
-                </p>
-                {!isPro && (
-                  <button 
-                    onClick={() => setShowPaywall(true)}
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors"
-                  >
-                    Upgrade Now
-                  </button>
-                )}
-            </div>
-          </div>
-        );
+      case View.Extensions: return <ExtensionMarketplace />;
+      case View.Settings: return <Settings />;
       default: return null;
     }
   };
@@ -105,20 +119,29 @@ const App: React.FC = () => {
   }
 
   return (
-    <AppLayout 
-      currentView={currentView} 
+    <AppLayout
+      currentView={currentView}
       onChangeView={handleRestrictedAccess}
-      user={{ name: 'John Doe', avatar: 'JD' }}
+      user={{ name: displayName, avatar: displayAvatar }}
+      badges={{ isPro: effectiveIsPro, isAdmin }}
     >
         {renderView()}
-        {showPaywall && (
-          <Paywall 
-            packages={currentOffering} 
+        {showPaywall && !effectiveIsPro && (
+          <Paywall
+            packages={currentOffering}
             onPurchase={purchasePackage}
-            onClose={() => setShowPaywall(false)} 
+            onClose={() => setShowPaywall(false)}
           />
         )}
     </AppLayout>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <SettingsProvider>
+      <AppContent />
+    </SettingsProvider>
   );
 };
 

@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+functions/node_modules
 dist
 dist-ssr
 *.local
@@ -24,3 +25,4 @@ dist-ssr
 *.sw?
 
 themagdev-a4363-firebase-adminsdk-fbsvc-cd9d0305c9.json
+secrets/

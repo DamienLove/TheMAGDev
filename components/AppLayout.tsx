@@ -15,14 +15,15 @@ interface AppLayoutProps {
   onChangeView: (view: View) => void;
   children: React.ReactNode;
   user?: { name: string; avatar: string };
+  badges?: { isPro?: boolean; isAdmin?: boolean };
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, children, user }) => {
+const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, children, user, badges }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications] = useState<Notification[]>([
     { id: '1', type: 'success', title: 'Pipeline Success', message: 'Production build v2.1.0 deployed to us-east-1', time: '5m ago', read: false },
-    { id: '2', type: 'warning', title: 'Resource Alert', message: 'Nexus-Edge-DB exceeding P90 latency threshold', time: '12m ago', read: false },
-    { id: '3', type: 'info', title: 'Registry Update', message: 'New verified artifact: @nexus/security-scan v1.2', time: '1h ago', read: true },
+    { id: '2', type: 'warning', title: 'Resource Alert', message: 'TheMAG-Edge-DB exceeding P90 latency threshold', time: '12m ago', read: false },
+    { id: '3', type: 'info', title: 'Registry Update', message: 'New verified artifact: @themag/security-scan v1.2', time: '1h ago', read: true },
   ]);
 
   const navItems = [
@@ -34,8 +35,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, childr
     { id: View.Build, icon: 'dataset', label: 'Build' },
     { id: View.Analytics, icon: 'query_stats', label: 'Insights' },
     { id: View.Infrastructure, icon: 'layers', label: 'Stack' },
-    { id: View.Marketplace, icon: 'shopping_cart', label: 'Registry' },
-    { id: View.Support, icon: 'psychology', label: 'Ecosystem' },
+    { id: View.Extensions, icon: 'extension', label: 'Extensions' },
+    { id: View.Settings, icon: 'settings', label: 'Settings' },
   ];
 
   return (
@@ -47,10 +48,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, childr
         {/* Brand Identity & Cluster Context */}
         <div className="flex items-center gap-4 w-[300px]">
           <div className="flex items-center gap-2.5">
-             <div className="size-8 rounded-lg bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                <span className="material-symbols-rounded text-white text-[20px]">deployed_code</span>
+             <div className="size-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center shadow-lg shadow-zinc-950/40">
+                <img src="/branding/STLOGO.png" alt="TheMAG.dev" className="w-5 h-5 object-contain" />
              </div>
-             <span className="font-bold text-white tracking-tighter text-lg hidden md:block uppercase">Nexus</span>
+             <span className="font-bold text-white tracking-tighter text-lg hidden md:block">TheMAG.dev</span>
           </div>
           <div className="h-4 w-px bg-zinc-800 hidden md:block"></div>
           <div className="flex items-center gap-2 px-2 py-1 bg-zinc-900 rounded border border-zinc-800 hidden md:flex cursor-pointer hover:border-zinc-700 transition-colors group">
@@ -111,14 +112,20 @@ const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, childr
               </div>
               <div className="hidden 2xl:flex flex-col">
                  <span className="text-[10px] font-bold text-white leading-none uppercase tracking-tight">{user ? user.name : 'Engineer'}</span>
-                 <span className="text-[9px] font-bold text-zinc-500 uppercase mt-1">Admin Access</span>
+                 <div className="flex items-center gap-1 mt-1">
+                   {badges?.isAdmin && <span className="text-[9px] font-bold text-emerald-300 uppercase px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">Admin</span>}
+                   {badges?.isPro && <span className="text-[9px] font-bold text-indigo-300 uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20">Pro</span>}
+                   {!badges?.isAdmin && !badges?.isPro && (
+                     <span className="text-[9px] font-bold text-zinc-500 uppercase">Member</span>
+                   )}
+                 </div>
               </div>
             </div>
         </div>
       </header>
 
       {/* Primary Rendering Surface */}
-      <main className="flex-1 overflow-hidden relative bg-zinc-950">
+      <main className="flex-1 min-h-0 min-w-0 overflow-hidden relative bg-zinc-950">
         {children}
         
         {/* Global HUD Overlays */}

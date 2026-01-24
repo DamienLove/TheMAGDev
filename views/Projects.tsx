@@ -18,7 +18,7 @@ const Projects: React.FC = () => {
   const projects: Project[] = [
     {
       id: 'p-1',
-      name: 'Nexus FinTrack',
+      name: 'TheMAG.dev FinTrack',
       description: 'Enterprise finance tracker with OCR receipt scanning and automated reconciliation.',
       author: '@alex_dev',
       authorAvatar: 'AD',
@@ -30,7 +30,7 @@ const Projects: React.FC = () => {
     {
       id: 'p-2',
       name: 'DevFlow Architecture',
-      description: 'A minimalist developer portfolio template built with Nexus Design Studio.',
+      description: 'A minimalist developer portfolio template built with TheMAG.dev Design Studio.',
       author: '@maria_s',
       authorAvatar: 'MS',
       stars: '854',

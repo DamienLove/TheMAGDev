@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Purchases, PurchasesPackage, CustomerInfo, LOG_LEVEL } from '@revenuecat/purchases-js';
+import { Purchases, PurchasesPackage, CustomerInfo, LogLevel } from '@revenuecat/purchases-js';
 
 const API_KEY = 'test_BHHkqGNfzPCVziEbXBIwPxupzTJ'; // Using the key you provided
 
@@ -11,23 +11,32 @@ export const useRevenueCat = () => {
 
   useEffect(() => {
     const init = async () => {
-      try {
-        Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
-        await Purchases.configure(API_KEY, "my_app_user_id"); // Ideally use real user ID
+      // Create a timeout promise that resolves after 3 seconds
+      const timeout = new Promise((resolve) => setTimeout(resolve, 3000));
+      
+      const rcInit = async () => {
+        try {
+            Purchases.setLogLevel(LogLevel.Verbose);
+            await Purchases.configure(API_KEY, "my_app_user_id"); // Ideally use real user ID
 
-        const info = await Purchases.getCustomerInfo();
-        setCustomerInfo(info);
-        checkEntitlements(info);
+            const info = await Purchases.getCustomerInfo();
+            setCustomerInfo(info);
+            checkEntitlements(info);
 
-        const offerings = await Purchases.getOfferings();
-        if (offerings.current) {
-          setCurrentOffering(offerings.current.availablePackages);
+            const offerings = await Purchases.getOfferings();
+            if (offerings.current) {
+            setCurrentOffering(offerings.current.availablePackages);
+            }
+        } catch (e) {
+            console.error("RevenueCat Init Error:", e);
         }
-      } catch (e) {
-        console.error("RevenueCat Init Error:", e);
-      } finally {
-        setLoading(false);
-      }
+      };
+
+      // Race the actual init against the timeout
+      await Promise.race([rcInit(), timeout]);
+      
+      // Always stop loading after the race finishes (either success, error, or timeout)
+      setLoading(false);
     };
 
     init();
