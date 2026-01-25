@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface Extension {
   id: string;
@@ -11,6 +11,7 @@ interface Extension {
   category: string;
   installed: boolean;
   color: string;
+  isImage?: boolean;
 }
 
 const Marketplace: React.FC = () => {
@@ -94,13 +95,36 @@ const Marketplace: React.FC = () => {
     }
   ]);
 
+  useEffect(() => {
+    fetch('/features.json')
+      .then(res => res.json())
+      .then((data: string[]) => {
+        const featureExtensions: Extension[] = data.map((name, index) => ({
+          id: `feat-${index}`,
+          name: name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+          author: 'TheMAG.dev',
+          description: `Integrated workspace module for ${name.replace(/_/g, ' ')}. High-performance UI component for enterprise IDE layouts.`,
+          downloads: `${(Math.random() * 500).toFixed(1)}K`,
+          rating: 4.5 + Math.random() * 0.5,
+          icon: `/features/${name}.png`,
+          category: 'Modules',
+          installed: false,
+          color: 'bg-zinc-800',
+          isImage: true
+        }));
+        setExtensions(prev => [...prev, ...featureExtensions]);
+      })
+      .catch(err => console.error('Failed to load features:', err));
+  }, []);
+
   const categories = [
     { name: 'Popular', icon: 'trending_up' },
     { name: 'AI & LLMs', icon: 'psychology' },
     { name: 'Cloud', icon: 'cloud' },
     { name: 'Data', icon: 'storage' },
     { name: 'Themes', icon: 'palette' },
-    { name: 'Languages', icon: 'translate' }
+    { name: 'Languages', icon: 'translate' },
+    { name: 'Modules', icon: 'view_quilt' }
   ];
 
   const handleInstall = (extId: string) => {
@@ -213,8 +237,12 @@ const Marketplace: React.FC = () => {
         ) : (
           filteredExtensions.map(ext => (
             <div key={ext.id} className="flex gap-5 p-5 bg-zinc-900 border border-zinc-800 rounded-2xl hover:border-zinc-700 transition-all group shadow-xl">
-               <div className={`size-20 rounded-2xl ${ext.color} flex items-center justify-center shrink-0 text-white shadow-lg`}>
-                  <span className="material-symbols-rounded text-4xl">{ext.icon}</span>
+               <div className={`size-20 rounded-2xl ${ext.color} flex items-center justify-center shrink-0 text-white shadow-lg overflow-hidden`}>
+                  {ext.isImage ? (
+                    <img src={ext.icon} className="w-full h-full object-cover" alt={ext.name} />
+                  ) : (
+                    <span className="material-symbols-rounded text-4xl">{ext.icon}</span>
+                  )}
                </div>
                <div className="flex-1 min-w-0 flex flex-col">
                   <div className="flex justify-between items-start mb-1">
@@ -224,7 +252,7 @@ const Marketplace: React.FC = () => {
                      </div>
                      <div className="flex items-center gap-1 bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800">
                         <span className="material-symbols-rounded text-amber-500 text-[14px] fill-[1]">star</span>
-                        <span className="text-xs font-bold text-zinc-300">{ext.rating}</span>
+                        <span className="text-xs font-bold text-zinc-300">{ext.rating.toFixed(1)}</span>
                      </div>
                   </div>
                   <p className="text-zinc-400 text-xs mt-2 line-clamp-2 leading-relaxed">{ext.description}</p>

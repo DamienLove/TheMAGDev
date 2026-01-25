@@ -1,15 +1,23 @@
 TheMAG.dev Task Status
 =======================
-Last updated: 2026-01-24 16:33
+Last updated: 2026-01-25 09:22
 
 Current objectives:
-- User: enable Firebase Auth providers and run admin seeding script
-- User: deploy Firestore rules + Firebase Functions
-- Verify live site layout/modules after refresh
+- Clarify hosting scope and required integrations for InfinityFree FTP deploy
+- Assess repo for changes needed to support flat hosted build and deployment
 
 Status:
+- Implemented SDK Manager UI with platform tabs, updates, and plugin management.
+- Integrated SDK Service for mocking high-level API interactions.
+- Added 'SDKs' navigation item to AppLayout.
 - Admin/Pro badge added to header.
 - Modules pop-out + drag/resize + module tabs added in workspace.
 - Bottom panel resize handle + scroll fixes applied.
+- Marketplace updated with 84 new Workspace Modules including feature icon logos.
+- Sync'd latest branding assets (TLOGO, STLOGO, logo).
 - FTP deploy completed to https://magstack.rf.gd/
-- agent.md created with requirement to update TASKS_STATUS.txt before/after work.
+- features.json generated and integrated for runtime module discovery.
+- public/features/ populated with 84 screenshots for module visualization.
+- 2026-01-25: Awaiting clarification on InfinityFree hosting scope and external CLI/API integrations.
+- 2026-01-25: Attempted to fetch https://magstack.rf.gd/ from tool; received 403 Forbidden (needs screenshot or access change).
+- 2026-01-25: Updated auth flow to allow guest access, added multi-provider sign-in UI, and gated Pro/VM access via paywall + login overlay.

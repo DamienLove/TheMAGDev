@@ -1,20 +1,29 @@
-import React, { useState } from 'react';
-import { GithubAuthProvider, createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import React, { useMemo, useState } from 'react';
+import { GithubAuthProvider, GoogleAuthProvider, OAuthProvider, createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { ensureUserProfile } from '../src/services/userProfile';
 
 interface AuthProps {
   onLogin: () => void;
+  onClose?: () => void;
+  intent?: 'general' | 'pro';
 }
 
 type AuthMode = 'LOGIN' | 'SIGNUP' | 'RESET';
 
-const Auth: React.FC<AuthProps> = ({ onLogin }) => {
+const Auth: React.FC<AuthProps> = ({ onLogin, onClose, intent = 'general' }) => {
   const [mode, setMode] = useState<AuthMode>('LOGIN');
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  const intentCopy = useMemo(() => {
+    if (intent === 'pro') {
+      return 'Sign in to unlock Pro features and launch a dedicated VM workspace.';
+    }
+    return 'Sign in to sync your workspace, preferences, and billing state.';
+  }, [intent]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,22 +65,52 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
     }
   };
 
-  const handleGithubLogin = async () => {
+  const handleProviderLogin = async (provider: GithubAuthProvider | GoogleAuthProvider | OAuthProvider) => {
     setLoading(true);
     setErrorMessage('');
     try {
-      const provider = new GithubAuthProvider();
       const credential = await signInWithPopup(auth, provider);
       await ensureUserProfile(credential.user);
       const token = await credential.user.getIdToken();
       sessionStorage.setItem('themag_auth_token', token);
       onLogin();
     } catch (error: any) {
-      setErrorMessage(error?.message || 'GitHub sign-in failed.');
+      setErrorMessage(error?.message || 'OAuth sign-in failed.');
     } finally {
       setLoading(false);
     }
   };
+
+  const providers = [
+    {
+      id: 'google',
+      label: 'Continue with Google',
+      style: 'bg-white text-zinc-900 hover:bg-zinc-200',
+      provider: new GoogleAuthProvider(),
+      icon: 'language'
+    },
+    {
+      id: 'github',
+      label: 'Continue with GitHub',
+      style: 'bg-[#24292F] text-white hover:bg-[#2c323a]',
+      provider: new GithubAuthProvider(),
+      icon: 'terminal'
+    },
+    {
+      id: 'microsoft',
+      label: 'Continue with Microsoft',
+      style: 'bg-blue-600 text-white hover:bg-blue-500',
+      provider: new OAuthProvider('microsoft.com'),
+      icon: 'windows'
+    },
+    {
+      id: 'apple',
+      label: 'Continue with Apple',
+      style: 'bg-black text-white hover:bg-zinc-900',
+      provider: new OAuthProvider('apple.com'),
+      icon: 'phone_iphone'
+    }
+  ];
 
   return (
     <div className="min-h-screen w-full bg-zinc-950 flex items-center justify-center relative overflow-hidden font-sans">
@@ -80,6 +119,15 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-600/5 blur-[100px] pointer-events-none"></div>
 
         <div className="relative z-10 w-full max-w-[400px] bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl shadow-indigo-500/10 overflow-hidden flex flex-col mx-4">
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-3 text-zinc-500 hover:text-white transition-colors"
+            aria-label="Close"
+          >
+            <span className="material-symbols-rounded">close</span>
+          </button>
+        )}
         {/* Header Section */}
         <div className="pt-8 pb-4 px-6 flex flex-col items-center text-center">
           <div className="w-14 h-14 rounded-xl bg-zinc-950/70 border border-zinc-800 flex items-center justify-center shadow-lg shadow-indigo-500/10 mb-5">
@@ -95,25 +143,29 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
             {mode === 'SIGNUP' && 'Provision your multi-tenant developer workspace.'}
             {mode === 'RESET' && 'Recover your platform credentials.'}
           </p>
+          <p className="text-[11px] text-indigo-200/70 mt-3">{intentCopy}</p>
         </div>
 
         {mode === 'LOGIN' && (
           <div className="px-6 py-4 flex flex-col gap-3 border-b border-zinc-800/50">
-            <button 
-              onClick={handleGithubLogin}
-              disabled={loading}
-              className="group flex w-full items-center justify-center rounded-lg h-11 px-4 bg-[#24292F] hover:bg-[#2c323a] text-white transition-all duration-200"
-            >
-              <span className="material-symbols-rounded mr-3 text-[20px]">terminal</span>
-              <span className="text-sm font-semibold tracking-wide">Continue with GitHub</span>
-            </button>
-            <button 
-              onClick={() => setErrorMessage('SSO is not configured yet.')}
+            {providers.map((entry) => (
+              <button
+                key={entry.id}
+                onClick={() => handleProviderLogin(entry.provider)}
+                disabled={loading}
+                className={`group flex w-full items-center justify-center rounded-lg h-11 px-4 transition-all duration-200 ${entry.style}`}
+              >
+                <span className="material-symbols-rounded mr-3 text-[20px]">{entry.icon}</span>
+                <span className="text-sm font-semibold tracking-wide">{entry.label}</span>
+              </button>
+            ))}
+            <button
+              onClick={() => setErrorMessage('Enterprise SSO is not configured yet.')}
               disabled={loading}
               className="group flex w-full items-center justify-center rounded-lg h-11 px-4 bg-zinc-800 border border-zinc-700 hover:bg-zinc-700 text-white transition-all duration-200"
             >
               <span className="material-symbols-rounded mr-3 text-[20px]">public</span>
-              <span className="text-sm font-semibold tracking-wide">Single Sign-On (SSO)</span>
+              <span className="text-sm font-semibold tracking-wide">Enterprise SSO</span>
             </button>
           </div>
         )}
@@ -205,6 +257,14 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
               <button onClick={() => setMode('LOGIN')} className="font-bold text-indigo-400 hover:text-indigo-300 transition-colors">Return to login gateway</button>
             )}
           </p>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="mt-3 text-[11px] font-semibold text-zinc-500 hover:text-white transition-colors"
+            >
+              Continue as guest
+            </button>
+          )}
         </div>
       </div>
     </div>

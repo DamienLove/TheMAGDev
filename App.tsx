@@ -14,6 +14,7 @@ import Projects from './views/Projects';
 import Auth from './views/Auth';
 import Settings from './views/Settings';
 import ExtensionMarketplace from './views/ExtensionMarketplace';
+import SDKManager from './views/SDKManager';
 import Paywall from './components/Paywall';
 import { useRevenueCat } from './src/hooks/useRevenueCat';
 import LoadingScreen from './src/components/LoadingScreen';
@@ -27,6 +28,9 @@ const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.Dashboard);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+  const [pendingPaywall, setPendingPaywall] = useState(false);
+  const [authIntent, setAuthIntent] = useState<'general' | 'pro'>('general');
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -77,6 +81,10 @@ const AppContent: React.FC = () => {
     return initials || value.slice(0, 2).toUpperCase();
   }, [displayName]);
 
+  const isGuest = !isAuthenticated;
+  const userLabel = isGuest ? 'Guest' : displayName;
+  const userAvatar = isGuest ? 'G' : displayAvatar;
+
   if (rcLoading || authLoading || profileLoading) {
     return <LoadingScreen />;
   }
@@ -87,9 +95,47 @@ const AppContent: React.FC = () => {
     setIsAuthenticated(false);
   };
 
+  const openAuth = (intent: 'general' | 'pro' = 'general') => {
+    setAuthIntent(intent);
+    setShowAuth(true);
+  };
+
+  const closeAuth = () => {
+    setShowAuth(false);
+    setPendingPaywall(false);
+    setAuthIntent('general');
+  };
+
+  const handleAuthSuccess = () => {
+    setIsAuthenticated(true);
+    setShowAuth(false);
+    if (authIntent === 'pro') {
+      setPendingPaywall(true);
+    }
+    setAuthIntent('general');
+  };
+
+  useEffect(() => {
+    if (!pendingPaywall) return;
+    if (authLoading || profileLoading || rcLoading) return;
+    if (effectiveIsPro) {
+      setPendingPaywall(false);
+      return;
+    }
+    if (isAuthenticated) {
+      setShowPaywall(true);
+      setPendingPaywall(false);
+    }
+  }, [pendingPaywall, isAuthenticated, effectiveIsPro, authLoading, profileLoading, rcLoading]);
+
   const handleRestrictedAccess = (view: View) => {
     // Example: Restrict 'Desktop' and 'Build' to Pro users
     if ((view === View.Desktop || view === View.Build) && !effectiveIsPro) {
+      if (!isAuthenticated) {
+        setPendingPaywall(true);
+        openAuth('pro');
+        return;
+      }
       setShowPaywall(true);
     } else {
       setCurrentView(view);
@@ -109,21 +155,19 @@ const AppContent: React.FC = () => {
       case View.Infrastructure: return <Infrastructure />;
       case View.Support: return <CommunitySupport />;
       case View.Extensions: return <ExtensionMarketplace />;
+      case View.SDKs: return <SDKManager />;
       case View.Settings: return <Settings />;
       default: return null;
     }
   };
 
-  if (!isAuthenticated) {
-    return <Auth onLogin={() => setIsAuthenticated(true)} />;
-  }
-
   return (
     <AppLayout
       currentView={currentView}
       onChangeView={handleRestrictedAccess}
-      user={{ name: displayName, avatar: displayAvatar }}
+      user={{ name: userLabel, avatar: userAvatar }}
       badges={{ isPro: effectiveIsPro, isAdmin }}
+      auth={{ isAuthenticated, onLogin: openAuth, onLogout: handleLogout }}
     >
         {renderView()}
         {showPaywall && !effectiveIsPro && (
@@ -132,6 +176,15 @@ const AppContent: React.FC = () => {
             onPurchase={purchasePackage}
             onClose={() => setShowPaywall(false)}
           />
+        )}
+        {showAuth && (
+          <div className="fixed inset-0 z-50">
+            <Auth
+              onLogin={handleAuthSuccess}
+              onClose={closeAuth}
+              intent={authIntent}
+            />
+          </div>
         )}
     </AppLayout>
   );

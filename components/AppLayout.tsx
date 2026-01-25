@@ -16,9 +16,10 @@ interface AppLayoutProps {
   children: React.ReactNode;
   user?: { name: string; avatar: string };
   badges?: { isPro?: boolean; isAdmin?: boolean };
+  auth?: { isAuthenticated: boolean; onLogin: () => void; onLogout: () => void };
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, children, user, badges }) => {
+const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, children, user, badges, auth }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications] = useState<Notification[]>([
     { id: '1', type: 'success', title: 'Pipeline Success', message: 'Production build v2.1.0 deployed to us-east-1', time: '5m ago', read: false },
@@ -35,6 +36,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, childr
     { id: View.Build, icon: 'dataset', label: 'Build' },
     { id: View.Analytics, icon: 'query_stats', label: 'Insights' },
     { id: View.Infrastructure, icon: 'layers', label: 'Stack' },
+    { id: View.SDKs, icon: 'handyman', label: 'SDKs' },
     { id: View.Extensions, icon: 'extension', label: 'Extensions' },
     { id: View.Settings, icon: 'settings', label: 'Settings' },
   ];
@@ -106,20 +108,40 @@ const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, childr
             
             <div className="h-4 w-px bg-zinc-800 mx-1"></div>
 
-            <div className="flex items-center gap-3 cursor-pointer hover:bg-zinc-900 p-1 pr-3 rounded-lg transition-colors group">
+            <div className="flex items-center gap-3">
+              {auth && (
+                <button
+                  onClick={auth.isAuthenticated ? auth.onLogout : auth.onLogin}
+                  className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-800 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:border-indigo-500/60 hover:bg-zinc-900 transition-all"
+                >
+                  <span className="material-symbols-rounded text-[14px]">
+                    {auth.isAuthenticated ? 'logout' : 'login'}
+                  </span>
+                  {auth.isAuthenticated ? 'Sign Out' : 'Sign In'}
+                </button>
+              )}
+              <div className="flex items-center gap-3 cursor-pointer hover:bg-zinc-900 p-1 pr-3 rounded-lg transition-colors group">
               <div className="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-[10px] font-bold text-white shadow-lg shadow-indigo-500/10 group-hover:scale-105 transition-transform">
                 {user ? user.avatar : 'JD'}
               </div>
               <div className="hidden 2xl:flex flex-col">
                  <span className="text-[10px] font-bold text-white leading-none uppercase tracking-tight">{user ? user.name : 'Engineer'}</span>
                  <div className="flex items-center gap-1 mt-1">
-                   {badges?.isAdmin && <span className="text-[9px] font-bold text-emerald-300 uppercase px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">Admin</span>}
-                   {badges?.isPro && <span className="text-[9px] font-bold text-indigo-300 uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20">Pro</span>}
-                   {!badges?.isAdmin && !badges?.isPro && (
+                   {auth?.isAuthenticated === false && (
+                     <span className="text-[9px] font-bold text-amber-300 uppercase px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">Guest</span>
+                   )}
+                   {auth?.isAuthenticated !== false && badges?.isAdmin && (
+                     <span className="text-[9px] font-bold text-emerald-300 uppercase px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">Admin</span>
+                   )}
+                   {auth?.isAuthenticated !== false && badges?.isPro && (
+                     <span className="text-[9px] font-bold text-indigo-300 uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20">Pro</span>
+                   )}
+                   {auth?.isAuthenticated !== false && !badges?.isAdmin && !badges?.isPro && (
                      <span className="text-[9px] font-bold text-zinc-500 uppercase">Member</span>
                    )}
                  </div>
               </div>
+            </div>
             </div>
         </div>
       </header>

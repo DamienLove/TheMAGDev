@@ -10,7 +10,8 @@ export enum View {
   Support = 'SUPPORT',
   Desktop = 'DESKTOP',
   Settings = 'SETTINGS',
-  Extensions = 'EXTENSIONS'
+  Extensions = 'EXTENSIONS',
+  SDKs = 'SDKS'
 }
 
 export interface Metric {
