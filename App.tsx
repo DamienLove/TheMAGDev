@@ -23,6 +23,12 @@ import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig';
 import { UserProfile } from './src/services/userProfile';
+import { useMobileDetection } from './src/hooks/useMobileDetection';
+import MobileApp from './src/mobile/MobileApp';
+import { useMobileDetection } from './src/hooks/useMobileDetection';
+import MobileApp from './src/mobile/MobileApp';
+import { useMobileDetection } from './src/hooks/useMobileDetection';
+import MobileApp from './src/mobile/MobileApp';
 
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.Dashboard);
@@ -191,9 +197,11 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  const isMobile = useMobileDetection();
+
   return (
     <SettingsProvider>
-      <AppContent />
+      {isMobile ? <MobileApp /> : <AppContent />}
     </SettingsProvider>
   );
 };
