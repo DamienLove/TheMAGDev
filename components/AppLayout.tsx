@@ -51,7 +51,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, childr
         <div className="flex items-center gap-4 w-[300px]">
           <div className="flex items-center gap-2.5">
              <div className="size-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center shadow-lg shadow-zinc-950/40">
-                <img src="/branding/STLOGO.png" alt="TheMAG.dev" className="w-5 h-5 object-contain" />
+                <img src="./branding/STLOGO.png" alt="TheMAG.dev" className="w-5 h-5 object-contain" />
              </div>
              <span className="font-bold text-white tracking-tighter text-lg hidden md:block">TheMAG.dev</span>
           </div>
@@ -92,6 +92,16 @@ const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, childr
                   <kbd className="text-[9px] bg-zinc-900 text-zinc-500 px-1.5 py-0.5 rounded border border-zinc-800 font-mono shadow-sm">⌘K</kbd>
                </div>
             </div>
+
+            <a
+              href="https://magstack.rf.gd/"
+              target="_blank"
+              rel="noreferrer"
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-800 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:border-emerald-500/60 hover:bg-zinc-900 transition-all"
+            >
+              <span className="material-symbols-rounded text-[14px]">hub</span>
+              MagStack
+            </a>
 
             <div className="flex items-center gap-1">
               <button 
@@ -147,7 +157,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, childr
       </header>
 
       {/* Primary Rendering Surface */}
-      <main className="flex-1 min-h-0 min-w-0 overflow-hidden relative bg-zinc-950">
+      <main className="flex-1 min-h-0 min-w-0 overflow-hidden relative bg-zinc-950 flex flex-col">
         {children}
         
         {/* Global HUD Overlays */}

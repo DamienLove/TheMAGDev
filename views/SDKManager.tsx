@@ -11,8 +11,12 @@ const SDKManager: React.FC = () => {
 
   const platforms = ['Android', 'iOS', 'Windows', 'Mac', 'Linux', 'Web'];
 
+  const formatVersion = (version: string) => (/^\d/.test(version) ? `v${version}` : version);
+
   useEffect(() => {
     loadData();
+    const unsubscribe = sdkService.onChange(() => loadData());
+    return () => unsubscribe();
   }, [selectedPlatform]);
 
   const loadData = () => {
@@ -141,7 +145,7 @@ const SDKManager: React.FC = () => {
                 <div>
                   <h3 className="text-white font-bold">{sdk.name}</h3>
                   <div className="flex items-center gap-2 text-xs text-zinc-500 mt-0.5">
-                    <span>v{sdk.version}</span>
+                    <span>{formatVersion(sdk.version)}</span>
                     <span>•</span>
                     <span>{sdk.size}</span>
                     <span>•</span>

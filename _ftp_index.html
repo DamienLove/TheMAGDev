@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TheMAG.dev</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+      body { font-family: 'Inter', sans-serif; }
+      .font-mono { font-family: 'JetBrains Mono', monospace; }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track { background: #0f172a; }
+      ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #475569; }
+      .material-symbols-rounded { font-size: 20px; }
+      .splash-name {
+        font-family: 'Inter', sans-serif;
+        font-weight: 800;
+        font-size: 20px;
+        letter-spacing: 0.18em;
+        text-transform: none;
+        color: #e2e8f0;
+      }
+      .splash-name .mag-letter {
+        display: inline-block;
+        animation: magShuffle 2.4s linear infinite;
+      }
+      .splash-name .mag-m { animation-delay: 0s; }
+      .splash-name .mag-a { animation-delay: 0.4s; }
+      .splash-name .mag-g { animation-delay: 0.8s; }
+      .splash-logo {
+        width: 150px;
+        height: 150px;
+        object-fit: contain;
+        filter: brightness(0.86) contrast(1.08) saturate(1.05);
+      }
+      @keyframes magShuffle {
+        0% { color: #f97316; }
+        33% { color: #22c55e; }
+        66% { color: #3b82f6; }
+        100% { color: #f97316; }
+      }
+    </style>
+  <script type="module" crossorigin src="./assets/index-pMPmaYkp.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-6GBZ9nXN.css">
+</head>
+  <body class="bg-slate-950 text-slate-200 overflow-hidden h-screen w-screen">
+    <div id="root">
+      <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; gap: 12px; background-color: #020617;">
+        <img src="./assets/TLOGO-UJ8zmBzy.gif" alt="Loading..." class="splash-logo" />
+        <div class="splash-name" aria-label="TheMAG.dev">
+          <span>The</span><span class="mag-letter mag-m">M</span><span class="mag-letter mag-a">A</span><span class="mag-letter mag-g">G</span><span>.dev</span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

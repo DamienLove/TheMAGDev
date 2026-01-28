@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Terminal } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 
 interface FileNode {
@@ -15,10 +16,16 @@ interface FileNode {
 const DesktopWorkspace: React.FC = () => {
   const [activeTab, setActiveTab] = useState('MainController.ts');
   const [activeTerminalTab, setActiveTerminalTab] = useState('Terminal');
+  const showLogActions = activeTerminalTab !== 'Terminal';
   const [driveConnected, setDriveConnected] = useState(false);
   const [syncStatus, setSyncStatus] = useState<DriveSyncStatus>({ connected: false, syncInProgress: false });
   const [userInfo, setUserInfo] = useState<DriveUserInfo | null>(null);
   const [driveFiles, setDriveFiles] = useState<DriveFile[]>([]);
+  const [driveFolderFiles, setDriveFolderFiles] = useState<DriveFile[]>([]);
+  const [drivePath, setDrivePath] = useState<DriveFile[]>([]);
+  const [driveView, setDriveView] = useState<'projects' | 'drive'>('projects');
+  const [driveLoading, setDriveLoading] = useState(false);
+  const [lastDriveError, setLastDriveError] = useState<string | null>(null);
   const [currentProject, setCurrentProject] = useState<DriveFile | null>(null);
   const [projectFiles, setProjectFiles] = useState<FileNode[]>([]);
   const [openFiles, setOpenFiles] = useState<Map<string, string>>(new Map());
@@ -57,11 +64,23 @@ export class MainController {
     if (driveConnected) {
       loadUserInfo();
       loadProjects();
+      if (driveView === 'drive') {
+        loadDriveFolder();
+      }
     } else {
       setUserInfo(null);
       setDriveFiles([]);
+      setDriveFolderFiles([]);
+      setDrivePath([]);
     }
-  }, [driveConnected]);
+  }, [driveConnected, driveView]);
+
+  useEffect(() => {
+    if (syncStatus.error && syncStatus.error !== lastDriveError) {
+      addTerminalLine(syncStatus.error, 'error');
+      setLastDriveError(syncStatus.error);
+    }
+  }, [syncStatus.error, lastDriveError]);
 
   const loadUserInfo = async () => {
     const info = await googleDriveService.getUserInfo();
@@ -75,11 +94,38 @@ export class MainController {
     addTerminalLine(`Found ${projects.length} project(s) on Google Drive`);
   };
 
+  const loadDriveFolder = async (folderId?: string) => {
+    setDriveLoading(true);
+    const files = await googleDriveService.listDriveFolder(folderId);
+    setDriveFolderFiles(files);
+    setDriveLoading(false);
+  };
+
+  const openDriveFolder = async (folder: DriveFile) => {
+    setDrivePath(prev => [...prev, folder]);
+    await loadDriveFolder(folder.id);
+  };
+
+  const goToDriveRoot = async () => {
+    setDrivePath([]);
+    await loadDriveFolder();
+  };
+
+  const jumpToDriveFolder = async (index: number) => {
+    const nextPath = drivePath.slice(0, index + 1);
+    setDrivePath(nextPath);
+    const folderId = nextPath[nextPath.length - 1]?.id;
+    await loadDriveFolder(folderId);
+  };
+
   const connectDrive = async () => {
     addTerminalLine('Connecting to Google Drive...');
     const success = await googleDriveService.connect();
     if (success) {
       addTerminalLine('Successfully connected to Google Drive!', 'success');
+      if (driveView === 'drive') {
+        loadDriveFolder();
+      }
     } else {
       addTerminalLine('Failed to connect to Google Drive', 'error');
     }
@@ -89,6 +135,8 @@ export class MainController {
     googleDriveService.disconnect();
     setCurrentProject(null);
     setProjectFiles([]);
+    setDriveFolderFiles([]);
+    setDrivePath([]);
     addTerminalLine('Disconnected from Google Drive');
   };
 
@@ -104,7 +152,8 @@ export class MainController {
       setNewProjectName('');
       loadProjects();
     } else {
-      addTerminalLine('Failed to create project', 'error');
+      const errorMessage = googleDriveService.getSyncStatus().error || 'Failed to create project';
+      addTerminalLine(errorMessage, 'error');
     }
     setIsCreatingProject(false);
   };
@@ -124,6 +173,21 @@ export class MainController {
 
     setProjectFiles(fileNodes);
     addTerminalLine(`Loaded ${files.length} file(s) from project`, 'success');
+  };
+
+  const openDriveItem = async (item: DriveFile) => {
+    if (item.mimeType === 'application/vnd.google-apps.folder') {
+      await openDriveFolder(item);
+      return;
+    }
+
+    await openFile({
+      id: item.id,
+      name: item.name,
+      type: 'file',
+      mimeType: item.mimeType,
+      driveFile: item,
+    });
   };
 
   const openFile = async (file: FileNode) => {
@@ -391,48 +455,114 @@ export class MainController {
                   </div>
                 ) : (
                   <>
-                    {/* Create Project */}
-                    <div className="mb-2 p-2 bg-[#0d0e15] rounded border border-[#282b39]">
-                      <div className="flex gap-1">
-                        <input
-                          type="text"
-                          value={newProjectName}
-                          onChange={(e) => setNewProjectName(e.target.value)}
-                          placeholder="New project name..."
-                          className="flex-1 bg-[#161825] border border-[#282b39] rounded px-2 py-1 text-[11px] text-white placeholder-[#5f637a] focus:outline-none focus:border-indigo-500"
-                          onKeyDown={(e) => e.key === 'Enter' && createProject()}
-                        />
-                        <button
-                          onClick={createProject}
-                          disabled={isCreatingProject || !newProjectName.trim()}
-                          className="px-2 py-1 bg-indigo-600 text-white text-[10px] rounded hover:bg-indigo-500 disabled:opacity-50"
-                        >
-                          <span className="material-symbols-rounded text-[14px]">add</span>
-                        </button>
-                      </div>
+                    <div className="mb-2 flex items-center gap-1 px-2 text-[10px] uppercase font-bold">
+                      <button
+                        onClick={() => setDriveView('projects')}
+                        className={`px-2 py-1 rounded ${driveView === 'projects' ? 'bg-indigo-500/20 text-indigo-300' : 'text-[#5f637a] hover:text-white'}`}
+                      >
+                        Projects
+                      </button>
+                      <button
+                        onClick={() => setDriveView('drive')}
+                        className={`px-2 py-1 rounded ${driveView === 'drive' ? 'bg-indigo-500/20 text-indigo-300' : 'text-[#5f637a] hover:text-white'}`}
+                      >
+                        My Drive
+                      </button>
                     </div>
 
-                    {/* Projects List */}
-                    <div className="text-[10px] text-[#5f637a] uppercase font-bold mb-1 px-2">Projects</div>
-                    {driveFiles.length === 0 ? (
-                      <div className="text-[11px] text-[#5f637a] px-2 py-4 text-center">
-                        No projects yet. Create one above!
-                      </div>
-                    ) : (
-                      driveFiles.map((project) => (
-                        <div
-                          key={project.id}
-                          onClick={() => openProject(project)}
-                          className={`flex items-center gap-2 px-2 py-1.5 rounded-sm cursor-pointer transition-colors ${
-                            currentProject?.id === project.id
-                              ? 'bg-indigo-500/20 text-white border-l-2 border-indigo-500'
-                              : 'text-[#9da1b9] hover:text-white hover:bg-[#161825]'
-                          }`}
-                        >
-                          <span className="material-symbols-rounded text-[16px] text-yellow-400">folder</span>
-                          <span className="truncate">{project.name}</span>
+                    {driveView === 'projects' ? (
+                      <>
+                        {/* Create Project */}
+                        <div className="mb-2 p-2 bg-[#0d0e15] rounded border border-[#282b39]">
+                          <div className="flex gap-1">
+                            <input
+                              type="text"
+                              value={newProjectName}
+                              onChange={(e) => setNewProjectName(e.target.value)}
+                              placeholder="New project name..."
+                              className="flex-1 bg-[#161825] border border-[#282b39] rounded px-2 py-1 text-[11px] text-white placeholder-[#5f637a] focus:outline-none focus:border-indigo-500"
+                              onKeyDown={(e) => e.key === 'Enter' && createProject()}
+                            />
+                            <button
+                              onClick={createProject}
+                              disabled={isCreatingProject || !newProjectName.trim()}
+                              className="px-2 py-1 bg-indigo-600 text-white text-[10px] rounded hover:bg-indigo-500 disabled:opacity-50"
+                            >
+                              <span className="material-symbols-rounded text-[14px]">add</span>
+                            </button>
+                          </div>
                         </div>
-                      ))
+
+                        {/* Projects List */}
+                        <div className="text-[10px] text-[#5f637a] uppercase font-bold mb-1 px-2">Projects</div>
+                        {driveFiles.length === 0 ? (
+                          <div className="text-[11px] text-[#5f637a] px-2 py-4 text-center">
+                            No projects yet. Create one above!
+                          </div>
+                        ) : (
+                          driveFiles.map((project) => (
+                            <div
+                              key={project.id}
+                              onClick={() => openProject(project)}
+                              className={`flex items-center gap-2 px-2 py-1.5 rounded-sm cursor-pointer transition-colors ${
+                                currentProject?.id === project.id
+                                  ? 'bg-indigo-500/20 text-white border-l-2 border-indigo-500'
+                                  : 'text-[#9da1b9] hover:text-white hover:bg-[#161825]'
+                              }`}
+                            >
+                              <span className="material-symbols-rounded text-[16px] text-yellow-400">folder</span>
+                              <span className="truncate">{project.name}</span>
+                            </div>
+                          ))
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <div className="px-2 py-1 text-[10px] text-[#9da1b9] flex items-center flex-wrap gap-1">
+                          <button
+                            onClick={goToDriveRoot}
+                            className="text-indigo-300 hover:text-white"
+                          >
+                            My Drive
+                          </button>
+                          {drivePath.map((folder, index) => (
+                            <div key={folder.id} className="flex items-center gap-1">
+                              <span className="text-[#3b3f52]">/</span>
+                              <button
+                                onClick={() => jumpToDriveFolder(index)}
+                                className="hover:text-white text-[#9da1b9]"
+                              >
+                                {folder.name}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        {driveLoading ? (
+                          <div className="text-[11px] text-[#5f637a] px-2 py-4 text-center">
+                            Loading Drive...
+                          </div>
+                        ) : driveFolderFiles.length === 0 ? (
+                          <div className="text-[11px] text-[#5f637a] px-2 py-4 text-center">
+                            This folder is empty.
+                          </div>
+                        ) : (
+                          driveFolderFiles.map((item) => {
+                            const isFolder = item.mimeType === 'application/vnd.google-apps.folder';
+                            return (
+                              <div
+                                key={item.id}
+                                onClick={() => openDriveItem(item)}
+                                className="flex items-center gap-2 px-2 py-1.5 rounded-sm cursor-pointer transition-colors text-[#9da1b9] hover:text-white hover:bg-[#161825]"
+                              >
+                                <span className={`material-symbols-rounded text-[16px] ${isFolder ? 'text-yellow-400' : getFileIconColor(item.name)}`}>
+                                  {getFileIcon(item.name, item.mimeType)}
+                                </span>
+                                <span className="truncate">{item.name}</span>
+                              </div>
+                            );
+                          })
+                        )}
+                      </>
                     )}
 
                     {/* Disconnect */}
@@ -617,35 +747,43 @@ export class MainController {
                   </button>
                 ))}
               </div>
-              <div className="ml-auto flex items-center gap-2 pr-2">
-                <button className="p-1 hover:bg-white/10 rounded text-[#5f637a]"><span className="material-symbols-rounded text-[18px]">add</span></button>
-                <button
-                  onClick={() => setTerminalOutput([])}
-                  className="p-1 hover:bg-white/10 rounded text-[#5f637a]"
-                >
-                  <span className="material-symbols-rounded text-[18px]">delete</span>
-                </button>
-              </div>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 font-mono text-[12px] text-[#d4d4d4]">
-              {terminalOutput.map((line, i) => (
-                <div
-                  key={i}
-                  className={`mb-1 ${
-                    line.startsWith('[OK]') ? 'text-green-400' :
-                    line.startsWith('[ERROR]') ? 'text-red-400' : ''
-                  }`}
-                >
-                  {line.startsWith('[OK]') || line.startsWith('[ERROR]')
-                    ? line
-                    : <><span className="text-blue-400">~</span> {line}</>
-                  }
+              {showLogActions && (
+                <div className="ml-auto flex items-center gap-2 pr-2">
+                  <button
+                    onClick={() => setTerminalOutput([])}
+                    className="p-1 hover:bg-white/10 rounded text-[#5f637a]"
+                    title="Clear logs"
+                  >
+                    <span className="material-symbols-rounded text-[18px]">delete</span>
+                  </button>
                 </div>
-              ))}
-              <div className="mt-2 flex items-center gap-1">
-                <span className="text-blue-400">~</span>
-                <span className="w-2 h-4 bg-indigo-500/60 animate-pulse"></span>
-              </div>
+              )}
+            </div>
+            <div className="flex-1 min-h-0 overflow-hidden">
+              {activeTerminalTab === 'Terminal' ? (
+                <Terminal className="h-full" initialMode="local" />
+              ) : (
+                <div className="h-full overflow-y-auto p-4 font-mono text-[12px] text-[#d4d4d4]">
+                  {terminalOutput.map((line, i) => (
+                    <div
+                      key={i}
+                      className={`mb-1 ${
+                        line.startsWith('[OK]') ? 'text-green-400' :
+                        line.startsWith('[ERROR]') ? 'text-red-400' : ''
+                      }`}
+                    >
+                      {line.startsWith('[OK]') || line.startsWith('[ERROR]')
+                        ? line
+                        : <><span className="text-blue-400">~</span> {line}</>
+                      }
+                    </div>
+                  ))}
+                  <div className="mt-2 flex items-center gap-1">
+                    <span className="text-blue-400">~</span>
+                    <span className="w-2 h-4 bg-indigo-500/60 animate-pulse"></span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </main>

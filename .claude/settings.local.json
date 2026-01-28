@@ -2,7 +2,22 @@
   "permissions": {
     "allow": [
       "Bash(npm install:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(firebase deploy:*)",
+      "Bash(node scripts/setProUser.js:*)",
+      "Bash(node scripts/setProUser.cjs:*)",
+      "Bash(curl -T dist/index.html --ftp-create-dirs -u if0_40352355:4KgEjspgN2 ftp://ftpupload.net/magstack.rf.gd/htdocs/index.html)",
+      "Bash(for file in assets/*)",
+      "Bash(do curl -T \"$file\" -u if0_40352355:4KgEjspgN2 ftp://ftpupload.net/magstack.rf.gd/htdocs/assets/ --ftp-create-dirs)",
+      "Bash(done)",
+      "Bash(curl -T features.json -u if0_40352355:4KgEjspgN2 ftp://ftpupload.net/magstack.rf.gd/htdocs/features.json)",
+      "Bash(find branding -type f -exec curl -T {} -u if0_40352355:4KgEjspgN2 ftp://ftpupload.net/magstack.rf.gd/htdocs/{} --ftp-create-dirs ;)",
+      "Bash(find features -type f -exec curl -T {} -u if0_40352355:4KgEjspgN2 ftp://ftpupload.net/magstack.rf.gd/htdocs/{} --ftp-create-dirs ;)",
+      "Bash(curl:*)",
+      "Skill(commit-commands:commit-push-pr)",
+      "Bash(git checkout:*)"
     ]
   }
 }

@@ -131,7 +131,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onClose, intent = 'general' }) => 
         {/* Header Section */}
         <div className="pt-8 pb-4 px-6 flex flex-col items-center text-center">
           <div className="w-14 h-14 rounded-xl bg-zinc-950/70 border border-zinc-800 flex items-center justify-center shadow-lg shadow-indigo-500/10 mb-5">
-            <img src="/branding/STLOGO.png" alt="TheMAG.dev" className="w-10 h-10 object-contain" />
+            <img src="./branding/STLOGO.png" alt="TheMAG.dev" className="w-10 h-10 object-contain" />
           </div>
           <h1 className="text-white text-2xl font-bold tracking-tight mb-2">
             {mode === 'LOGIN' && 'Sign in to TheMAG.dev'}

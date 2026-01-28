@@ -4,9 +4,10 @@ import { useWorkspace, FileNode } from './WorkspaceContext';
 interface FileExplorerProps {
   className?: string;
   onPopOut?: () => void;
+  onOpenWindow?: () => void;
 }
 
-const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut }) => {
+const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpenWindow }) => {
   const {
     files,
     activeFile,
@@ -217,6 +218,15 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut }) => {
               title="Pop out"
             >
               <span className="material-symbols-rounded text-sm">open_in_new</span>
+            </button>
+          )}
+          {onOpenWindow && (
+            <button
+              onClick={onOpenWindow}
+              className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
+              title="Open in new window"
+            >
+              <span className="material-symbols-rounded text-sm">launch</span>
             </button>
           )}
           <button

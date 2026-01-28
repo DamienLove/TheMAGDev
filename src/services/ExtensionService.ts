@@ -1,4 +1,6 @@
 // Extension/Plugin Service for TheMAG.dev
+import googleDriveService from './GoogleDriveService';
+import { zipSync, strToU8 } from 'fflate';
 
 export type ExtensionCategory =
   | 'language'
@@ -100,47 +102,48 @@ export interface ExtensionUpload {
   publisherId: string;
 }
 
-// Built-in/Featured Extensions
+// Built-in/Featured Extensions (real-world tooling)
 const FEATURED_EXTENSIONS: MarketplaceExtension[] = [
   {
     manifest: {
-      id: 'themag.prettier',
+      id: 'prettier',
       name: 'prettier',
       displayName: 'Prettier - Code Formatter',
-      version: '2.0.0',
-      description: 'Code formatter using prettier',
-      author: { name: 'TheMAG.dev' },
+      version: 'stable',
+      description: 'Opinionated code formatter for JavaScript, TypeScript, JSON, CSS, and more.',
+      author: { name: 'Prettier' },
       license: 'MIT',
       categories: ['formatter'],
-      keywords: ['format', 'prettier', 'beautify'],
+      keywords: ['prettier', 'format', 'style'],
       main: 'dist/extension.js',
-      activationEvents: ['onLanguage:javascript', 'onLanguage:typescript'],
+      activationEvents: ['onLanguage:javascript', 'onLanguage:typescript', 'onLanguage:json', 'onLanguage:css'],
       contributes: {
         commands: [
           { command: 'prettier.format', title: 'Format Document' },
+          { command: 'prettier.formatSelection', title: 'Format Selection' },
         ],
       },
       engines: { themag: '^1.0.0' },
     },
     status: 'approved',
-    downloads: 45230,
-    rating: 4.8,
-    ratingCount: 1250,
-    publishedDate: Date.now() - 90 * 24 * 60 * 60 * 1000,
-    lastUpdated: Date.now() - 7 * 24 * 60 * 60 * 1000,
+    downloads: 1450000,
+    rating: 4.9,
+    ratingCount: 32000,
+    publishedDate: Date.now() - 540 * 24 * 60 * 60 * 1000,
+    lastUpdated: Date.now() - 14 * 24 * 60 * 60 * 1000,
     scanReport: { safe: true, issues: [], scannedAt: Date.now() },
   },
   {
     manifest: {
-      id: 'themag.eslint',
+      id: 'eslint',
       name: 'eslint',
       displayName: 'ESLint',
-      version: '3.0.0',
-      description: 'Integrates ESLint JavaScript into TheMAG.dev',
-      author: { name: 'TheMAG.dev' },
+      version: 'stable',
+      description: 'Lint JavaScript and TypeScript using ESLint rules and configurations.',
+      author: { name: 'ESLint' },
       license: 'MIT',
       categories: ['linter'],
-      keywords: ['eslint', 'lint', 'javascript'],
+      keywords: ['eslint', 'lint', 'javascript', 'typescript'],
       main: 'dist/extension.js',
       activationEvents: ['onLanguage:javascript', 'onLanguage:typescript'],
       contributes: {
@@ -152,50 +155,79 @@ const FEATURED_EXTENSIONS: MarketplaceExtension[] = [
       engines: { themag: '^1.0.0' },
     },
     status: 'approved',
-    downloads: 62150,
-    rating: 4.9,
-    ratingCount: 2100,
-    publishedDate: Date.now() - 120 * 24 * 60 * 60 * 1000,
-    lastUpdated: Date.now() - 3 * 24 * 60 * 60 * 1000,
+    downloads: 1320000,
+    rating: 4.8,
+    ratingCount: 27500,
+    publishedDate: Date.now() - 720 * 24 * 60 * 60 * 1000,
+    lastUpdated: Date.now() - 10 * 24 * 60 * 60 * 1000,
     scanReport: { safe: true, issues: [], scannedAt: Date.now() },
   },
   {
     manifest: {
-      id: 'themag.gitlens',
-      name: 'gitlens',
-      displayName: 'GitLens - Git Supercharged',
-      version: '1.5.0',
-      description: 'Supercharge Git within TheMAG.dev',
-      author: { name: 'TheMAG.dev' },
-      license: 'MIT',
-      categories: ['git'],
-      keywords: ['git', 'blame', 'history', 'diff'],
+      id: 'github-copilot',
+      name: 'github-copilot',
+      displayName: 'GitHub Copilot',
+      version: 'stable',
+      description: 'AI pair programmer that suggests code and refactors in real time.',
+      author: { name: 'GitHub' },
+      license: 'Proprietary',
+      categories: ['ai'],
+      keywords: ['ai', 'copilot', 'completion', 'assistant'],
       main: 'dist/extension.js',
       activationEvents: ['*'],
       contributes: {
         commands: [
-          { command: 'gitlens.blame', title: 'Toggle File Blame' },
-          { command: 'gitlens.history', title: 'Show File History' },
+          { command: 'copilot.suggest', title: 'Get AI Suggestions' },
+          { command: 'copilot.chat', title: 'Open Copilot Chat' },
         ],
       },
       engines: { themag: '^1.0.0' },
     },
     status: 'approved',
-    downloads: 38900,
-    rating: 4.7,
-    ratingCount: 980,
-    publishedDate: Date.now() - 60 * 24 * 60 * 60 * 1000,
-    lastUpdated: Date.now() - 14 * 24 * 60 * 60 * 1000,
+    downloads: 980000,
+    rating: 4.6,
+    ratingCount: 18400,
+    publishedDate: Date.now() - 420 * 24 * 60 * 60 * 1000,
+    lastUpdated: Date.now() - 6 * 24 * 60 * 60 * 1000,
     scanReport: { safe: true, issues: [], scannedAt: Date.now() },
   },
   {
     manifest: {
-      id: 'themag.python',
+      id: 'github-prs',
+      name: 'github-pull-requests',
+      displayName: 'GitHub Pull Requests and Issues',
+      version: 'stable',
+      description: 'Review and manage GitHub pull requests and issues without leaving the editor.',
+      author: { name: 'GitHub' },
+      license: 'MIT',
+      categories: ['git'],
+      keywords: ['github', 'pull request', 'issues', 'code review'],
+      main: 'dist/extension.js',
+      activationEvents: ['onStartupFinished'],
+      contributes: {
+        commands: [
+          { command: 'github.pullRequests', title: 'View Pull Requests' },
+          { command: 'github.issues', title: 'View Issues' },
+        ],
+      },
+      engines: { themag: '^1.0.0' },
+    },
+    status: 'approved',
+    downloads: 640000,
+    rating: 4.7,
+    ratingCount: 9200,
+    publishedDate: Date.now() - 600 * 24 * 60 * 60 * 1000,
+    lastUpdated: Date.now() - 12 * 24 * 60 * 60 * 1000,
+    scanReport: { safe: true, issues: [], scannedAt: Date.now() },
+  },
+  {
+    manifest: {
+      id: 'python',
       name: 'python',
       displayName: 'Python',
-      version: '2.0.0',
-      description: 'Python language support with IntelliSense and debugging',
-      author: { name: 'TheMAG.dev' },
+      version: 'stable',
+      description: 'Python language support with IntelliSense, linting, and debugging.',
+      author: { name: 'Microsoft' },
       license: 'MIT',
       categories: ['language', 'debugger'],
       keywords: ['python', 'intellisense', 'debug'],
@@ -207,26 +239,58 @@ const FEATURED_EXTENSIONS: MarketplaceExtension[] = [
         ],
         commands: [
           { command: 'python.runFile', title: 'Run Python File' },
+          { command: 'python.debugFile', title: 'Debug Python File' },
         ],
       },
       engines: { themag: '^1.0.0' },
     },
     status: 'approved',
-    downloads: 51200,
-    rating: 4.6,
-    ratingCount: 1800,
-    publishedDate: Date.now() - 180 * 24 * 60 * 60 * 1000,
-    lastUpdated: Date.now() - 21 * 24 * 60 * 60 * 1000,
+    downloads: 1850000,
+    rating: 4.7,
+    ratingCount: 41000,
+    publishedDate: Date.now() - 900 * 24 * 60 * 60 * 1000,
+    lastUpdated: Date.now() - 9 * 24 * 60 * 60 * 1000,
     scanReport: { safe: true, issues: [], scannedAt: Date.now() },
   },
   {
     manifest: {
-      id: 'themag.tailwind',
+      id: 'rust-analyzer',
+      name: 'rust-analyzer',
+      displayName: 'Rust Analyzer',
+      version: 'stable',
+      description: 'Rust language server with diagnostics, navigation, and refactoring tools.',
+      author: { name: 'Rust Analyzer' },
+      license: 'MIT',
+      categories: ['language'],
+      keywords: ['rust', 'language server', 'lsp'],
+      main: 'dist/extension.js',
+      activationEvents: ['onLanguage:rust'],
+      contributes: {
+        languages: [
+          { id: 'rust', extensions: ['.rs'], aliases: ['Rust', 'rs'] },
+        ],
+        commands: [
+          { command: 'rust-analyzer.run', title: 'Run Rust Project' },
+        ],
+      },
+      engines: { themag: '^1.0.0' },
+    },
+    status: 'approved',
+    downloads: 720000,
+    rating: 4.8,
+    ratingCount: 12600,
+    publishedDate: Date.now() - 520 * 24 * 60 * 60 * 1000,
+    lastUpdated: Date.now() - 15 * 24 * 60 * 60 * 1000,
+    scanReport: { safe: true, issues: [], scannedAt: Date.now() },
+  },
+  {
+    manifest: {
+      id: 'tailwindcss-intellisense',
       name: 'tailwindcss-intellisense',
       displayName: 'Tailwind CSS IntelliSense',
-      version: '1.0.0',
-      description: 'Intelligent Tailwind CSS tooling',
-      author: { name: 'TheMAG.dev' },
+      version: 'stable',
+      description: 'Intelligent Tailwind CSS tooling with autocomplete and class previews.',
+      author: { name: 'Tailwind Labs' },
       license: 'MIT',
       categories: ['language', 'utility'],
       keywords: ['tailwind', 'css', 'intellisense'],
@@ -240,89 +304,21 @@ const FEATURED_EXTENSIONS: MarketplaceExtension[] = [
       engines: { themag: '^1.0.0' },
     },
     status: 'approved',
-    downloads: 42100,
-    rating: 4.9,
-    ratingCount: 1450,
-    publishedDate: Date.now() - 75 * 24 * 60 * 60 * 1000,
-    lastUpdated: Date.now() - 5 * 24 * 60 * 60 * 1000,
+    downloads: 610000,
+    rating: 4.8,
+    ratingCount: 10800,
+    publishedDate: Date.now() - 480 * 24 * 60 * 60 * 1000,
+    lastUpdated: Date.now() - 11 * 24 * 60 * 60 * 1000,
     scanReport: { safe: true, issues: [], scannedAt: Date.now() },
   },
   {
     manifest: {
-      id: 'themag.copilot-bridge',
-      name: 'copilot-bridge',
-      displayName: 'AI Copilot Bridge',
-      version: '1.2.0',
-      description: 'Connect external AI assistants to your editor',
-      author: { name: 'Community' },
-      license: 'MIT',
-      categories: ['ai'],
-      keywords: ['ai', 'copilot', 'assistant', 'code completion'],
-      main: 'dist/extension.js',
-      activationEvents: ['*'],
-      contributes: {
-        commands: [
-          { command: 'copilot.suggest', title: 'Get AI Suggestion' },
-          { command: 'copilot.explain', title: 'Explain Code' },
-        ],
-        configuration: {
-          title: 'AI Copilot Bridge',
-          properties: {
-            'copilot.provider': {
-              type: 'string',
-              default: 'claude',
-              description: 'AI provider to use',
-            },
-          },
-        },
-      },
-      engines: { themag: '^1.0.0' },
-    },
-    status: 'approved',
-    downloads: 28500,
-    rating: 4.5,
-    ratingCount: 720,
-    publishedDate: Date.now() - 45 * 24 * 60 * 60 * 1000,
-    lastUpdated: Date.now() - 10 * 24 * 60 * 60 * 1000,
-    scanReport: { safe: true, issues: [], scannedAt: Date.now() },
-  },
-  {
-    manifest: {
-      id: 'themag.jest',
-      name: 'jest',
-      displayName: 'Jest Test Runner',
-      version: '1.0.0',
-      description: 'Run and debug Jest tests in TheMAG.dev',
-      author: { name: 'Community' },
-      license: 'MIT',
-      categories: ['testing'],
-      keywords: ['jest', 'test', 'testing', 'unit test'],
-      main: 'dist/extension.js',
-      activationEvents: ['workspaceContains:**/jest.config.*'],
-      contributes: {
-        commands: [
-          { command: 'jest.runAll', title: 'Run All Tests' },
-          { command: 'jest.runFile', title: 'Run Tests in Current File' },
-        ],
-      },
-      engines: { themag: '^1.0.0' },
-    },
-    status: 'approved',
-    downloads: 19800,
-    rating: 4.4,
-    ratingCount: 560,
-    publishedDate: Date.now() - 30 * 24 * 60 * 60 * 1000,
-    lastUpdated: Date.now() - 8 * 24 * 60 * 60 * 1000,
-    scanReport: { safe: true, issues: [], scannedAt: Date.now() },
-  },
-  {
-    manifest: {
-      id: 'themag.docker',
+      id: 'docker',
       name: 'docker',
       displayName: 'Docker',
-      version: '1.0.0',
-      description: 'Docker support for TheMAG.dev',
-      author: { name: 'Community' },
+      version: 'stable',
+      description: 'Build, run, and debug containers with Docker and Compose.',
+      author: { name: 'Docker' },
       license: 'MIT',
       categories: ['utility'],
       keywords: ['docker', 'container', 'devops'],
@@ -340,25 +336,111 @@ const FEATURED_EXTENSIONS: MarketplaceExtension[] = [
       engines: { themag: '^1.0.0' },
     },
     status: 'approved',
-    downloads: 15600,
-    rating: 4.3,
-    ratingCount: 410,
-    publishedDate: Date.now() - 55 * 24 * 60 * 60 * 1000,
-    lastUpdated: Date.now() - 18 * 24 * 60 * 60 * 1000,
+    downloads: 570000,
+    rating: 4.6,
+    ratingCount: 9800,
+    publishedDate: Date.now() - 650 * 24 * 60 * 60 * 1000,
+    lastUpdated: Date.now() - 16 * 24 * 60 * 60 * 1000,
+    scanReport: { safe: true, issues: [], scannedAt: Date.now() },
+  },
+  {
+    manifest: {
+      id: 'jest',
+      name: 'jest',
+      displayName: 'Jest',
+      version: 'stable',
+      description: 'Run and debug Jest tests with inline status and coverage.',
+      author: { name: 'Jest Community' },
+      license: 'MIT',
+      categories: ['testing'],
+      keywords: ['jest', 'test', 'testing', 'unit test'],
+      main: 'dist/extension.js',
+      activationEvents: ['workspaceContains:**/jest.config.*'],
+      contributes: {
+        commands: [
+          { command: 'jest.runAll', title: 'Run All Tests' },
+          { command: 'jest.runFile', title: 'Run Tests in Current File' },
+        ],
+      },
+      engines: { themag: '^1.0.0' },
+    },
+    status: 'approved',
+    downloads: 420000,
+    rating: 4.5,
+    ratingCount: 7600,
+    publishedDate: Date.now() - 430 * 24 * 60 * 60 * 1000,
+    lastUpdated: Date.now() - 13 * 24 * 60 * 60 * 1000,
+    scanReport: { safe: true, issues: [], scannedAt: Date.now() },
+  },
+  {
+    manifest: {
+      id: 'dracula-theme',
+      name: 'dracula-theme',
+      displayName: 'Dracula Official',
+      version: 'stable',
+      description: 'Dark theme with consistent colors across editors and terminals.',
+      author: { name: 'Dracula Theme' },
+      license: 'MIT',
+      categories: ['theme'],
+      keywords: ['theme', 'dracula', 'dark'],
+      main: 'dist/extension.js',
+      activationEvents: ['*'],
+      contributes: {
+        themes: [
+          { id: 'dracula', label: 'Dracula', uiTheme: 'vs-dark', path: 'themes/dracula.json' },
+        ],
+      },
+      engines: { themag: '^1.0.0' },
+    },
+    status: 'approved',
+    downloads: 980000,
+    rating: 4.9,
+    ratingCount: 28000,
+    publishedDate: Date.now() - 980 * 24 * 60 * 60 * 1000,
+    lastUpdated: Date.now() - 20 * 24 * 60 * 60 * 1000,
     scanReport: { safe: true, issues: [], scannedAt: Date.now() },
   },
 ];
 
 const INSTALLED_STORAGE_KEY = 'themag_installed_extensions';
 const MARKETPLACE_STORAGE_KEY = 'themag_marketplace_extensions';
+const DRIVE_INSTALLED_FILE = 'extensions-installed.json';
+const DRIVE_MARKETPLACE_FILE = 'extensions-marketplace.json';
+const DRIVE_CONSENT_KEY = 'themag_drive_extensions_consent';
+const DRIVE_SAVE_DEBOUNCE_MS = 1200;
+
+const getDriveConsentKey = (driveEmail?: string | null) => `${DRIVE_CONSENT_KEY}_${driveEmail || 'default'}`;
 
 class ExtensionService {
   private installedExtensions: Map<string, Extension> = new Map();
   private marketplaceExtensions: Map<string, MarketplaceExtension> = new Map();
+  private listeners: Set<() => void> = new Set();
+  private driveSyncEnabled = false;
+  private driveSyncTimeout: ReturnType<typeof setTimeout> | null = null;
+  private driveUserEmail: string | null = null;
 
   constructor() {
     this.loadInstalledExtensions();
     this.loadMarketplaceExtensions();
+    googleDriveService.onSyncStatusChange((status) => {
+      if (status.connected) {
+        googleDriveService.getUserInfo().then((info) => {
+          this.driveUserEmail = info?.email ?? null;
+          this.hydrateFromDrive().catch(() => {});
+        });
+        return;
+      }
+      this.driveSyncEnabled = false;
+    });
+  }
+
+  onChange(listener: () => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  private notify() {
+    this.listeners.forEach(listener => listener());
   }
 
   private loadInstalledExtensions() {
@@ -373,9 +455,12 @@ class ExtensionService {
     }
   }
 
-  private saveInstalledExtensions() {
+  private saveInstalledExtensions(skipDrive = false) {
     const extensions = Array.from(this.installedExtensions.values());
     localStorage.setItem(INSTALLED_STORAGE_KEY, JSON.stringify(extensions));
+    if (!skipDrive) {
+      this.queueDriveSync();
+    }
   }
 
   private loadMarketplaceExtensions() {
@@ -394,11 +479,145 @@ class ExtensionService {
     }
   }
 
-  private saveMarketplaceExtensions() {
+  private saveMarketplaceExtensions(skipDrive = false) {
     // Only save community extensions, not built-in ones
     const communityExtensions = Array.from(this.marketplaceExtensions.values())
       .filter(ext => !FEATURED_EXTENSIONS.some(f => f.manifest.id === ext.manifest.id));
     localStorage.setItem(MARKETPLACE_STORAGE_KEY, JSON.stringify(communityExtensions));
+    if (!skipDrive) {
+      this.queueDriveSync();
+    }
+  }
+
+  private getCommunityExtensions(): MarketplaceExtension[] {
+    return Array.from(this.marketplaceExtensions.values())
+      .filter(ext => !FEATURED_EXTENSIONS.some(f => f.manifest.id === ext.manifest.id));
+  }
+
+  private queueDriveSync() {
+    if (!this.driveSyncEnabled || !googleDriveService.isConnected()) {
+      return;
+    }
+    if (this.driveSyncTimeout) {
+      clearTimeout(this.driveSyncTimeout);
+    }
+    this.driveSyncTimeout = setTimeout(() => {
+      this.syncToDrive().catch(() => {});
+    }, DRIVE_SAVE_DEBOUNCE_MS);
+  }
+
+  private async syncToDrive() {
+    if (!this.driveSyncEnabled || !googleDriveService.isConnected()) {
+      return;
+    }
+    const { settingsId } = await googleDriveService.getFolderIds();
+    const installed = Array.from(this.installedExtensions.values());
+    const community = this.getCommunityExtensions();
+    await googleDriveService.upsertFileInFolder(
+      settingsId,
+      DRIVE_INSTALLED_FILE,
+      JSON.stringify(installed),
+      'application/json'
+    );
+    await googleDriveService.upsertFileInFolder(
+      settingsId,
+      DRIVE_MARKETPLACE_FILE,
+      JSON.stringify(community),
+      'application/json'
+    );
+  }
+
+  private async hydrateFromDrive() {
+    if (!googleDriveService.isConnected()) {
+      return;
+    }
+    const consentKey = getDriveConsentKey(this.driveUserEmail);
+    const consent = localStorage.getItem(consentKey);
+    const { settingsId } = await googleDriveService.getFolderIds();
+
+    const [installedPayload, marketplacePayload] = await Promise.all([
+      googleDriveService.readFileByName(settingsId, DRIVE_INSTALLED_FILE),
+      googleDriveService.readFileByName(settingsId, DRIVE_MARKETPLACE_FILE),
+    ]);
+
+    let hasDriveData = false;
+
+    if (installedPayload) {
+      try {
+        const parsed = JSON.parse(installedPayload) as Extension[];
+        this.installedExtensions.clear();
+        parsed.forEach(ext => this.installedExtensions.set(ext.manifest.id, ext));
+        this.saveInstalledExtensions(true);
+        hasDriveData = true;
+      } catch {
+        // Ignore malformed drive payloads.
+      }
+    }
+
+    if (marketplacePayload) {
+      try {
+        const parsed = JSON.parse(marketplacePayload) as MarketplaceExtension[];
+        this.marketplaceExtensions.clear();
+        FEATURED_EXTENSIONS.forEach(ext => this.marketplaceExtensions.set(ext.manifest.id, ext));
+        parsed.forEach(ext => this.marketplaceExtensions.set(ext.manifest.id, ext));
+        this.saveMarketplaceExtensions(true);
+        hasDriveData = true;
+      } catch {
+        // Ignore malformed drive payloads.
+      }
+    }
+
+    if (hasDriveData) {
+      this.driveSyncEnabled = true;
+      localStorage.setItem(consentKey, 'enabled');
+      this.notify();
+      return;
+    }
+
+    if (consent === 'declined') {
+      this.driveSyncEnabled = false;
+      return;
+    }
+
+    const hasLocalData = this.installedExtensions.size > 0 || this.getCommunityExtensions().length > 0;
+    if (!consent && hasLocalData) {
+      const shouldUpload = window.confirm(
+        'Upload your installed extensions and marketplace submissions to Google Drive?'
+      );
+      if (!shouldUpload) {
+        localStorage.setItem(consentKey, 'declined');
+        this.driveSyncEnabled = false;
+        return;
+      }
+    }
+
+    this.driveSyncEnabled = true;
+    localStorage.setItem(consentKey, 'enabled');
+    if (hasLocalData || consent === 'enabled') {
+      await this.syncToDrive();
+    }
+  }
+
+  private async storeExtensionBundle(manifest: ExtensionManifest, sourceCode: string) {
+    if (!this.driveSyncEnabled || !googleDriveService.isConnected()) {
+      return;
+    }
+    try {
+      const { extensionsId } = await googleDriveService.getFolderIds();
+      const bundle = zipSync({
+        'manifest.json': strToU8(JSON.stringify(manifest, null, 2)),
+        'source.ts': strToU8(sourceCode),
+      });
+      const blob = new Blob([bundle], { type: 'application/zip' });
+      await googleDriveService.upsertBinaryInFolder(
+        extensionsId,
+        `${manifest.id}.zip`,
+        blob,
+        'application/zip'
+      );
+    } catch {
+      // Ignore bundle upload errors for now.
+    }
   }
 
   // Marketplace Methods
@@ -464,6 +683,7 @@ class ExtensionService {
 
     this.saveInstalledExtensions();
     this.saveMarketplaceExtensions();
+    this.notify();
     return true;
   }
 
@@ -471,6 +691,7 @@ class ExtensionService {
     if (this.installedExtensions.has(extensionId)) {
       this.installedExtensions.delete(extensionId);
       this.saveInstalledExtensions();
+      this.notify();
       return true;
     }
     return false;
@@ -481,6 +702,7 @@ class ExtensionService {
     if (ext) {
       ext.enabled = true;
       this.saveInstalledExtensions();
+      this.notify();
       return true;
     }
     return false;
@@ -491,6 +713,7 @@ class ExtensionService {
     if (ext) {
       ext.enabled = false;
       this.saveInstalledExtensions();
+      this.notify();
       return true;
     }
     return false;
@@ -527,6 +750,8 @@ class ExtensionService {
     }, 2000);
 
     this.saveMarketplaceExtensions();
+    await this.storeExtensionBundle(upload.manifest, upload.sourceCode);
+    this.notify();
     return { success: true, message: 'Extension submitted for review. Safety scan in progress...' };
   }
 
@@ -577,6 +802,7 @@ class ExtensionService {
 
     ext.status = issues.length === 0 ? 'approved' : 'rejected';
     this.saveMarketplaceExtensions();
+    this.notify();
   }
 
   getExtensionById(id: string): MarketplaceExtension | undefined {
@@ -590,6 +816,7 @@ class ExtensionService {
       ext.ratingCount += 1;
       ext.rating = totalRating / ext.ratingCount;
       this.saveMarketplaceExtensions();
+      this.notify();
       return true;
     }
     return false;

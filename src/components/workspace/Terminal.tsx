@@ -8,11 +8,12 @@ import localAgentService, { AgentStatus } from '../../services/LocalAgentService
 
 interface TerminalProps {
   className?: string;
+  initialMode?: TerminalMode;
 }
 
 type TerminalMode = 'webcontainer' | 'local' | 'mock';
 
-const Terminal: React.FC<TerminalProps> = ({ className }) => {
+const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
@@ -22,7 +23,8 @@ const Terminal: React.FC<TerminalProps> = ({ className }) => {
   const currentLineRef = useRef('');
   const executeCommandRef = useRef<(command: string) => void>();
   const printPromptRef = useRef<() => void>();
-  const [terminalMode, setTerminalMode] = useState<TerminalMode>('webcontainer');
+  const defaultMode: TerminalMode = typeof window !== 'undefined' && window.crossOriginIsolated ? 'webcontainer' : 'mock';
+  const [terminalMode, setTerminalMode] = useState<TerminalMode>(initialMode ?? defaultMode);
   const [webStatus, setWebStatus] = useState<'idle' | 'booting' | 'ready' | 'error'>('idle');
   const [localStatus, setLocalStatus] = useState<AgentStatus>('disconnected');
   const [webCwd, setWebCwd] = useState('/');
@@ -505,6 +507,15 @@ const Terminal: React.FC<TerminalProps> = ({ className }) => {
     }
   }, [terminalMode]);
 
+  const handleModeSwitch = (mode: TerminalMode) => {
+    if (mode === 'webcontainer' && typeof window !== 'undefined' && !window.crossOriginIsolated) {
+      const term = xtermRef.current;
+      term?.writeln('\r\n\x1b[33mWebContainer requires cross-origin isolation (COOP/COEP). Use Local or Mock mode.\x1b[0m');
+      return;
+    }
+    setTerminalMode(mode);
+  };
+
   return (
     <div className={`h-full bg-[#09090b] flex flex-col ${className}`}>
       <div className="flex items-center justify-between border-b border-zinc-800 px-3 py-2 text-[11px] bg-zinc-950/80">
@@ -513,7 +524,7 @@ const Terminal: React.FC<TerminalProps> = ({ className }) => {
           {(['webcontainer', 'local', 'mock'] as TerminalMode[]).map(mode => (
             <button
               key={mode}
-              onClick={() => setTerminalMode(mode)}
+              onClick={() => handleModeSwitch(mode)}
               className={`px-2 py-1 rounded border text-[10px] font-bold uppercase tracking-wider transition-colors ${
                 terminalMode === mode
                   ? 'bg-indigo-600 text-white border-indigo-500'

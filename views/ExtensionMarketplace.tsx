@@ -42,6 +42,8 @@ const ExtensionMarketplace: React.FC = () => {
 
   useEffect(() => {
     loadExtensions();
+    const unsubscribe = extensionService.onChange(() => loadExtensions());
+    return () => unsubscribe();
   }, []);
 
   const loadExtensions = () => {
@@ -156,6 +158,10 @@ const ExtensionMarketplace: React.FC = () => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
     return count.toString();
+  };
+
+  const formatVersion = (version: string): string => {
+    return /^\d/.test(version) ? `v${version}` : version;
   };
 
   const renderExtensionCard = (ext: MarketplaceExtension) => {
@@ -354,7 +360,7 @@ const ExtensionMarketplace: React.FC = () => {
                         </div>
                         <div>
                           <div className="text-sm font-semibold text-zinc-200">{ext.manifest.displayName}</div>
-                          <div className="text-xs text-zinc-500">v{ext.manifest.version} • {ext.manifest.author.name}</div>
+                          <div className="text-xs text-zinc-500">{formatVersion(ext.manifest.version)} • {ext.manifest.author.name}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -676,7 +682,7 @@ const ExtensionMarketplace: React.FC = () => {
                 </div>
                 <div className="flex-1">
                   <h2 className="text-xl font-bold text-white">{selectedExtension.manifest.displayName}</h2>
-                  <p className="text-sm text-zinc-500">{selectedExtension.manifest.author.name} • v{selectedExtension.manifest.version}</p>
+                  <p className="text-sm text-zinc-500">{selectedExtension.manifest.author.name} • {formatVersion(selectedExtension.manifest.version)}</p>
                   <div className="flex items-center gap-4 mt-2">
                     <div className="flex items-center gap-1">
                       {renderStars(Math.round(selectedExtension.rating))}

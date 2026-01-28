@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import googleDriveService, { type DriveSyncStatus, type DriveUserInfo } from '../../services/GoogleDriveService';
 
 export interface FileNode {
   name: string;
@@ -24,6 +25,7 @@ interface WorkspaceContextType extends WorkspaceState {
   setActiveFile: (path: string) => void;
   updateFileContent: (path: string, content: string) => void;
   saveFile: (path: string) => void;
+  replaceWorkspace: (nextFiles: FileNode[]) => void;
   createFile: (parentPath: string, name: string, type: 'file' | 'folder') => void;
   deleteFile: (path: string) => void;
   renameFile: (oldPath: string, newName: string) => void;
@@ -35,6 +37,8 @@ interface WorkspaceContextType extends WorkspaceState {
 }
 
 const STORAGE_KEY = 'themag_workspace';
+const DRIVE_SAVE_DEBOUNCE_MS = 1200;
+const DRIVE_WORKSPACE_CONSENT_KEY = 'themag_drive_workspace_consent';
 
 const defaultFiles: FileNode[] = [
   {
@@ -325,6 +329,74 @@ npm run dev
   }
 ];
 
+const getLocalStorageKey = (driveEmail?: string | null) => (driveEmail ? `${STORAGE_KEY}_${driveEmail}` : STORAGE_KEY);
+const getDriveConsentKey = (driveEmail?: string | null) => `${DRIVE_WORKSPACE_CONSENT_KEY}_${driveEmail || 'default'}`;
+
+const getLocalStorageCandidates = (driveEmail?: string | null) => {
+  if (driveEmail) {
+    return [getLocalStorageKey(driveEmail), STORAGE_KEY];
+  }
+  return [STORAGE_KEY];
+};
+
+const readWorkspaceFromLocalStorage = (driveEmail?: string | null): FileNode[] | null => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  const keys = getLocalStorageCandidates(driveEmail);
+  for (const key of keys) {
+    const saved = window.localStorage.getItem(key);
+    if (!saved) continue;
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) {
+        return parsed as FileNode[];
+      }
+    } catch {
+      // Ignore malformed cache entries.
+    }
+  }
+  return null;
+};
+
+const writeWorkspaceToLocalStorage = (driveEmail: string | null, payload: string) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  window.localStorage.setItem(getLocalStorageKey(driveEmail), payload);
+};
+
+const parseWorkspacePayload = (payload: string | null | undefined): FileNode[] | null => {
+  if (!payload) {
+    return null;
+  }
+  try {
+    const parsed = JSON.parse(payload);
+    if (Array.isArray(parsed)) {
+      return parsed as FileNode[];
+    }
+  } catch {
+    // Ignore malformed payloads.
+  }
+  return null;
+};
+
+const findFirstFile = (nodes: FileNode[]): FileNode | null => {
+  for (const node of nodes) {
+    if (node.type === 'file') {
+      return node;
+    }
+    if (node.children?.length) {
+      const found = findFirstFile(node.children);
+      if (found) {
+        return found;
+      }
+    }
+  }
+  return null;
+};
+
 const WorkspaceContext = createContext<WorkspaceContextType | null>(null);
 
 export const useWorkspace = () => {
@@ -358,17 +430,15 @@ const getLanguageFromFilename = (filename: string): string => {
 
 export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [files, setFiles] = useState<FileNode[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return defaultFiles;
-      }
-    }
-    return defaultFiles;
+    return readWorkspaceFromLocalStorage(null) ?? defaultFiles;
   });
 
+  const [driveStatus, setDriveStatus] = useState<DriveSyncStatus>(() => googleDriveService.getSyncStatus());
+  const [driveUser, setDriveUser] = useState<DriveUserInfo | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [driveWriteEnabled, setDriveWriteEnabled] = useState(false);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSavedRef = useRef<string | null>(null);
   const [openFiles, setOpenFiles] = useState<string[]>(['/src/main.tsx']);
   const [activeFile, setActiveFileState] = useState<string | null>('/src/main.tsx');
   const [unsavedFiles, setUnsavedFiles] = useState<Set<string>>(new Set());
@@ -378,11 +448,155 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     ''
   ]);
   const [currentDirectory, setCurrentDirectory] = useState('/');
+  const driveEmail = driveUser?.email ?? null;
 
-  // Save files to localStorage whenever they change
+  const applyWorkspaceState = useCallback((nextFiles: FileNode[], payload?: string) => {
+    lastSavedRef.current = payload ?? JSON.stringify(nextFiles);
+    setFiles(nextFiles);
+    setUnsavedFiles(new Set());
+    const firstFile = findFirstFile(nextFiles);
+    if (firstFile) {
+      setOpenFiles([firstFile.path]);
+      setActiveFileState(firstFile.path);
+      return;
+    }
+    setOpenFiles([]);
+    setActiveFileState(null);
+  }, []);
+
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(files));
-  }, [files]);
+    return googleDriveService.onSyncStatusChange(setDriveStatus);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    if (!driveStatus.connected) {
+      setDriveUser(null);
+      return;
+    }
+    googleDriveService.getUserInfo().then((info) => {
+      if (active) {
+        setDriveUser(info);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [driveStatus.connected]);
+
+  useEffect(() => {
+    let cancelled = false;
+    let shouldEnableDriveWrite = false;
+
+    const hydrate = async () => {
+      setIsHydrated(false);
+      const localWorkspace = readWorkspaceFromLocalStorage(driveEmail);
+
+      if (!driveStatus.connected) {
+        const fallback = localWorkspace ?? defaultFiles;
+        if (!cancelled) {
+          applyWorkspaceState(fallback, JSON.stringify(fallback));
+          setIsHydrated(true);
+          setDriveWriteEnabled(false);
+        }
+        return;
+      }
+
+      try {
+        const payload = await googleDriveService.loadWorkspacePayload();
+        const cloudWorkspace = parseWorkspacePayload(payload);
+        if (cloudWorkspace && !cancelled) {
+          const serialized = JSON.stringify(cloudWorkspace);
+          applyWorkspaceState(cloudWorkspace, serialized);
+          writeWorkspaceToLocalStorage(driveEmail, serialized);
+          setIsHydrated(true);
+          shouldEnableDriveWrite = true;
+          localStorage.setItem(getDriveConsentKey(driveEmail), 'enabled');
+          setDriveWriteEnabled(true);
+          return;
+        }
+      } catch (error) {
+        console.warn('Failed to load workspace from Google Drive.', error);
+      }
+
+      const fallback = localWorkspace ?? defaultFiles;
+      const consentKey = getDriveConsentKey(driveEmail);
+      const consent = localStorage.getItem(consentKey);
+      if (!cancelled) {
+        applyWorkspaceState(fallback, JSON.stringify(fallback));
+        setIsHydrated(true);
+      }
+
+      if (driveStatus.connected && !cancelled) {
+        if (consent === 'declined') {
+          setDriveWriteEnabled(false);
+          return;
+        }
+
+        const hasLocalWorkspace = Boolean(localWorkspace);
+        if (!consent && hasLocalWorkspace) {
+          const shouldUpload = window.confirm(
+            'Upload your local workspace to Google Drive so it syncs across devices?'
+          );
+          if (!shouldUpload) {
+            localStorage.setItem(consentKey, 'declined');
+            setDriveWriteEnabled(false);
+            return;
+          }
+        }
+
+        try {
+          await googleDriveService.saveWorkspacePayload(JSON.stringify(fallback));
+          localStorage.setItem(consentKey, 'enabled');
+          shouldEnableDriveWrite = true;
+        } catch {}
+      }
+
+      if (!cancelled) {
+        setDriveWriteEnabled(shouldEnableDriveWrite);
+      }
+    };
+
+    hydrate();
+    return () => {
+      cancelled = true;
+    };
+  }, [applyWorkspaceState, driveEmail, driveStatus.connected]);
+
+  useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+
+    const payload = JSON.stringify(files);
+    if (lastSavedRef.current === payload) {
+      return;
+    }
+
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    const persist = async () => {
+      writeWorkspaceToLocalStorage(driveEmail, payload);
+      if (driveStatus.connected && driveWriteEnabled) {
+        await googleDriveService.saveWorkspacePayload(payload);
+      }
+      lastSavedRef.current = payload;
+    };
+
+    if (driveStatus.connected && driveWriteEnabled) {
+      saveTimeoutRef.current = setTimeout(persist, DRIVE_SAVE_DEBOUNCE_MS);
+    } else {
+      persist();
+    }
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [files, isHydrated, driveEmail, driveStatus.connected]);
 
   const findFileByPath = useCallback((nodes: FileNode[], path: string): FileNode | undefined => {
     for (const node of nodes) {
@@ -459,8 +673,17 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       next.delete(path);
       return next;
     });
-    // Already saved via the updateFileContent + localStorage effect
+    // Persistence is handled by the debounced workspace sync effect.
   }, []);
+
+  const replaceWorkspace = useCallback((nextFiles: FileNode[]) => {
+    const payload = JSON.stringify(nextFiles);
+    applyWorkspaceState(nextFiles, payload);
+    writeWorkspaceToLocalStorage(driveEmail, payload);
+    if (driveStatus.connected && driveWriteEnabled) {
+      googleDriveService.saveWorkspacePayload(payload).catch(() => {});
+    }
+  }, [applyWorkspaceState, driveEmail, driveStatus.connected, driveWriteEnabled]);
 
   const createFile = useCallback((parentPath: string, name: string, type: 'file' | 'folder') => {
     const newPath = parentPath === '/' ? `/${name}` : `${parentPath}/${name}`;
@@ -557,6 +780,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setActiveFile,
     updateFileContent,
     saveFile,
+    replaceWorkspace,
     createFile,
     deleteFile,
     renameFile,

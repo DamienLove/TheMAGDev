@@ -23,7 +23,7 @@ const Projects: React.FC = () => {
       author: '@alex_dev',
       authorAvatar: 'AD',
       stars: '1.2k',
-      thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop',
+      thumbnail: './assets/store/hero_illustration.svg',
       platforms: ['android', 'phone_iphone'],
       status: 'Verified'
     },
@@ -34,7 +34,7 @@ const Projects: React.FC = () => {
       author: '@maria_s',
       authorAvatar: 'MS',
       stars: '854',
-      thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2026&auto=format&fit=crop',
+      thumbnail: './assets/store/tech_pattern.svg',
       platforms: ['language'],
       status: 'Popular'
     },
@@ -45,7 +45,7 @@ const Projects: React.FC = () => {
       author: '@gamedev_x',
       authorAvatar: 'GX',
       stars: '2.4k',
-      thumbnail: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop',
+      thumbnail: './assets/store/dark_hex_pattern.svg',
       platforms: ['desktop_mac', 'sports_esports'],
       status: 'New'
     },
@@ -56,9 +56,64 @@ const Projects: React.FC = () => {
       author: '@token_master',
       authorAvatar: 'TM',
       stars: '3.1k',
-      thumbnail: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=2064&auto=format&fit=crop',
+      thumbnail: './assets/store/hero_illustration.svg',
       platforms: ['language', 'grid_view'],
       status: 'Updated'
+    },
+    {
+      id: 'p-5',
+      name: 'Nexus UI Kit',
+      description: 'Comprehensive design system for React Native and Flutter with over 50 components.',
+      author: '@ui_wizard',
+      authorAvatar: 'UW',
+      stars: '4.5k',
+      thumbnail: './assets/store/tech_pattern.svg',
+      platforms: ['palette', 'devices'],
+      status: 'Popular'
+    },
+    {
+      id: 'p-6',
+      name: 'CloudScale Monitor',
+      description: 'Serverless infrastructure monitoring dashboard with real-time alerting.',
+      author: '@devops_pro',
+      authorAvatar: 'DP',
+      stars: '1.8k',
+      thumbnail: './assets/store/hero_illustration.svg',
+      platforms: ['cloud', 'analytics'],
+      status: 'Verified'
+    },
+    {
+      id: 'p-7',
+      name: 'Pixel Quest',
+      description: 'A retro-style dungeon crawler with procedurally generated levels and custom physics.',
+      author: '@pixel_art',
+      authorAvatar: 'PA',
+      stars: '5.2k',
+      thumbnail: './assets/store/game_hero.svg',
+      platforms: ['sports_esports', 'desktop_windows'],
+      status: 'Trending'
+    },
+    {
+      id: 'p-8',
+      name: 'DataViz Pro',
+      description: 'Advanced charting library for React and Vue with animated transitions.',
+      author: '@data_guru',
+      authorAvatar: 'DG',
+      stars: '2.9k',
+      thumbnail: './assets/store/widget_analytics.svg',
+      platforms: ['analytics', 'monitoring'],
+      status: 'New'
+    },
+    {
+      id: 'p-9',
+      name: 'Social Connect',
+      description: 'Unified messaging SDK for integrating chat, voice, and video into any app.',
+      author: '@social_dev',
+      authorAvatar: 'SD',
+      stars: '3.4k',
+      thumbnail: './assets/store/icon_chat.svg',
+      platforms: ['chat', 'forum'],
+      status: 'Popular'
     }
   ];
 

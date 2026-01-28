@@ -15,35 +15,26 @@ import Auth from './views/Auth';
 import Settings from './views/Settings';
 import ExtensionMarketplace from './views/ExtensionMarketplace';
 import SDKManager from './views/SDKManager';
-import Paywall from './components/Paywall';
-import { useRevenueCat } from './src/hooks/useRevenueCat';
+import PopoutModule from './views/PopoutModule';
 import LoadingScreen from './src/components/LoadingScreen';
 import { SettingsProvider } from './src/contexts/SettingsContext';
+import { WorkspaceProvider } from './src/components/workspace';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig';
 import { UserProfile } from './src/services/userProfile';
-import { useMobileDetection } from './src/hooks/useMobileDetection';
-import MobileApp from './src/mobile/MobileApp';
-import { useMobileDetection } from './src/hooks/useMobileDetection';
-import MobileApp from './src/mobile/MobileApp';
-import { useMobileDetection } from './src/hooks/useMobileDetection';
-import MobileApp from './src/mobile/MobileApp';
 
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.Dashboard);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showPaywall, setShowPaywall] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
+  const [autoAuthShown, setAutoAuthShown] = useState(false);
   const [pendingPaywall, setPendingPaywall] = useState(false);
   const [authIntent, setAuthIntent] = useState<'general' | 'pro'>('general');
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
-
-  // RevenueCat Integration
-  const { isPro, currentOffering, purchasePackage, loading: rcLoading } = useRevenueCat();
 
   // Firebase auth session
   useEffect(() => {
@@ -54,6 +45,14 @@ const AppContent: React.FC = () => {
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!authLoading) return;
+    const timer = setTimeout(() => {
+      setAuthLoading(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [authLoading]);
 
   useEffect(() => {
     if (!authUser) {
@@ -74,26 +73,21 @@ const AppContent: React.FC = () => {
     return () => unsubscribe();
   }, [authUser]);
 
-  const isAdmin = Boolean(userProfile?.isAdmin || userProfile?.role === 'admin');
-  const profileIsPro = Boolean(userProfile?.isPro || userProfile?.plan === 'pro' || isAdmin);
-  const effectiveIsPro = Boolean(profileIsPro || isPro);
+  useEffect(() => {
+    if (!profileLoading) return;
+    const timer = setTimeout(() => {
+      setProfileLoading(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [profileLoading]);
 
-  const displayName = userProfile?.displayName || authUser?.displayName || authUser?.email || 'Engineer';
-  const displayAvatar = useMemo(() => {
-    const value = displayName || 'User';
-    const parts = value.split(/[^\w]+/).filter(Boolean);
-    if (parts.length === 0) return 'U';
-    const initials = parts.slice(0, 2).map(p => p[0]?.toUpperCase()).join('');
-    return initials || value.slice(0, 2).toUpperCase();
-  }, [displayName]);
-
-  const isGuest = !isAuthenticated;
-  const userLabel = isGuest ? 'Guest' : displayName;
-  const userAvatar = isGuest ? 'G' : displayAvatar;
-
-  if (rcLoading || authLoading || profileLoading) {
-    return <LoadingScreen />;
-  }
+  useEffect(() => {
+    if (authLoading || profileLoading) return;
+    if (!isAuthenticated && !autoAuthShown) {
+      setShowAuth(true);
+      setAutoAuthShown(true);
+    }
+  }, [authLoading, profileLoading, isAuthenticated, autoAuthShown]);
 
   const handleLogout = () => {
     sessionStorage.removeItem('themag_auth_token');
@@ -123,29 +117,40 @@ const AppContent: React.FC = () => {
 
   useEffect(() => {
     if (!pendingPaywall) return;
-    if (authLoading || profileLoading || rcLoading) return;
-    if (effectiveIsPro) {
-      setPendingPaywall(false);
-      return;
-    }
-    if (isAuthenticated) {
-      setShowPaywall(true);
-      setPendingPaywall(false);
-    }
-  }, [pendingPaywall, isAuthenticated, effectiveIsPro, authLoading, profileLoading, rcLoading]);
+    if (authLoading || profileLoading) return;
+    setPendingPaywall(false);
+  }, [pendingPaywall, authLoading, profileLoading]);
+
+  const isAdmin = Boolean(userProfile?.isAdmin || userProfile?.role === 'admin');
+  const effectiveIsPro = Boolean(userProfile?.isPro || userProfile?.plan === 'pro' || isAdmin);
+
+  const displayName = userProfile?.displayName || authUser?.displayName || authUser?.email || 'Engineer';
+  const displayAvatar = useMemo(() => {
+    const value = displayName || 'User';
+    const parts = value.split(/[^\w]+/).filter(Boolean);
+    if (parts.length === 0) return 'U';
+    const initials = parts.slice(0, 2).map(p => p[0]?.toUpperCase()).join('');
+    return initials || value.slice(0, 2).toUpperCase();
+  }, [displayName]);
+
+  const isGuest = !isAuthenticated;
+  const userLabel = isGuest ? 'Guest' : displayName;
+  const userAvatar = isGuest ? 'G' : displayAvatar;
+
+  if (authLoading || profileLoading) {
+    return <LoadingScreen />;
+  }
 
   const handleRestrictedAccess = (view: View) => {
-    // Example: Restrict 'Desktop' and 'Build' to Pro users
+    // Desktop and Build require Pro - just check auth for now
     if ((view === View.Desktop || view === View.Build) && !effectiveIsPro) {
       if (!isAuthenticated) {
-        setPendingPaywall(true);
         openAuth('pro');
         return;
       }
-      setShowPaywall(true);
-    } else {
-      setCurrentView(view);
+      // User is authenticated but not Pro - still allow access for now
     }
+    setCurrentView(view);
   };
 
   const renderView = () => {
@@ -153,7 +158,11 @@ const AppContent: React.FC = () => {
       case View.Dashboard: return <Dashboard />;
       case View.Projects: return <Projects />;
       case View.Editor: return <CodeEditor />;
-      case View.Desktop: return <DesktopWorkspace />;
+      case View.Desktop: return (
+        <WorkspaceProvider>
+          <DesktopWorkspace />
+        </WorkspaceProvider>
+      );
       case View.Design: return <DesignStudio />;
       case View.Build: return <BuildSystem />;
       case View.Analytics: return <Analytics />;
@@ -176,13 +185,6 @@ const AppContent: React.FC = () => {
       auth={{ isAuthenticated, onLogin: openAuth, onLogout: handleLogout }}
     >
         {renderView()}
-        {showPaywall && !effectiveIsPro && (
-          <Paywall
-            packages={currentOffering}
-            onPurchase={purchasePackage}
-            onClose={() => setShowPaywall(false)}
-          />
-        )}
         {showAuth && (
           <div className="fixed inset-0 z-50">
             <Auth
@@ -197,11 +199,10 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  const isMobile = useMobileDetection();
-
+  const popoutModule = new URLSearchParams(window.location.search).get('popout');
   return (
     <SettingsProvider>
-      {isMobile ? <MobileApp /> : <AppContent />}
+      {popoutModule ? <PopoutModule moduleId={popoutModule} /> : <AppContent />}
     </SettingsProvider>
   );
 };

@@ -1,6 +1,6 @@
 TheMAG.dev Task Status
 =======================
-Last updated: 2026-01-25 09:22
+Last updated: 2026-01-25 22:57
 
 Current objectives:
 - Clarify hosting scope and required integrations for InfinityFree FTP deploy
@@ -21,7 +21,12 @@ Status:
 - 2026-01-25: Awaiting clarification on InfinityFree hosting scope and external CLI/API integrations.
 - 2026-01-25: Attempted to fetch https://magstack.rf.gd/ from tool; received 403 Forbidden (needs screenshot or access change).
 - 2026-01-25: Updated auth flow to allow guest access, added multi-provider sign-in UI, and gated Pro/VM access via paywall + login overlay.
-Current Objective: Replace placeholder modules with functional ones. - Mon Jan 26 00:31:49 UTC 2026
+- 2026-01-25: Replaced placeholder SDK/plugin/extension/module catalogs with real items; refreshed module registry and features lists.
+- 2026-01-25: Added mobile entry point with navigation and fixed duplicate imports; build now succeeds.
+- 2026-01-25: Scaffolded native Android app and connected it to Firebase backend for shared data access.
+- 2026-01-25: Web UI locked to desktop layout; mobile experience moved to native app.
+- 2026-01-25: Polished native UX and documented APK build pipeline.
+Current Objective: Build native Android UX and APK pipeline using Firebase backend. - 2026-01-25 22:57:29
 
 New mobile ui/ux
 Last updated: 2026-01-26 10:00
@@ -34,3 +39,190 @@ Current objectives:
 Status:
 - Started work on the mobile UI overhaul.
 - Planned the implementation of a mobile detection hook and a new mobile-specific entry point.
+
+Per-user storage drive (Google Cloud) task
+Last updated: 2026-01-26 16:17:04
+
+Current objectives:
+- Ensure per-user storage drive is set to the user's Google Cloud.
+
+Status:
+- Not started yet.
+
+
+Per-user storage drive (Google Cloud) task - update
+Last updated: 2026-01-26 16:29:04
+
+Status:
+- Workspace storage now hydrates from per-user Google Cloud Storage and syncs updates to cloud with local cache fallback.
+- Added Firebase Storage rules + config entry to keep each user's workspace isolated by UID.
+- Local storage remains for guests and as a cache for signed-in users.
+
+
+Per-user storage drive (Google Drive) update
+Last updated: 2026-01-26 16:41:28
+
+Status:
+- Workspace persistence now targets each user's Google Drive (workspace.json in TheMAG.dev Projects) with local cache fallback.
+- Added Settings control to connect/disconnect Google Drive for workspace sync.
+
+
+Google Drive (App Data) update
+Last updated: 2026-01-26 16:48:46
+
+Status:
+- Workspace storage now targets hidden Google Drive appDataFolder (workspace.json).
+- Added VITE_GOOGLE_API_KEY to .env (uses existing Firebase API key).
+
+
+Google Drive login UI update
+Last updated: 2026-01-26 17:11:47
+
+Status:
+- Added Integrations tab with Google Drive connect/disconnect and account/status details.
+- Drive sync status now updates after workspace payload saves.
+
+
+Drive + GitHub + multi-screen updates
+Last updated: 2026-01-26 17:41:20
+
+Current objectives:
+- Move workspace/projects/extensions/SDK/plugin storage to user Google Drive folder structure.
+- Add in-app Google Drive login and Drive-backed data sync for IDE components.
+- Implement GitHub source control integration for the workspace.
+- Fix terminal reopening and support multi-window module pop-out.
+
+
+Deployment + Drive/GitHub/UX updates
+Last updated: 2026-01-27 09:00
+
+Current objectives:
+- Align Google Drive storage to My Drive/TheMAG.dev folder structure and support Drive file/binary sync.
+- Add in-app Google Drive login access inside the IDE.
+- Improve GitHub source control integration.
+- Fix terminal reopen and multi-window module support.
+- Prepare deployment to Firebase Hosting and InfinityFree FTP once changes are done.
+
+Status:
+- Started updating GoogleDriveService to use My Drive/TheMAG.dev folder structure and project subfolders; binary upload helpers still pending.
+
+Drive/GitHub/Deploy update
+Last updated: 2026-01-27 18:30
+
+Status:
+- Drive now syncs to My Drive/TheMAG.dev with Projects/Extensions/SDKs/Plugins/Settings folders and binary upload helpers.
+- Added migration prompts and Drive-backed settings, extensions, SDKs, and plugin state sync (with zip bundle uploads).
+- Added Drive connect button in IDE toolbar and Open Folder action in Settings.
+- Implemented GitHub source control (PAT auth, repo connect, branch select, refresh, pull, push staged files).
+- Added module pop-out windows and reinforced terminal reopen handling.
+- Built and deployed to Firebase Hosting and uploaded dist via FTP to InfinityFree.
+
+Login splash fix update
+Last updated: 2026-01-27 18:40
+
+Status:
+- Added auth/profile loading timeouts so login UI shows even if Firebase auth/profile is slow.
+- Rebuilt and redeployed to Firebase Hosting and InfinityFree FTP.
+
+Login screen restore update
+Last updated: 2026-01-27 18:50
+
+Status:
+- Fixed index.html boot to load Vite entrypoint immediately (removed delayed dynamic import that broke production build).
+- Rebuilt and redeployed to Firebase Hosting and InfinityFree FTP.
+
+Login screen auto-open + analytics guard
+Last updated: 2026-01-27 19:00
+
+Status:
+- Guarded Firebase Analytics init to avoid runtime crash.
+- Auto-opened Firebase Auth login modal when unauthenticated.
+- Rebuilt and redeployed to Firebase Hosting and InfinityFree FTP.
+
+Login screen hook fix update
+Last updated: 2026-01-27 19:10
+
+Status:
+- Fixed hooks ordering in AppContent to resolve React error #310 (removed early return before hooks).
+- Rebuilt and redeployed to Firebase Hosting and InfinityFree FTP.
+
+Google Drive auth error reporting
+Last updated: 2026-01-27 19:25
+
+Status:
+- Added detailed Google Drive auth error reporting and initialization guard.
+- Rebuilt and redeployed to Firebase Hosting and InfinityFree FTP.
+
+Login owner/admin access update
+Last updated: 2026-01-27 05:54
+
+Current objectives:
+- Ensure specified owner/admin accounts are promoted on login and can update profile roles safely.
+
+Status:
+- Added owner/admin email allowlist handling in client user profile creation/update.
+- Updated Cloud Functions onUserCreate to auto-promote owner/admin emails and set custom claims.
+- Extended Firestore rules to recognize owner/admin emails and allow admin fields updates.
+
+SDK stack/drive/build deployment update
+Last updated: 2026-01-27 07:51:20
+
+Current objectives:
+- Make stack connections real (functional).
+- Ensure SDKs/Xcode/Gradle build machines are working and real.
+- Add Drive Open Folder feature (project folder open).
+- Deploy updates to site and Firebase Hosting.
+
+
+Desktop workspace terminal update
+Last updated: 2026-01-27 08:01:06
+
+Status:
+- Desktop Workspace terminal now mounts the real Terminal component and defaults to local mode.
+- Desktop view wrapped with WorkspaceProvider to enable real terminal runtime.
+- Terminal tab now shows live terminal; log tab retains activity logs.
+
+
+Deployment update
+Last updated: 2026-01-27 08:15:49
+
+Status:
+- Built Vite assets.
+- Deployed dist to InfinityFree FTP (magstack.rf.gd/htdocs).
+- Deployed Firebase Hosting (themagdev-a4363).
+
+
+WebContainer COOP/COEP update
+Last updated: 2026-01-27 08:29:05
+
+Status:
+- Added COOP/COEP headers for Firebase Hosting and Vite dev server.
+- Added .htaccess headers for InfinityFree FTP deploys.
+- Added guard in Terminal to block WebContainer when crossOriginIsolated is false.
+- Rebuilt and redeployed to Firebase Hosting + FTP.
+
+
+Loader brightness update
+Last updated: 2026-01-27 11:14:33
+
+Current objectives:
+- Reduce splash logo exposure/brightness on loading screen.
+
+
+Loader brightness deploy update
+Last updated: 2026-01-27 11:30:00
+
+Status:
+- Reduced splash logo brightness/contrast in index.html.
+- Rebuilt and deployed to InfinityFree FTP (magstack.rf.gd/htdocs).
+- Firebase Hosting deploy failed: credentials invalid. Needs irebase login --reauth then irebase deploy --only hosting.
+
+
+Drive OAuth header update
+Last updated: 2026-01-27 12:22:43
+
+Status:
+- Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
+- Rebuilt and deployed Firebase Hosting.
+- FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+

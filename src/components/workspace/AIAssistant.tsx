@@ -6,9 +6,10 @@ interface AIAssistantProps {
   className?: string;
   onClose?: () => void;
   onPopOut?: () => void;
+  onOpenWindow?: () => void;
 }
 
-const AIAssistant: React.FC<AIAssistantProps> = ({ className, onClose, onPopOut }) => {
+const AIAssistant: React.FC<AIAssistantProps> = ({ className, onClose, onPopOut, onOpenWindow }) => {
   const { activeFile, getFileContent, openFiles } = useWorkspace();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -194,6 +195,11 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ className, onClose, onPopOut 
           {onPopOut && (
             <button onClick={onPopOut} className="text-zinc-600 hover:text-zinc-300" title="Pop out panel">
               <span className="material-symbols-rounded text-sm">open_in_new</span>
+            </button>
+          )}
+          {onOpenWindow && (
+            <button onClick={onOpenWindow} className="text-zinc-600 hover:text-zinc-300" title="Open in new window">
+              <span className="material-symbols-rounded text-sm">launch</span>
             </button>
           )}
           {onClose && (

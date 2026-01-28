@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from '../src/contexts/SettingsContext';
 import aiProvider, { AIProviderConfig, MCPServer, PROVIDER_MODELS, AIProviderType } from '../src/services/AIProvider';
+import googleDriveService, { type DriveSyncStatus, type DriveUserInfo } from '../src/services/GoogleDriveService';
 
-type SettingsTab = 'general' | 'editor' | 'terminal' | 'debug' | 'ai' | 'explorer' | 'mcp';
+type SettingsTab = 'general' | 'editor' | 'terminal' | 'debug' | 'ai' | 'explorer' | 'mcp' | 'integrations';
 
 const Settings: React.FC = () => {
   const {
@@ -25,10 +26,50 @@ const Settings: React.FC = () => {
   const [showMCPForm, setShowMCPForm] = useState<string | null>(null);
   const [importText, setImportText] = useState('');
   const [showImport, setShowImport] = useState(false);
+  const [driveStatus, setDriveStatus] = useState<DriveSyncStatus>(() => googleDriveService.getSyncStatus());
+  const [driveUser, setDriveUser] = useState<DriveUserInfo | null>(null);
+  const [driveLoading, setDriveLoading] = useState(false);
+  const [driveFolderLink, setDriveFolderLink] = useState<string | null>(null);
+  const hasDriveConfig = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
   useEffect(() => {
     setProviders(aiProvider.getProviders());
   }, []);
+
+  useEffect(() => {
+    return googleDriveService.onSyncStatusChange(setDriveStatus);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    if (!driveStatus.connected) {
+      setDriveUser(null);
+      setDriveFolderLink(null);
+      return;
+    }
+    googleDriveService.getUserInfo().then((info) => {
+      if (active) {
+        setDriveUser(info);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [driveStatus.connected]);
+
+  useEffect(() => {
+    if (!driveStatus.connected) {
+      return;
+    }
+    const existingLink = googleDriveService.getRootFolderLink();
+    if (existingLink) {
+      setDriveFolderLink(existingLink);
+      return;
+    }
+    googleDriveService.getFolderIds().then(() => {
+      setDriveFolderLink(googleDriveService.getRootFolderLink());
+    });
+  }, [driveStatus.connected]);
 
   const handleProviderUpdate = (id: string, updates: Partial<AIProviderConfig>) => {
     aiProvider.updateProvider(id, updates);
@@ -62,6 +103,24 @@ const Settings: React.FC = () => {
     updateAISettings({ activeProviderId: id });
   };
 
+  const handleDriveToggle = async () => {
+    if (!hasDriveConfig) {
+      return;
+    }
+    if (driveStatus.connected) {
+      googleDriveService.disconnect();
+      setDriveUser(null);
+      return;
+    }
+    setDriveLoading(true);
+    const connected = await googleDriveService.connect();
+    if (connected) {
+      const info = await googleDriveService.getUserInfo();
+      setDriveUser(info);
+    }
+    setDriveLoading(false);
+  };
+
   const handleExport = () => {
     const data = exportSettings();
     const blob = new Blob([data], { type: 'application/json' });
@@ -82,6 +141,7 @@ const Settings: React.FC = () => {
 
   const tabs: { id: SettingsTab; label: string; icon: string }[] = [
     { id: 'general', label: 'General', icon: 'tune' },
+    { id: 'integrations', label: 'Integrations', icon: 'cloud' },
     { id: 'editor', label: 'Editor', icon: 'code' },
     { id: 'terminal', label: 'Terminal', icon: 'terminal' },
     { id: 'debug', label: 'Debug', icon: 'bug_report' },
@@ -137,6 +197,27 @@ const Settings: React.FC = () => {
       {control}
     </div>
   );
+
+  const formatBytes = (bytes?: number) => {
+    if (bytes === undefined || bytes === null) return '—';
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
+  };
+
+  const driveDescription = driveStatus.connected
+    ? `Workspace, extensions, SDKs, plugins, and settings synced to My Drive/TheMAG.dev${driveUser?.email ? ` (${driveUser.email})` : ''}.`
+    : hasDriveConfig
+      ? 'Connect Google Drive to sync and browse your entire My Drive/TheMAG.dev workspace (requires full Drive access).'
+      : 'Set VITE_GOOGLE_CLIENT_ID to enable Drive sync.';
+
+  const driveButtonLabel = driveLoading
+    ? 'Connecting...'
+    : driveStatus.connected
+      ? 'Disconnect'
+      : 'Connect';
 
   return (
     <div className="flex-1 flex bg-zinc-950 h-full overflow-hidden">
@@ -231,6 +312,81 @@ const Settings: React.FC = () => {
                   'Help improve TheMAG.dev by sending anonymous usage data',
                   renderToggle(settings.general.telemetry, (val) => updateGeneralSettings({ telemetry: val }))
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* Integrations */}
+          {activeTab === 'integrations' && (
+            <div>
+              <h2 className="text-lg font-bold text-white mb-1">Integrations</h2>
+              <p className="text-sm text-zinc-500 mb-6">Connect cloud services and external storage</p>
+
+              <div className="bg-zinc-900 rounded-lg border border-zinc-800 overflow-hidden">
+                <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-center text-emerald-400">
+                      <span className="material-symbols-rounded">cloud_done</span>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-zinc-200">Google Drive</div>
+                      <div className="text-xs text-zinc-500">{driveDescription}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {driveStatus.connected && driveFolderLink && (
+                      <button
+                        onClick={() => window.open(driveFolderLink, '_blank', 'noopener')}
+                        className="px-3 py-1.5 rounded text-xs font-medium border border-zinc-700 text-zinc-200 bg-zinc-800 hover:bg-zinc-700 transition-colors"
+                      >
+                        Open Folder
+                      </button>
+                    )}
+                    <button
+                      onClick={handleDriveToggle}
+                      disabled={!hasDriveConfig || driveLoading}
+                      className={`px-3 py-1.5 rounded text-xs font-medium border transition-colors ${
+                        driveStatus.connected
+                          ? 'bg-red-500/10 text-red-300 border-red-500/30 hover:bg-red-500/20'
+                          : 'bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700'
+                      } ${(!hasDriveConfig || driveLoading) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      {driveButtonLabel}
+                    </button>
+                  </div>
+                </div>
+                <div className="p-4 grid grid-cols-2 gap-4 text-xs text-zinc-500">
+                  <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-3">
+                    <div className="uppercase tracking-widest text-[10px] text-zinc-600">Account</div>
+                    <div className="mt-2 text-zinc-200">{driveUser?.displayName || 'Not connected'}</div>
+                    <div className="text-zinc-500">{driveUser?.email || '—'}</div>
+                  </div>
+                  <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-3">
+                    <div className="uppercase tracking-widest text-[10px] text-zinc-600">Storage</div>
+                    <div className="mt-2 text-zinc-200">
+                      {formatBytes(driveUser?.storageQuota?.usageInDrive)} used
+                    </div>
+                    <div className="text-zinc-500">
+                      {formatBytes(driveUser?.storageQuota?.limit)} total
+                    </div>
+                  </div>
+                  <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-3">
+                    <div className="uppercase tracking-widest text-[10px] text-zinc-600">Workspace Sync</div>
+                    <div className="mt-2 text-zinc-200">
+                      {driveStatus.connected ? 'Enabled' : 'Disabled'}
+                    </div>
+                    <div className="text-zinc-500">
+                      {driveStatus.lastSync ? new Date(driveStatus.lastSync).toLocaleString() : 'Not synced yet'}
+                    </div>
+                  </div>
+                  <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-3">
+                    <div className="uppercase tracking-widest text-[10px] text-zinc-600">Status</div>
+                    <div className="mt-2 text-zinc-200">
+                      {driveStatus.syncInProgress ? 'Syncing...' : (driveStatus.error ? 'Error' : 'Idle')}
+                    </div>
+                    <div className="text-zinc-500">{driveStatus.error || 'All clear'}</div>
+                  </div>
+                </div>
               </div>
             </div>
           )}

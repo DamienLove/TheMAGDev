@@ -16,6 +16,11 @@ export const useRevenueCat = () => {
       
       const rcInit = async () => {
         try {
+            if (typeof Purchases?.configure !== 'function' || typeof Purchases?.getCustomerInfo !== 'function') {
+              console.warn('RevenueCat SDK not available in this environment.');
+              return;
+            }
+
             Purchases.setLogLevel(LogLevel.Verbose);
             await Purchases.configure(API_KEY, "my_app_user_id"); // Ideally use real user ID
 
