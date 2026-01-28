@@ -8,6 +8,7 @@ const SDKManager: React.FC = () => {
   const [plugins, setPlugins] = useState<SDKPlugin[]>([]);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
+  const [downloadingPluginId, setDownloadingPluginId] = useState<string | null>(null);
 
   const platforms = ['Android', 'iOS', 'Windows', 'Mac', 'Linux', 'Web'];
 
@@ -77,6 +78,17 @@ const SDKManager: React.FC = () => {
       setShowPluginModal(false);
       loadData();
     }
+  };
+
+  const handleDownloadPlugin = async (pluginId: string) => {
+    setDownloadingPluginId(pluginId);
+    const url = await sdkService.getPublicPluginBundleUrl(pluginId);
+    if (url) {
+      window.open(url, '_blank', 'noopener');
+    } else {
+      alert('Connect Google Drive to download plugin bundles.');
+    }
+    setDownloadingPluginId(null);
   };
 
   return (
@@ -197,7 +209,16 @@ const SDKManager: React.FC = () => {
                  <p className="text-zinc-400 text-xs mb-3">{plugin.description}</p>
                  <div className="flex justify-between items-center">
                     <span className="text-[10px] font-bold text-zinc-600 uppercase">By {plugin.author}</span>
-                    <button className="text-xs text-red-400 hover:text-red-300 font-bold">Uninstall</button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleDownloadPlugin(plugin.id)}
+                        disabled={downloadingPluginId === plugin.id}
+                        className="text-xs text-zinc-300 hover:text-white font-bold disabled:opacity-50"
+                      >
+                        {downloadingPluginId === plugin.id ? 'Preparing...' : 'Download'}
+                      </button>
+                      <button className="text-xs text-red-400 hover:text-red-300 font-bold">Uninstall</button>
+                    </div>
                  </div>
                </div>
              ))}

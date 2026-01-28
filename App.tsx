@@ -19,6 +19,7 @@ import PopoutModule from './views/PopoutModule';
 import LoadingScreen from './src/components/LoadingScreen';
 import { SettingsProvider } from './src/contexts/SettingsContext';
 import { WorkspaceProvider } from './src/components/workspace';
+import './src/services/ModuleRegistryService';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig';

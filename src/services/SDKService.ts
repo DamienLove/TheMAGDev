@@ -449,6 +449,33 @@ class SDKService {
     return this.plugins;
   }
 
+  async getPublicPluginBundleUrl(pluginId: string): Promise<string | null> {
+    if (!googleDriveService.isConnected()) {
+      return null;
+    }
+
+    const plugin = this.plugins.find(p => p.id === pluginId);
+    if (!plugin) return null;
+
+    try {
+      const { pluginsId } = await googleDriveService.getFolderIds();
+      const bundle = zipSync({
+        'plugin.json': strToU8(JSON.stringify(plugin, null, 2)),
+      });
+      const blob = new Blob([bundle], { type: 'application/zip' });
+      const file = await googleDriveService.upsertBinaryInFolder(
+        pluginsId,
+        `${plugin.id}.zip`,
+        blob,
+        'application/zip'
+      );
+      if (!file?.id) return null;
+      return googleDriveService.getPublicDownloadUrl(file.id);
+    } catch {
+      return null;
+    }
+  }
+
   installSDK(id: string): Promise<void> {
     return new Promise((resolve) => {
       setTimeout(() => {

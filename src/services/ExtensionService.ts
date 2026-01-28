@@ -654,6 +654,35 @@ class ExtensionService {
       .slice(0, 8);
   }
 
+  async getPublicBundleUrl(extensionId: string): Promise<string | null> {
+    if (!googleDriveService.isConnected()) {
+      return null;
+    }
+
+    const installed = this.installedExtensions.get(extensionId);
+    const marketplace = this.marketplaceExtensions.get(extensionId);
+    const manifest = installed?.manifest || marketplace?.manifest;
+    if (!manifest) return null;
+
+    try {
+      const { extensionsId } = await googleDriveService.getFolderIds();
+      const bundle = zipSync({
+        'manifest.json': strToU8(JSON.stringify(manifest, null, 2)),
+      });
+      const blob = new Blob([bundle], { type: 'application/zip' });
+      const file = await googleDriveService.upsertBinaryInFolder(
+        extensionsId,
+        `${manifest.id}.zip`,
+        blob,
+        'application/zip'
+      );
+      if (!file?.id) return null;
+      return googleDriveService.getPublicDownloadUrl(file.id);
+    } catch {
+      return null;
+    }
+  }
+
   // Installation Methods
   getInstalledExtensions(): Extension[] {
     return Array.from(this.installedExtensions.values());

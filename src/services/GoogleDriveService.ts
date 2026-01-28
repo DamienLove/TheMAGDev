@@ -51,6 +51,8 @@ const SUBFOLDER_NAMES = {
   sdks: 'SDKs',
   plugins: 'Plugins',
   settings: 'Settings',
+  assets: 'Assets',
+  modules: 'Modules',
 } as const;
 const DEFAULT_PROJECT_NAME = 'Default Project';
 const WORKSPACE_FILE_NAME = 'workspace.json';
@@ -485,14 +487,18 @@ class GoogleDriveService {
     sdksId: string;
     pluginsId: string;
     settingsId: string;
+    assetsId: string;
+    modulesId: string;
   }> {
     const rootId = await this.ensureRootFolder();
-    const [projectsId, extensionsId, sdksId, pluginsId, settingsId] = await Promise.all([
+    const [projectsId, extensionsId, sdksId, pluginsId, settingsId, assetsId, modulesId] = await Promise.all([
       this.ensureSubfolder('projects', rootId),
       this.ensureSubfolder('extensions', rootId),
       this.ensureSubfolder('sdks', rootId),
       this.ensureSubfolder('plugins', rootId),
       this.ensureSubfolder('settings', rootId),
+      this.ensureSubfolder('assets', rootId),
+      this.ensureSubfolder('modules', rootId),
     ]);
 
     this.saveFolderCache();
@@ -504,11 +510,24 @@ class GoogleDriveService {
       sdksId,
       pluginsId,
       settingsId,
+      assetsId,
+      modulesId,
     };
   }
 
   async getFolderIds() {
-    if (this.rootFolderId && Object.keys(this.folderIds).length) {
+    const hasAllFolders = Boolean(
+      this.rootFolderId &&
+      this.folderIds.projects &&
+      this.folderIds.extensions &&
+      this.folderIds.sdks &&
+      this.folderIds.plugins &&
+      this.folderIds.settings &&
+      this.folderIds.assets &&
+      this.folderIds.modules
+    );
+
+    if (hasAllFolders) {
       return {
         rootId: this.rootFolderId!,
         projectsId: this.folderIds.projects!,
@@ -516,6 +535,8 @@ class GoogleDriveService {
         sdksId: this.folderIds.sdks!,
         pluginsId: this.folderIds.plugins!,
         settingsId: this.folderIds.settings!,
+        assetsId: this.folderIds.assets!,
+        modulesId: this.folderIds.modules!,
       };
     }
     return this.ensureRootStructure();
@@ -529,6 +550,10 @@ class GoogleDriveService {
       undefined
     );
     return files[0] || null;
+  }
+
+  async getFileByName(parentId: string, name: string): Promise<DriveFile | null> {
+    return this.findFileByName(parentId, name);
   }
 
   getRootFolderLink(): string | null {
@@ -546,6 +571,36 @@ class GoogleDriveService {
     const file = await this.findFileByName(parentId, name);
     if (!file?.id) return null;
     return this.readFileArrayBuffer(file.id);
+  }
+
+  async ensurePublicPermission(fileId: string): Promise<void> {
+    if (!this.syncStatus.connected) return;
+    try {
+      await this.driveRequest(
+        `files/${fileId}/permissions`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: 'reader', type: 'anyone' }),
+        },
+        { fields: 'id' }
+      );
+    } catch (error) {
+      // Ignore permission errors (already shared or insufficient privileges).
+      console.warn('Failed to set public permission for Drive file.', error);
+    }
+  }
+
+  async getPublicDownloadUrl(fileId: string): Promise<string | null> {
+    if (!this.syncStatus.connected) return null;
+    await this.ensurePublicPermission(fileId);
+    return `https://drive.google.com/uc?export=download&id=${fileId}`;
+  }
+
+  async getPublicDownloadUrlByName(parentId: string, name: string): Promise<string | null> {
+    const file = await this.findFileByName(parentId, name);
+    if (!file?.id) return null;
+    return this.getPublicDownloadUrl(file.id);
   }
 
   async upsertFileInFolder(

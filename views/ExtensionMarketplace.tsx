@@ -29,6 +29,7 @@ const ExtensionMarketplace: React.FC = () => {
   const [installedExtensions, setInstalledExtensions] = useState<Extension[]>([]);
   const [selectedExtension, setSelectedExtension] = useState<MarketplaceExtension | null>(null);
   const [publishing, setPublishing] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [publishForm, setPublishForm] = useState({
     name: '',
     displayName: '',
@@ -158,6 +159,17 @@ const ExtensionMarketplace: React.FC = () => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
     return count.toString();
+  };
+
+  const handleDownload = async (extensionId: string) => {
+    setDownloadingId(extensionId);
+    const url = await extensionService.getPublicBundleUrl(extensionId);
+    if (url) {
+      window.open(url, '_blank', 'noopener');
+    } else {
+      alert('Connect Google Drive to download extension bundles.');
+    }
+    setDownloadingId(null);
   };
 
   const formatVersion = (version: string): string => {
@@ -752,6 +764,23 @@ const ExtensionMarketplace: React.FC = () => {
                 className="px-4 py-2 text-zinc-400 hover:text-zinc-200"
               >
                 Close
+              </button>
+              <button
+                onClick={() => handleDownload(selectedExtension.manifest.id)}
+                disabled={downloadingId === selectedExtension.manifest.id}
+                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-zinc-200 rounded font-medium flex items-center gap-2"
+              >
+                {downloadingId === selectedExtension.manifest.id ? (
+                  <>
+                    <span className="material-symbols-rounded animate-spin text-lg">progress_activity</span>
+                    Preparing...
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-rounded text-lg">download</span>
+                    Download Bundle
+                  </>
+                )}
               </button>
               {extensionService.isInstalled(selectedExtension.manifest.id) ? (
                 <button

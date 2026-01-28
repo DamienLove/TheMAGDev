@@ -208,7 +208,7 @@ const Settings: React.FC = () => {
   };
 
   const driveDescription = driveStatus.connected
-    ? `Workspace, extensions, SDKs, plugins, and settings synced to My Drive/TheMAG.dev${driveUser?.email ? ` (${driveUser.email})` : ''}.`
+    ? `Workspace, extensions, SDKs, plugins, assets, and modules synced to My Drive/TheMAG.dev${driveUser?.email ? ` (${driveUser.email})` : ''}.`
     : hasDriveConfig
       ? 'Connect Google Drive to sync and browse your entire My Drive/TheMAG.dev workspace (requires full Drive access).'
       : 'Set VITE_GOOGLE_CLIENT_ID to enable Drive sync.';
