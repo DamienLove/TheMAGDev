@@ -226,3 +226,37 @@ Status:
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
 
+
+TheMAG.dev FTP deployment update
+Last updated: 2026-01-28 21:00:11
+
+Current objectives:
+- Build Vite app and deploy dist to themag.dev via provided FTP credentials.
+
+Status:
+- Started prep for themag.dev FTP deployment (build + upload pending).
+
+TheMAG.dev FTP deployment update
+Last updated: 2026-01-28 21:03:45
+
+Status:
+- Built Vite production assets (dist/).
+- FTP deploy failed: ftp.themag.dev DNS does not resolve (ENOTFOUND).
+- DNS lookup from this environment shows no A record for themag.dev / www.themag.dev / ftp.themag.dev.
+- Awaiting correct FTP hostname/IP or confirmation of DNS records to proceed.
+
+TheMAG.dev FTP deployment update
+Last updated: 2026-01-28 21:05:06
+
+Current objectives:
+- Deploy dist to FTP host 50.28.105.37 using provided credentials and path /home/themagde.
+
+Status:
+- Starting FTP deploy to IP host (explicit FTPS on port 21).
+
+TheMAG.dev FTP deployment update
+Last updated: 2026-01-28 21:05:56
+
+Status:
+- FTP upload to 50.28.105.37:/home/themagde completed successfully.
+- HTTP HEAD to http://50.28.105.37/ returned 200 (site responding).

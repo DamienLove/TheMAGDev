@@ -17,7 +17,8 @@
       "Bash(find features -type f -exec curl -T {} -u if0_40352355:4KgEjspgN2 ftp://ftpupload.net/magstack.rf.gd/htdocs/{} --ftp-create-dirs ;)",
       "Bash(curl:*)",
       "Skill(commit-commands:commit-push-pr)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(cat:*)"
     ]
   }
 }
