@@ -780,7 +780,7 @@ export class MainController {
                         </div>
 
                         {/* Projects List */}
-                        <div className="text-[10px] text-[#5f637a] uppercase font-bold mb-1 px-2">Projects</div>
+                        <div className="text-[10px] text-[#5f637a] uppercase font-bold mb-1 px-2">Projects (click to open)</div>
                         {driveFiles.length === 0 ? (
                           <div className="text-[11px] text-[#5f637a] px-2 py-4 text-center">
                             No projects yet. Create one above!
@@ -789,26 +789,18 @@ export class MainController {
                           driveFiles.map((project) => (
                             <div
                               key={project.id}
-                              className={`group flex items-center gap-2 px-2 py-1.5 rounded-sm cursor-pointer transition-colors ${
+                              onClick={() => openFolderAsProject(project)}
+                              className={`flex items-center justify-between gap-2 px-2 py-1.5 rounded-sm cursor-pointer transition-colors ${
                                 currentProject?.id === project.id
                                   ? 'bg-indigo-500/20 text-white border-l-2 border-indigo-500'
                                   : 'text-[#9da1b9] hover:text-white hover:bg-[#161825]'
                               }`}
                             >
-                              <span
-                                className="flex items-center gap-2 flex-1 truncate"
-                                onClick={() => openProject(project)}
-                              >
+                              <span className="flex items-center gap-2 flex-1 truncate">
                                 <span className="material-symbols-rounded text-[16px] text-yellow-400">folder</span>
                                 <span className="truncate">{project.name}</span>
                               </span>
-                              <button
-                                onClick={(e) => { e.stopPropagation(); openFolderAsProject(project); }}
-                                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-indigo-500/20 rounded text-indigo-400"
-                                title="Open as active project"
-                              >
-                                <span className="material-symbols-rounded text-[14px]">folder_open</span>
-                              </button>
+                              <span className="material-symbols-rounded text-[14px] text-indigo-400">folder_open</span>
                             </div>
                           ))
                         )}
@@ -834,6 +826,18 @@ export class MainController {
                             </div>
                           ))}
                         </div>
+                        {/* Open Current Folder as Project Button */}
+                        {drivePath.length > 0 && (
+                          <div className="px-2 py-2">
+                            <button
+                              onClick={() => openFolderAsProject(drivePath[drivePath.length - 1])}
+                              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 text-white text-[11px] font-bold rounded hover:bg-indigo-500 transition-colors"
+                            >
+                              <span className="material-symbols-rounded text-[16px]">folder_open</span>
+                              Open "{drivePath[drivePath.length - 1].name}" as Project
+                            </button>
+                          </div>
+                        )}
                         {driveLoading ? (
                           <div className="text-[11px] text-[#5f637a] px-2 py-4 text-center">
                             Loading Drive...
@@ -848,7 +852,7 @@ export class MainController {
                             return (
                               <div
                                 key={item.id}
-                                className="group flex items-center gap-2 px-2 py-1.5 rounded-sm cursor-pointer transition-colors text-[#9da1b9] hover:text-white hover:bg-[#161825]"
+                                className="flex items-center gap-2 px-2 py-1.5 rounded-sm cursor-pointer transition-colors text-[#9da1b9] hover:text-white hover:bg-[#161825]"
                               >
                                 <span
                                   className="flex items-center gap-2 flex-1 truncate"
@@ -862,7 +866,7 @@ export class MainController {
                                 {isFolder && (
                                   <button
                                     onClick={(e) => { e.stopPropagation(); openFolderAsProject(item); }}
-                                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-indigo-500/20 rounded text-indigo-400"
+                                    className="p-1 hover:bg-indigo-500/20 rounded text-indigo-400 hover:text-indigo-300"
                                     title="Open folder as active project"
                                   >
                                     <span className="material-symbols-rounded text-[14px]">folder_open</span>
