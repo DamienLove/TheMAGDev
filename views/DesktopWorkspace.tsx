@@ -1410,7 +1410,7 @@ export class MainController {
               </div>
               <div className="flex-1 min-h-0 overflow-hidden">
                 {activeTerminalTab === 'Terminal' ? (
-                  <Terminal key={terminalKey.current} className="h-full" initialMode="local" />
+                  <Terminal key={terminalKey.current} className="h-full" initialMode="mock" />
                 ) : activeTerminalTab === 'Git Status' ? (
                   <div className="h-full overflow-y-auto p-4 font-mono text-[12px] text-[#d4d4d4]">
                     <div className="mb-2 text-green-400">On branch: {currentBranch}</div>
