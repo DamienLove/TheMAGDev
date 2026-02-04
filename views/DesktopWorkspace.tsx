@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Terminal } from '../src/components/workspace';
+import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
 
@@ -22,9 +22,13 @@ interface PanelConfig {
 }
 
 const DesktopWorkspace: React.FC = () => {
+  // Get workspace context for IDE-wide file management
+  const workspace = useWorkspace();
+
   const [activeTab, setActiveTab] = useState('MainController.ts');
   const [activeTerminalTab, setActiveTerminalTab] = useState('Terminal');
   const showLogActions = activeTerminalTab !== 'Terminal';
+  const [isLoadingProject, setIsLoadingProject] = useState(false);
   const [driveConnected, setDriveConnected] = useState(false);
   const [syncStatus, setSyncStatus] = useState<DriveSyncStatus>({ connected: false, syncInProgress: false });
   const [userInfo, setUserInfo] = useState<DriveUserInfo | null>(null);
@@ -237,28 +241,108 @@ export class MainController {
     });
   };
 
-  // Open any Drive folder as an active project
+  // Helper to get language from filename
+  const getLanguageFromFilename = (filename: string): string => {
+    const ext = filename.split('.').pop()?.toLowerCase();
+    const languageMap: Record<string, string> = {
+      ts: 'typescript', tsx: 'typescript', js: 'javascript', jsx: 'javascript',
+      json: 'json', css: 'css', scss: 'scss', html: 'html', md: 'markdown',
+      py: 'python', rs: 'rust', go: 'go', yaml: 'yaml', yml: 'yaml',
+    };
+    return languageMap[ext || ''] || 'plaintext';
+  };
+
+  // Recursively load Drive folder into workspace format
+  const loadDriveFolderRecursive = async (
+    folderId: string,
+    basePath: string
+  ): Promise<WorkspaceFileNode[]> => {
+    const items = await googleDriveService.listFiles(folderId);
+    const nodes: WorkspaceFileNode[] = [];
+
+    for (const item of items) {
+      const itemPath = `${basePath}/${item.name}`;
+      const isFolder = item.mimeType === 'application/vnd.google-apps.folder';
+
+      if (isFolder) {
+        // Recursively load subfolder
+        const children = await loadDriveFolderRecursive(item.id, itemPath);
+        nodes.push({
+          name: item.name,
+          path: itemPath,
+          type: 'folder',
+          children,
+        });
+      } else {
+        // Load file content
+        let content = '';
+        try {
+          const fileContent = await googleDriveService.readFile(item.id);
+          content = fileContent || '';
+        } catch (e) {
+          console.warn(`Could not read file ${item.name}:`, e);
+        }
+
+        nodes.push({
+          name: item.name,
+          path: itemPath,
+          type: 'file',
+          content,
+          language: getLanguageFromFilename(item.name),
+        });
+      }
+    }
+
+    return nodes;
+  };
+
+  // Open any Drive folder as an active project - loads into entire IDE
   const openFolderAsProject = async (folder: DriveFile) => {
     if (folder.mimeType !== 'application/vnd.google-apps.folder') {
       addTerminalLine('Cannot open file as project - select a folder', 'error');
       return;
     }
 
+    setIsLoadingProject(true);
     setCurrentProject(folder);
-    addTerminalLine(`Opening folder as project: ${folder.name}...`);
+    addTerminalLine(`Opening project: ${folder.name}...`);
+    addTerminalLine('Loading files from Google Drive (this may take a moment)...');
 
-    const files = await googleDriveService.listFiles(folder.id);
-    const fileNodes = files.map(f => ({
-      id: f.id,
-      name: f.name,
-      type: f.mimeType === 'application/vnd.google-apps.folder' ? 'folder' : 'file',
-      mimeType: f.mimeType,
-      driveFile: f,
-    } as FileNode));
+    try {
+      // Recursively load all files with content
+      const workspaceFiles = await loadDriveFolderRecursive(folder.id, '');
 
-    setProjectFiles(fileNodes);
-    setShowDrivePanel(false);
-    addTerminalLine(`Loaded ${files.length} file(s) from folder`, 'success');
+      // Update the workspace context - this updates the entire IDE
+      workspace.replaceWorkspace(workspaceFiles);
+
+      // Also update local state for display
+      const files = await googleDriveService.listFiles(folder.id);
+      const fileNodes = files.map(f => ({
+        id: f.id,
+        name: f.name,
+        type: f.mimeType === 'application/vnd.google-apps.folder' ? 'folder' : 'file',
+        mimeType: f.mimeType,
+        driveFile: f,
+      } as FileNode));
+      setProjectFiles(fileNodes);
+
+      // Count total files
+      const countFiles = (nodes: WorkspaceFileNode[]): number => {
+        return nodes.reduce((acc, n) => {
+          if (n.type === 'file') return acc + 1;
+          return acc + countFiles(n.children || []);
+        }, 0);
+      };
+      const totalFiles = countFiles(workspaceFiles);
+
+      setShowDrivePanel(false);
+      addTerminalLine(`Project "${folder.name}" loaded with ${totalFiles} file(s)`, 'success');
+      addTerminalLine('Files are now available in the Explorer panel');
+    } catch (error: any) {
+      addTerminalLine(`Failed to load project: ${error.message}`, 'error');
+    } finally {
+      setIsLoadingProject(false);
+    }
   };
 
   // Toggle terminal visibility with proper re-mount
@@ -494,7 +578,54 @@ export class MainController {
     return 'text-gray-400';
   };
 
-  const codeToDisplay = openFiles.get(activeTab) || defaultCodeSnippet;
+  // Recursive file tree renderer for workspace files
+  const renderFileTree = (files: WorkspaceFileNode[], depth: number): JSX.Element[] => {
+    return files.map((file) => {
+      const isActive = workspace.activeFile === file.path;
+      const paddingLeft = depth * 12 + 8;
+
+      if (file.type === 'folder') {
+        return (
+          <div key={file.path}>
+            <div
+              className="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-[#161825] rounded-sm"
+              style={{ paddingLeft }}
+            >
+              <span className="material-symbols-rounded text-[16px] text-yellow-400">folder</span>
+              <span className="truncate">{file.name}</span>
+            </div>
+            {file.children && renderFileTree(file.children, depth + 1)}
+          </div>
+        );
+      }
+
+      return (
+        <div
+          key={file.path}
+          onClick={() => {
+            workspace.openFile(file.path);
+            setActiveTab(file.name);
+            setActiveFileContent(workspace.getFileContent(file.path) || '');
+          }}
+          className={`flex items-center gap-2 px-2 py-1 rounded-sm cursor-pointer transition-colors ${
+            isActive
+              ? 'text-white bg-indigo-500/20 border-l-2 border-indigo-500'
+              : 'text-[#9da1b9] hover:text-white hover:bg-[#161825]'
+          }`}
+          style={{ paddingLeft }}
+        >
+          <span className={`material-symbols-rounded text-[16px] ${getFileIconColor(file.name)}`}>
+            {getFileIcon(file.name)}
+          </span>
+          <span className="truncate">{file.name}</span>
+        </div>
+      );
+    });
+  };
+
+  const codeToDisplay = workspace.activeFile
+    ? (workspace.getFileContent(workspace.activeFile) || defaultCodeSnippet)
+    : (openFiles.get(activeTab) || defaultCodeSnippet);
 
   return (
     <div className="flex flex-col h-full bg-[#090a11] text-slate-200 font-sans overflow-hidden">
@@ -893,64 +1024,37 @@ export class MainController {
                 )}
               </div>
             ) : (
-              // Local/Project Files
+              // Explorer Panel - Shows workspace files
               <div className="flex flex-col gap-0.5">
-                {currentProject ? (
+                {isLoadingProject ? (
+                  <div className="flex flex-col items-center justify-center py-8 gap-3">
+                    <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-[11px] text-[#9da1b9]">Loading project files...</span>
+                  </div>
+                ) : currentProject ? (
                   <>
                     <div className="flex items-center gap-2 px-2 py-1 text-white bg-white/5 rounded-sm cursor-pointer mb-1">
                       <span className="material-symbols-rounded text-[16px] text-yellow-400">folder_open</span>
                       <span className="font-bold">{currentProject.name}</span>
                     </div>
-                    {projectFiles.map((file) => (
-                      <div
-                        key={file.id}
-                        onClick={() => openFile(file)}
-                        className={`flex items-center gap-2 px-2 py-1 pl-4 rounded-sm cursor-pointer transition-colors ${
-                          activeTab === file.name
-                            ? 'text-white bg-indigo-500/20 border-l-2 border-indigo-500'
-                            : 'text-[#9da1b9] hover:text-white hover:bg-[#161825]'
-                        }`}
-                      >
-                        <span className={`material-symbols-rounded text-[16px] ${getFileIconColor(file.name)}`}>
-                          {getFileIcon(file.name, file.mimeType)}
-                        </span>
-                        <span className="truncate">{file.name}</span>
-                      </div>
-                    ))}
-                    {projectFiles.length === 0 && (
+                    {/* Render workspace files from context */}
+                    {renderFileTree(workspace.files, 0)}
+                    {workspace.files.length === 0 && (
                       <div className="text-[11px] text-[#5f637a] px-2 py-4 text-center">
                         Empty project. Create a file to get started.
                       </div>
                     )}
                   </>
                 ) : (
-                  // Demo files when no project selected
+                  // Show workspace files even without Drive project
                   <>
-                    <div className="flex items-center gap-2 px-2 py-1 text-white bg-white/5 rounded-sm cursor-pointer">
-                      <span className="material-symbols-rounded text-[16px] text-yellow-400">folder_open</span>
-                      <span>src</span>
-                    </div>
-                    <div className="pl-4 flex flex-col gap-0.5">
-                      <div className="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-[#161825] rounded-sm">
-                        <span className="material-symbols-rounded text-[16px]">folder</span>
-                        <span>api</span>
+                    {workspace.files.length > 0 ? (
+                      renderFileTree(workspace.files, 0)
+                    ) : (
+                      <div className="text-[10px] text-[#5f637a] px-2 py-4 text-center">
+                        Connect to Google Drive and open a project to edit files
                       </div>
-                      <div className="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-[#161825] rounded-sm">
-                        <span className="material-symbols-rounded text-[16px]">folder</span>
-                        <span>components</span>
-                      </div>
-                      <div className="flex items-center gap-2 px-2 py-1 text-white bg-indigo-500/20 rounded-sm cursor-pointer border-l-2 border-indigo-500">
-                        <span className="material-symbols-rounded text-[16px] text-blue-400">code</span>
-                        <span>MainController.ts</span>
-                      </div>
-                      <div className="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-[#161825] rounded-sm">
-                        <span className="material-symbols-rounded text-[16px] text-red-400">description</span>
-                        <span>styles.css</span>
-                      </div>
-                    </div>
-                    <div className="text-[10px] text-[#5f637a] px-2 py-4 text-center border-t border-[#282b39] mt-4">
-                      Connect to Google Drive and open a project to edit files
-                    </div>
+                    )}
                   </>
                 )}
               </div>
@@ -961,28 +1065,40 @@ export class MainController {
         {/* Main Editor Area */}
         <main className="flex-1 flex flex-col bg-[#090a11] min-w-0">
           <div className="h-10 flex-none flex items-center bg-[#0d0e15] border-b border-[#282b39] overflow-x-auto">
-            <div
-              className={`h-full flex items-center px-4 border-r border-[#282b39] border-t-2 text-[12px] font-medium gap-2 min-w-fit cursor-pointer ${activeTab === 'MainController.ts' ? 'bg-[#111218] border-t-indigo-500 text-white' : 'border-t-transparent text-[#9da1b9] hover:bg-[#161825]'}`}
-              onClick={() => setActiveTab('MainController.ts')}
-            >
-              <span className="material-symbols-rounded text-[14px] text-blue-400">code</span>
-              MainController.ts
-              <span className="material-symbols-rounded text-[14px] hover:bg-white/10 rounded p-0.5 ml-1">close</span>
-            </div>
-            {Array.from(openFiles.keys()).filter(name => name !== 'MainController.ts').map(name => (
+            {/* Workspace open files tabs */}
+            {workspace.openFiles.length > 0 ? (
+              workspace.openFiles.map(filePath => {
+                const fileName = filePath.split('/').pop() || filePath;
+                const isActive = workspace.activeFile === filePath;
+                return (
+                  <div
+                    key={filePath}
+                    className={`h-full flex items-center px-4 border-r border-[#282b39] border-t-2 text-[12px] font-medium gap-2 min-w-fit cursor-pointer ${isActive ? 'bg-[#111218] border-t-indigo-500 text-white' : 'border-t-transparent text-[#9da1b9] hover:bg-[#161825]'}`}
+                    onClick={() => {
+                      workspace.setActiveFile(filePath);
+                      setActiveTab(fileName);
+                    }}
+                  >
+                    <span className={`material-symbols-rounded text-[14px] ${getFileIconColor(fileName)}`}>{getFileIcon(fileName)}</span>
+                    {fileName}
+                    {workspace.unsavedFiles.has(filePath) && <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>}
+                    <span
+                      className="material-symbols-rounded text-[14px] hover:bg-white/10 rounded p-0.5 ml-1"
+                      onClick={(e) => { e.stopPropagation(); workspace.closeFile(filePath); }}
+                    >
+                      close
+                    </span>
+                  </div>
+                );
+              })
+            ) : (
               <div
-                key={name}
-                className={`h-full flex items-center px-4 border-r border-[#282b39] border-t-2 text-[12px] font-medium gap-2 min-w-fit cursor-pointer ${activeTab === name ? 'bg-[#111218] border-t-indigo-500 text-white' : 'border-t-transparent text-[#9da1b9] hover:bg-[#161825]'}`}
-                onClick={() => {
-                  setActiveTab(name);
-                  setActiveFileContent(openFiles.get(name) || '');
-                }}
+                className="h-full flex items-center px-4 border-r border-[#282b39] border-t-2 border-t-indigo-500 bg-[#111218] text-[12px] font-medium gap-2 min-w-fit cursor-pointer text-white"
               >
-                <span className={`material-symbols-rounded text-[14px] ${getFileIconColor(name)}`}>{getFileIcon(name)}</span>
-                {name}
-                <span className="material-symbols-rounded text-[14px] hover:bg-white/10 rounded p-0.5 ml-1">close</span>
+                <span className="material-symbols-rounded text-[14px] text-blue-400">code</span>
+                Welcome
               </div>
-            ))}
+            )}
           </div>
 
           <div className="flex-1 flex overflow-hidden">
@@ -994,11 +1110,13 @@ export class MainController {
                   ))}
                 </div>
                 <textarea
-                  value={activeFileContent || codeToDisplay}
+                  value={workspace.activeFile ? (workspace.getFileContent(workspace.activeFile) || '') : codeToDisplay}
                   onChange={(e) => {
-                    setActiveFileContent(e.target.value);
-                    if (activeTab) {
-                      markFileChanged(activeTab);
+                    if (workspace.activeFile) {
+                      workspace.updateFileContent(workspace.activeFile, e.target.value);
+                      markFileChanged(workspace.activeFile.split('/').pop() || '');
+                    } else {
+                      setActiveFileContent(e.target.value);
                     }
                   }}
                   className="pl-8 w-full h-full bg-transparent text-[#d4d4d4] leading-6 resize-none focus:outline-none font-mono"
