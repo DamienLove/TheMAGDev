@@ -101,6 +101,24 @@ class GoogleDriveService {
     }
   }
 
+  private removeFromCache(fileId: string) {
+    for (const files of this.fileCache.values()) {
+      const index = files.findIndex(f => f.id === fileId);
+      if (index !== -1) {
+        files.splice(index, 1);
+      }
+    }
+  }
+
+  private updateCacheName(fileId: string, newName: string) {
+    for (const files of this.fileCache.values()) {
+      const file = files.find(f => f.id === fileId);
+      if (file) {
+        file.name = newName;
+      }
+    }
+  }
+
   private saveAuth(token: string, expiresIn: number) {
     this.accessToken = token;
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -194,6 +212,22 @@ class GoogleDriveService {
 
   private escapeQueryValue(value: string): string {
     return value.replace(/'/g, "\\'");
+  }
+
+  private addToCache(parentId: string, file: DriveFile) {
+    const keys = [parentId, `drive:${parentId}`];
+    for (const key of keys) {
+      const cached = this.fileCache.get(key);
+      if (cached) {
+        // Check if already exists to avoid duplicates
+        const index = cached.findIndex(f => f.id === file.id);
+        if (index !== -1) {
+          cached[index] = file;
+        } else {
+          cached.push(file);
+        }
+      }
+    }
   }
 
   private async driveRequest<T>(
@@ -543,6 +577,12 @@ class GoogleDriveService {
   }
 
   private async findFileByName(parentId: string, name: string): Promise<DriveFile | null> {
+    // Check cache first
+    const cachedFiles = this.fileCache.get(parentId) || this.fileCache.get(`drive:${parentId}`);
+    if (cachedFiles) {
+      return cachedFiles.find(f => f.name === name) || null;
+    }
+
     const safeName = this.escapeQueryValue(name);
     const files = await this.listFilesByQuery(
       `name='${safeName}' and trashed=false and '${parentId}' in parents`,
@@ -784,7 +824,7 @@ class GoogleDriveService {
     try {
       const { projectsId } = await this.getFolderIds();
 
-      return await this.driveRequest<DriveFile>(
+      const project = await this.driveRequest<DriveFile>(
         'files',
         {
           method: 'POST',
@@ -795,8 +835,10 @@ class GoogleDriveService {
             parents: [projectsId],
           }),
         },
-        { fields: 'id,name,mimeType,modifiedTime,createdTime' }
+        { fields: 'id,name,mimeType,modifiedTime,createdTime,iconLink,webViewLink' }
       );
+      if (project) this.addToCache(projectsId, project);
+      return project;
     } catch (error) {
       console.error('Failed to create project:', error);
       this.setError(error instanceof Error ? error.message : 'Failed to create project');
@@ -808,7 +850,7 @@ class GoogleDriveService {
     if (!this.syncStatus.connected) return null;
 
     try {
-      return await this.driveRequest<DriveFile>(
+      const folder = await this.driveRequest<DriveFile>(
         'files',
         {
           method: 'POST',
@@ -819,8 +861,10 @@ class GoogleDriveService {
             parents: [parentId],
           }),
         },
-        { fields: 'id,name,mimeType,modifiedTime' }
+        { fields: 'id,name,mimeType,modifiedTime,createdTime,iconLink,webViewLink' }
       );
+      if (folder) this.addToCache(parentId, folder);
+      return folder;
     } catch (error) {
       console.error('Failed to create folder:', error);
       this.setError(error instanceof Error ? error.message : 'Failed to create folder');
@@ -843,7 +887,7 @@ class GoogleDriveService {
       form.append('file', new Blob([content], { type: mimeType }));
 
       const response = await fetch(
-        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,modifiedTime',
+        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,modifiedTime,createdTime,size,webViewLink,iconLink',
         {
           method: 'POST',
           headers: { Authorization: `Bearer ${this.accessToken}` },
@@ -854,7 +898,9 @@ class GoogleDriveService {
       if (!response.ok) {
         throw new Error('Failed to create file');
       }
-      return response.json();
+      const file = await response.json();
+      this.addToCache(parentId, file);
+      return file;
     } catch (error) {
       console.error('Failed to create file:', error);
       return null;
@@ -882,7 +928,7 @@ class GoogleDriveService {
       form.append('file', payload);
 
       const response = await fetch(
-        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,modifiedTime',
+        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,modifiedTime,createdTime,size,webViewLink,iconLink',
         {
           method: 'POST',
           headers: { Authorization: `Bearer ${this.accessToken}` },
@@ -893,7 +939,9 @@ class GoogleDriveService {
       if (!response.ok) {
         throw new Error('Failed to create binary file');
       }
-      return response.json();
+      const file = await response.json();
+      this.addToCache(parentId, file);
+      return file;
     } catch (error) {
       console.error('Failed to create binary file:', error);
       return null;
@@ -994,6 +1042,7 @@ class GoogleDriveService {
 
     try {
       await this.driveRequest(`files/${fileId}`, { method: 'DELETE' });
+      this.removeFromCache(fileId);
       return true;
     } catch (error) {
       console.error('Failed to delete file:', error);
@@ -1014,6 +1063,7 @@ class GoogleDriveService {
           body: JSON.stringify({ name: newName }),
         }
       );
+      this.updateCacheName(fileId, newName);
       return true;
     } catch (error) {
       console.error('Failed to rename file:', error);
@@ -1035,6 +1085,30 @@ class GoogleDriveService {
           fields: 'id,parents',
         }
       );
+
+      // Update cache
+      let fileToMove: DriveFile | undefined;
+      const oldKeys = [currentParentId, `drive:${currentParentId}`];
+      for (const key of oldKeys) {
+        const files = this.fileCache.get(key);
+        if (files) {
+          const idx = files.findIndex(f => f.id === fileId);
+          if (idx !== -1) {
+            fileToMove = files[idx];
+            files.splice(idx, 1);
+          }
+        }
+      }
+
+      if (fileToMove) {
+        fileToMove.parents = [newParentId];
+        this.addToCache(newParentId, fileToMove);
+      } else {
+        // If file not found in old cache, invalidate new cache to be safe
+        this.fileCache.delete(newParentId);
+        this.fileCache.delete(`drive:${newParentId}`);
+      }
+
       return true;
     } catch (error) {
       console.error('Failed to move file:', error);
