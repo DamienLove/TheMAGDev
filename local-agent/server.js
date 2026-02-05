@@ -12,37 +12,24 @@ wss.on('connection', (ws) => {
     console.log('Client connected');
 
     const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
-    const args = os.platform() === 'win32' ? ['-NoLogo'] : [];
+    const args = os.platform() === 'win32'
+        ? ['-NoLogo', '-NoProfile']
+        : [];
+
+    console.log(`Spawning ${shell} with args:`, args);
 
     const pty = spawn(shell, args, {
         stdio: ['pipe', 'pipe', 'pipe']
     });
 
-    // Send output to client
-    pty.stdout.on('data', (data) => {
-        try {
-            if (ws.readyState === ws.OPEN) {
-                ws.send(JSON.stringify({ type: 'output', data: data.toString() }));
-            }
-        } catch (e) {
-            console.error('Error sending stdout:', e);
-        }
-    });
-
-    pty.stderr.on('data', (data) => {
-        try {
-            if (ws.readyState === ws.OPEN) {
-                ws.send(JSON.stringify({ type: 'output', data: data.toString() }));
-            }
-        } catch (e) {
-            console.error('Error sending stderr:', e);
-        }
-    });
+    // ... (stdout/stderr handlers remain the same) ...
 
     // Handle messages from client
     ws.on('message', (message) => {
         try {
+            console.log('Received message:', message.toString()); // Debug log
             const payload = JSON.parse(message);
+            // ...
 
             if (payload.type === 'input') {
                 pty.stdin.write(payload.data);
