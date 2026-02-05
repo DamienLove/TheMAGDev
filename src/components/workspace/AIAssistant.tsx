@@ -17,6 +17,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ className, onClose, onPopOut,
   const [activeProvider, setActiveProvider] = useState<AIProviderConfig | null>(null);
   const [showProviderSelect, setShowProviderSelect] = useState(false);
   const [tokenUsage, setTokenUsage] = useState<{ input: number; output: number }>({ input: 0, output: 0 });
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -128,13 +129,17 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ className, onClose, onPopOut,
     setTokenUsage({ input: 0, output: 0 });
   };
 
-  const copyToClipboard = (text: string) => {
+  const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const providers = aiProvider.getProviders();
 
-  const formatCode = (content: string) => {
+  const isProviderReady = activeProvider?.apiKey || activeProvider?.type === 'ollama';
+
+  const formatCode = (content: string, messageId: string) => {
     // Simple code block formatting
     const parts = content.split(/(```[\s\S]*?```)/g);
     return parts.map((part, i) => {
@@ -142,15 +147,20 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ className, onClose, onPopOut,
         const match = part.match(/```(\w*)\n?([\s\S]*?)```/);
         if (match) {
           const [, lang, code] = match;
+          const blockId = `${messageId}-code-${i}`;
+          const isCopied = copiedId === blockId;
+
           return (
             <div key={i} className="my-2 rounded-lg overflow-hidden bg-zinc-950 border border-zinc-800">
               <div className="flex items-center justify-between px-3 py-1.5 bg-zinc-900 border-b border-zinc-800">
                 <span className="text-[10px] text-zinc-500 font-mono uppercase">{lang || 'code'}</span>
                 <button
-                  onClick={() => copyToClipboard(code.trim())}
-                  className="text-zinc-500 hover:text-zinc-300"
+                  onClick={() => copyToClipboard(code.trim(), blockId)}
+                  className={`transition-colors ${isCopied ? 'text-emerald-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+                  title="Copy code"
+                  aria-label="Copy code"
                 >
-                  <span className="material-symbols-rounded text-sm">content_copy</span>
+                  <span className="material-symbols-rounded text-sm">{isCopied ? 'check' : 'content_copy'}</span>
                 </button>
               </div>
               <pre className="p-3 text-xs font-mono text-zinc-300 overflow-x-auto">{code.trim()}</pre>
@@ -193,17 +203,31 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ className, onClose, onPopOut,
             <span className="material-symbols-rounded text-sm">expand_more</span>
           </button>
           {onPopOut && (
-            <button onClick={onPopOut} className="text-zinc-600 hover:text-zinc-300" title="Pop out panel">
+            <button
+              onClick={onPopOut}
+              className="text-zinc-600 hover:text-zinc-300"
+              title="Pop out panel"
+              aria-label="Pop out panel"
+            >
               <span className="material-symbols-rounded text-sm">open_in_new</span>
             </button>
           )}
           {onOpenWindow && (
-            <button onClick={onOpenWindow} className="text-zinc-600 hover:text-zinc-300" title="Open in new window">
+            <button
+              onClick={onOpenWindow}
+              className="text-zinc-600 hover:text-zinc-300"
+              title="Open in new window"
+              aria-label="Open in new window"
+            >
               <span className="material-symbols-rounded text-sm">launch</span>
             </button>
           )}
           {onClose && (
-            <button onClick={onClose} className="text-zinc-600 hover:text-zinc-400">
+            <button
+              onClick={onClose}
+              className="text-zinc-600 hover:text-zinc-400"
+              aria-label="Close assistant"
+            >
               <span className="material-symbols-rounded text-sm">close</span>
             </button>
           )}
@@ -262,8 +286,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ className, onClose, onPopOut,
             <span className="material-symbols-rounded text-4xl text-zinc-700 mb-3 block">chat</span>
             <p className="text-sm text-zinc-500 mb-2">Start a conversation</p>
             <p className="text-xs text-zinc-600">
-              {activeProvider?.apiKey
-                ? `Using ${activeProvider.name}`
+              {isProviderReady
+                ? `Using ${activeProvider?.name}`
                 : 'Configure an API key in Settings to get started'}
             </p>
           </div>
@@ -294,17 +318,18 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ className, onClose, onPopOut,
                 <div className={`text-xs leading-relaxed ${
                   message.role === 'user' ? '' : 'text-zinc-300'
                 }`}>
-                  {message.role === 'assistant' ? formatCode(message.content) : message.content}
+                  {message.role === 'assistant' ? formatCode(message.content, message.id) : message.content}
                 </div>
               </div>
               {message.role === 'assistant' && (
                 <div className="flex items-center gap-2 mt-1 ml-1">
                   <button
-                    onClick={() => copyToClipboard(message.content)}
-                    className="text-zinc-600 hover:text-zinc-400 p-1"
-                    title="Copy"
+                    onClick={() => copyToClipboard(message.content, message.id)}
+                    className={`transition-colors p-1 ${copiedId === message.id ? 'text-emerald-400' : 'text-zinc-600 hover:text-zinc-400'}`}
+                    title="Copy message"
+                    aria-label="Copy message"
                   >
-                    <span className="material-symbols-rounded text-xs">content_copy</span>
+                    <span className="material-symbols-rounded text-xs">{copiedId === message.id ? 'check' : 'content_copy'}</span>
                   </button>
                 </div>
               )}
@@ -337,14 +362,15 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ className, onClose, onPopOut,
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={activeProvider?.apiKey ? "Ask a question..." : "Configure API key in Settings..."}
-            disabled={!activeProvider?.apiKey || isLoading}
+            placeholder={isProviderReady ? "Ask a question..." : "Configure API key in Settings..."}
+            disabled={!isProviderReady || isLoading}
             className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 pl-3 pr-10 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-indigo-500 transition-all resize-none h-20 disabled:opacity-50"
           />
           <button
             onClick={handleSubmit}
-            disabled={!input.trim() || !activeProvider?.apiKey || isLoading}
+            disabled={!input.trim() || !isProviderReady || isLoading}
             className="absolute right-2 bottom-3 text-indigo-500 hover:text-indigo-400 disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="Send message"
           >
             <span className="material-symbols-rounded">send</span>
           </button>
