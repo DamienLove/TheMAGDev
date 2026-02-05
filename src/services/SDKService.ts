@@ -271,7 +271,8 @@ class SDKService {
         const parsed = JSON.parse(savedSdks) as SDK[];
         const byId = new Map(parsed.map(item => [item.id, item]));
         const merged = this.sdks.map(defaultSdk => byId.get(defaultSdk.id) ?? defaultSdk);
-        const extras = parsed.filter(item => !merged.some(sdk => sdk.id === item.id));
+        const mergedIds = new Set(merged.map(sdk => sdk.id));
+        const extras = parsed.filter(item => !mergedIds.has(item.id));
         this.sdks = [...merged, ...extras];
       }
     } catch {
@@ -284,7 +285,8 @@ class SDKService {
         const parsed = JSON.parse(savedPlugins) as SDKPlugin[];
         const byId = new Map(parsed.map(item => [item.id, item]));
         const merged = this.plugins.map(defaultPlugin => byId.get(defaultPlugin.id) ?? defaultPlugin);
-        const extras = parsed.filter(item => !merged.some(plugin => plugin.id === item.id));
+        const mergedIds = new Set(merged.map(plugin => plugin.id));
+        const extras = parsed.filter(item => !mergedIds.has(item.id));
         this.plugins = [...merged, ...extras];
       }
     } catch {
