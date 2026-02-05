@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@theme {
+    --font-sans: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --color-background: hsl(var(--background));
+    --color-foreground: hsl(var(--foreground));
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+.material-symbols-rounded {
+    font-size: 20px;
+}
+
+/* Splash Screen Animations */
+.splash-name {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: 0.18em;
+    text-transform: none;
+    color: #e2e8f0;
+}
+
+.splash-name .mag-letter {
+    display: inline-block;
+    animation: magShuffle 2.4s linear infinite;
+}
+
+.splash-name .mag-m {
+    animation-delay: 0s;
+}
+
+.splash-name .mag-a {
+    animation-delay: 0.4s;
+}
+
+.splash-name .mag-g {
+    animation-delay: 0.8s;
+}
+
+.splash-logo {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    filter: brightness(0.6) contrast(0.98) saturate(0.95);
+}
+
+@keyframes magShuffle {
+    0% {
+        color: #f97316;
+    }
+
+    33% {
+        color: #22c55e;
+    }
+
+    66% {
+        color: #3b82f6;
+    }
+
+    100% {
+        color: #f97316;
+    }
+}

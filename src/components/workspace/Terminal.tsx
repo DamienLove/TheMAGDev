@@ -318,7 +318,11 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
 
     if (terminalMode === 'local') {
       if (localStatus !== 'connected') {
-        term.writeln('\r\n\x1b[33mLocal agent is not connected.\x1b[0m');
+        term.writeln('\r\n\x1b[1;36mLocal Terminal Setup:\x1b[0m');
+        term.writeln('  1. Download the agent (button above)');
+        term.writeln('  2. Extract and run \x1b[33mstart.bat\x1b[0m');
+        term.writeln('  3. Click \x1b[32mConnect\x1b[0m above');
+        term.writeln('');
         return;
       }
       try {
@@ -514,6 +518,19 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
       return;
     }
     setTerminalMode(mode);
+    if (mode === 'local' && localStatus !== 'connected') {
+      setTimeout(() => {
+        const term = xtermRef.current;
+        if (term) {
+          term.writeln('\r\n\x1b[1;36mLocal Terminal Setup:\x1b[0m');
+          term.writeln('  1. Download the agent (button above)');
+          term.writeln('  2. Extract and run \x1b[33mstart.bat\x1b[0m');
+          term.writeln('  3. Click \x1b[32mConnect\x1b[0m above');
+          term.writeln('');
+          printPromptRef.current?.();
+        }
+      }, 100);
+    }
   };
 
   return (
@@ -525,11 +542,10 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
             <button
               key={mode}
               onClick={() => handleModeSwitch(mode)}
-              className={`px-2 py-1 rounded border text-[10px] font-bold uppercase tracking-wider transition-colors ${
-                terminalMode === mode
-                  ? 'bg-indigo-600 text-white border-indigo-500'
-                  : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-zinc-200'
-              }`}
+              className={`px-2 py-1 rounded border text-[10px] font-bold uppercase tracking-wider transition-colors ${terminalMode === mode
+                ? 'bg-indigo-600 text-white border-indigo-500'
+                : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-zinc-200'
+                }`}
             >
               {mode === 'webcontainer' ? 'Web' : mode === 'local' ? 'Local' : 'Mock'}
             </button>
@@ -567,6 +583,15 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
                 </button>
               )}
               <span className="text-[10px] text-zinc-500 uppercase">{localStatus}</span>
+              <a
+                href="/themag-agent.zip"
+                download
+                className="ml-2 px-2 py-1 rounded bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-[10px] flex items-center gap-1 transition-colors"
+                title="Download Local Agent"
+              >
+                <span className="material-symbols-outlined text-[12px]">download</span>
+                <span>Agent</span>
+              </a>
             </div>
           )}
         </div>

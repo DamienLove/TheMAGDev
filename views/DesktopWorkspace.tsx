@@ -313,6 +313,7 @@ export class MainController {
       const workspaceFiles = await loadDriveFolderRecursive(folder.id, '');
 
       // Update the workspace context - this updates the entire IDE
+      workspace.setActiveDriveFolderId(folder.id);
       workspace.replaceWorkspace(workspaceFiles);
 
       // Also update local state for display
@@ -607,11 +608,10 @@ export class MainController {
             setActiveTab(file.name);
             setActiveFileContent(workspace.getFileContent(file.path) || '');
           }}
-          className={`flex items-center gap-2 px-2 py-1 rounded-sm cursor-pointer transition-colors ${
-            isActive
+          className={`flex items-center gap-2 px-2 py-1 rounded-sm cursor-pointer transition-colors ${isActive
               ? 'text-white bg-indigo-500/20 border-l-2 border-indigo-500'
               : 'text-[#9da1b9] hover:text-white hover:bg-[#161825]'
-          }`}
+            }`}
           style={{ paddingLeft }}
         >
           <span className={`material-symbols-rounded text-[16px] ${getFileIconColor(file.name)}`}>
@@ -921,11 +921,10 @@ export class MainController {
                             <div
                               key={project.id}
                               onClick={() => openFolderAsProject(project)}
-                              className={`flex items-center justify-between gap-2 px-2 py-1.5 rounded-sm cursor-pointer transition-colors ${
-                                currentProject?.id === project.id
+                              className={`flex items-center justify-between gap-2 px-2 py-1.5 rounded-sm cursor-pointer transition-colors ${currentProject?.id === project.id
                                   ? 'bg-indigo-500/20 text-white border-l-2 border-indigo-500'
                                   : 'text-[#9da1b9] hover:text-white hover:bg-[#161825]'
-                              }`}
+                                }`}
                             >
                               <span className="flex items-center gap-2 flex-1 truncate">
                                 <span className="material-symbols-rounded text-[16px] text-yellow-400">folder</span>
@@ -1449,10 +1448,9 @@ export class MainController {
                     {terminalOutput.map((line, i) => (
                       <div
                         key={i}
-                        className={`mb-1 ${
-                          line.startsWith('[OK]') ? 'text-green-400' :
-                          line.startsWith('[ERROR]') ? 'text-red-400' : ''
-                        }`}
+                        className={`mb-1 ${line.startsWith('[OK]') ? 'text-green-400' :
+                            line.startsWith('[ERROR]') ? 'text-red-400' : ''
+                          }`}
                       >
                         {line.startsWith('[OK]') || line.startsWith('[ERROR]')
                           ? line

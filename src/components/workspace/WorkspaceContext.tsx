@@ -17,6 +17,7 @@ interface WorkspaceState {
   unsavedFiles: Set<string>;
   terminalHistory: string[];
   currentDirectory: string;
+  activeDriveFolderId: string | null;
 }
 
 interface WorkspaceContextType extends WorkspaceState {
@@ -34,6 +35,7 @@ interface WorkspaceContextType extends WorkspaceState {
   addTerminalLine: (line: string) => void;
   clearTerminal: () => void;
   setCurrentDirectory: (dir: string) => void;
+  setActiveDriveFolderId: (id: string | null) => void;
 }
 
 const STORAGE_KEY = 'themag_workspace';
@@ -448,6 +450,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     ''
   ]);
   const [currentDirectory, setCurrentDirectory] = useState('/');
+  const [activeDriveFolderId, setActiveDriveFolderId] = useState<string | null>(null);
   const driveEmail = driveUser?.email ?? null;
 
   const applyWorkspaceState = useCallback((nextFiles: FileNode[], payload?: string) => {
@@ -503,6 +506,20 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
 
       try {
+        // If we have an active folder ID, try to load from there first
+        if (activeDriveFolderId) {
+          const payload = await googleDriveService.loadWorkspaceFromFolder(activeDriveFolderId);
+          const cloudWorkspace = parseWorkspacePayload(payload);
+          if (cloudWorkspace && !cancelled) {
+            const serialized = JSON.stringify(cloudWorkspace);
+            applyWorkspaceState(cloudWorkspace, serialized);
+            setIsHydrated(true);
+            shouldEnableDriveWrite = true;
+            setDriveWriteEnabled(true);
+            return;
+          }
+        }
+
         const payload = await googleDriveService.loadWorkspacePayload();
         const cloudWorkspace = parseWorkspacePayload(payload);
         if (cloudWorkspace && !cancelled) {
@@ -549,7 +566,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           await googleDriveService.saveWorkspacePayload(JSON.stringify(fallback));
           localStorage.setItem(consentKey, 'enabled');
           shouldEnableDriveWrite = true;
-        } catch {}
+        } catch { }
       }
 
       if (!cancelled) {
@@ -557,11 +574,13 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     };
 
+
+
     hydrate();
     return () => {
       cancelled = true;
     };
-  }, [applyWorkspaceState, driveEmail, driveStatus.connected]);
+  }, [applyWorkspaceState, driveEmail, driveStatus.connected, activeDriveFolderId]);
 
   useEffect(() => {
     if (!isHydrated) {
@@ -580,7 +599,11 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const persist = async () => {
       writeWorkspaceToLocalStorage(driveEmail, payload);
       if (driveStatus.connected && driveWriteEnabled) {
-        await googleDriveService.saveWorkspacePayload(payload);
+        if (activeDriveFolderId) {
+          await googleDriveService.saveWorkspaceToFolder(activeDriveFolderId, payload);
+        } else {
+          await googleDriveService.saveWorkspacePayload(payload);
+        }
       }
       lastSavedRef.current = payload;
     };
@@ -596,7 +619,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [files, isHydrated, driveEmail, driveStatus.connected]);
+  }, [files, isHydrated, driveEmail, driveStatus.connected, activeDriveFolderId]);
 
   const findFileByPath = useCallback((nodes: FileNode[], path: string): FileNode | undefined => {
     for (const node of nodes) {
@@ -681,7 +704,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     applyWorkspaceState(nextFiles, payload);
     writeWorkspaceToLocalStorage(driveEmail, payload);
     if (driveStatus.connected && driveWriteEnabled) {
-      googleDriveService.saveWorkspacePayload(payload).catch(() => {});
+      googleDriveService.saveWorkspacePayload(payload).catch(() => { });
     }
   }, [applyWorkspaceState, driveEmail, driveStatus.connected, driveWriteEnabled]);
 
@@ -788,7 +811,10 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     getFileByPath,
     addTerminalLine,
     clearTerminal,
+
     setCurrentDirectory,
+    activeDriveFolderId,
+    setActiveDriveFolderId,
   };
 
   return (
