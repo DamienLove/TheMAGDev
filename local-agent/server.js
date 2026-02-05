@@ -1,4 +1,4 @@
-const { WebSocketServer } = require('ws');
+const { WebSocketServer } = require('ws'); // Local Agent Server
 const { spawn } = require('child_process');
 const os = require('os');
 
