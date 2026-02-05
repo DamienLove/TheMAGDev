@@ -402,6 +402,8 @@ const FEATURED_EXTENSIONS: MarketplaceExtension[] = [
   },
 ];
 
+const FEATURED_EXTENSION_IDS = new Set(FEATURED_EXTENSIONS.map(e => e.manifest.id));
+
 const INSTALLED_STORAGE_KEY = 'themag_installed_extensions';
 const MARKETPLACE_STORAGE_KEY = 'themag_marketplace_extensions';
 const DRIVE_INSTALLED_FILE = 'extensions-installed.json';
@@ -499,7 +501,7 @@ class ExtensionService {
   private saveMarketplaceExtensions(skipDrive = false) {
     // Only save community extensions, not built-in ones
     const communityExtensions = Array.from(this.marketplaceExtensions.values())
-      .filter(ext => !FEATURED_EXTENSIONS.some(f => f.manifest.id === ext.manifest.id));
+      .filter(ext => !FEATURED_EXTENSION_IDS.has(ext.manifest.id));
     localStorage.setItem(MARKETPLACE_STORAGE_KEY, JSON.stringify(communityExtensions));
     if (!skipDrive) {
       this.queueDriveSync();
@@ -508,7 +510,7 @@ class ExtensionService {
 
   private getCommunityExtensions(): MarketplaceExtension[] {
     return Array.from(this.marketplaceExtensions.values())
-      .filter(ext => !FEATURED_EXTENSIONS.some(f => f.manifest.id === ext.manifest.id));
+      .filter(ext => !FEATURED_EXTENSION_IDS.has(ext.manifest.id));
   }
 
   private queueDriveSync() {
