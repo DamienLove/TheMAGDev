@@ -99,7 +99,7 @@ class LocalAgentService {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
       throw new Error('Local agent not connected');
     }
-    this.socket.send(JSON.stringify({ type: 'run', command }));
+    this.socket.send(JSON.stringify({ type: 'input', data: command + '\r\n' }));
   }
 
   writeInput(data: string) {

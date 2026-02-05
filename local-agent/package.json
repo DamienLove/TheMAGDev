@@ -1,0 +1,13 @@
+{
+    "name": "themag-local-agent",
+    "version": "1.0.0",
+    "description": "Local terminal bridge for TheMAG.dev",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "ws": "^8.16.0"
+    },
+    "author": "TheMAG.dev"
+}

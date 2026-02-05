@@ -353,7 +353,7 @@ class GoogleDriveService {
 
   disconnect() {
     if (this.accessToken) {
-      google.accounts.oauth2.revoke(this.accessToken, () => {});
+      google.accounts.oauth2.revoke(this.accessToken, () => { });
     }
     this.accessToken = null;
     this.rootFolderId = null;
@@ -682,6 +682,37 @@ class GoogleDriveService {
     } catch (error) {
       console.error('Failed to load workspace payload:', error);
       return null;
+    }
+  }
+
+  async loadWorkspaceFromFolder(folderId: string): Promise<string | null> {
+    if (!this.syncStatus.connected) return null;
+    try {
+      return await this.readFileByName(folderId, WORKSPACE_FILE_NAME);
+    } catch (error) {
+      console.error('Failed to load workspace from folder:', error);
+      return null;
+    }
+  }
+
+  async saveWorkspaceToFolder(folderId: string, payload: string): Promise<boolean> {
+    if (!this.syncStatus.connected) return false;
+
+    try {
+      this.syncStatus.syncInProgress = true;
+      this.notifyListeners();
+      const updated = await this.upsertFileInFolder(folderId, WORKSPACE_FILE_NAME, payload, 'application/json');
+      this.syncStatus.syncInProgress = false;
+      this.syncStatus.lastSync = updated ? Date.now() : this.syncStatus.lastSync;
+      this.syncStatus.error = updated ? undefined : 'Failed to save workspace in Drive';
+      this.notifyListeners();
+      return Boolean(updated);
+    } catch (error) {
+      console.error('Failed to save workspace to folder:', error);
+      this.syncStatus.syncInProgress = false;
+      this.syncStatus.error = error instanceof Error ? error.message : 'Drive sync failed';
+      this.notifyListeners();
+      return false;
     }
   }
 
