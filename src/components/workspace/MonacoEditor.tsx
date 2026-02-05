@@ -11,8 +11,43 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ className }) => {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const { activeFile, getFileByPath, getFileContent, updateFileContent, saveFile, unsavedFiles } = useWorkspace();
 
+  // Ref to track the latest activeFile for the command handler
+  const activeFileRef = useRef(activeFile);
+  useEffect(() => {
+    activeFileRef.current = activeFile;
+  }, [activeFile]);
+
+  // Ref to track the latest saveFile for the command handler
+  const saveFileRef = useRef(saveFile);
+  useEffect(() => {
+    saveFileRef.current = saveFile;
+  }, [saveFile]);
+
+  // Refs for debouncing
+  const pendingUpdateRef = useRef<{ path: string; content: string } | null>(null);
+  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const file = activeFile ? getFileByPath(activeFile) : null;
   const content = activeFile ? getFileContent(activeFile) : '';
+
+  const flushUpdate = useCallback(() => {
+    if (pendingUpdateRef.current) {
+      const { path, content } = pendingUpdateRef.current;
+      updateFileContent(path, content);
+      pendingUpdateRef.current = null;
+    }
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+      debounceTimeoutRef.current = null;
+    }
+  }, [updateFileContent]);
+
+  // Flush pending updates when activeFile changes or component unmounts
+  useEffect(() => {
+    return () => {
+      flushUpdate();
+    };
+  }, [activeFile, flushUpdate]);
 
   const handleEditorMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
@@ -84,17 +119,37 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ className }) => {
 
     // Add keyboard shortcuts
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
-      if (activeFile) {
-        saveFile(activeFile);
+      // Flush any pending updates first.
+      // This synchronously calls updateFileContent, which schedules a React state update for 'files'.
+      flushUpdate();
+
+      const currentActiveFile = activeFileRef.current;
+      const currentSaveFile = saveFileRef.current;
+
+      if (currentActiveFile) {
+        // We call saveFile immediately.
+        // Note: saveFile only updates 'unsavedFiles' state and does NOT persist to storage directly.
+        // The actual persistence is handled by a useEffect in WorkspaceContext that reacts to 'files' changes.
+        // React batches the 'files' update (from flushUpdate) and 'unsavedFiles' update (from saveFile),
+        // so the resulting state is consistent (files updated, unsaved flag cleared), triggering the persistence effect.
+        currentSaveFile(currentActiveFile);
       }
     });
   };
 
   const handleChange: OnChange = useCallback((value) => {
     if (activeFile && value !== undefined) {
-      updateFileContent(activeFile, value);
+      pendingUpdateRef.current = { path: activeFile, content: value };
+
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+
+      debounceTimeoutRef.current = setTimeout(() => {
+        flushUpdate();
+      }, 1000);
     }
-  }, [activeFile, updateFileContent]);
+  }, [activeFile, flushUpdate]);
 
   // Focus editor when file changes
   useEffect(() => {
