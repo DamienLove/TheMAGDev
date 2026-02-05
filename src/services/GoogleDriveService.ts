@@ -1056,18 +1056,34 @@ class GoogleDriveService {
       const remoteFiles = await this.listFiles(projectId);
       const remoteFileMap = new Map(remoteFiles.map(f => [f.name, f]));
 
+      const CONCURRENCY = 5;
+      const executing = new Set<Promise<void>>();
+
       for (const [path, content] of localFiles) {
-        const existingFile = remoteFileMap.get(path);
+        const task = async () => {
+          const existingFile = remoteFileMap.get(path);
 
-        if (existingFile) {
-          await this.updateFile(existingFile.id, content);
-        } else {
-          await this.createFile(path, content, projectId);
+          if (existingFile) {
+            await this.updateFile(existingFile.id, content);
+          } else {
+            await this.createFile(path, content, projectId);
+          }
+
+          this.syncStatus.syncedFiles = (this.syncStatus.syncedFiles || 0) + 1;
+          this.notifyListeners();
+        };
+
+        const p = task().finally(() => {
+          executing.delete(p);
+        });
+        executing.add(p);
+
+        if (executing.size >= CONCURRENCY) {
+          await Promise.race(executing);
         }
-
-        this.syncStatus.syncedFiles = (this.syncStatus.syncedFiles || 0) + 1;
-        this.notifyListeners();
       }
+
+      await Promise.all(executing);
 
       this.syncStatus.lastSync = Date.now();
       this.syncStatus.syncInProgress = false;
