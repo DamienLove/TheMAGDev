@@ -267,21 +267,21 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
       return;
     }
 
-    if (trimmed === 'clear') {
-      term.clear();
-      return;
-    }
 
-    if (trimmed === 'help') {
-      term.writeln('\r\n\x1b[1;36mTheMAG.dev Terminal Modes:\x1b[0m');
-      term.writeln('  \x1b[33mwebcontainer\x1b[0m  - Browser-based Node.js runtime');
-      term.writeln('  \x1b[33mlocal\x1b[0m         - Local agent on your machine');
-      term.writeln('  \x1b[33mmock\x1b[0m          - Simulated commands');
-      term.writeln('\r\nUse the mode switcher above the terminal.');
-      return;
-    }
 
     if (terminalMode === 'mock') {
+      if (trimmed === 'clear') {
+        term.clear();
+        return;
+      }
+      if (trimmed === 'help') {
+        term.writeln('\r\n\x1b[1;36mTheMAG.dev Terminal Modes:\x1b[0m');
+        term.writeln('  \x1b[33mwebcontainer\x1b[0m  - Browser-based Node.js runtime');
+        term.writeln('  \x1b[33mlocal\x1b[0m         - Local agent on your machine');
+        term.writeln('  \x1b[33mmock\x1b[0m          - Simulated commands');
+        term.writeln('\r\nUse the mode switcher above the terminal.');
+        return;
+      }
       executeMockCommand(command);
       return;
     }
