@@ -3,8 +3,8 @@ TheMAG.dev Task Status
 Last updated: 2026-01-25 22:57
 
 Current objectives:
-- Clarify hosting scope and required integrations for InfinityFree FTP deploy
-- Assess repo for changes needed to support flat hosted build and deployment
+- Get the UI functional and accessible.
+- Fix any broken components to match modern IDE standards.
 
 Status:
 - Implemented SDK Manager UI with platform tabs, updates, and plugin management.
