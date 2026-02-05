@@ -317,18 +317,20 @@ class SDKService {
       return;
     }
     const { settingsId } = await googleDriveService.getFolderIds();
-    await googleDriveService.upsertFileInFolder(
-      settingsId,
-      DRIVE_SDK_FILE,
-      JSON.stringify(this.sdks),
-      'application/json'
-    );
-    await googleDriveService.upsertFileInFolder(
-      settingsId,
-      DRIVE_PLUGIN_FILE,
-      JSON.stringify(this.plugins),
-      'application/json'
-    );
+    await Promise.all([
+      googleDriveService.upsertFileInFolder(
+        settingsId,
+        DRIVE_SDK_FILE,
+        JSON.stringify(this.sdks),
+        'application/json'
+      ),
+      googleDriveService.upsertFileInFolder(
+        settingsId,
+        DRIVE_PLUGIN_FILE,
+        JSON.stringify(this.plugins),
+        'application/json'
+      )
+    ]);
   }
 
   private async hydrateFromDrive() {
