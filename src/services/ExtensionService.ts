@@ -417,6 +417,8 @@ class ExtensionService {
   private listeners: Set<() => void> = new Set();
   private driveSyncEnabled = false;
   private driveSyncTimeout: ReturnType<typeof setTimeout> | null = null;
+  private saveTimeout: ReturnType<typeof setTimeout> | null = null;
+  private pendingDriveSync = false;
   private driveUserEmail: string | null = null;
 
   constructor() {
@@ -455,12 +457,27 @@ class ExtensionService {
     }
   }
 
-  private saveInstalledExtensions(skipDrive = false) {
+  private persistInstalledExtensions() {
     const extensions = Array.from(this.installedExtensions.values());
     localStorage.setItem(INSTALLED_STORAGE_KEY, JSON.stringify(extensions));
-    if (!skipDrive) {
+    if (this.pendingDriveSync) {
       this.queueDriveSync();
+      this.pendingDriveSync = false;
     }
+    this.saveTimeout = null;
+  }
+
+  private saveInstalledExtensions(skipDrive = false) {
+    if (!skipDrive) {
+      this.pendingDriveSync = true;
+    }
+
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+    }
+    this.saveTimeout = setTimeout(() => {
+      this.persistInstalledExtensions();
+    }, 1000);
   }
 
   private loadMarketplaceExtensions() {
