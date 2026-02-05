@@ -126,6 +126,117 @@ const FileTreeItem = memo(({
   );
 });
 
+interface FileTreeNodeProps {
+  node: FileNode;
+  depth: number;
+  expandedFolders: Set<string>;
+  activeFile: string | null;
+  unsavedFiles: Set<string>;
+  renaming: string | null;
+  creating: { parentPath: string; type: 'file' | 'folder' } | null;
+  newItemName: string;
+  setNewItemName: (name: string) => void;
+  onToggle: (path: string) => void;
+  onOpen: (path: string) => void;
+  onContextMenu: (e: React.MouseEvent, path: string, type: 'file' | 'folder') => void;
+  onRenameSubmit: (name: string) => void;
+  onRenameCancel: () => void;
+  submitCreate: () => void;
+  setCreating: (val: { parentPath: string; type: 'file' | 'folder' } | null) => void;
+}
+
+const FileTreeNode = memo(({
+  node,
+  depth,
+  expandedFolders,
+  activeFile,
+  unsavedFiles,
+  renaming,
+  creating,
+  newItemName,
+  setNewItemName,
+  onToggle,
+  onOpen,
+  onContextMenu,
+  onRenameSubmit,
+  onRenameCancel,
+  submitCreate,
+  setCreating
+}: FileTreeNodeProps) => {
+  const isExpanded = expandedFolders.has(node.path);
+  const isActive = activeFile === node.path;
+  const hasUnsaved = unsavedFiles.has(node.path);
+  const isRenaming = renaming === node.path;
+  const isCreatingHere = creating?.parentPath === node.path;
+
+  return (
+    <div>
+      <FileTreeItem
+        node={node}
+        depth={depth}
+        isActive={isActive}
+        isExpanded={isExpanded}
+        hasUnsaved={hasUnsaved}
+        isRenaming={isRenaming}
+        onToggle={onToggle}
+        onOpen={onOpen}
+        onContextMenu={onContextMenu}
+        onRenameSubmit={onRenameSubmit}
+        onRenameCancel={onRenameCancel}
+      />
+
+      {node.type === 'folder' && isExpanded && (
+        <>
+          {isCreatingHere && (
+            <div
+              className="flex items-center gap-1.5 py-1 px-2"
+              style={{ paddingLeft: `${(depth + 1) * 12 + 8}px` }}
+            >
+              <span className={`material-symbols-rounded text-sm ${creating.type === 'folder' ? 'text-amber-400' : 'text-zinc-500'}`}>
+                {creating.type === 'folder' ? 'folder' : 'description'}
+              </span>
+              <input
+                type="text"
+                value={newItemName}
+                onChange={(e) => setNewItemName(e.target.value)}
+                onBlur={submitCreate}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') submitCreate();
+                  if (e.key === 'Escape') { setCreating(null); setNewItemName(''); }
+                }}
+                placeholder={creating.type === 'folder' ? 'folder name' : 'file name'}
+                className="flex-1 bg-zinc-900 border border-indigo-500 rounded px-1 py-0.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none"
+                autoFocus
+              />
+            </div>
+          )}
+          {node.children && node.children.map(child => (
+            <FileTreeNode
+              key={child.path}
+              node={child}
+              depth={depth + 1}
+              expandedFolders={expandedFolders}
+              activeFile={activeFile}
+              unsavedFiles={unsavedFiles}
+              renaming={renaming}
+              creating={creating}
+              newItemName={newItemName}
+              setNewItemName={setNewItemName}
+              onToggle={onToggle}
+              onOpen={onOpen}
+              onContextMenu={onContextMenu}
+              onRenameSubmit={onRenameSubmit}
+              onRenameCancel={onRenameCancel}
+              submitCreate={submitCreate}
+              setCreating={setCreating}
+            />
+          ))}
+        </>
+      )}
+    </div>
+  );
+});
+
 const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpenWindow }) => {
   const {
     files,
@@ -206,62 +317,6 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
     setNewItemName('');
   }, [creating, newItemName, createFile]);
 
-  const renderTree = (nodes: FileNode[], depth = 0): React.ReactNode => {
-    return nodes.map(node => {
-      const isExpanded = expandedFolders.has(node.path);
-      const isActive = activeFile === node.path;
-      const hasUnsaved = unsavedFiles.has(node.path);
-      const isRenaming = renaming === node.path;
-      const isCreatingHere = creating?.parentPath === node.path;
-
-      return (
-        <div key={node.path}>
-          <FileTreeItem
-            node={node}
-            depth={depth}
-            isActive={isActive}
-            isExpanded={isExpanded}
-            hasUnsaved={hasUnsaved}
-            isRenaming={isRenaming}
-            onToggle={toggleFolder}
-            onOpen={openFile}
-            onContextMenu={handleContextMenu}
-            onRenameSubmit={submitRename}
-            onRenameCancel={onRenameCancel}
-          />
-
-          {node.type === 'folder' && isExpanded && (
-            <>
-              {isCreatingHere && (
-                <div
-                  className="flex items-center gap-1.5 py-1 px-2"
-                  style={{ paddingLeft: `${(depth + 1) * 12 + 8}px` }}
-                >
-                  <span className={`material-symbols-rounded text-sm ${creating.type === 'folder' ? 'text-amber-400' : 'text-zinc-500'}`}>
-                    {creating.type === 'folder' ? 'folder' : 'description'}
-                  </span>
-                  <input
-                    type="text"
-                    value={newItemName}
-                    onChange={(e) => setNewItemName(e.target.value)}
-                    onBlur={submitCreate}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') submitCreate();
-                      if (e.key === 'Escape') { setCreating(null); setNewItemName(''); }
-                    }}
-                    placeholder={creating.type === 'folder' ? 'folder name' : 'file name'}
-                    className="flex-1 bg-zinc-900 border border-indigo-500 rounded px-1 py-0.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none"
-                    autoFocus
-                  />
-                </div>
-              )}
-              {node.children && renderTree(node.children, depth + 1)}
-            </>
-          )}
-        </div>
-      );
-    });
-  };
 
   return (
     <div className={`flex flex-col h-full ${className}`} onClick={closeContextMenu}>
@@ -340,7 +395,27 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
             />
           </div>
         )}
-        {renderTree(files)}
+        {files.map(node => (
+          <FileTreeNode
+            key={node.path}
+            node={node}
+            depth={0}
+            expandedFolders={expandedFolders}
+            activeFile={activeFile}
+            unsavedFiles={unsavedFiles}
+            renaming={renaming}
+            creating={creating}
+            newItemName={newItemName}
+            setNewItemName={setNewItemName}
+            onToggle={toggleFolder}
+            onOpen={openFile}
+            onContextMenu={handleContextMenu}
+            onRenameSubmit={submitRename}
+            onRenameCancel={onRenameCancel}
+            submitCreate={submitCreate}
+            setCreating={setCreating}
+          />
+        ))}
       </div>
 
       {/* Context Menu */}
