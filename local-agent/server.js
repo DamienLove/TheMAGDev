@@ -12,7 +12,7 @@ wss.on('connection', (ws) => {
     console.log('Client connected');
 
     const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
-    const args = os.platform() === 'win32' ? ['-NoLogo'] : [];
+    const args = os.platform() === 'win32' ? ['-NoLogo', '-NoProfile'] : [];
 
     const pty = spawn(shell, args, {
         stdio: ['pipe', 'pipe', 'pipe']
