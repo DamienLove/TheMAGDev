@@ -44,6 +44,8 @@ const SDKManager: React.FC = () => {
       await sdkService.updateSDK(sdk.id);
     } else if (sdk.status === 'Not Installed') {
       await sdkService.installSDK(sdk.id);
+    } else if (sdk.status === 'Installed') {
+      await sdkService.uninstallSDK(sdk.id);
     }
 
     setTimeout(() => {
@@ -188,7 +190,11 @@ const SDKManager: React.FC = () => {
                      <span className="material-symbols-rounded text-lg">download</span>
                    </button>
                  ) : (
-                   <button className="size-8 rounded-full hover:bg-zinc-800 flex items-center justify-center text-zinc-600 hover:text-red-400 transition-colors">
+                   <button
+                     onClick={() => handleAction(sdk)}
+                     disabled={loading}
+                     className="size-8 rounded-full hover:bg-zinc-800 flex items-center justify-center text-zinc-600 hover:text-red-400 transition-colors"
+                   >
                      <span className="material-symbols-rounded text-lg">delete</span>
                    </button>
                  )}
@@ -217,7 +223,12 @@ const SDKManager: React.FC = () => {
                       >
                         {downloadingPluginId === plugin.id ? 'Preparing...' : 'Download'}
                       </button>
-                      <button className="text-xs text-red-400 hover:text-red-300 font-bold">Uninstall</button>
+                      <button
+                        onClick={() => sdkService.uninstallPlugin(plugin.id)}
+                        className="text-xs text-red-400 hover:text-red-300 font-bold"
+                      >
+                        Uninstall
+                      </button>
                     </div>
                  </div>
                </div>

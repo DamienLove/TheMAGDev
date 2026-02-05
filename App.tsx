@@ -159,11 +159,7 @@ const AppContent: React.FC = () => {
       case View.Dashboard: return <Dashboard />;
       case View.Projects: return <Projects />;
       case View.Editor: return <CodeEditor />;
-      case View.Desktop: return (
-        <WorkspaceProvider>
-          <DesktopWorkspace />
-        </WorkspaceProvider>
-      );
+      case View.Desktop: return <DesktopWorkspace />;
       case View.Design: return <DesignStudio />;
       case View.Build: return <BuildSystem />;
       case View.Analytics: return <Analytics />;
@@ -203,7 +199,9 @@ const App: React.FC = () => {
   const popoutModule = new URLSearchParams(window.location.search).get('popout');
   return (
     <SettingsProvider>
-      {popoutModule ? <PopoutModule moduleId={popoutModule} /> : <AppContent />}
+      <WorkspaceProvider>
+        {popoutModule ? <PopoutModule moduleId={popoutModule} /> : <AppContent />}
+      </WorkspaceProvider>
     </SettingsProvider>
   );
 };

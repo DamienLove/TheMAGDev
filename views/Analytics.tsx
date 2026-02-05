@@ -1,14 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Analytics: React.FC = () => {
-  const [activeTab] = useState('Overview');
+  const [dataPoints, setDataPoints] = useState<number[]>([]);
+  const [activeSessions, setActiveSessions] = useState(1243);
+  const [latency, setLatency] = useState(42);
+  const [cpuUsage, setCpuUsage] = useState(24);
+
+  // Simulate real-time data stream
+  useEffect(() => {
+    // Initial data
+    const initialData = Array.from({ length: 20 }, () => Math.floor(Math.random() * 50) + 50);
+    setDataPoints(initialData);
+
+    const interval = setInterval(() => {
+      // Update metrics
+      setActiveSessions(prev => Math.max(1000, prev + Math.floor(Math.random() * 20) - 10));
+      setLatency(prev => Math.max(20, Math.min(100, prev + Math.floor(Math.random() * 10) - 5)));
+      setCpuUsage(prev => Math.max(10, Math.min(90, prev + Math.floor(Math.random() * 10) - 5)));
+
+      // Update chart data
+      setDataPoints(prev => {
+        const next = [...prev.slice(1), Math.floor(Math.random() * 50) + 50];
+        return next;
+      });
+    }, 1500);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const metrics = [
-    { label: 'Active Sessions', value: '1.2k', change: '+12%', trend: 'up', color: 'text-indigo-500', icon: 'group' },
+    { label: 'Active Sessions', value: activeSessions.toLocaleString(), change: '+12%', trend: 'up', color: 'text-indigo-500', icon: 'group' },
     { label: 'Conversion Rate', value: '4.8%', change: '+2.1%', trend: 'up', color: 'text-emerald-500', icon: 'shopping_cart' },
-    { label: 'Crash-Free Rate', value: '99.9%', change: '0%', trend: 'neutral', color: 'text-blue-500', icon: 'bug_report' },
-    { label: 'Avg. Latency', value: '42ms', change: '-12ms', trend: 'up', color: 'text-amber-500', icon: 'speed' }, // up is good here
+    { label: 'System Load', value: `${cpuUsage}%`, change: cpuUsage > 80 ? 'High' : 'Normal', trend: cpuUsage > 80 ? 'down' : 'neutral', color: cpuUsage > 80 ? 'text-red-500' : 'text-blue-500', icon: 'memory' },
+    { label: 'Avg. Latency', value: `${latency}ms`, change: latency > 60 ? 'Degraded' : 'Optimal', trend: latency < 50 ? 'up' : 'down', color: latency > 60 ? 'text-amber-500' : 'text-emerald-500', icon: 'speed' },
   ];
+
+  // Simple SVG path generator for the sparkline
+  const generatePath = (data: number[], width: number, height: number) => {
+    if (data.length === 0) return '';
+    const step = width / (data.length - 1);
+    const min = Math.min(...data);
+    const max = Math.max(...data);
+    const range = max - min || 1;
+
+    const points = data.map((val, i) => {
+      const x = i * step;
+      const normalizedY = (val - min) / range;
+      const y = height - (normalizedY * height * 0.8 + height * 0.1); // Padding
+      return `${x},${y}`;
+    });
+
+    return `M${points.join(' L')}`;
+  };
 
   return (
     <div className="flex-1 bg-zinc-950 overflow-y-auto p-8 font-sans">
@@ -31,7 +74,7 @@ const Analytics: React.FC = () => {
                 <div className={`size-10 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center ${m.color}`}>
                    <span className="material-symbols-rounded">{m.icon}</span>
                 </div>
-                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${m.trend === 'up' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-zinc-800 text-zinc-400'}`}>
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${m.trend === 'up' ? 'bg-emerald-500/10 text-emerald-500' : m.trend === 'down' ? 'bg-red-500/10 text-red-500' : 'bg-zinc-800 text-zinc-400'}`}>
                    {m.change}
                 </span>
              </div>
@@ -47,23 +90,32 @@ const Analytics: React.FC = () => {
             <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl">
                <div className="flex justify-between items-center mb-8">
                   <div>
-                     <h3 className="text-white font-bold text-lg">Retention Cohorts</h3>
-                     <p className="text-zinc-500 text-xs mt-1">User lifecycle analysis over last 90 days.</p>
+                     <h3 className="text-white font-bold text-lg">Real-time Activity</h3>
+                     <p className="text-zinc-500 text-xs mt-1">Live event stream from connected clients.</p>
                   </div>
                   <div className="flex gap-2">
-                     {['D7', 'D30', 'D90'].map(d => (
-                       <button key={d} className={`px-3 py-1 rounded text-[10px] font-bold ${d === 'D30' ? 'bg-indigo-600 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}>{d}</button>
-                     ))}
+                     <span className="flex h-2 w-2 relative">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                     </span>
+                     <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Live</span>
                   </div>
                </div>
                <div className="h-64 w-full bg-zinc-950/50 rounded-xl border border-zinc-800/50 relative overflow-hidden flex items-center justify-center">
-                  {/* Decorative Chart Mockup */}
                   <svg className="w-full h-full p-4" viewBox="0 0 400 150" preserveAspectRatio="none">
-                     <path d="M0,120 Q50,100 100,110 T200,40 T300,60 T400,20" fill="none" stroke="#6366f1" strokeWidth="4" strokeLinecap="round" />
-                     <path d="M0,130 Q50,110 100,120 T200,60 T300,80 T400,40" fill="none" stroke="#10b981" strokeWidth="2" strokeDasharray="4 4" strokeLinecap="round" />
+                     <path
+                        d={generatePath(dataPoints, 400, 150)}
+                        fill="none"
+                        stroke="#6366f1"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="transition-all duration-500 ease-in-out"
+                     />
+                     {/* Gradient fill could be added here if needed */}
                   </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                     <span className="text-[10px] font-bold text-zinc-700 uppercase tracking-[0.3em]">Live Telemetry Stream</span>
+                  <div className="absolute top-4 left-4 font-mono text-xs text-zinc-500">
+                     Events/sec: {dataPoints[dataPoints.length - 1] || 0}
                   </div>
                </div>
             </section>
@@ -129,7 +181,7 @@ const Analytics: React.FC = () => {
             <section className="bg-indigo-600 p-6 rounded-2xl shadow-2xl shadow-indigo-500/20 relative overflow-hidden group">
                <div className="absolute -top-4 -right-4 size-24 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000"></div>
                <h4 className="text-white font-bold mb-2">Predictive Scaling</h4>
-               <p className="text-indigo-100 text-[11px] leading-relaxed mb-4">TheMAG.dev AI predicts a 24% surge in traffic over the weekend. Enable automated load balancing?</p>
+               <p className="text-indigo-100 text-[11px] leading-relaxed mb-4">TheMAG.dev AI predicts a {Math.floor(Math.random() * 30) + 10}% surge in traffic over the weekend. Enable automated load balancing?</p>
                <button className="w-full py-2 bg-white text-indigo-600 rounded-lg text-xs font-bold shadow-xl active:scale-95 transition-all">Enable Auto-Scale</button>
             </section>
          </aside>
