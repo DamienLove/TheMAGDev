@@ -1059,6 +1059,7 @@ class GoogleDriveService {
       const CONCURRENCY = 5;
       const executing = new Set<Promise<void>>();
 
+      // Process files concurrently with a limit to avoid rate limits
       for (const [path, content] of localFiles) {
         const task = async () => {
           const existingFile = remoteFileMap.get(path);
