@@ -15,10 +15,11 @@ import Auth from './views/Auth';
 import Settings from './views/Settings';
 import ExtensionMarketplace from './views/ExtensionMarketplace';
 import SDKManager from './views/SDKManager';
-import Paywall from './components/Paywall';
-import { useRevenueCat } from './src/hooks/useRevenueCat';
+import PopoutModule from './views/PopoutModule';
 import LoadingScreen from './src/components/LoadingScreen';
 import { SettingsProvider } from './src/contexts/SettingsContext';
+import { WorkspaceProvider } from './src/components/workspace';
+import './src/services/ModuleRegistryService';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig';
@@ -27,8 +28,8 @@ import { UserProfile } from './src/services/userProfile';
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.Dashboard);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showPaywall, setShowPaywall] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
+  const [autoAuthShown, setAutoAuthShown] = useState(false);
   const [pendingPaywall, setPendingPaywall] = useState(false);
   const [authIntent, setAuthIntent] = useState<'general' | 'pro'>('general');
   const [authUser, setAuthUser] = useState<User | null>(null);
@@ -57,6 +58,14 @@ const AppContent: React.FC = () => {
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!authLoading) return;
+    const timer = setTimeout(() => {
+      setAuthLoading(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [authLoading]);
 
   useEffect(() => {
     if (!authUser) {
@@ -95,9 +104,6 @@ const AppContent: React.FC = () => {
     }
   }, [pendingPaywall, isAuthenticated, userProfile, isPro, authLoading, profileLoading, rcLoading]);
 
-  const isAdmin = Boolean(userProfile?.isAdmin || userProfile?.role === 'admin');
-  const profileIsPro = Boolean(userProfile?.isPro || userProfile?.plan === 'pro' || isAdmin);
-  const effectiveIsPro = Boolean(profileIsPro || isPro);
 
   const displayName = userProfile?.displayName || authUser?.displayName || authUser?.email || 'Engineer';
   const displayAvatar = useMemo(() => {
@@ -111,6 +117,21 @@ const AppContent: React.FC = () => {
   const isGuest = !isAuthenticated;
   const userLabel = isGuest ? 'Guest' : displayName;
   const userAvatar = isGuest ? 'G' : displayAvatar;
+
+    if (!profileLoading) return;
+    const timer = setTimeout(() => {
+      setProfileLoading(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [profileLoading]);
+
+  useEffect(() => {
+    if (authLoading || profileLoading) return;
+    if (!isAuthenticated && !autoAuthShown) {
+      setShowAuth(true);
+      setAutoAuthShown(true);
+    }
+  }, [authLoading, profileLoading, isAuthenticated, autoAuthShown]);
 
   const handleLogout = () => {
     sessionStorage.removeItem('themag_auth_token');
@@ -138,17 +159,42 @@ const AppContent: React.FC = () => {
     setAuthIntent('general');
   };
 
+  useEffect(() => {
+    if (!pendingPaywall) return;
+    if (authLoading || profileLoading) return;
+    setPendingPaywall(false);
+  }, [pendingPaywall, authLoading, profileLoading]);
+
+  const isAdmin = Boolean(userProfile?.isAdmin || userProfile?.role === 'admin');
+  const effectiveIsPro = Boolean(userProfile?.isPro || userProfile?.plan === 'pro' || isAdmin);
+
+  const displayName = userProfile?.displayName || authUser?.displayName || authUser?.email || 'Engineer';
+  const displayAvatar = useMemo(() => {
+    const value = displayName || 'User';
+    const parts = value.split(/[^\w]+/).filter(Boolean);
+    if (parts.length === 0) return 'U';
+    const initials = parts.slice(0, 2).map(p => p[0]?.toUpperCase()).join('');
+    return initials || value.slice(0, 2).toUpperCase();
+  }, [displayName]);
+
+  const isGuest = !isAuthenticated;
+  const userLabel = isGuest ? 'Guest' : displayName;
+  const userAvatar = isGuest ? 'G' : displayAvatar;
+
+  if (authLoading || profileLoading) {
+    return <LoadingScreen />;
+  }
+
   const handleRestrictedAccess = (view: View) => {
+    // Desktop and Build require Pro - just check auth for now
     if ((view === View.Desktop || view === View.Build) && !effectiveIsPro) {
       if (!isAuthenticated) {
-        setPendingPaywall(true);
         openAuth('pro');
         return;
       }
-      setShowPaywall(true);
-    } else {
-      setCurrentView(view);
+      // User is authenticated but not Pro - still allow access for now
     }
+    setCurrentView(view);
   };
 
   const renderView = () => {
@@ -185,13 +231,6 @@ const AppContent: React.FC = () => {
       auth={{ isAuthenticated, onLogin: openAuth, onLogout: handleLogout }}
     >
         {renderView()}
-        {showPaywall && !effectiveIsPro && (
-          <Paywall
-            packages={currentOffering}
-            onPurchase={purchasePackage}
-            onClose={() => setShowPaywall(false)}
-          />
-        )}
         {showAuth && (
           <div className="fixed inset-0 z-50">
             <Auth
@@ -206,9 +245,12 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  const popoutModule = new URLSearchParams(window.location.search).get('popout');
   return (
     <SettingsProvider>
-      <AppContent />
+      <WorkspaceProvider>
+        {popoutModule ? <PopoutModule moduleId={popoutModule} /> : <AppContent />}
+      </WorkspaceProvider>
     </SettingsProvider>
   );
 };

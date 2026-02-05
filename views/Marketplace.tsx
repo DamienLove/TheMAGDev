@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { MODULE_CATALOG } from '../src/data/moduleCatalog';
 
 interface Extension {
   id: string;
@@ -20,49 +21,49 @@ const Marketplace: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [installing, setInstalling] = useState<string | null>(null);
 
-  const [extensions, setExtensions] = useState<Extension[]>([
+  const coreExtensions: Extension[] = [
     { 
-      id: 'ext-1', 
-      name: 'Flutter Pro-Tools', 
+      id: 'ext-flutter', 
+      name: 'Flutter', 
       author: 'Google', 
-      description: 'Advanced widget inspector, performance profiler and hot-reload optimization for Flutter.', 
-      downloads: '2.4M', 
-      rating: 4.9, 
+      description: 'Flutter and Dart tooling with hot reload, widget inspector, and DevTools.', 
+      downloads: '2.6M', 
+      rating: 4.8, 
       icon: 'flutter_dash', 
       category: 'Frameworks', 
       installed: false,
       color: 'bg-blue-500'
     },
     { 
-      id: 'ext-2', 
-      name: 'TheMAG.dev Copilot', 
-      author: 'TheMAG.dev AI', 
-      description: 'Generative AI assistant specialized in cloud-native architecture and infrastructure-as-code.', 
-      downloads: '850K', 
-      rating: 4.8, 
+      id: 'ext-copilot', 
+      name: 'GitHub Copilot', 
+      author: 'GitHub', 
+      description: 'AI pair programmer for inline code completions and chat-driven refactors.', 
+      downloads: '1.4M', 
+      rating: 4.7, 
       icon: 'smart_toy', 
       category: 'AI & LLMs', 
       installed: true,
       color: 'bg-indigo-600'
     },
     { 
-      id: 'ext-3', 
-      name: 'Kubernetes Lens', 
-      author: 'Mirantis', 
-      description: 'Visualize and manage your K8s clusters directly from the IDE with integrated logs.', 
-      downloads: '1.2M', 
-      rating: 4.7, 
-      icon: 'grid_view', 
+      id: 'ext-aws-toolkit', 
+      name: 'AWS Toolkit', 
+      author: 'Amazon Web Services', 
+      description: 'Build, deploy, and debug serverless apps and cloud resources from your IDE.', 
+      downloads: '980K', 
+      rating: 4.6, 
+      icon: 'cloud', 
       category: 'Cloud', 
       installed: false,
       color: 'bg-blue-600'
     },
     { 
-      id: 'ext-4', 
-      name: 'Dracula Obsidian', 
-      author: 'Zeno Rocha', 
-      description: 'The legendary dark theme optimized for the TheMAG.dev high-contrast display engine.', 
-      downloads: '4.2M', 
+      id: 'ext-dracula', 
+      name: 'Dracula Official', 
+      author: 'Dracula Theme', 
+      description: 'Iconic dark theme with consistent colors across editors and terminals.', 
+      downloads: '3.9M', 
       rating: 5.0, 
       icon: 'palette', 
       category: 'Themes', 
@@ -70,55 +71,65 @@ const Marketplace: React.FC = () => {
       color: 'bg-purple-600'
     },
     { 
-      id: 'ext-5', 
-      name: 'Prisma Schema Explorer', 
-      author: 'Prisma Inc.', 
-      description: 'Visual database schema modeling and automated migration generation for ORMs.', 
-      downloads: '920K', 
-      rating: 4.6, 
+      id: 'ext-mongodb', 
+      name: 'MongoDB for VS Code', 
+      author: 'MongoDB', 
+      description: 'Browse collections, run queries, and manage MongoDB connections.', 
+      downloads: '740K', 
+      rating: 4.5, 
       icon: 'database', 
       category: 'Data', 
       installed: false,
       color: 'bg-teal-600'
     },
     { 
-      id: 'ext-6', 
+      id: 'ext-rust-analyzer', 
       name: 'Rust Analyzer', 
-      author: 'Rust OSS', 
-      description: 'Full-featured language server for Rust with zero-overhead syntax highlighting.', 
-      downloads: '1.8M', 
-      rating: 4.9, 
+      author: 'Rust Analyzer', 
+      description: 'Rust language server with rich diagnostics, code navigation, and refactors.', 
+      downloads: '1.3M', 
+      rating: 4.8, 
       icon: 'settings_input_component', 
       category: 'Languages', 
       installed: false,
       color: 'bg-orange-600'
     }
-  ]);
+  ];
+
+  const moduleExtensions: Extension[] = MODULE_CATALOG.map((moduleItem) => ({
+    id: `module-${moduleItem.id}`,
+    name: moduleItem.name,
+    author: 'TheMAG.dev',
+    description: moduleItem.description,
+    downloads: 'Built-in',
+    rating: 5.0,
+    icon: moduleItem.icon,
+    category: 'Modules',
+    installed: true,
+    color: 'bg-zinc-800'
+  }));
+
+  const [extensions, setExtensions] = useState<Extension[]>(() => {
+      const allExtensions = [...coreExtensions, ...moduleExtensions];
+      const savedState = localStorage.getItem('themag_marketplace_state');
+      if (savedState) {
+          const installedIds = JSON.parse(savedState);
+          return allExtensions.map(ext => ({
+              ...ext,
+              installed: installedIds.includes(ext.id) || (ext.installed && !savedState) // keep defaults if no state, else override
+          }));
+      }
+      return allExtensions;
+  });
 
   useEffect(() => {
-    fetch('/features.json')
-      .then(res => res.json())
-      .then((data: string[]) => {
-        const featureExtensions: Extension[] = data.map((name, index) => ({
-          id: `feat-${index}`,
-          name: name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-          author: 'TheMAG.dev',
-          description: `Integrated workspace module for ${name.replace(/_/g, ' ')}. High-performance UI component for enterprise IDE layouts.`,
-          downloads: `${(Math.random() * 500).toFixed(1)}K`,
-          rating: 4.5 + Math.random() * 0.5,
-          icon: `/features/${name}.png`,
-          category: 'Modules',
-          installed: false,
-          color: 'bg-zinc-800',
-          isImage: true
-        }));
-        setExtensions(prev => [...prev, ...featureExtensions]);
-      })
-      .catch(err => console.error('Failed to load features:', err));
-  }, []);
+      const installedIds = extensions.filter(e => e.installed).map(e => e.id);
+      localStorage.setItem('themag_marketplace_state', JSON.stringify(installedIds));
+  }, [extensions]);
 
   const categories = [
     { name: 'Popular', icon: 'trending_up' },
+    { name: 'Frameworks', icon: 'view_in_ar' },
     { name: 'AI & LLMs', icon: 'psychology' },
     { name: 'Cloud', icon: 'cloud' },
     { name: 'Data', icon: 'storage' },
@@ -129,12 +140,13 @@ const Marketplace: React.FC = () => {
 
   const handleInstall = (extId: string) => {
     setInstalling(extId);
+    // Simulate network delay
     setTimeout(() => {
       setExtensions(prev => prev.map(ext =>
         ext.id === extId ? { ...ext, installed: !ext.installed } : ext
       ));
       setInstalling(null);
-    }, 1500);
+    }, 1000);
   };
 
   const filteredExtensions = extensions.filter(ext => {

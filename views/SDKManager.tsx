@@ -8,11 +8,16 @@ const SDKManager: React.FC = () => {
   const [plugins, setPlugins] = useState<SDKPlugin[]>([]);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
+  const [downloadingPluginId, setDownloadingPluginId] = useState<string | null>(null);
 
   const platforms = ['Android', 'iOS', 'Windows', 'Mac', 'Linux', 'Web'];
 
+  const formatVersion = (version: string) => (/^\d/.test(version) ? `v${version}` : version);
+
   useEffect(() => {
     loadData();
+    const unsubscribe = sdkService.onChange(() => loadData());
+    return () => unsubscribe();
   }, [selectedPlatform]);
 
   const loadData = () => {
@@ -39,6 +44,8 @@ const SDKManager: React.FC = () => {
       await sdkService.updateSDK(sdk.id);
     } else if (sdk.status === 'Not Installed') {
       await sdkService.installSDK(sdk.id);
+    } else if (sdk.status === 'Installed') {
+      await sdkService.uninstallSDK(sdk.id);
     }
 
     setTimeout(() => {
@@ -73,6 +80,17 @@ const SDKManager: React.FC = () => {
       setShowPluginModal(false);
       loadData();
     }
+  };
+
+  const handleDownloadPlugin = async (pluginId: string) => {
+    setDownloadingPluginId(pluginId);
+    const url = await sdkService.getPublicPluginBundleUrl(pluginId);
+    if (url) {
+      window.open(url, '_blank', 'noopener');
+    } else {
+      alert('Connect Google Drive to download plugin bundles.');
+    }
+    setDownloadingPluginId(null);
   };
 
   return (
@@ -141,7 +159,7 @@ const SDKManager: React.FC = () => {
                 <div>
                   <h3 className="text-white font-bold">{sdk.name}</h3>
                   <div className="flex items-center gap-2 text-xs text-zinc-500 mt-0.5">
-                    <span>v{sdk.version}</span>
+                    <span>{formatVersion(sdk.version)}</span>
                     <span>•</span>
                     <span>{sdk.size}</span>
                     <span>•</span>
@@ -172,7 +190,11 @@ const SDKManager: React.FC = () => {
                      <span className="material-symbols-rounded text-lg">download</span>
                    </button>
                  ) : (
-                   <button className="size-8 rounded-full hover:bg-zinc-800 flex items-center justify-center text-zinc-600 hover:text-red-400 transition-colors">
+                   <button
+                     onClick={() => handleAction(sdk)}
+                     disabled={loading}
+                     className="size-8 rounded-full hover:bg-zinc-800 flex items-center justify-center text-zinc-600 hover:text-red-400 transition-colors"
+                   >
                      <span className="material-symbols-rounded text-lg">delete</span>
                    </button>
                  )}
@@ -193,7 +215,21 @@ const SDKManager: React.FC = () => {
                  <p className="text-zinc-400 text-xs mb-3">{plugin.description}</p>
                  <div className="flex justify-between items-center">
                     <span className="text-[10px] font-bold text-zinc-600 uppercase">By {plugin.author}</span>
-                    <button className="text-xs text-red-400 hover:text-red-300 font-bold">Uninstall</button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleDownloadPlugin(plugin.id)}
+                        disabled={downloadingPluginId === plugin.id}
+                        className="text-xs text-zinc-300 hover:text-white font-bold disabled:opacity-50"
+                      >
+                        {downloadingPluginId === plugin.id ? 'Preparing...' : 'Download'}
+                      </button>
+                      <button
+                        onClick={() => sdkService.uninstallPlugin(plugin.id)}
+                        className="text-xs text-red-400 hover:text-red-300 font-bold"
+                      >
+                        Uninstall
+                      </button>
+                    </div>
                  </div>
                </div>
              ))}

@@ -1,11 +1,15 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { WorkspaceProvider, useWorkspace, MonacoEditor, Terminal, FileExplorer, DebugPanel, AIAssistant } from '../src/components/workspace';
+import type { FileNode } from '../src/components/workspace';
+import googleDriveService, { type DriveSyncStatus, type DriveUserInfo } from '../src/services/GoogleDriveService';
+import githubService, { type GitHubBranch, type GitHubRepo, type GitHubUser } from '../src/services/GitHubService';
 
 // Types for Source Control
 interface GitChange {
   file: string;
   status: 'M' | 'A' | 'D' | 'U';
   staged: boolean;
+  sha?: string;
 }
 
 // Inner component that uses workspace context
@@ -22,7 +26,7 @@ interface FloatingPanelState {
 }
 
 const CodeEditorContent: React.FC = () => {
-  const { openFiles, activeFile, closeFile, setActiveFile, unsavedFiles, saveFile } = useWorkspace();
+  const { files, openFiles, activeFile, closeFile, setActiveFile, unsavedFiles, saveFile, replaceWorkspace } = useWorkspace();
 
   const [sidebarMode, setSidebarMode] = useState<'EXPLORER' | 'GIT' | 'SEARCH' | 'EXTENSIONS'>('EXPLORER');
   const [showAiPanel, setShowAiPanel] = useState(true);
@@ -41,15 +45,29 @@ const CodeEditorContent: React.FC = () => {
   });
   const resizeState = useRef<{ startY: number; startHeight: number } | null>(null);
   const dragState = useRef<{ id: ModuleId; startX: number; startY: number; startLeft: number; startTop: number } | null>(null);
+  const gitRefreshTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Git State (mock for now)
-  const [changes, setChanges] = useState<GitChange[]>([
-    { file: 'src/components/App.tsx', status: 'M', staged: false },
-    { file: 'src/hooks/useAuth.ts', status: 'A', staged: false },
-    { file: 'tailwind.config.js', status: 'M', staged: true },
-    { file: 'public/manifest.json', status: 'U', staged: false }
-  ]);
-  const [currentBranch] = useState('main');
+  // Google Drive status (toolbar access)
+  const [driveStatus, setDriveStatus] = useState<DriveSyncStatus>(() => googleDriveService.getSyncStatus());
+  const [driveUser, setDriveUser] = useState<DriveUserInfo | null>(null);
+  const [driveLoading, setDriveLoading] = useState(false);
+  const hasDriveConfig = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
+
+  // GitHub source control
+  const [changes, setChanges] = useState<GitChange[]>([]);
+  const [gitUser, setGitUser] = useState<GitHubUser | null>(null);
+  const [gitRepo, setGitRepo] = useState<GitHubRepo | null>(() => githubService.getRepo());
+  const [gitBranches, setGitBranches] = useState<GitHubBranch[]>([]);
+  const [gitTokenInput, setGitTokenInput] = useState('');
+  const [gitRepoInput, setGitRepoInput] = useState(() => {
+    const repo = githubService.getRepo();
+    return repo ? `${repo.owner}/${repo.name}` : '';
+  });
+  const [currentBranch, setCurrentBranch] = useState(() => githubService.getRepo()?.defaultBranch || 'main');
+  const [gitLoading, setGitLoading] = useState(false);
+  const [gitError, setGitError] = useState<string | null>(null);
+  const [lastGitSync, setLastGitSync] = useState<number | null>(null);
+  const gitConnected = Boolean(gitRepo && githubService.isConnected());
 
   const moduleTabs: { id: ModuleId; label: string }[] = [
     { id: 'explorer', label: 'Explorer' },
@@ -58,6 +76,374 @@ const CodeEditorContent: React.FC = () => {
     { id: 'output', label: 'Output' },
     { id: 'assistant', label: 'AI' },
   ];
+
+  useEffect(() => {
+    return googleDriveService.onSyncStatusChange(setDriveStatus);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    if (!driveStatus.connected) {
+      setDriveUser(null);
+      return;
+    }
+    googleDriveService.getUserInfo().then((info) => {
+      if (active) {
+        setDriveUser(info);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [driveStatus.connected]);
+
+  const handleDriveToggle = async () => {
+    if (!hasDriveConfig) {
+      return;
+    }
+    if (driveStatus.connected) {
+      googleDriveService.disconnect();
+      setDriveUser(null);
+      return;
+    }
+    setDriveLoading(true);
+    const connected = await googleDriveService.connect();
+    if (connected) {
+      const info = await googleDriveService.getUserInfo();
+      setDriveUser(info);
+    }
+    setDriveLoading(false);
+  };
+
+  const parseRepoInput = (value: string): { owner: string; name: string } | null => {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    const cleaned = trimmed.replace(/\.git$/, '');
+    if (cleaned.startsWith('http')) {
+      try {
+        const url = new URL(cleaned);
+        const parts = url.pathname.replace(/^\//, '').split('/');
+        if (parts.length >= 2) {
+          return { owner: parts[0], name: parts[1] };
+        }
+      } catch {
+        return null;
+      }
+    }
+    const parts = cleaned.split('/');
+    if (parts.length >= 2) {
+      return { owner: parts[0], name: parts[1] };
+    }
+    return null;
+  };
+
+  const flattenWorkspaceFiles = useCallback((nodes: FileNode[]) => {
+    const map = new Map<string, string>();
+    const walk = (items: FileNode[]) => {
+      items.forEach((node) => {
+        if (node.type === 'file') {
+          const relativePath = node.path.replace(/^\//, '');
+          map.set(relativePath, node.content ?? '');
+          return;
+        }
+        if (node.children?.length) {
+          walk(node.children);
+        }
+      });
+    };
+    walk(nodes);
+    return map;
+  }, []);
+
+  const computeGitBlobSha = async (content: string): Promise<string> => {
+    const encoder = new TextEncoder();
+    const body = encoder.encode(content);
+    const header = encoder.encode(`blob ${body.length}\0`);
+    const combined = new Uint8Array(header.length + body.length);
+    combined.set(header, 0);
+    combined.set(body, header.length);
+    const hashBuffer = await crypto.subtle.digest('SHA-1', combined);
+    return Array.from(new Uint8Array(hashBuffer))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+  };
+
+  const getLanguageFromFilename = (filename: string): string => {
+    const ext = filename.split('.').pop()?.toLowerCase();
+    const languageMap: Record<string, string> = {
+      ts: 'typescript',
+      tsx: 'typescript',
+      js: 'javascript',
+      jsx: 'javascript',
+      json: 'json',
+      css: 'css',
+      scss: 'scss',
+      html: 'html',
+      md: 'markdown',
+      py: 'python',
+      rs: 'rust',
+      go: 'go',
+      yaml: 'yaml',
+      yml: 'yaml',
+    };
+    return languageMap[ext || ''] || 'plaintext';
+  };
+
+  const buildFileTree = (entries: Array<{ path: string; content: string }>): FileNode[] => {
+    const root: FileNode[] = [];
+
+    entries.forEach(({ path, content }) => {
+      const segments = path.split('/').filter(Boolean);
+      let currentChildren = root;
+      let currentPath: string[] = [];
+      segments.forEach((segment, index) => {
+        currentPath.push(segment);
+        const fullPath = `/${currentPath.join('/')}`;
+        if (index === segments.length - 1) {
+          currentChildren.push({
+            name: segment,
+            path: fullPath,
+            type: 'file',
+            content,
+            language: getLanguageFromFilename(segment),
+          });
+          return;
+        }
+        const existingFolder = currentChildren.find(node => node.type === 'folder' && node.name === segment);
+        if (existingFolder && existingFolder.type === 'folder') {
+          currentChildren = existingFolder.children ||= [];
+        } else {
+          const folder: FileNode = { name: segment, path: fullPath, type: 'folder', children: [] };
+          currentChildren.push(folder);
+          currentChildren = folder.children!;
+        }
+      });
+    });
+
+    return root;
+  };
+
+  const refreshGitChanges = useCallback(async (repoOverride?: GitHubRepo | null, branchOverride?: string) => {
+    const activeRepo = repoOverride ?? gitRepo;
+    const activeBranch = branchOverride ?? currentBranch;
+    if (!activeRepo || !githubService.isConnected()) {
+      return;
+    }
+
+    setGitLoading(true);
+    try {
+      const tree = await githubService.getTree(activeRepo.owner, activeRepo.name, activeBranch);
+      const remoteMap = new Map(tree.map(item => [item.path, item.sha]));
+      const localMap = flattenWorkspaceFiles(files);
+
+      const nextChanges: GitChange[] = [];
+      for (const [path, content] of localMap) {
+        const remoteSha = remoteMap.get(path);
+        if (!remoteSha) {
+          nextChanges.push({ file: path, status: 'A', staged: false });
+        } else {
+          const localSha = await computeGitBlobSha(content);
+          if (localSha !== remoteSha) {
+            nextChanges.push({ file: path, status: 'M', staged: false, sha: remoteSha });
+          }
+          remoteMap.delete(path);
+        }
+      }
+
+      for (const [path, sha] of remoteMap) {
+        nextChanges.push({ file: path, status: 'D', staged: false, sha });
+      }
+
+      nextChanges.sort((a, b) => a.file.localeCompare(b.file));
+      setChanges(nextChanges);
+      setLastGitSync(Date.now());
+      setGitError(null);
+    } catch (error: any) {
+      setGitError(error?.message || 'Failed to refresh GitHub changes.');
+    } finally {
+      setGitLoading(false);
+    }
+  }, [files, gitRepo, currentBranch, flattenWorkspaceFiles]);
+
+  const handleGitConnect = async () => {
+    setGitError(null);
+    const repoData = parseRepoInput(gitRepoInput);
+    if (!repoData) {
+      setGitError('Enter a repository as owner/name or a GitHub URL.');
+      return;
+    }
+    if (!gitTokenInput.trim() && !githubService.isConnected()) {
+      setGitError('Enter a GitHub personal access token.');
+      return;
+    }
+
+    setGitLoading(true);
+    try {
+      if (gitTokenInput.trim()) {
+        const user = await githubService.connect(gitTokenInput.trim());
+        setGitUser(user);
+        setGitTokenInput('');
+      } else {
+        const user = await githubService.getAuthenticatedUser();
+        setGitUser(user);
+      }
+
+      const repoInfo = await githubService.setRepo(repoData.owner, repoData.name);
+      setGitRepo(repoInfo);
+      const branches = await githubService.listBranches(repoInfo.owner, repoInfo.name);
+      setGitBranches(branches);
+      const branch = repoInfo.defaultBranch || branches[0]?.name || 'main';
+      setCurrentBranch(branch);
+      await refreshGitChanges(repoInfo, branch);
+    } catch (error: any) {
+      setGitError(error?.message || 'Failed to connect to GitHub.');
+      githubService.disconnect();
+      setGitUser(null);
+      setGitRepo(null);
+      setGitBranches([]);
+    } finally {
+      setGitLoading(false);
+    }
+  };
+
+  const handleGitDisconnect = () => {
+    githubService.disconnect();
+    setGitUser(null);
+    setGitRepo(null);
+    setGitBranches([]);
+    setChanges([]);
+    setGitError(null);
+  };
+
+  const handleGitCommit = async () => {
+    if (!gitRepo || !githubService.isConnected()) return;
+    const staged = changes.filter(c => c.staged);
+    if (!commitMessage.trim() || staged.length === 0) return;
+
+    setGitLoading(true);
+    try {
+      const localMap = flattenWorkspaceFiles(files);
+      for (const change of staged) {
+        if (change.status === 'D') {
+          if (!change.sha) continue;
+          await githubService.deleteFile(
+            gitRepo.owner,
+            gitRepo.name,
+            change.file,
+            commitMessage.trim(),
+            currentBranch,
+            change.sha
+          );
+          continue;
+        }
+        const content = localMap.get(change.file) ?? '';
+        await githubService.updateFile(
+          gitRepo.owner,
+          gitRepo.name,
+          change.file,
+          content,
+          commitMessage.trim(),
+          currentBranch,
+          change.sha
+        );
+      }
+      setCommitMessage('');
+      await refreshGitChanges();
+    } catch (error: any) {
+      setGitError(error?.message || 'Failed to push changes to GitHub.');
+    } finally {
+      setGitLoading(false);
+    }
+  };
+
+  const handleGitPull = async () => {
+    if (!gitRepo || !githubService.isConnected()) return;
+    if (!window.confirm('Pulling will replace your current workspace with the GitHub repo contents. Continue?')) {
+      return;
+    }
+    setGitLoading(true);
+    try {
+      const tree = await githubService.getTree(gitRepo.owner, gitRepo.name, currentBranch);
+      const filesToFetch = tree.filter(item => item.type === 'blob');
+      const entries: Array<{ path: string; content: string }> = [];
+      for (const item of filesToFetch) {
+        const content = await githubService.getFileContent(
+          gitRepo.owner,
+          gitRepo.name,
+          item.path,
+          currentBranch
+        );
+        entries.push({ path: item.path, content });
+      }
+      replaceWorkspace(buildFileTree(entries));
+      setLastGitSync(Date.now());
+      setGitError(null);
+    } catch (error: any) {
+      setGitError(error?.message || 'Failed to pull from GitHub.');
+    } finally {
+      setGitLoading(false);
+    }
+  };
+
+  const openModuleWindow = (id: ModuleId) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('popout', id);
+    window.open(url.toString(), '_blank', 'noopener,noreferrer,width=1200,height=800');
+  };
+
+  useEffect(() => {
+    if (!gitConnected || !gitRepo) {
+      return;
+    }
+    if (gitRefreshTimeout.current) {
+      clearTimeout(gitRefreshTimeout.current);
+    }
+    gitRefreshTimeout.current = setTimeout(() => {
+      refreshGitChanges();
+    }, 1200);
+    return () => {
+      if (gitRefreshTimeout.current) {
+        clearTimeout(gitRefreshTimeout.current);
+      }
+    };
+  }, [files, gitConnected, gitRepo, currentBranch, refreshGitChanges]);
+
+  useEffect(() => {
+    let active = true;
+    if (!githubService.isConnected() || !gitRepo) {
+      return () => {
+        active = false;
+      };
+    }
+    setGitLoading(true);
+    githubService.getAuthenticatedUser()
+      .then((user) => {
+        if (!active) return;
+        setGitUser(user);
+        return githubService.listBranches(gitRepo.owner, gitRepo.name);
+      })
+      .then((branches) => {
+        if (!active || !branches) return;
+        setGitBranches(branches);
+        const branch = gitRepo.defaultBranch || branches[0]?.name || currentBranch;
+        setCurrentBranch(branch);
+        return refreshGitChanges(gitRepo, branch);
+      })
+      .catch((error: any) => {
+        if (active) {
+          setGitError(error?.message || 'Failed to restore GitHub session.');
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setGitLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const bringToFront = (id: ModuleId) => {
     setFloatingPanels(prev => {
@@ -114,6 +500,10 @@ const CodeEditorContent: React.FC = () => {
     if (panel.floating) {
       setFloatingPanels(prev => ({ ...prev, [id]: { ...prev[id], visible: true } }));
       bringToFront(id);
+      if (id === 'terminal' || id === 'debug' || id === 'output') {
+        setShowBottomPanel(true);
+        setBottomPanelMode(id);
+      }
       return;
     }
 
@@ -198,9 +588,7 @@ const CodeEditorContent: React.FC = () => {
   };
 
   const handleCommit = () => {
-    if (!commitMessage.trim() || changes.filter(c => c.staged).length === 0) return;
-    setChanges(prev => prev.filter(c => !c.staged));
-    setCommitMessage('');
+    handleGitCommit();
   };
 
   const handleCloseTab = useCallback((path: string, e: React.MouseEvent) => {
@@ -239,6 +627,21 @@ const CodeEditorContent: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {hasDriveConfig && (
+            <button
+              onClick={handleDriveToggle}
+              disabled={driveLoading}
+              title={driveUser?.email || 'Connect Google Drive'}
+              className={`flex items-center gap-1.5 px-3 py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded text-[10px] font-bold transition-all uppercase tracking-tight ${
+                driveStatus.connected ? 'border-emerald-500/40 text-emerald-300' : ''
+              } ${driveLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+            >
+              <span className="material-symbols-rounded text-sm">
+                {driveStatus.connected ? 'cloud_done' : 'cloud_off'}
+              </span>
+              {driveStatus.connected ? 'Drive' : 'Connect Drive'}
+            </button>
+          )}
           <button
             onClick={() => activeFile && saveFile(activeFile)}
             className="flex items-center gap-1.5 px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 rounded text-[10px] font-bold transition-all uppercase tracking-tight"
@@ -327,7 +730,10 @@ const CodeEditorContent: React.FC = () => {
         {/* Primary Sidebar */}
         <section className="w-64 bg-zinc-900 border-r border-zinc-800 flex flex-col shrink-0 overflow-hidden">
           {sidebarMode === 'EXPLORER' && !floatingPanels.explorer.floating && (
-            <FileExplorer onPopOut={() => toggleFloating('explorer')} />
+            <FileExplorer
+              onPopOut={() => toggleFloating('explorer')}
+              onOpenWindow={() => openModuleWindow('explorer')}
+            />
           )}
           {sidebarMode === 'EXPLORER' && floatingPanels.explorer.floating && (
             <div className="flex-1 flex items-center justify-center text-xs text-zinc-600">
@@ -386,86 +792,162 @@ const CodeEditorContent: React.FC = () => {
                 <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Source Control</span>
               </div>
               <div className="flex-1 overflow-y-auto">
-                <div className="px-3 py-3 mb-2">
-                  <div className="flex items-center justify-between text-[10px] font-bold text-zinc-500 uppercase mb-2">
-                    <span>Branch</span>
-                    <span className="text-emerald-400 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Synced
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between bg-zinc-950 p-2 rounded border border-zinc-800 cursor-pointer hover:border-zinc-700">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-rounded text-sm text-zinc-500">call_split</span>
-                      <span className="text-xs font-mono text-zinc-200">{currentBranch}</span>
+                <div className="px-3 py-3 space-y-3">
+                  {gitError && (
+                    <div className="rounded border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-200">
+                      {gitError}
                     </div>
-                    <span className="material-symbols-rounded text-sm text-zinc-600">expand_more</span>
-                  </div>
-                </div>
+                  )}
 
-                <div className="px-3 mb-3">
-                  <textarea
-                    value={commitMessage}
-                    onChange={(e) => setCommitMessage(e.target.value)}
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded p-2 text-xs text-zinc-300 focus:border-indigo-500 outline-none resize-none placeholder-zinc-600"
-                    rows={2}
-                    placeholder="Commit message..."
-                  />
-                  <button
-                    onClick={handleCommit}
-                    disabled={!commitMessage.trim() || changes.filter(c => c.staged).length === 0}
-                    className="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-[10px] font-bold py-1.5 rounded transition-all uppercase tracking-wider"
-                  >
-                    Commit ({changes.filter(c => c.staged).length} staged)
-                  </button>
-                </div>
+                  {!gitConnected && (
+                    <div className="bg-zinc-950 border border-zinc-800 rounded p-3 space-y-3">
+                      <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Connect GitHub</div>
+                      <input
+                        type="password"
+                        value={gitTokenInput}
+                        onChange={(e) => setGitTokenInput(e.target.value)}
+                        placeholder="Personal access token (repo scope)"
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded px-2 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500"
+                      />
+                      <input
+                        type="text"
+                        value={gitRepoInput}
+                        onChange={(e) => setGitRepoInput(e.target.value)}
+                        placeholder="owner/repo or https://github.com/owner/repo"
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded px-2 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500"
+                      />
+                      <button
+                        onClick={handleGitConnect}
+                        disabled={gitLoading}
+                        className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-[10px] font-bold py-1.5 rounded uppercase tracking-wider"
+                      >
+                        {gitLoading ? 'Connecting...' : 'Connect'}
+                      </button>
+                    </div>
+                  )}
 
-                {/* Staged Changes */}
-                {changes.filter(c => c.staged).length > 0 && (
-                  <>
-                    <div className="px-3 py-1 bg-zinc-800/30 text-[9px] font-bold text-zinc-500 uppercase flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <span className="material-symbols-rounded text-sm">expand_more</span> Staged
+                  {gitConnected && gitRepo && (
+                    <div className="bg-zinc-950 border border-zinc-800 rounded p-3 space-y-2">
+                      <div className="flex items-center justify-between text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                        <span>Repository</span>
+                        <button
+                          onClick={handleGitDisconnect}
+                          className="text-[10px] text-red-400 hover:text-red-300 uppercase"
+                        >
+                          Disconnect
+                        </button>
                       </div>
-                      <span className="bg-emerald-500/20 text-emerald-400 px-1.5 rounded">{changes.filter(c => c.staged).length}</span>
+                      <div className="text-xs text-zinc-200 font-mono">
+                        {gitRepo.owner}/{gitRepo.name}
+                      </div>
+                      {gitUser && (
+                        <div className="text-[10px] text-zinc-500">
+                          Signed in as <span className="text-zinc-300">{gitUser.login}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={currentBranch}
+                          onChange={(e) => {
+                            setCurrentBranch(e.target.value);
+                            refreshGitChanges(gitRepo, e.target.value);
+                          }}
+                          className="flex-1 bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-[10px] text-zinc-200 focus:outline-none focus:border-indigo-500"
+                        >
+                          {gitBranches.map(branch => (
+                            <option key={branch.name} value={branch.name}>{branch.name}</option>
+                          ))}
+                        </select>
+                        <button
+                          onClick={() => refreshGitChanges()}
+                          disabled={gitLoading}
+                          className="px-2 py-1 rounded border border-zinc-700 text-[10px] text-zinc-300 hover:bg-zinc-800"
+                        >
+                          Refresh
+                        </button>
+                        <button
+                          onClick={handleGitPull}
+                          disabled={gitLoading}
+                          className="px-2 py-1 rounded border border-emerald-500/40 text-[10px] text-emerald-300 hover:bg-emerald-500/10"
+                        >
+                          Pull
+                        </button>
+                      </div>
+                      <div className="text-[10px] text-zinc-500">
+                        {lastGitSync ? `Last sync: ${new Date(lastGitSync).toLocaleTimeString()}` : 'Not synced yet'}
+                      </div>
                     </div>
-                    {changes.filter(c => c.staged).map((c, i) => (
+                  )}
+                </div>
+
+                {gitConnected && (
+                  <>
+                    <div className="px-3 mb-3">
+                      <textarea
+                        value={commitMessage}
+                        onChange={(e) => setCommitMessage(e.target.value)}
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded p-2 text-xs text-zinc-300 focus:border-indigo-500 outline-none resize-none placeholder-zinc-600"
+                        rows={2}
+                        placeholder="Commit message..."
+                      />
+                      <button
+                        onClick={handleCommit}
+                        disabled={gitLoading || !commitMessage.trim() || changes.filter(c => c.staged).length === 0}
+                        className="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-[10px] font-bold py-1.5 rounded transition-all uppercase tracking-wider"
+                      >
+                        Push ({changes.filter(c => c.staged).length} staged)
+                      </button>
+                    </div>
+
+                    {/* Staged Changes */}
+                    {changes.filter(c => c.staged).length > 0 && (
+                      <>
+                        <div className="px-3 py-1 bg-zinc-800/30 text-[9px] font-bold text-zinc-500 uppercase flex items-center justify-between">
+                          <div className="flex items-center gap-1">
+                            <span className="material-symbols-rounded text-sm">expand_more</span> Staged
+                          </div>
+                          <span className="bg-emerald-500/20 text-emerald-400 px-1.5 rounded">{changes.filter(c => c.staged).length}</span>
+                        </div>
+                        {changes.filter(c => c.staged).map((c, i) => (
+                          <div key={i} className="flex items-center justify-between px-3 py-1.5 hover:bg-zinc-800 cursor-pointer group">
+                            <div className="flex items-center gap-2 truncate">
+                              <span className="material-symbols-rounded text-sm text-zinc-500">description</span>
+                              <span className="text-[11px] text-zinc-300 truncate">{c.file}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className={`text-[10px] font-bold uppercase ${c.status === 'A' ? 'text-emerald-500' : c.status === 'D' ? 'text-red-500' : 'text-amber-500'}`}>{c.status}</span>
+                              <button onClick={() => toggleStage(c.file)} className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400">
+                                <span className="material-symbols-rounded text-sm">remove</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </>
+                    )}
+
+                    {/* Unstaged Changes */}
+                    <div className="px-3 py-1 bg-zinc-800/30 text-[9px] font-bold text-zinc-500 uppercase flex items-center justify-between mt-2">
+                      <div className="flex items-center gap-1">
+                        <span className="material-symbols-rounded text-sm">expand_more</span> Changes
+                      </div>
+                      <span className="bg-zinc-700 text-zinc-300 px-1.5 rounded">{changes.filter(c => !c.staged).length}</span>
+                    </div>
+                    {changes.filter(c => !c.staged).map((c, i) => (
                       <div key={i} className="flex items-center justify-between px-3 py-1.5 hover:bg-zinc-800 cursor-pointer group">
                         <div className="flex items-center gap-2 truncate">
                           <span className="material-symbols-rounded text-sm text-zinc-500">description</span>
                           <span className="text-[11px] text-zinc-300 truncate">{c.file}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className={`text-[10px] font-bold uppercase ${c.status === 'A' ? 'text-emerald-500' : c.status === 'D' ? 'text-red-500' : 'text-amber-500'}`}>{c.status}</span>
-                          <button onClick={() => toggleStage(c.file)} className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400">
-                            <span className="material-symbols-rounded text-sm">remove</span>
+                          <span className={`text-[10px] font-bold uppercase ${c.status === 'A' ? 'text-emerald-500' : c.status === 'D' ? 'text-red-500' : c.status === 'U' ? 'text-blue-500' : 'text-amber-500'}`}>{c.status}</span>
+                          <button onClick={() => toggleStage(c.file)} className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-emerald-400">
+                            <span className="material-symbols-rounded text-sm">add</span>
                           </button>
                         </div>
                       </div>
                     ))}
                   </>
                 )}
-
-                {/* Unstaged Changes */}
-                <div className="px-3 py-1 bg-zinc-800/30 text-[9px] font-bold text-zinc-500 uppercase flex items-center justify-between mt-2">
-                  <div className="flex items-center gap-1">
-                    <span className="material-symbols-rounded text-sm">expand_more</span> Changes
-                  </div>
-                  <span className="bg-zinc-700 text-zinc-300 px-1.5 rounded">{changes.filter(c => !c.staged).length}</span>
-                </div>
-                {changes.filter(c => !c.staged).map((c, i) => (
-                  <div key={i} className="flex items-center justify-between px-3 py-1.5 hover:bg-zinc-800 cursor-pointer group">
-                    <div className="flex items-center gap-2 truncate">
-                      <span className="material-symbols-rounded text-sm text-zinc-500">description</span>
-                      <span className="text-[11px] text-zinc-300 truncate">{c.file}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-[10px] font-bold uppercase ${c.status === 'A' ? 'text-emerald-500' : c.status === 'D' ? 'text-red-500' : c.status === 'U' ? 'text-blue-500' : 'text-amber-500'}`}>{c.status}</span>
-                      <button onClick={() => toggleStage(c.file)} className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-emerald-400">
-                        <span className="material-symbols-rounded text-sm">add</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
           )}
@@ -560,6 +1042,13 @@ const CodeEditorContent: React.FC = () => {
                   </button>
                   <div className="ml-auto flex items-center gap-3">
                     <button
+                      onClick={() => openModuleWindow(bottomPanelMode)}
+                      className="text-zinc-500 hover:text-white"
+                      title="Open in new window"
+                    >
+                      <span className="material-symbols-rounded text-sm">launch</span>
+                    </button>
+                    <button
                       onClick={() => toggleFloating(bottomPanelMode)}
                       className="text-zinc-500 hover:text-white"
                       title={floatingPanels[bottomPanelMode].floating ? 'Dock panel' : 'Pop out panel'}
@@ -614,6 +1103,7 @@ const CodeEditorContent: React.FC = () => {
             className="w-80 h-full"
             onClose={() => setShowAiPanel(false)}
             onPopOut={() => toggleFloating('assistant')}
+            onOpenWindow={() => openModuleWindow('assistant')}
           />
         )}
         {floatingPanels.assistant.floating && !showAiPanel && (
@@ -636,10 +1126,19 @@ const CodeEditorContent: React.FC = () => {
             </div>
           ) :
           tab.id === 'assistant' ? (
-            <AIAssistant className="h-full" onClose={() => hideFloating('assistant')} onPopOut={() => toggleFloating('assistant')} />
+            <AIAssistant
+              className="h-full"
+              onClose={() => hideFloating('assistant')}
+              onPopOut={() => toggleFloating('assistant')}
+              onOpenWindow={() => openModuleWindow('assistant')}
+            />
           ) :
           tab.id === 'explorer' ? (
-            <FileExplorer className="h-full" onPopOut={() => toggleFloating('explorer')} />
+            <FileExplorer
+              className="h-full"
+              onPopOut={() => toggleFloating('explorer')}
+              onOpenWindow={() => openModuleWindow('explorer')}
+            />
           ) : null;
 
         return (
@@ -661,6 +1160,13 @@ const CodeEditorContent: React.FC = () => {
             >
               <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">{tab.label}</span>
               <div className="flex items-center gap-2">
+                <button
+                  onClick={() => openModuleWindow(tab.id)}
+                  className="text-zinc-500 hover:text-zinc-200"
+                  title="Open in new window"
+                >
+                  <span className="material-symbols-rounded text-sm">launch</span>
+                </button>
                 <button
                   onClick={() => toggleFloating(tab.id)}
                   className="text-zinc-500 hover:text-zinc-200"

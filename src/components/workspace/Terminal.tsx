@@ -8,11 +8,12 @@ import localAgentService, { AgentStatus } from '../../services/LocalAgentService
 
 interface TerminalProps {
   className?: string;
+  initialMode?: TerminalMode;
 }
 
 type TerminalMode = 'webcontainer' | 'local' | 'mock';
 
-const Terminal: React.FC<TerminalProps> = ({ className }) => {
+const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
@@ -22,7 +23,8 @@ const Terminal: React.FC<TerminalProps> = ({ className }) => {
   const currentLineRef = useRef('');
   const executeCommandRef = useRef<(command: string) => void>();
   const printPromptRef = useRef<() => void>();
-  const [terminalMode, setTerminalMode] = useState<TerminalMode>('webcontainer');
+  const defaultMode: TerminalMode = typeof window !== 'undefined' && window.crossOriginIsolated ? 'webcontainer' : 'mock';
+  const [terminalMode, setTerminalMode] = useState<TerminalMode>(initialMode ?? defaultMode);
   const [webStatus, setWebStatus] = useState<'idle' | 'booting' | 'ready' | 'error'>('idle');
   const [localStatus, setLocalStatus] = useState<AgentStatus>('disconnected');
   const [webCwd, setWebCwd] = useState('/');
@@ -265,21 +267,21 @@ const Terminal: React.FC<TerminalProps> = ({ className }) => {
       return;
     }
 
-    if (trimmed === 'clear') {
-      term.clear();
-      return;
-    }
 
-    if (trimmed === 'help') {
-      term.writeln('\r\n\x1b[1;36mTheMAG.dev Terminal Modes:\x1b[0m');
-      term.writeln('  \x1b[33mwebcontainer\x1b[0m  - Browser-based Node.js runtime');
-      term.writeln('  \x1b[33mlocal\x1b[0m         - Local agent on your machine');
-      term.writeln('  \x1b[33mmock\x1b[0m          - Simulated commands');
-      term.writeln('\r\nUse the mode switcher above the terminal.');
-      return;
-    }
 
     if (terminalMode === 'mock') {
+      if (trimmed === 'clear') {
+        term.clear();
+        return;
+      }
+      if (trimmed === 'help') {
+        term.writeln('\r\n\x1b[1;36mTheMAG.dev Terminal Modes:\x1b[0m');
+        term.writeln('  \x1b[33mwebcontainer\x1b[0m  - Browser-based Node.js runtime');
+        term.writeln('  \x1b[33mlocal\x1b[0m         - Local agent on your machine');
+        term.writeln('  \x1b[33mmock\x1b[0m          - Simulated commands');
+        term.writeln('\r\nUse the mode switcher above the terminal.');
+        return;
+      }
       executeMockCommand(command);
       return;
     }
@@ -316,7 +318,11 @@ const Terminal: React.FC<TerminalProps> = ({ className }) => {
 
     if (terminalMode === 'local') {
       if (localStatus !== 'connected') {
-        term.writeln('\r\n\x1b[33mLocal agent is not connected.\x1b[0m');
+        term.writeln('\r\n\x1b[1;36mLocal Terminal Setup:\x1b[0m');
+        term.writeln('  1. Download the agent (button above)');
+        term.writeln('  2. Extract and run \x1b[33mstart.bat\x1b[0m');
+        term.writeln('  3. Click \x1b[32mConnect\x1b[0m above');
+        term.writeln('');
         return;
       }
       try {
@@ -505,6 +511,28 @@ const Terminal: React.FC<TerminalProps> = ({ className }) => {
     }
   }, [terminalMode]);
 
+  const handleModeSwitch = (mode: TerminalMode) => {
+    if (mode === 'webcontainer' && typeof window !== 'undefined' && !window.crossOriginIsolated) {
+      const term = xtermRef.current;
+      term?.writeln('\r\n\x1b[33mWebContainer requires cross-origin isolation (COOP/COEP). Use Local or Mock mode.\x1b[0m');
+      return;
+    }
+    setTerminalMode(mode);
+    if (mode === 'local' && localStatus !== 'connected') {
+      setTimeout(() => {
+        const term = xtermRef.current;
+        if (term) {
+          term.writeln('\r\n\x1b[1;36mLocal Terminal Setup:\x1b[0m');
+          term.writeln('  1. Download the agent (button above)');
+          term.writeln('  2. Extract and run \x1b[33mstart.bat\x1b[0m');
+          term.writeln('  3. Click \x1b[32mConnect\x1b[0m above');
+          term.writeln('');
+          printPromptRef.current?.();
+        }
+      }, 100);
+    }
+  };
+
   return (
     <div className={`h-full bg-[#09090b] flex flex-col ${className}`}>
       <div className="flex items-center justify-between border-b border-zinc-800 px-3 py-2 text-[11px] bg-zinc-950/80">
@@ -513,12 +541,11 @@ const Terminal: React.FC<TerminalProps> = ({ className }) => {
           {(['webcontainer', 'local', 'mock'] as TerminalMode[]).map(mode => (
             <button
               key={mode}
-              onClick={() => setTerminalMode(mode)}
-              className={`px-2 py-1 rounded border text-[10px] font-bold uppercase tracking-wider transition-colors ${
-                terminalMode === mode
-                  ? 'bg-indigo-600 text-white border-indigo-500'
-                  : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-zinc-200'
-              }`}
+              onClick={() => handleModeSwitch(mode)}
+              className={`px-2 py-1 rounded border text-[10px] font-bold uppercase tracking-wider transition-colors ${terminalMode === mode
+                ? 'bg-indigo-600 text-white border-indigo-500'
+                : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-zinc-200'
+                }`}
             >
               {mode === 'webcontainer' ? 'Web' : mode === 'local' ? 'Local' : 'Mock'}
             </button>
@@ -556,6 +583,15 @@ const Terminal: React.FC<TerminalProps> = ({ className }) => {
                 </button>
               )}
               <span className="text-[10px] text-zinc-500 uppercase">{localStatus}</span>
+              <a
+                href="/themag-agent.zip"
+                download
+                className="ml-2 px-2 py-1 rounded bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-[10px] flex items-center gap-1 transition-colors"
+                title="Download Local Agent"
+              >
+                <span className="material-symbols-outlined text-[12px]">download</span>
+                <span>Agent</span>
+              </a>
             </div>
           )}
         </div>

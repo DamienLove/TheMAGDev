@@ -1,26 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import aiProvider from '../../src/services/AIProvider';
-
-interface Asset {
-  id: string;
-  name: string;
-  type: 'image' | 'video' | 'icon' | 'font';
-  url: string;
-  tags: string[];
-  size: string;
-}
-
-const INITIAL_ASSETS: Asset[] = [
-  { id: '1', name: 'App Logo', type: 'image', url: '/branding/STLOGO.png', tags: ['branding', 'logo'], size: '124KB' },
-  { id: '2', name: 'Splash Screen', type: 'image', url: '/branding/STLOGO.png', tags: ['branding', 'splash'], size: '1.2MB' },
-  { id: '3', name: 'Hero Video', type: 'video', url: '#', tags: ['marketing', 'video'], size: '14MB' },
-];
+import assetLibraryService, { type StudioAsset } from '../../src/services/AssetLibraryService';
 
 const AssetsManager: React.FC = () => {
-  const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS);
+  const [assets, setAssets] = useState<StudioAsset[]>(assetLibraryService.getAssets());
   const [activeTab, setActiveTab] = useState<'explorer' | 'ai_gen' | 'editor'>('explorer');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<StudioAsset | null>(null);
 
   // Editor State
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -32,6 +18,19 @@ const AssetsManager: React.FC = () => {
   const [aiPrompt, setAiPrompt] = useState('');
   const [aiModel, setAiModel] = useState('gemini');
   const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = assetLibraryService.onChange((nextAssets) => {
+      setAssets(nextAssets);
+      if (selectedAsset) {
+        const updated = nextAssets.find(asset => asset.id === selectedAsset.id);
+        if (updated) {
+          setSelectedAsset(updated);
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, [selectedAsset]);
 
   const filteredAssets = assets.filter(a => 
     a.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -86,15 +85,16 @@ const AssetsManager: React.FC = () => {
     if (!aiPrompt) return;
     setIsGenerating(true);
     setTimeout(() => {
-      const newAsset: Asset = {
+      const newAsset: StudioAsset = {
         id: Date.now().toString(),
         name: `AI Generated ${assets.length + 1}`,
         type: 'image',
         url: '/branding/STLOGO.png',
         tags: ['ai-generated'],
-        size: '256KB'
+        size: '256KB',
+        source: 'local',
       };
-      setAssets([newAsset, ...assets]);
+      assetLibraryService.addAsset(newAsset).catch(() => {});
       setIsGenerating(false);
       setAiPrompt('');
       setActiveTab('explorer');
@@ -108,6 +108,18 @@ const AssetsManager: React.FC = () => {
         link.href = canvasRef.current.toDataURL();
         link.click();
      }
+  };
+
+  const handleDownloadAsset = () => {
+    if (!selectedAsset) return;
+    const url = selectedAsset.downloadUrl || selectedAsset.url;
+    if (!url || url === '#') return;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = selectedAsset.name || 'asset';
+    link.target = '_blank';
+    link.rel = 'noreferrer';
+    link.click();
   };
 
   return (
@@ -220,9 +232,9 @@ const AssetsManager: React.FC = () => {
                           <label className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">Project Path</label>
                           <div className="flex items-center gap-2 bg-zinc-950 border border-zinc-800 rounded px-2 py-1.5">
                              <span className="material-symbols-rounded text-sm text-zinc-600">folder</span>
-                             <input 
-                               type="text" 
-                               value={selectedAsset.type === 'image' ? `/public/branding/${selectedAsset.name.toLowerCase().replace(/\s+/g, '_')}.png` : `/assets/${selectedAsset.type}s/`}
+                             <input
+                               type="text"
+                               value={selectedAsset.source === 'drive' ? 'Google Drive/TheMAG.dev/Assets' : `/public/${selectedAsset.type}s/`}
                                readOnly
                                className="flex-1 bg-transparent text-[9px] text-zinc-400 font-mono focus:outline-none"
                              />
@@ -243,7 +255,11 @@ const AssetsManager: React.FC = () => {
                        </div>
 
                        <div className="grid grid-cols-2 gap-4">
-                          <button className="flex flex-col items-center justify-center gap-1.5 p-3 bg-zinc-950 border border-zinc-800 rounded-lg hover:border-indigo-500/50 transition-all text-zinc-400 hover:text-indigo-400 group">
+                          <button
+                            onClick={handleDownloadAsset}
+                            disabled={!selectedAsset.downloadUrl && (!selectedAsset.url || selectedAsset.url === '#')}
+                            className="flex flex-col items-center justify-center gap-1.5 p-3 bg-zinc-950 border border-zinc-800 rounded-lg hover:border-indigo-500/50 transition-all text-zinc-400 hover:text-indigo-400 group disabled:opacity-40 disabled:cursor-not-allowed"
+                          >
                              <span className="material-symbols-rounded text-xl">download</span>
                              <span className="text-[9px] font-bold uppercase">Download</span>
                           </button>

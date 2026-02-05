@@ -17,6 +17,10 @@ class WebContainerService {
   private currentProcess: any = null;
 
   async boot(): Promise<WebContainer> {
+    if (typeof window !== 'undefined' && !window.crossOriginIsolated) {
+      throw new Error('WebContainer requires cross-origin isolation (COOP/COEP). Use Mock/Local mode.');
+    }
+
     if (this.container) {
       return this.container;
     }

@@ -1,0 +1,19 @@
+
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#1e293b" rx="16"/>
+  <!-- Bar Chart -->
+  <rect x="40" y="240" width="40" height="0" fill="#6366f1">
+    <animate attributeName="height" from="0" to="100" dur="1s" fill="freeze" />
+    <animate attributeName="y" from="240" to="140" dur="1s" fill="freeze" />
+  </rect>
+  <rect x="100" y="240" width="40" height="0" fill="#8b5cf6">
+     <animate attributeName="height" from="0" to="160" dur="1.2s" fill="freeze" />
+     <animate attributeName="y" from="240" to="80" dur="1.2s" fill="freeze" />
+  </rect>
+  <rect x="160" y="240" width="40" height="0" fill="#ec4899">
+     <animate attributeName="height" from="0" to="120" dur="0.8s" fill="freeze" />
+     <animate attributeName="y" from="240" to="120" dur="0.8s" fill="freeze" />
+  </rect>
+  <!-- Line -->
+  <polyline points="220,200 280,150 340,180 380,100" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
+</svg>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Purchases, PurchasesPackage, CustomerInfo, LogLevel } from '@revenuecat/purchases-js';
 
-const API_KEY = 'test_BHHkqGNfzPCVziEbXBIwPxupzTJ'; // Using the key you provided
+const API_KEY = import.meta.env.VITE_REVENUECAT_API_KEY;
 
 export const useRevenueCat = () => {
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
@@ -16,6 +16,16 @@ export const useRevenueCat = () => {
       
       const rcInit = async () => {
         try {
+            if (typeof Purchases?.configure !== 'function' || typeof Purchases?.getCustomerInfo !== 'function') {
+              console.warn('RevenueCat SDK not available in this environment.');
+              return;
+            }
+
+            if (!API_KEY) {
+              console.warn('RevenueCat API Key not configured (VITE_REVENUECAT_API_KEY).');
+              return;
+            }
+
             Purchases.setLogLevel(LogLevel.Verbose);
             await Purchases.configure(API_KEY, "my_app_user_id"); // Ideally use real user ID
 

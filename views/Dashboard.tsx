@@ -27,6 +27,28 @@ interface ActivityItem {
   iconBg: string;
 }
 
+type HostingRole = 'primary' | 'backup' | 'mirror' | 'entry' | 'legacy';
+type HostingStatus = 'live' | 'planned' | 'fix';
+
+interface HostingTarget {
+  name: string;
+  role: HostingRole;
+  status: HostingStatus;
+  url?: string;
+  note: string;
+}
+
+const hostingTargets: HostingTarget[] = [
+  { name: 'Cloudflare Pages', role: 'primary', status: 'planned', note: 'Primary edge host (Cloudflare)' },
+  { name: 'Vercel (main)', role: 'backup', status: 'live', url: 'https://the-mag-dev-git-main-damien-loves-projects.vercel.app', note: 'Secondary (Vercel main)' },
+  { name: 'Firebase Hosting', role: 'mirror', status: 'live', url: 'https://themagdev-a4363.web.app', note: 'Tertiary (Firebase Hosting)' },
+  { name: 'Netlify', role: 'mirror', status: 'live', url: 'https://shimmering-gelato-4b92fa.netlify.app', note: 'Mirror with Git deploys' },
+  { name: 'Vercel (preview)', role: 'mirror', status: 'live', url: 'https://the-mag-ik11pe0f6-damien-loves-projects.vercel.app', note: 'Preview deployment' },
+  { name: 'InfinityFree (FTP)', role: 'entry', status: 'fix', url: 'https://magstack.rf.gd/', note: 'Entry point (FTP legacy)' },
+];
+
+const hostingAlternates = ['GitHub Pages', 'Azure Static Web Apps', 'AWS Amplify'];
+
 const Dashboard: React.FC = () => {
   const [metrics, setMetrics] = useState<Metric[]>([
     { label: 'Build Success Rate', value: '98.5%', change: 2.1, trend: 'up', subtext: 'Based on last 142 builds' },
@@ -51,6 +73,34 @@ const Dashboard: React.FC = () => {
   const [memoryUsage, setMemoryUsage] = useState(78);
   const [showInsights, setShowInsights] = useState(false);
   const [isPipelineRunning, setIsPipelineRunning] = useState(false);
+
+  const roleStyles: Record<HostingRole, string> = {
+    primary: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+    backup: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    mirror: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    entry: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+    legacy: 'bg-zinc-800 text-zinc-400 border-zinc-700',
+  };
+
+  const roleLabels: Record<HostingRole, string> = {
+    primary: 'Primary',
+    backup: 'Backup',
+    mirror: 'Mirror',
+    entry: 'Entry',
+    legacy: 'Legacy',
+  };
+
+  const statusStyles: Record<HostingStatus, string> = {
+    live: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    planned: 'bg-zinc-800 text-zinc-400 border-zinc-700',
+    fix: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  };
+
+  const statusLabels: Record<HostingStatus, string> = {
+    live: 'Live',
+    planned: 'Planned',
+    fix: 'Needs Fix',
+  };
 
   // Simulate live metrics updates
   useEffect(() => {
@@ -180,6 +230,15 @@ const Dashboard: React.FC = () => {
             <span className={`material-symbols-rounded text-sm ${isPipelineRunning ? 'animate-pulse' : ''}`}>rocket_launch</span>
             {isPipelineRunning ? 'Running...' : 'Trigger Pipeline'}
           </button>
+          <a
+            href="https://magstack.rf.gd/"
+            target="_blank"
+            rel="noreferrer"
+            className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-sm font-bold transition-all border border-zinc-800 flex items-center gap-2"
+          >
+            <span className="material-symbols-rounded text-sm">hub</span>
+            Open MagStack
+          </a>
         </div>
       </header>
 
@@ -325,6 +384,56 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Hosting</h3>
+              <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Multi-host</span>
+            </div>
+            <div className="space-y-3">
+              {hostingTargets.map((target) => (
+                <div key={target.name} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-zinc-950/50 border border-zinc-800">
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-white truncate">{target.name}</p>
+                    <p className="text-[10px] text-zinc-500 mt-1">{target.note}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border ${roleStyles[target.role]}`}>
+                      {roleLabels[target.role]}
+                    </span>
+                    <span className={`px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border ${statusStyles[target.status]}`}>
+                      {statusLabels[target.status]}
+                    </span>
+                    {target.url ? (
+                      <a
+                        href={target.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest border border-zinc-700 text-zinc-300 hover:text-white hover:border-emerald-500/60 hover:bg-zinc-900 transition-all"
+                      >
+                        Open
+                      </a>
+                    ) : (
+                      <span className="px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest border border-zinc-800 text-zinc-500">
+                        Set URL
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 pt-4 border-t border-zinc-800">
+              <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Stores: Google Drive</p>
+              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Other providers</p>
+              <div className="flex flex-wrap gap-2 mt-3">
+                {hostingAlternates.map((name) => (
+                  <span key={name} className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest bg-zinc-950/60 border border-zinc-800 text-zinc-500">
+                    {name}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface BackendModule {
   name: string;
@@ -17,8 +17,7 @@ interface BackendService {
   icon: string;
 }
 
-const Infrastructure: React.FC = () => {
-  const [services, setServices] = useState<BackendService[]>([
+const DEFAULT_SERVICES: BackendService[] = [
     {
       id: 'firebase-1',
       name: 'Google Firebase',
@@ -58,23 +57,73 @@ const Infrastructure: React.FC = () => {
       icon: 'terminal',
       modules: []
     }
-  ]);
+  ];
+
+const Infrastructure: React.FC = () => {
+  const [services, setServices] = useState<BackendService[]>(() => {
+    const saved = localStorage.getItem('themag_infrastructure');
+    return saved ? JSON.parse(saved) : DEFAULT_SERVICES;
+  });
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newService, setNewService] = useState<Partial<BackendService>>({
+      name: '',
+      provider: '',
+      project: ''
+  });
+
+  useEffect(() => {
+    localStorage.setItem('themag_infrastructure', JSON.stringify(services));
+  }, [services]);
+
+  const handleAddService = () => {
+    if (!newService.name || !newService.provider) return;
+
+    const service: BackendService = {
+        id: `custom-${Date.now()}`,
+        name: newService.name,
+        provider: newService.provider,
+        project: newService.project || 'unconfigured',
+        status: 'Active',
+        color: 'text-indigo-500',
+        icon: 'cloud',
+        modules: []
+    };
+
+    setServices([...services, service]);
+    setShowAddModal(false);
+    setNewService({ name: '', provider: '', project: '' });
+  };
+
+  const removeService = (id: string) => {
+      setServices(services.filter(s => s.id !== id));
+  };
 
   return (
-    <div className="flex-1 bg-zinc-950 overflow-y-auto p-8 font-sans">
+    <div className="flex-1 bg-zinc-950 overflow-y-auto p-8 font-sans relative">
       <header className="mb-8 flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1 uppercase tracking-tight">Infrastructure Stack</h1>
           <p className="text-zinc-400 text-sm">Manage multi-cloud backend services and service mesh connectivity.</p>
         </div>
-        <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2">
+        <button
+            onClick={() => setShowAddModal(true)}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2"
+        >
           <span className="material-symbols-rounded text-sm">add</span> Provision New Service
         </button>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {services.map(service => (
-          <div key={service.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl flex flex-col">
+          <div key={service.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl flex flex-col group relative">
+             <button
+                onClick={(e) => { e.stopPropagation(); removeService(service.id); }}
+                className="absolute top-2 right-2 p-1 text-zinc-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                title="Remove Service"
+             >
+                 <span className="material-symbols-rounded text-sm">close</span>
+             </button>
+
             {/* Service Header */}
             <div className="p-5 border-b border-zinc-800/50 flex items-center justify-between hover:bg-zinc-800/30 transition-colors cursor-pointer group">
               <div className="flex items-center gap-4">
@@ -146,6 +195,67 @@ const Infrastructure: React.FC = () => {
            </div>
         </div>
       </div>
+
+      {showAddModal && (
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 w-full max-w-md shadow-2xl">
+                  <h3 className="text-lg font-bold text-white mb-4">Provision New Service</h3>
+                  <div className="space-y-4">
+                      <div>
+                          <label className="block text-xs font-bold text-zinc-500 uppercase mb-1">Service Name</label>
+                          <input
+                            type="text"
+                            value={newService.name}
+                            onChange={(e) => setNewService({...newService, name: e.target.value})}
+                            className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2 text-sm text-white focus:border-indigo-500 outline-none"
+                            placeholder="My Backend Service"
+                          />
+                      </div>
+                      <div>
+                          <label className="block text-xs font-bold text-zinc-500 uppercase mb-1">Provider</label>
+                          <select
+                            value={newService.provider}
+                            onChange={(e) => setNewService({...newService, provider: e.target.value})}
+                            className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2 text-sm text-white focus:border-indigo-500 outline-none"
+                          >
+                              <option value="">Select Provider...</option>
+                              <option value="AWS">AWS</option>
+                              <option value="GCP">Google Cloud Platform</option>
+                              <option value="Azure">Azure</option>
+                              <option value="DigitalOcean">DigitalOcean</option>
+                              <option value="Vercel">Vercel</option>
+                              <option value="Netlify">Netlify</option>
+                          </select>
+                      </div>
+                      <div>
+                          <label className="block text-xs font-bold text-zinc-500 uppercase mb-1">Project ID</label>
+                          <input
+                            type="text"
+                            value={newService.project}
+                            onChange={(e) => setNewService({...newService, project: e.target.value})}
+                            className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2 text-sm text-white focus:border-indigo-500 outline-none"
+                            placeholder="project-id-123"
+                          />
+                      </div>
+                  </div>
+                  <div className="flex justify-end gap-3 mt-6">
+                      <button
+                        onClick={() => setShowAddModal(false)}
+                        className="px-4 py-2 text-zinc-400 hover:text-white text-sm font-bold"
+                      >
+                          Cancel
+                      </button>
+                      <button
+                        onClick={handleAddService}
+                        disabled={!newService.name || !newService.provider}
+                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-lg text-sm font-bold"
+                      >
+                          Provision
+                      </button>
+                  </div>
+              </div>
+          </div>
+      )}
     </div>
   );
 };
