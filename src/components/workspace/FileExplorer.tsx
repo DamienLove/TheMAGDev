@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, memo, useEffect } from 'react';
 import { useWorkspace, FileNode } from './WorkspaceContext';
 
 interface FileExplorerProps {
@@ -6,6 +6,125 @@ interface FileExplorerProps {
   onPopOut?: () => void;
   onOpenWindow?: () => void;
 }
+
+const getFileIcon = (name: string, type: 'file' | 'folder', isExpanded?: boolean): { icon: string; color: string } => {
+  if (type === 'folder') {
+    return { icon: isExpanded ? 'folder_open' : 'folder', color: 'text-amber-400' };
+  }
+
+  const ext = name.split('.').pop()?.toLowerCase();
+  const iconMap: Record<string, { icon: string; color: string }> = {
+    tsx: { icon: 'code', color: 'text-blue-400' },
+    ts: { icon: 'code', color: 'text-blue-400' },
+    jsx: { icon: 'code', color: 'text-yellow-400' },
+    js: { icon: 'code', color: 'text-yellow-400' },
+    json: { icon: 'data_object', color: 'text-emerald-400' },
+    css: { icon: 'palette', color: 'text-pink-400' },
+    scss: { icon: 'palette', color: 'text-pink-400' },
+    html: { icon: 'html', color: 'text-orange-400' },
+    md: { icon: 'description', color: 'text-zinc-400' },
+    svg: { icon: 'image', color: 'text-purple-400' },
+    png: { icon: 'image', color: 'text-purple-400' },
+    jpg: { icon: 'image', color: 'text-purple-400' },
+    py: { icon: 'code', color: 'text-green-400' },
+    rs: { icon: 'code', color: 'text-orange-400' },
+    go: { icon: 'code', color: 'text-cyan-400' },
+  };
+
+  return iconMap[ext || ''] || { icon: 'description', color: 'text-zinc-500' };
+};
+
+interface FileTreeItemProps {
+  node: FileNode;
+  depth: number;
+  isActive: boolean;
+  isExpanded: boolean;
+  hasUnsaved: boolean;
+  isRenaming: boolean;
+  onToggle: (path: string) => void;
+  onOpen: (path: string) => void;
+  onContextMenu: (e: React.MouseEvent, path: string, type: 'file' | 'folder') => void;
+  onRenameSubmit: (name: string) => void;
+  onRenameCancel: () => void;
+}
+
+const FileTreeItem = memo(({
+  node,
+  depth,
+  isActive,
+  isExpanded,
+  hasUnsaved,
+  isRenaming,
+  onToggle,
+  onOpen,
+  onContextMenu,
+  onRenameSubmit,
+  onRenameCancel
+}: FileTreeItemProps) => {
+  const { icon, color } = getFileIcon(node.name, node.type, isExpanded);
+  const [localName, setLocalName] = useState(node.name);
+
+  useEffect(() => {
+    if (isRenaming) {
+      setLocalName(node.name);
+    }
+  }, [isRenaming, node.name]);
+
+  const handleSubmit = () => {
+    onRenameSubmit(localName);
+  };
+
+  return (
+    <div
+      onClick={(e) => {
+        e.stopPropagation();
+        if (node.type === 'folder') {
+          onToggle(node.path);
+        } else {
+          onOpen(node.path);
+        }
+      }}
+      onContextMenu={(e) => onContextMenu(e, node.path, node.type)}
+      className={`
+        flex items-center gap-1.5 py-1 px-2 rounded text-xs cursor-pointer group
+        ${isActive
+          ? 'bg-indigo-500/10 text-indigo-400 border-l-2 border-indigo-500'
+          : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 border-l-2 border-transparent'
+        }
+      `}
+      style={{ paddingLeft: `${depth * 12 + 8}px` }}
+    >
+      {node.type === 'folder' && (
+        <span className="material-symbols-rounded text-xs text-zinc-600">
+          {isExpanded ? 'expand_more' : 'chevron_right'}
+        </span>
+      )}
+      <span className={`material-symbols-rounded text-sm ${color}`}>{icon}</span>
+
+      {isRenaming ? (
+        <input
+          type="text"
+          value={localName}
+          onChange={(e) => setLocalName(e.target.value)}
+          onBlur={handleSubmit}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleSubmit();
+            if (e.key === 'Escape') onRenameCancel();
+          }}
+          className="flex-1 bg-zinc-900 border border-indigo-500 rounded px-1 py-0.5 text-xs text-white focus:outline-none"
+          autoFocus
+          onClick={(e) => e.stopPropagation()}
+        />
+      ) : (
+        <span className="flex-1 truncate">{node.name}</span>
+      )}
+
+      {hasUnsaved && !isRenaming && (
+        <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+      )}
+    </div>
+  );
+});
 
 const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpenWindow }) => {
   const {
@@ -21,7 +140,7 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['/src', '/src/components', '/src/hooks']));
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; path: string; type: 'file' | 'folder' } | null>(null);
   const [renaming, setRenaming] = useState<string | null>(null);
-  const [newName, setNewName] = useState('');
+  // Removed global newName state to prevent re-renders of the whole tree when typing
   const [creating, setCreating] = useState<{ parentPath: string; type: 'file' | 'folder' } | null>(null);
   const [newItemName, setNewItemName] = useState('');
 
@@ -47,19 +166,21 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
     setContextMenu(null);
   }, []);
 
-  const handleRename = useCallback((path: string, name: string) => {
+  const handleRename = useCallback((path: string) => {
     setRenaming(path);
-    setNewName(name);
     closeContextMenu();
   }, [closeContextMenu]);
 
-  const submitRename = useCallback(() => {
-    if (renaming && newName.trim()) {
-      renameFile(renaming, newName.trim());
+  const submitRename = useCallback((name: string) => {
+    if (renaming && name.trim()) {
+      renameFile(renaming, name.trim());
     }
     setRenaming(null);
-    setNewName('');
-  }, [renaming, newName, renameFile]);
+  }, [renaming, renameFile]);
+
+  const onRenameCancel = useCallback(() => {
+    setRenaming(null);
+  }, []);
 
   const handleDelete = useCallback((path: string) => {
     if (confirm('Are you sure you want to delete this item?')) {
@@ -85,92 +206,29 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
     setNewItemName('');
   }, [creating, newItemName, createFile]);
 
-  const getFileIcon = (name: string, type: 'file' | 'folder', isExpanded?: boolean): { icon: string; color: string } => {
-    if (type === 'folder') {
-      return { icon: isExpanded ? 'folder_open' : 'folder', color: 'text-amber-400' };
-    }
-
-    const ext = name.split('.').pop()?.toLowerCase();
-    const iconMap: Record<string, { icon: string; color: string }> = {
-      tsx: { icon: 'code', color: 'text-blue-400' },
-      ts: { icon: 'code', color: 'text-blue-400' },
-      jsx: { icon: 'code', color: 'text-yellow-400' },
-      js: { icon: 'code', color: 'text-yellow-400' },
-      json: { icon: 'data_object', color: 'text-emerald-400' },
-      css: { icon: 'palette', color: 'text-pink-400' },
-      scss: { icon: 'palette', color: 'text-pink-400' },
-      html: { icon: 'html', color: 'text-orange-400' },
-      md: { icon: 'description', color: 'text-zinc-400' },
-      svg: { icon: 'image', color: 'text-purple-400' },
-      png: { icon: 'image', color: 'text-purple-400' },
-      jpg: { icon: 'image', color: 'text-purple-400' },
-      py: { icon: 'code', color: 'text-green-400' },
-      rs: { icon: 'code', color: 'text-orange-400' },
-      go: { icon: 'code', color: 'text-cyan-400' },
-    };
-
-    return iconMap[ext || ''] || { icon: 'description', color: 'text-zinc-500' };
-  };
-
   const renderTree = (nodes: FileNode[], depth = 0): React.ReactNode => {
     return nodes.map(node => {
       const isExpanded = expandedFolders.has(node.path);
       const isActive = activeFile === node.path;
       const hasUnsaved = unsavedFiles.has(node.path);
-      const { icon, color } = getFileIcon(node.name, node.type, isExpanded);
       const isRenaming = renaming === node.path;
       const isCreatingHere = creating?.parentPath === node.path;
 
       return (
         <div key={node.path}>
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-              if (node.type === 'folder') {
-                toggleFolder(node.path);
-              } else {
-                openFile(node.path);
-              }
-            }}
-            onContextMenu={(e) => handleContextMenu(e, node.path, node.type)}
-            className={`
-              flex items-center gap-1.5 py-1 px-2 rounded text-xs cursor-pointer group
-              ${isActive
-                ? 'bg-indigo-500/10 text-indigo-400 border-l-2 border-indigo-500'
-                : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 border-l-2 border-transparent'
-              }
-            `}
-            style={{ paddingLeft: `${depth * 12 + 8}px` }}
-          >
-            {node.type === 'folder' && (
-              <span className="material-symbols-rounded text-xs text-zinc-600">
-                {isExpanded ? 'expand_more' : 'chevron_right'}
-              </span>
-            )}
-            <span className={`material-symbols-rounded text-sm ${color}`}>{icon}</span>
-
-            {isRenaming ? (
-              <input
-                type="text"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                onBlur={submitRename}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') submitRename();
-                  if (e.key === 'Escape') { setRenaming(null); setNewName(''); }
-                }}
-                className="flex-1 bg-zinc-900 border border-indigo-500 rounded px-1 py-0.5 text-xs text-white focus:outline-none"
-                autoFocus
-                onClick={(e) => e.stopPropagation()}
-              />
-            ) : (
-              <span className="flex-1 truncate">{node.name}</span>
-            )}
-
-            {hasUnsaved && !isRenaming && (
-              <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
-            )}
-          </div>
+          <FileTreeItem
+            node={node}
+            depth={depth}
+            isActive={isActive}
+            isExpanded={isExpanded}
+            hasUnsaved={hasUnsaved}
+            isRenaming={isRenaming}
+            onToggle={toggleFolder}
+            onOpen={openFile}
+            onContextMenu={handleContextMenu}
+            onRenameSubmit={submitRename}
+            onRenameCancel={onRenameCancel}
+          />
 
           {node.type === 'folder' && isExpanded && (
             <>
@@ -312,7 +370,7 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
             </>
           )}
           <button
-            onClick={() => handleRename(contextMenu.path, contextMenu.path.split('/').pop() || '')}
+            onClick={() => handleRename(contextMenu.path)}
             className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800 text-left"
           >
             <span className="material-symbols-rounded text-sm">edit</span>
