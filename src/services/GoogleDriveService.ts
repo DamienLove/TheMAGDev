@@ -63,6 +63,39 @@ const STORAGE_KEY = 'themag_gdrive_auth';
 
 type SyncStatusListener = (status: DriveSyncStatus) => void;
 
+function pLimit(concurrency: number) {
+  const queue: (() => void)[] = [];
+  let activeCount = 0;
+
+  const next = () => {
+    activeCount--;
+    if (queue.length > 0) {
+      queue.shift()!();
+    }
+  };
+
+  const run = async <T>(fn: () => Promise<T>): Promise<T> => {
+    const enqueue = async () => {
+      activeCount++;
+      try {
+        return await fn();
+      } finally {
+        next();
+      }
+    };
+
+    if (activeCount < concurrency) {
+      return enqueue();
+    }
+
+    return new Promise<T>((resolve) => {
+      queue.push(() => resolve(enqueue()));
+    });
+  };
+
+  return run;
+}
+
 class GoogleDriveService {
   private gisLoaded = false;
   private tokenClient: google.accounts.oauth2.TokenClient | null = null;
@@ -1131,11 +1164,17 @@ class GoogleDriveService {
       const remoteFileMap = new Map(remoteFiles.map(f => [f.name, f]));
 
       const CONCURRENCY = 5;
-      const executing = new Set<Promise<void>>();
+      const limit = pLimit(CONCURRENCY);
 
-      // Process files concurrently with a limit to avoid rate limits
-      for (const [path, content] of localFiles) {
-        const task = async () => {
+// Process files concurrently with a limit to avoid rate limits
+const tasks = Array.from(localFiles).map(([path, content]) => {
+  return limit(async () => {
+    // existing body...
+  });
+});
+await Promise.all(tasks);
+      const tasks = Array.from(localFiles).map(([path, content]) => {
+        return limit(async () => {
           const existingFile = remoteFileMap.get(path);
 
           if (existingFile) {
@@ -1146,19 +1185,10 @@ class GoogleDriveService {
 
           this.syncStatus.syncedFiles = (this.syncStatus.syncedFiles || 0) + 1;
           this.notifyListeners();
-        };
-
-        const p = task().finally(() => {
-          executing.delete(p);
         });
-        executing.add(p);
+      });
 
-        if (executing.size >= CONCURRENCY) {
-          await Promise.race(executing);
-        }
-      }
-
-      await Promise.all(executing);
+      await Promise.all(tasks);
 
       this.syncStatus.lastSync = Date.now();
       this.syncStatus.syncInProgress = false;
