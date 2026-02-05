@@ -835,6 +835,9 @@ class ExtensionService {
     ];
 
     for (const { pattern, issue } of dangerousPatterns) {
+      // Yield to main thread to avoid blocking UI
+      await new Promise(resolve => setTimeout(resolve, 0));
+
       if (pattern.test(sourceCode)) {
         issues.push(issue);
       }
