@@ -260,3 +260,14 @@ Last updated: 2026-01-28 21:05:56
 Status:
 - FTP upload to 50.28.105.37:/home/themagde completed successfully.
 - HTTP HEAD to http://50.28.105.37/ returned 200 (site responding).
+
+Performance Optimization (SDK Service)
+Last updated: 2026-01-30 00:00:00
+
+Current objectives:
+- Optimize SDKService O(N*M) filtering to O(N).
+
+Status:
+- Implemented Set-based filtering in SDKService.loadFromStorage for both SDKs and Plugins.
+- Benchmarked ~130x improvement.
+- Verified build and logic.
