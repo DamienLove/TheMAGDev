@@ -506,6 +506,26 @@ class SDKService {
     });
   }
 
+  uninstallSDK(id: string): Promise<void> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const sdk = this.sdks.find(s => s.id === id);
+        if (sdk) {
+          sdk.status = 'Not Installed';
+          this.saveState();
+          this.notify();
+        }
+        resolve();
+      }, 1000);
+    });
+  }
+
+  uninstallPlugin(id: string): void {
+    this.plugins = this.plugins.filter(p => p.id !== id);
+    this.saveState();
+    this.notify();
+  }
+
   addPlugin(plugin: SDKPlugin): void {
     this.plugins.push(plugin);
     this.saveState();

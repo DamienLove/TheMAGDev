@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MODULE_CATALOG } from '../src/data/moduleCatalog';
 
 interface Extension {
@@ -109,7 +109,23 @@ const Marketplace: React.FC = () => {
     color: 'bg-zinc-800'
   }));
 
-  const [extensions, setExtensions] = useState<Extension[]>([...coreExtensions, ...moduleExtensions]);
+  const [extensions, setExtensions] = useState<Extension[]>(() => {
+      const allExtensions = [...coreExtensions, ...moduleExtensions];
+      const savedState = localStorage.getItem('themag_marketplace_state');
+      if (savedState) {
+          const installedIds = JSON.parse(savedState);
+          return allExtensions.map(ext => ({
+              ...ext,
+              installed: installedIds.includes(ext.id) || (ext.installed && !savedState) // keep defaults if no state, else override
+          }));
+      }
+      return allExtensions;
+  });
+
+  useEffect(() => {
+      const installedIds = extensions.filter(e => e.installed).map(e => e.id);
+      localStorage.setItem('themag_marketplace_state', JSON.stringify(installedIds));
+  }, [extensions]);
 
   const categories = [
     { name: 'Popular', icon: 'trending_up' },
@@ -124,12 +140,13 @@ const Marketplace: React.FC = () => {
 
   const handleInstall = (extId: string) => {
     setInstalling(extId);
+    // Simulate network delay
     setTimeout(() => {
       setExtensions(prev => prev.map(ext =>
         ext.id === extId ? { ...ext, installed: !ext.installed } : ext
       ));
       setInstalling(null);
-    }, 1500);
+    }, 1000);
   };
 
   const filteredExtensions = extensions.filter(ext => {

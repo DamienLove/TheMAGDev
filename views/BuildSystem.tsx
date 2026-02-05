@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
 
 interface BuildTask {
   name: string;
@@ -16,6 +17,20 @@ interface Dependency {
 const BuildSystem: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState('TheMAGCore:app');
   const [isOfflineMode, setIsOfflineMode] = useState(false);
+  const [buildStatus, setBuildStatus] = useState<'idle' | 'building' | 'success' | 'error'>('idle');
+  const [buildProgress, setBuildProgress] = useState(0);
+  const [buildLogs, setBuildLogs] = useState<string[]>(['Ready to build...']);
+  const logsEndRef = useRef<HTMLDivElement>(null);
+
+  // Workspace context is guaranteed by App wrapper
+  const workspace = useWorkspace();
+  const workspaceFiles = workspace.files;
+
+  useEffect(() => {
+    if (logsEndRef.current) {
+      logsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [buildLogs]);
 
   const tasks: Record<string, BuildTask[]> = {
     'android': [
@@ -43,6 +58,40 @@ const BuildSystem: React.FC = () => {
     'testImplementation': [
       { group: 'junit:junit', version: '4.13.2' }
     ]
+  };
+
+  const runBuild = (taskName: string) => {
+    if (buildStatus === 'building') return;
+
+    setBuildStatus('building');
+    setBuildProgress(0);
+    setBuildLogs([`> Executing task: ${taskName}...`, 'Initializing Daemon...', 'Allocating resources...']);
+
+    const steps = [
+        { progress: 10, msg: '> Configure project :app' },
+        { progress: 25, msg: '> Task :app:preBuild UP-TO-DATE' },
+        { progress: 40, msg: '> Task :app:preDebugBuild UP-TO-DATE' },
+        { progress: 55, msg: '> Task :app:compileDebugAidl NO-SOURCE' },
+        { progress: 70, msg: '> Task :app:compileDebugRenderscript NO-SOURCE' },
+        { progress: 85, msg: '> Task :app:generateDebugBuildConfig' },
+        { progress: 95, msg: '> Task :app:javaPreCompileDebug' },
+        { progress: 100, msg: 'BUILD SUCCESSFUL in 3s' }
+    ];
+
+    let currentStep = 0;
+
+    const interval = setInterval(() => {
+        if (currentStep >= steps.length) {
+            clearInterval(interval);
+            setBuildStatus('success');
+            return;
+        }
+
+        const step = steps[currentStep];
+        setBuildProgress(step.progress);
+        setBuildLogs(prev => [...prev, step.msg]);
+        currentStep++;
+    }, 800);
   };
 
   return (
@@ -110,11 +159,14 @@ const BuildSystem: React.FC = () => {
                    </summary>
                    <div className="pl-4 ml-3 border-l border-zinc-800 mt-1 space-y-0.5">
                       {taskList.map(task => (
-                        <div key={task.name} className={`flex items-center justify-between px-2 py-1.5 rounded hover:bg-zinc-800 group/item transition-all ${task.isKey ? 'bg-indigo-500/5 border-l border-indigo-500' : ''}`}>
+                        <div
+                            key={task.name}
+                            className={`flex items-center justify-between px-2 py-1.5 rounded hover:bg-zinc-800 group/item transition-all cursor-pointer ${task.isKey ? 'bg-indigo-500/5 border-l border-indigo-500' : ''}`}
+                            onClick={() => runBuild(task.name)}
+                        >
                            <span className={`text-xs ${task.isKey ? 'text-white font-bold' : 'text-zinc-500'}`}>{task.name}</span>
                            <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
                               <button className="text-emerald-500 hover:text-emerald-400 p-1"><span className="material-symbols-rounded text-sm">play_arrow</span></button>
-                              {task.isKey && <button className="text-red-400 hover:text-red-300 p-1"><span className="material-symbols-rounded text-sm">bug_report</span></button>}
                            </div>
                         </div>
                       ))}
@@ -178,16 +230,23 @@ const BuildSystem: React.FC = () => {
                     <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Live Build Pipeline</h2>
                     <button className="text-[10px] font-bold text-indigo-400 hover:underline uppercase">View Full Console</button>
                  </div>
-                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 font-mono text-[11px] leading-relaxed shadow-inner overflow-hidden relative group">
+                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 font-mono text-[11px] leading-relaxed shadow-inner overflow-hidden relative group min-h-[160px]">
                     <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
                        <button className="p-1 bg-zinc-800 rounded border border-zinc-700 text-zinc-400 hover:text-white"><span className="material-symbols-rounded text-sm">content_copy</span></button>
                     </div>
-                    <p className="text-zinc-500">Establishing Gradle daemon...</p>
-                    <p className="text-zinc-300">Daemon will be stopped at the end of the build after 3 hours of idle time.</p>
-                    <p className="text-zinc-100 mt-1">&gt; Task :app:assembleDebug <span className="text-emerald-500">UP-TO-DATE</span></p>
-                    <p className="text-zinc-100">&gt; Task :app:bundleRelease <span className="text-indigo-400 font-bold">EXECUTING [45%]</span></p>
-                    <div className="w-full h-1 bg-zinc-800 rounded-full mt-2 overflow-hidden">
-                       <div className="h-full bg-indigo-500 transition-all duration-1000" style={{ width: '45%' }}></div>
+
+                    <div className="space-y-1 h-32 overflow-y-auto pr-2">
+                        {buildLogs.map((log, i) => (
+                             <p key={i} className={`${log.includes('SUCCESSFUL') ? 'text-emerald-500 font-bold' : 'text-zinc-300'}`}>{log}</p>
+                        ))}
+                        <div ref={logsEndRef} />
+                    </div>
+
+                    <div className="w-full h-1 bg-zinc-800 rounded-full mt-4 overflow-hidden">
+                       <div
+                         className={`h-full transition-all duration-300 ${buildStatus === 'success' ? 'bg-emerald-500' : 'bg-indigo-500'}`}
+                         style={{ width: `${buildProgress}%` }}
+                       ></div>
                     </div>
                  </div>
               </section>
@@ -206,8 +265,10 @@ const BuildSystem: React.FC = () => {
             </div>
             <div className="h-4 w-px bg-zinc-800"></div>
             <div className="flex items-center gap-2 text-[9px] font-bold text-zinc-500 uppercase tracking-widest">
-               <span className="material-symbols-rounded text-sm text-emerald-500">check_circle</span>
-               Build Success in 12.4s
+               {buildStatus === 'success' && <span className="material-symbols-rounded text-sm text-emerald-500">check_circle</span>}
+               {buildStatus === 'building' && <span className="material-symbols-rounded text-sm text-indigo-500 animate-spin">sync</span>}
+               {buildStatus === 'idle' && <span className="material-symbols-rounded text-sm text-zinc-600">stop_circle</span>}
+               {buildStatus === 'success' ? 'Build Success' : buildStatus === 'building' ? 'Building...' : 'Ready'}
             </div>
          </div>
          <div className="flex items-center gap-4 text-[9px] font-bold text-zinc-600 uppercase">
