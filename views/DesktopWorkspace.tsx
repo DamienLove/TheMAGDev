@@ -2,6 +2,9 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
+import aiProvider from '../src/services/AIProvider';
+import extensionService from '../src/services/ExtensionService';
+import { useSettings } from '../src/contexts/SettingsContext';
 
 interface FileNode {
   id: string;
@@ -16,7 +19,7 @@ interface FileNode {
 
 interface PanelConfig {
   id: string;
-  type: 'editor' | 'terminal' | 'ai' | 'git';
+  type: 'editor' | 'terminal' | 'ai' | 'git' | 'extensions' | 'settings';
   title: string;
   isVisible: boolean;
 }
@@ -24,6 +27,7 @@ interface PanelConfig {
 const DesktopWorkspace: React.FC = () => {
   // Get workspace context for IDE-wide file management
   const workspace = useWorkspace();
+  const { settings, updateAISettings } = useSettings();
 
   const [activeTab, setActiveTab] = useState('MainController.ts');
   const [activeTerminalTab, setActiveTerminalTab] = useState('Terminal');
@@ -59,6 +63,8 @@ const DesktopWorkspace: React.FC = () => {
     { id: 'ai', type: 'ai', title: 'AI Assistant', isVisible: true },
     { id: 'terminal', type: 'terminal', title: 'Terminal', isVisible: true },
     { id: 'git', type: 'git', title: 'Git', isVisible: false },
+    { id: 'extensions', type: 'extensions', title: 'Extensions', isVisible: false },
+    { id: 'settings', type: 'settings', title: 'Settings', isVisible: false },
   ]);
   const [splitView, setSplitView] = useState(false);
 
@@ -77,6 +83,12 @@ const DesktopWorkspace: React.FC = () => {
   const [llmPrompt, setLlmPrompt] = useState('');
   const [llmResponse, setLlmResponse] = useState('');
   const [llmLoading, setLlmLoading] = useState(false);
+
+  // Extension updates
+  const [extensionsVersion, setExtensionsVersion] = useState(0);
+  useEffect(() => {
+    return extensionService.onChange(() => setExtensionsVersion(v => v + 1));
+  }, []);
 
   // Popout windows for multi-screen support
   const popoutWindow = useRef<Window | null>(null);
@@ -465,40 +477,53 @@ export class MainController {
     }
 
     setLlmLoading(true);
-    const prompts: Record<string, string> = {
-      explain: 'Explain this code concisely:',
-      fix: 'Identify and fix bugs in this code:',
-      optimize: 'Optimize this code for performance:',
-      refactor: 'Refactor this code for better readability:',
-    };
-
-    const prompt = prompts[action] || action;
-    setLlmPrompt(prompt);
-
-    // Simulate LLM response (replace with actual API call)
     addTerminalLine(`Running AI ${action}...`);
-    setTimeout(() => {
-      const mockResponses: Record<string, string> = {
-        explain: `This code defines a ${activeTab.includes('Controller') ? 'controller class' : 'module'} that handles platform-specific initialization. It uses a constructor pattern to set the target platform based on the current runtime environment.`,
-        fix: 'No critical bugs found. Consider adding error handling for the Platform.current() call in case it fails.',
-        optimize: 'The code is already well-optimized. Consider lazy-loading the platform detection if not immediately needed.',
-        refactor: 'Consider using dependency injection for the Platform instance to improve testability.',
-      };
-      setLlmResponse(mockResponses[action] || 'Analysis complete.');
+
+    try {
+      const response = await aiProvider.sendMessage(
+        [{ role: 'user', content: `Please ${action} the following code:\n\n${activeFileContent}` }],
+        `You are a helpful coding assistant.`
+      );
+
+      if (response.error) {
+        addTerminalLine(`AI Error: ${response.error}`, 'error');
+        setLlmResponse(`Error: ${response.error}`);
+      } else {
+        setLlmResponse(response.content);
+        addTerminalLine(`AI ${action} complete`, 'success');
+      }
+    } catch (e: any) {
+      addTerminalLine(`AI Error: ${e.message}`, 'error');
+      setLlmResponse(`Error: ${e.message}`);
+    } finally {
       setLlmLoading(false);
-      addTerminalLine(`AI ${action} complete`, 'success');
-    }, 1500);
+    }
   };
 
   const runCustomLLMPrompt = async () => {
     if (!llmPrompt.trim()) return;
     setLlmLoading(true);
     addTerminalLine('Processing custom prompt...');
-    setTimeout(() => {
-      setLlmResponse(`Based on your prompt "${llmPrompt.slice(0, 50)}...", here's my analysis:\n\nThe code structure follows standard patterns. Consider implementing additional error boundaries and type guards for improved reliability.`);
+
+    try {
+      const response = await aiProvider.sendMessage(
+        [{ role: 'user', content: llmPrompt }],
+        activeFileContent ? `Current file context:\n${activeFileContent}` : undefined
+      );
+
+      if (response.error) {
+        addTerminalLine(`AI Error: ${response.error}`, 'error');
+        setLlmResponse(`Error: ${response.error}`);
+      } else {
+        setLlmResponse(response.content);
+        addTerminalLine('Custom prompt complete', 'success');
+      }
+    } catch (e: any) {
+      addTerminalLine(`AI Error: ${e.message}`, 'error');
+      setLlmResponse(`Error: ${e.message}`);
+    } finally {
       setLlmLoading(false);
-      addTerminalLine('Custom prompt complete', 'success');
-    }, 2000);
+    }
   };
 
   const openFile = async (file: FileNode) => {
@@ -639,9 +664,33 @@ export class MainController {
             <h1 className="text-sm font-bold tracking-tight">DevStudio <span className="text-indigo-500">Master</span></h1>
           </div>
           <nav className="hidden md:flex items-center gap-4 text-[#9da1b9]">
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
+            <button
+              onClick={() => setShowDrivePanel(false)}
+              className="hover:text-white text-[12px] font-medium transition-colors"
+            >
+              Project
+            </button>
+            <button
+              onClick={() => {
+                if (!showTerminal) toggleTerminal();
+                setActiveTerminalTab('Terminal');
+                addTerminalLine('Starting build process...', 'success');
+                // In a real scenario with WebContainer active, we would trigger:
+                // webContainerService.runCommand('npm run build');
+              }}
+              className="hover:text-white text-[12px] font-medium transition-colors"
+            >
+              Build
+            </button>
+            <button
+              onClick={() => {
+                if (!panels.find(p => p.id === 'ai')?.isVisible) togglePanel('ai');
+                runLLMCommand('fix');
+              }}
+              className="hover:text-white text-[12px] font-medium transition-colors"
+            >
+              Debug
+            </button>
             <button
               onClick={() => setShowDrivePanel(!showDrivePanel)}
               className={`text-[12px] font-medium transition-colors flex items-center gap-1 ${showDrivePanel ? 'text-indigo-400' : 'hover:text-white'}`}
@@ -830,10 +879,18 @@ export class MainController {
             >
               <span className="material-symbols-rounded text-[24px]">view_column_2</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              onClick={() => togglePanel('extensions')}
+              className={`p-2 transition-colors ${panels.find(p => p.id === 'extensions')?.isVisible ? 'text-indigo-400' : 'text-[#5f637a] hover:text-white'}`}
+              title="Extensions"
+            >
               <span className="material-symbols-rounded text-[24px]">extension</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              onClick={() => togglePanel('settings')}
+              className={`p-2 transition-colors ${panels.find(p => p.id === 'settings')?.isVisible ? 'text-indigo-400' : 'text-[#5f637a] hover:text-white'}`}
+              title="Settings"
+            >
               <span className="material-symbols-rounded text-[24px]">settings</span>
             </button>
           </div>
@@ -1127,18 +1184,30 @@ export class MainController {
             {/* Right Side: AI Assistant / Git Panel */}
             <div className={`${splitView ? 'w-1/2' : 'w-1/3'} flex-none bg-[#161825] flex flex-col border-l border-[#282b39] overflow-hidden`}>
               {/* Panel Tabs */}
-              <div className="flex border-b border-[#282b39] bg-[#1c1e2d]">
+              <div className="flex border-b border-[#282b39] bg-[#1c1e2d] overflow-x-auto">
                 <button
                   onClick={() => togglePanel('ai')}
-                  className={`flex-1 px-4 py-2 text-[10px] font-bold uppercase tracking-widest border-b-2 ${panels.find(p => p.id === 'ai')?.isVisible ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-[#5f637a] hover:text-white'}`}
+                  className={`flex-1 px-4 py-2 text-[10px] font-bold uppercase tracking-widest border-b-2 whitespace-nowrap ${panels.find(p => p.id === 'ai')?.isVisible ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-[#5f637a] hover:text-white'}`}
                 >
                   AI Assistant
                 </button>
                 <button
                   onClick={() => togglePanel('git')}
-                  className={`flex-1 px-4 py-2 text-[10px] font-bold uppercase tracking-widest border-b-2 ${panels.find(p => p.id === 'git')?.isVisible ? 'border-orange-500 text-orange-400' : 'border-transparent text-[#5f637a] hover:text-white'}`}
+                  className={`flex-1 px-4 py-2 text-[10px] font-bold uppercase tracking-widest border-b-2 whitespace-nowrap ${panels.find(p => p.id === 'git')?.isVisible ? 'border-orange-500 text-orange-400' : 'border-transparent text-[#5f637a] hover:text-white'}`}
                 >
                   GitHub
+                </button>
+                <button
+                  onClick={() => togglePanel('extensions')}
+                  className={`flex-1 px-4 py-2 text-[10px] font-bold uppercase tracking-widest border-b-2 whitespace-nowrap ${panels.find(p => p.id === 'extensions')?.isVisible ? 'border-blue-500 text-blue-400' : 'border-transparent text-[#5f637a] hover:text-white'}`}
+                >
+                  Extensions
+                </button>
+                <button
+                  onClick={() => togglePanel('settings')}
+                  className={`flex-1 px-4 py-2 text-[10px] font-bold uppercase tracking-widest border-b-2 whitespace-nowrap ${panels.find(p => p.id === 'settings')?.isVisible ? 'border-gray-500 text-gray-400' : 'border-transparent text-[#5f637a] hover:text-white'}`}
+                >
+                  Settings
                 </button>
               </div>
 
@@ -1234,6 +1303,94 @@ export class MainController {
                         </div>
                       </div>
                     )}
+                  </div>
+                </>
+              )}
+
+              {panels.find(p => p.id === 'extensions')?.isVisible && (
+                <>
+                  <div className="p-4 border-b border-[#282b39] bg-[#1c1e2d]">
+                    <span className="text-[10px] text-blue-500 font-bold uppercase tracking-widest">Extensions Marketplace</span>
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    {extensionService.getMarketplaceExtensions().map(ext => (
+                      <div key={ext.manifest.id} className="bg-[#0d0e15] border border-[#282b39] p-3 rounded-lg">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <div className="text-[12px] font-bold text-white">{ext.manifest.displayName}</div>
+                            <div className="text-[10px] text-[#9da1b9] mt-0.5">{ext.manifest.description}</div>
+                          </div>
+                          {extensionService.isInstalled(ext.manifest.id) ? (
+                            <button
+                              onClick={() => extensionService.uninstallExtension(ext.manifest.id)}
+                              className="text-red-400 text-[10px] font-bold bg-red-500/10 px-2 py-1 rounded hover:bg-red-500/20 transition-colors"
+                            >
+                              Uninstall
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => extensionService.installExtension(ext.manifest.id)}
+                              className="text-indigo-400 text-[10px] font-bold bg-indigo-500/10 px-2 py-1 rounded hover:bg-indigo-500/20 transition-colors"
+                            >
+                              Install
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 text-[9px] text-[#5f637a]">
+                          <span>{ext.downloads.toLocaleString()} downloads</span>
+                          <span>★ {ext.rating.toFixed(1)}</span>
+                          <span>v{ext.manifest.version}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {panels.find(p => p.id === 'settings')?.isVisible && (
+                <>
+                  <div className="p-4 border-b border-[#282b39] bg-[#1c1e2d]">
+                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Workspace Settings</span>
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div className="space-y-3">
+                       <h3 className="text-[11px] font-bold text-white border-b border-[#282b39] pb-1">AI Assistant</h3>
+                       <div className="space-y-2">
+                         <label className="block text-[10px] font-bold text-[#5f637a] uppercase">AI Provider</label>
+                         <select
+                            value={settings.ai.activeProviderId || ''}
+                            onChange={(e) => updateAISettings({ activeProviderId: e.target.value })}
+                            className="w-full bg-[#0d0e15] border border-[#282b39] rounded px-2 py-1.5 text-[11px] text-white focus:outline-none focus:border-indigo-500"
+                         >
+                            <option value="">Select Provider...</option>
+                            {aiProvider.getProviders().map(p => (
+                               <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                         </select>
+                         <p className="text-[9px] text-[#5f637a]">Select the AI provider to power the assistant.</p>
+                      </div>
+
+                      {settings.ai.activeProviderId && (
+                         <div className="space-y-2">
+                            <label className="block text-[10px] font-bold text-[#5f637a] uppercase">API Key</label>
+                            <input
+                               type="password"
+                               placeholder={`Enter ${aiProvider.getProvider(settings.ai.activeProviderId!)?.name} API Key`}
+                               value={aiProvider.getProvider(settings.ai.activeProviderId!)?.apiKey || ''}
+                               className="w-full bg-[#0d0e15] border border-[#282b39] rounded px-2 py-1.5 text-[11px] text-white focus:outline-none focus:border-indigo-500"
+                               onChange={(e) => {
+                                  const provider = aiProvider.getProvider(settings.ai.activeProviderId!);
+                                  if (provider) {
+                                     aiProvider.updateProvider(provider.id, { apiKey: e.target.value });
+                                     // Force update by triggering state change if needed, though provider update is internal.
+                                     // We might need to force re-render here.
+                                  }
+                               }}
+                            />
+                            <p className="text-[9px] text-[#5f637a]">Your key is stored locally in your browser.</p>
+                         </div>
+                      )}
+                    </div>
                   </div>
                 </>
               )}
@@ -1409,7 +1566,7 @@ export class MainController {
               </div>
               <div className="flex-1 min-h-0 overflow-hidden">
                 {activeTerminalTab === 'Terminal' ? (
-                  <Terminal key={terminalKey.current} className="h-full" initialMode="mock" />
+                  <Terminal key={terminalKey.current} className="h-full" />
                 ) : activeTerminalTab === 'Git Status' ? (
                   <div className="h-full overflow-y-auto p-4 font-mono text-[12px] text-[#d4d4d4]">
                     <div className="mb-2 text-green-400">On branch: {currentBranch}</div>
