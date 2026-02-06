@@ -5,9 +5,33 @@ const os = require('os');
 
 const PORT = Number(process.env.THEMAG_AGENT_PORT || 4477);
 
-const wss = new WebSocketServer({ port: PORT });
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173', // Vite Dev
+  'http://localhost:4173', // Vite Preview
+  'https://themag.dev',    // Production
+  'https://www.themag.dev' // Production www
+];
+
+function verifyClient(info, cb) {
+  const origin = info.origin || info.req.headers.origin;
+
+  // Allow non-browser tools (no origin)
+  if (!origin) {
+    return cb(true);
+  }
+
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    return cb(true);
+  }
+
+  console.log(`[Security] Blocked connection from unauthorized origin: ${origin}`);
+  cb(false, 403, 'Forbidden');
+}
+
+const wss = new WebSocketServer({ port: PORT, verifyClient });
 
 console.log(`TheMAG.dev local agent listening on ws://localhost:${PORT}`);
+console.log(`Allowed origins: ${ALLOWED_ORIGINS.join(', ')}`);
 
 wss.on('connection', (ws) => {
   let cwd = process.cwd();
