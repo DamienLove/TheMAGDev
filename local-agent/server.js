@@ -22,7 +22,27 @@ wss.on('connection', (ws) => {
         stdio: ['pipe', 'pipe', 'pipe']
     });
 
-    // ... (stdout/stderr handlers remain the same) ...
+    // Pipe stdout to WebSocket
+    pty.stdout.on('data', (data) => {
+        try {
+            if (ws.readyState === ws.OPEN) {
+                ws.send(JSON.stringify({ type: 'output', data: data.toString() }));
+            }
+        } catch (e) {
+            console.error('Error sending stdout:', e);
+        }
+    });
+
+    // Pipe stderr to WebSocket
+    pty.stderr.on('data', (data) => {
+        try {
+            if (ws.readyState === ws.OPEN) {
+                ws.send(JSON.stringify({ type: 'output', data: data.toString() }));
+            }
+        } catch (e) {
+            console.error('Error sending stderr:', e);
+        }
+    });
 
     // Handle messages from client
     ws.on('message', (message) => {

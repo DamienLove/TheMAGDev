@@ -36,18 +36,6 @@ const AppContent: React.FC = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
-  const [forceLoadingFinished, setForceLoadingFinished] = useState(false);
-
-  // RevenueCat Integration
-  const { isPro, currentOffering, purchasePackage, loading: rcLoading } = useRevenueCat();
-
-  // Global safety timeout to prevent infinite loading screen
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setForceLoadingFinished(true);
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, []);
 
   // Firebase auth session
   useEffect(() => {
@@ -87,37 +75,6 @@ const AppContent: React.FC = () => {
   }, [authUser]);
 
   useEffect(() => {
-    if (!pendingPaywall) return;
-    if (authLoading || profileLoading || rcLoading) return;
-
-    const isAdmin = Boolean(userProfile?.isAdmin || userProfile?.role === 'admin');
-    const profileIsPro = Boolean(userProfile?.isPro || userProfile?.plan === 'pro' || isAdmin);
-    const effectiveIsPro = Boolean(profileIsPro || isPro);
-
-    if (effectiveIsPro) {
-      setPendingPaywall(false);
-      return;
-    }
-    if (isAuthenticated) {
-      setShowPaywall(true);
-      setPendingPaywall(false);
-    }
-  }, [pendingPaywall, isAuthenticated, userProfile, isPro, authLoading, profileLoading, rcLoading]);
-
-
-  const displayName = userProfile?.displayName || authUser?.displayName || authUser?.email || 'Engineer';
-  const displayAvatar = useMemo(() => {
-    const value = displayName || 'User';
-    const parts = value.split(/[^\w]+/).filter(Boolean);
-    if (parts.length === 0) return 'U';
-    const initials = parts.slice(0, 2).map(p => p[0]?.toUpperCase()).join('');
-    return initials || value.slice(0, 2).toUpperCase();
-  }, [displayName]);
-
-  const isGuest = !isAuthenticated;
-  const userLabel = isGuest ? 'Guest' : displayName;
-  const userAvatar = isGuest ? 'G' : displayAvatar;
-
     if (!profileLoading) return;
     const timer = setTimeout(() => {
       setProfileLoading(false);
@@ -216,12 +173,6 @@ const AppContent: React.FC = () => {
     }
   };
 
-  // Show loading screen unless forced or all loaded
-  // MUST be after all hooks
-  if (!forceLoadingFinished && (rcLoading || authLoading || profileLoading)) {
-    return <LoadingScreen />;
-  }
-
   return (
     <AppLayout
       currentView={currentView}
@@ -230,16 +181,16 @@ const AppContent: React.FC = () => {
       badges={{ isPro: effectiveIsPro, isAdmin }}
       auth={{ isAuthenticated, onLogin: openAuth, onLogout: handleLogout }}
     >
-        {renderView()}
-        {showAuth && (
-          <div className="fixed inset-0 z-50">
-            <Auth
-              onLogin={handleAuthSuccess}
-              onClose={closeAuth}
-              intent={authIntent}
-            />
-          </div>
-        )}
+      {renderView()}
+      {showAuth && (
+        <div className="fixed inset-0 z-50">
+          <Auth
+            onLogin={handleAuthSuccess}
+            onClose={closeAuth}
+            intent={authIntent}
+          />
+        </div>
+      )}
     </AppLayout>
   );
 };

@@ -28,47 +28,31 @@ const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, childr
     { id: '3', type: 'info', title: 'Registry Update', message: 'New verified artifact: @themag/security-scan v1.2', time: '1h ago', read: true },
   ]);
 
-  const getViewTitle = (view: View) => {
-    switch (view) {
-      case View.Dashboard: return 'Monitor';
-      case View.Projects: return 'Showcase';
-      case View.Editor: return 'Workspace';
-      case View.Desktop: return 'Desktop';
-      case View.Design: return 'Studio';
-      case View.Build: return 'Build';
-      case View.Analytics: return 'Insights';
-      case View.Infrastructure: return 'Stack';
-      case View.SDKs: return 'SDKs';
-      case View.Extensions: return 'Extensions';
-      case View.Marketplace: return 'Marketplace';
-      case View.Support: return 'Support';
-      case View.Settings: return 'Settings';
-      default: return 'IDE';
-    }
-  };
-
   return (
     <div className="flex h-screen w-screen bg-zinc-950 text-zinc-200 overflow-hidden font-sans selection:bg-indigo-500/30">
       <Sidebar currentView={currentView} onChangeView={onChangeView} user={user} />
-      
-      {/* Platform Global Header */}
-      <header className="h-14 bg-zinc-950 border-b border-zinc-800 flex items-center justify-between px-4 shrink-0 z-50 shadow-2xl">
-        
-        {/* Brand Identity & Cluster Context */}
-        <div className="flex items-center gap-4 w-[300px]">
-          <div className="flex items-center gap-2.5">
-             <div className="size-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center shadow-lg shadow-zinc-950/40">
+
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Platform Global Header */}
+        <header className="h-14 bg-zinc-950 border-b border-zinc-800 flex items-center justify-between px-4 shrink-0 z-50 shadow-2xl">
+
+          {/* Brand Identity & Cluster Context */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2.5">
+              <div className="size-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center shadow-lg shadow-zinc-950/40">
                 <img src="./branding/STLOGO.png" alt="TheMAG.dev" className="w-5 h-5 object-contain" />
-             </div>
-             <span className="font-bold text-white tracking-tighter text-lg hidden md:block">TheMAG.dev</span>
-          </div>
-          <div className="h-4 w-px bg-zinc-800 hidden md:block"></div>
-          <div className="flex items-center gap-2 px-2 py-1 bg-zinc-900 rounded border border-zinc-800 hidden md:flex cursor-pointer hover:border-zinc-700 transition-colors group">
-            <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest group-hover:text-zinc-200 transition-colors">Cluster: us-east-prod</span>
-            <span className="material-symbols-rounded text-[14px] text-zinc-600">expand_more</span>
+              </div>
+              <span className="font-bold text-white tracking-tighter text-lg hidden md:block">TheMAG.dev</span>
+            </div>
+            <div className="h-4 w-px bg-zinc-800 hidden md:block"></div>
+            <div className="flex items-center gap-2 px-2 py-1 bg-zinc-900 rounded border border-zinc-800 hidden md:flex cursor-pointer hover:border-zinc-700 transition-colors group">
+              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest group-hover:text-zinc-200 transition-colors">Cluster: us-east-prod</span>
+              <span className="material-symbols-rounded text-[14px] text-zinc-600">expand_more</span>
+            </div>
           </div>
 
+          {/* Search Bar */}
           <div className="flex items-center gap-4">
             <div className="relative group">
               <span className="material-symbols-rounded absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-500 group-hover:text-zinc-400 transition-colors">search</span>
@@ -82,6 +66,19 @@ const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, childr
                 <span className="px-1 py-0.5 rounded bg-zinc-800 text-[8px] font-bold text-zinc-500">K</span>
               </div>
             </div>
+          </div>
+
+          {/* Right Side Controls */}
+          <div className="flex items-center gap-3">
+            <a
+              href="https://magstack.rf.gd/"
+              target="_blank"
+              rel="noreferrer"
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-800 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:border-emerald-500/60 hover:bg-zinc-900 transition-all"
+            >
+              <span className="material-symbols-rounded text-[14px]">hub</span>
+              MagStack
+            </a>
 
             <button
               onClick={() => setShowNotifications(!showNotifications)}
@@ -102,100 +99,38 @@ const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, childr
         </header>
 
         {/* Primary Rendering Surface */}
-        <main className="flex-1 min-h-0 min-w-0 overflow-hidden relative bg-zinc-950">
+        <main className="flex-1 min-h-0 min-w-0 overflow-hidden relative bg-zinc-950 flex flex-col">
           {children}
 
           {/* Notifications Overlay */}
           {showNotifications && (
             <div className="absolute top-2 right-4 w-80 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-               <div className="px-4 py-3 border-b border-zinc-800 flex justify-between items-center bg-zinc-950/50">
-                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Platform Events</span>
-                  <button className="text-[9px] font-bold text-indigo-400 hover:underline uppercase">Clear all</button>
-               </div>
-               <div className="max-h-[400px] overflow-y-auto">
-                  {notifications.length > 0 ? notifications.map(n => (
-                    <div key={n.id} className="p-4 border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors cursor-pointer group">
-                       <div className="flex gap-3">
-                          <div className={`size-2 rounded-full mt-1.5 shrink-0 ${n.type === 'success' ? 'bg-emerald-500' : n.type === 'warning' ? 'bg-amber-500' : 'bg-indigo-500'}`}></div>
-                          <div>
-                             <p className="text-xs font-bold text-white leading-none">{n.title}</p>
-                             <p className="text-[10px] text-zinc-500 mt-1 leading-relaxed">{n.message}</p>
-                             <p className="text-[9px] text-zinc-600 font-bold uppercase mt-2">{n.time}</p>
-                          </div>
-                       </div>
+              <div className="px-4 py-3 border-b border-zinc-800 flex justify-between items-center bg-zinc-950/50">
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Platform Events</span>
+                <button className="text-[9px] font-bold text-indigo-400 hover:underline uppercase">Clear all</button>
+              </div>
+              <div className="max-h-[400px] overflow-y-auto">
+                {notifications.length > 0 ? notifications.map(n => (
+                  <div key={n.id} className="p-4 border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors cursor-pointer group">
+                    <div className="flex gap-3">
+                      <div className={`size-2 rounded-full mt-1.5 shrink-0 ${n.type === 'success' ? 'bg-emerald-500' : n.type === 'warning' ? 'bg-amber-500' : 'bg-indigo-500'}`}></div>
+                      <div>
+                        <p className="text-xs font-bold text-white leading-none">{n.title}</p>
+                        <p className="text-[10px] text-zinc-500 mt-1 leading-relaxed">{n.message}</p>
+                        <p className="text-[9px] text-zinc-600 font-bold uppercase mt-2">{n.time}</p>
+                      </div>
                     </div>
-                  )) : (
-                    <div className="p-8 text-center">
-                      <p className="text-[10px] font-bold text-zinc-600 uppercase">No new events</p>
-                    </div>
-                  )}
-               </div>
-               <button className="w-full py-3 bg-zinc-950/50 text-center text-[10px] font-bold text-zinc-500 hover:text-zinc-300 transition-colors uppercase tracking-widest">View system audit log</button>
+                  </div>
+                )) : (
+                  <div className="p-8 text-center">
+                    <p className="text-[10px] font-bold text-zinc-600 uppercase">No new events</p>
+                  </div>
+                )}
+              </div>
+              <button className="w-full py-3 bg-zinc-950/50 text-center text-[10px] font-bold text-zinc-500 hover:text-zinc-300 transition-colors uppercase tracking-widest">View system audit log</button>
             </div>
           )}
         </main>
-
-
-        <a
-              href="https://magstack.rf.gd/"
-              target="_blank"
-              rel="noreferrer"
-              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-800 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:border-emerald-500/60 hover:bg-zinc-900 transition-all"
-            >
-              <span className="material-symbols-rounded text-[14px]">hub</span>
-              MagStack
-            </a>
-
-            <div className="flex items-center gap-1">
-              <button 
-                onClick={() => setShowNotifications(!showNotifications)}
-                className={`p-2 rounded-lg transition-all relative ${showNotifications ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}`}
-              >
-                 <span className="material-symbols-rounded text-[22px]">notifications</span>
-                 <span className="absolute top-2 right-2.5 size-2 bg-indigo-500 rounded-full border-2 border-zinc-950"></span>
-              </button>
-              <button className="p-2 text-zinc-500 hover:text-white hover:bg-zinc-900 rounded-lg transition-all">
-                 <span className="material-symbols-rounded text-[22px]">tune</span>
-              </button>
-            </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 hover:text-zinc-400 cursor-pointer">
-              <span className="material-symbols-rounded text-sm">fork_right</span>
-              <span>main</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 hover:text-zinc-400 cursor-pointer">
-              <span className="material-symbols-rounded text-sm">sync</span>
-              <span>In Sync</span>
-            </div>
-          </div>
-
-      {/* Primary Rendering Surface */}
-      <main className="flex-1 min-h-0 min-w-0 overflow-hidden relative bg-zinc-950 flex flex-col">
-        {children}
-        
-        {/* Global HUD Overlays */}
-        {showNotifications && (
-          <div className="absolute top-2 right-4 w-80 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-             <div className="px-4 py-3 border-b border-zinc-800 flex justify-between items-center bg-zinc-950/50">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Platform Events</span>
-                <button className="text-[9px] font-bold text-indigo-400 hover:underline uppercase">Clear all</button>
-             </div>
-             <div className="max-h-[400px] overflow-y-auto">
-                {notifications.map(n => (
-                  <div key={n.id} className="p-4 border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors cursor-pointer group">
-                     <div className="flex gap-3">
-                        <div className={`size-2 rounded-full mt-1.5 shrink-0 ${n.type === 'success' ? 'bg-emerald-500' : n.type === 'warning' ? 'bg-amber-500' : 'bg-indigo-500'}`}></div>
-                        <div>
-                           <p className="text-xs font-bold text-white leading-none">{n.title}</p>
-                           <p className="text-[10px] text-zinc-500 mt-1 leading-relaxed">{n.message}</p>
-                           <p className="text-[9px] text-zinc-600 font-bold uppercase mt-2">{n.time}</p>
-                        </div>
-                     </div>
-                  </div>
-                ))}
-             </div>
-             <button className="w-full py-3 bg-zinc-950/50 text-center text-[10px] font-bold text-zinc-500 hover:text-zinc-300 transition-colors uppercase tracking-widest">View system audit log</button>
-          </div>
-        </footer>
       </div>
     </div>
   );
