@@ -17,7 +17,7 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
-  const { files, currentDirectory, setCurrentDirectory, addTerminalLine } = useWorkspace();
+  const { files, currentDirectory, setCurrentDirectory, addTerminalLine, getFileByPath } = useWorkspace();
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const currentLineRef = useRef('');
@@ -89,21 +89,14 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
       term.writeln(text);
     };
 
-    const findNode = (path: string, nodes: typeof files): typeof files[0] | null => {
+    const findNode = (path: string): typeof files[0] | null => {
       const normalizedPath = path.startsWith('/') ? path : `${currentDirectory}/${path}`.replace(/\/+/g, '/');
-      for (const node of nodes) {
-        if (node.path === normalizedPath) return node;
-        if (node.children) {
-          const found = findNode(normalizedPath, node.children);
-          if (found) return found;
-        }
-      }
-      return null;
+      return getFileByPath(normalizedPath) ?? null;
     };
 
     const getCurrentDirContents = () => {
       if (currentDirectory === '/') return files;
-      const node = findNode(currentDirectory, files);
+      const node = findNode(currentDirectory);
       return node?.children || [];
     };
 
@@ -124,7 +117,7 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
 
       case 'ls':
         const targetPath = args[0] || currentDirectory;
-        const contents = args[0] ? findNode(targetPath, files)?.children || [] : getCurrentDirContents();
+        const contents = args[0] ? findNode(targetPath)?.children || [] : getCurrentDirContents();
         if (contents.length === 0) {
           writeLine('\r\n\x1b[90m(empty directory)\x1b[0m');
         } else {
@@ -150,7 +143,7 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
           setCurrentDirectory(parent);
         } else {
           const newPath = args[0].startsWith('/') ? args[0] : `${currentDirectory}/${args[0]}`.replace(/\/+/g, '/');
-          const node = findNode(newPath, files);
+          const node = findNode(newPath);
           if (node && node.type === 'folder') {
             setCurrentDirectory(newPath);
           } else {
@@ -167,7 +160,7 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
         if (!args[0]) {
           writeLine('\r\n\x1b[31mcat: missing operand\x1b[0m');
         } else {
-          const file = findNode(args[0], files);
+          const file = findNode(args[0]);
           if (file && file.type === 'file' && file.content) {
             writeLine('');
             file.content.split('\n').forEach(line => writeLine(line));
