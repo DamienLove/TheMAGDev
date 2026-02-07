@@ -591,6 +591,8 @@ const Settings: React.FC = () => {
                         <button
                           onClick={() => setEditingProvider(editingProvider === provider.id ? null : provider.id)}
                           className="p-1.5 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 rounded"
+                          aria-label={editingProvider === provider.id ? `Collapse ${provider.name} settings` : `Expand ${provider.name} settings`}
+                          aria-expanded={editingProvider === provider.id}
                         >
                           <span className="material-symbols-rounded text-lg">
                             {editingProvider === provider.id ? 'expand_less' : 'expand_more'}
@@ -602,8 +604,9 @@ const Settings: React.FC = () => {
                     {editingProvider === provider.id && (
                       <div className="px-4 pb-4 pt-2 border-t border-zinc-800 space-y-4">
                         <div>
-                          <label className="block text-xs font-medium text-zinc-400 mb-1.5">API Key</label>
+                          <label htmlFor={`api-key-${provider.id}`} className="block text-xs font-medium text-zinc-400 mb-1.5">API Key</label>
                           <input
+                            id={`api-key-${provider.id}`}
                             type="password"
                             value={provider.apiKey || ''}
                             onChange={(e) => handleProviderUpdate(provider.id, { apiKey: e.target.value })}
@@ -613,8 +616,9 @@ const Settings: React.FC = () => {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-zinc-400 mb-1.5">Model</label>
+                          <label htmlFor={`model-${provider.id}`} className="block text-xs font-medium text-zinc-400 mb-1.5">Model</label>
                           <select
+                            id={`model-${provider.id}`}
                             value={provider.model}
                             onChange={(e) => handleProviderUpdate(provider.id, { model: e.target.value })}
                             className="w-full bg-zinc-950 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 focus:border-indigo-500 focus:outline-none"
@@ -627,8 +631,9 @@ const Settings: React.FC = () => {
 
                         {provider.type === 'ollama' && (
                           <div>
-                            <label className="block text-xs font-medium text-zinc-400 mb-1.5">API Endpoint</label>
+                            <label htmlFor={`api-endpoint-${provider.id}`} className="block text-xs font-medium text-zinc-400 mb-1.5">API Endpoint</label>
                             <input
+                              id={`api-endpoint-${provider.id}`}
                               type="text"
                               value={provider.apiEndpoint || 'http://localhost:11434'}
                               onChange={(e) => handleProviderUpdate(provider.id, { apiEndpoint: e.target.value })}
@@ -639,8 +644,9 @@ const Settings: React.FC = () => {
 
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-xs font-medium text-zinc-400 mb-1.5">Max Tokens</label>
+                            <label htmlFor={`max-tokens-${provider.id}`} className="block text-xs font-medium text-zinc-400 mb-1.5">Max Tokens</label>
                             <input
+                              id={`max-tokens-${provider.id}`}
                               type="number"
                               value={provider.maxTokens || 4096}
                               onChange={(e) => handleProviderUpdate(provider.id, { maxTokens: Number(e.target.value) })}
@@ -648,8 +654,9 @@ const Settings: React.FC = () => {
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-medium text-zinc-400 mb-1.5">Temperature</label>
+                            <label htmlFor={`temperature-${provider.id}`} className="block text-xs font-medium text-zinc-400 mb-1.5">Temperature</label>
                             <input
+                              id={`temperature-${provider.id}`}
                               type="number"
                               step="0.1"
                               min="0"
@@ -733,8 +740,9 @@ const Settings: React.FC = () => {
                     <div className="p-4 bg-zinc-950 border-b border-zinc-800">
                       <div className="grid grid-cols-2 gap-3 mb-3">
                         <div>
-                          <label className="block text-xs text-zinc-500 mb-1">Server Name</label>
+                          <label htmlFor={`mcp-name-${provider.id}`} className="block text-xs text-zinc-500 mb-1">Server Name</label>
                           <input
+                            id={`mcp-name-${provider.id}`}
                             type="text"
                             value={newMCPServer.name || ''}
                             onChange={(e) => setNewMCPServer({ ...newMCPServer, name: e.target.value })}
@@ -743,8 +751,9 @@ const Settings: React.FC = () => {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-zinc-500 mb-1">Command</label>
+                          <label htmlFor={`mcp-command-${provider.id}`} className="block text-xs text-zinc-500 mb-1">Command</label>
                           <input
+                            id={`mcp-command-${provider.id}`}
                             type="text"
                             value={newMCPServer.command || ''}
                             onChange={(e) => setNewMCPServer({ ...newMCPServer, command: e.target.value })}
@@ -754,8 +763,9 @@ const Settings: React.FC = () => {
                         </div>
                       </div>
                       <div className="mb-3">
-                        <label className="block text-xs text-zinc-500 mb-1">Arguments (space-separated)</label>
+                        <label htmlFor={`mcp-args-${provider.id}`} className="block text-xs text-zinc-500 mb-1">Arguments (space-separated)</label>
                         <input
+                          id={`mcp-args-${provider.id}`}
                           type="text"
                           value={newMCPServer.args || ''}
                           onChange={(e) => setNewMCPServer({ ...newMCPServer, args: e.target.value.split(' ') })}
@@ -806,6 +816,7 @@ const Settings: React.FC = () => {
                             <button
                               onClick={() => handleRemoveMCPServer(provider.id, server.id)}
                               className="p-1 text-zinc-500 hover:text-red-400"
+                              aria-label={`Delete ${server.name} server`}
                             >
                               <span className="material-symbols-rounded text-sm">delete</span>
                             </button>
