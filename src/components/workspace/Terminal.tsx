@@ -23,6 +23,7 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
   const currentLineRef = useRef('');
   const executeCommandRef = useRef<(command: string) => void>();
   const printPromptRef = useRef<() => void>();
+  const activeProcessRef = useRef<any>(null); // For WebContainer process
   const defaultMode: TerminalMode = typeof window !== 'undefined' && window.crossOriginIsolated ? 'webcontainer' : 'mock';
   const [terminalMode, setTerminalMode] = useState<TerminalMode>(initialMode ?? defaultMode);
   const [webStatus, setWebStatus] = useState<'idle' | 'booting' | 'ready' | 'error'>('idle');
@@ -39,6 +40,7 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
   }, []);
 
   useEffect(() => {
+    // We only use the global callback for non-interactive output or initial messages
     webContainerService.setOutputCallback(writeToTerminal);
     localAgentService.setOutputCallback(writeToTerminal);
     localAgentService.setStatusCallback(setLocalStatus);
@@ -308,9 +310,36 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
 
       try {
         const cwd = webCwd === '/' ? '.' : webCwd.replace(/^\//, '');
-        await webContainerService.runCommand(trimmed, { cwd });
+
+        // Parse arguments handling quotes
+        const args: string[] = [];
+        const regex = /[^\s"']+|"([^"]*)"|'([^']*)'/g;
+        let match;
+        while ((match = regex.exec(trimmed)) !== null) {
+          args.push(match[1] || match[2] || match[0]);
+        }
+        const cmd = args.shift() || '';
+
+        term.writeln(''); // New line for command output
+
+        const process = await webContainerService.spawn(cmd, args, { cwd });
+        activeProcessRef.current = process;
+
+        process.output.pipeTo(
+          new WritableStream({
+            write(data) {
+              term.write(data);
+            }
+          })
+        );
+
+        await process.exit;
+        activeProcessRef.current = null;
+        printPromptRef.current?.();
+
       } catch (error: any) {
         term.writeln(`\r\n\x1b[31m${error?.message || 'Command failed'}\x1b[0m`);
+        printPromptRef.current?.();
       }
       addTerminalLine(`$ ${command}`);
       return;
@@ -414,6 +443,14 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
 
     // Handle input
     term.onData((data) => {
+      // If we have an active WebContainer process, pipe input directly to it
+      if (terminalMode === 'webcontainer' && activeProcessRef.current) {
+        const writer = activeProcessRef.current.input.getWriter();
+        writer.write(data);
+        writer.releaseLock();
+        return;
+      }
+
       switch (data) {
         case '\r': // Enter
           executeCommandRef.current?.(currentLineRef.current);
@@ -425,7 +462,10 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
           });
           setHistoryIndex(-1);
           currentLineRef.current = '';
-          printPromptRef.current?.();
+          // Prompt is printed after command execution finishes (except for mock commands which are sync)
+          if (terminalMode === 'mock') {
+            printPromptRef.current?.();
+          }
           break;
         case '\x7f': // Backspace
           if (currentLineRef.current.length > 0) {
@@ -469,12 +509,19 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
           term.write('^C');
           currentLineRef.current = '';
           if (terminalMode === 'webcontainer') {
-            webContainerService.killCurrentProcess();
-          }
-          if (terminalMode === 'local') {
+             // If we have an active process, kill it
+             if (activeProcessRef.current) {
+               activeProcessRef.current.kill();
+               activeProcessRef.current = null;
+             } else {
+               printPromptRef.current?.();
+             }
+          } else if (terminalMode === 'local') {
             localAgentService.kill();
+            printPromptRef.current?.();
+          } else {
+            printPromptRef.current?.();
           }
-          printPromptRef.current?.();
           break;
         case '\x0c': // Ctrl+L
           term.clear();

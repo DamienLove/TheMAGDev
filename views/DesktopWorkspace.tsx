@@ -2,6 +2,9 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
+import webContainerService from '../src/services/WebContainerService';
+import Settings from './Settings';
+import ExtensionMarketplace from './ExtensionMarketplace';
 
 interface FileNode {
   id: string;
@@ -49,6 +52,9 @@ const DesktopWorkspace: React.FC = () => {
     'Successfully connected to build worker: node-linux-01',
   ]);
 
+  const [showSettings, setShowSettings] = useState(false);
+  const [showExtensions, setShowExtensions] = useState(false);
+
   // Terminal visibility state for re-opening
   const [showTerminal, setShowTerminal] = useState(true);
   const terminalKey = useRef(0);
@@ -86,6 +92,39 @@ const DesktopWorkspace: React.FC = () => {
     const url = `${window.location.origin}${window.location.pathname}?popout=${panelType}`;
     popoutWindow.current = window.open(url, `${panelType}_window`, features);
     addTerminalLine(`Opened ${panelType} in new window`, 'success');
+  };
+
+  const handleBuild = async () => {
+    if (!showTerminal) setShowTerminal(true);
+    addTerminalLine('Starting build process...', 'success');
+
+    if (webContainerService.isReady()) {
+      try {
+        await webContainerService.runCommand('npm run build');
+      } catch (e: any) {
+        addTerminalLine(`Build failed: ${e.message}`, 'error');
+      }
+    } else {
+      addTerminalLine('WebContainer environment not ready. Using simulation...', 'error');
+      setTimeout(() => addTerminalLine('Build complete (simulated)', 'success'), 1500);
+    }
+  };
+
+  const handleDebug = async () => {
+    if (!showTerminal) setShowTerminal(true);
+    addTerminalLine('Starting debug session...', 'success');
+
+    if (webContainerService.isReady()) {
+       // We use spawn here if we implemented a way to track the debug process,
+       // but for now runCommand will pipe output to terminal which is good.
+       try {
+         await webContainerService.runCommand('npm run dev');
+       } catch (e: any) {
+         addTerminalLine(`Debug failed: ${e.message}`, 'error');
+       }
+    } else {
+       addTerminalLine('WebContainer environment not ready.', 'error');
+    }
   };
 
   // Default code snippet for demo
@@ -346,15 +385,9 @@ export class MainController {
     }
   };
 
-  // Toggle terminal visibility with proper re-mount
+  // Toggle terminal visibility
   const toggleTerminal = () => {
-    if (showTerminal) {
-      setShowTerminal(false);
-    } else {
-      // Increment key to force re-mount
-      terminalKey.current += 1;
-      setShowTerminal(true);
-    }
+    setShowTerminal(!showTerminal);
   };
 
   // Panel management
@@ -640,8 +673,8 @@ export class MainController {
           </div>
           <nav className="hidden md:flex items-center gap-4 text-[#9da1b9]">
             <button className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
+            <button onClick={handleBuild} className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
+            <button onClick={handleDebug} className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
             <button
               onClick={() => setShowDrivePanel(!showDrivePanel)}
               className={`text-[12px] font-medium transition-colors flex items-center gap-1 ${showDrivePanel ? 'text-indigo-400' : 'hover:text-white'}`}
@@ -830,10 +863,16 @@ export class MainController {
             >
               <span className="material-symbols-rounded text-[24px]">view_column_2</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              onClick={() => setShowExtensions(true)}
+              className={`p-2 transition-colors ${showExtensions ? 'text-indigo-400' : 'text-[#5f637a] hover:text-white'}`}
+            >
               <span className="material-symbols-rounded text-[24px]">extension</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              onClick={() => setShowSettings(true)}
+              className={`p-2 transition-colors ${showSettings ? 'text-indigo-400' : 'text-[#5f637a] hover:text-white'}`}
+            >
               <span className="material-symbols-rounded text-[24px]">settings</span>
             </button>
           </div>
@@ -1371,104 +1410,132 @@ export class MainController {
           </div>
 
           {/* Terminal Panel */}
-          {showTerminal && (
-            <div className="h-48 flex-none border-t border-[#282b39] flex flex-col bg-[#090a11]">
-              <div className="h-9 flex-none flex items-center bg-[#1c1e2d] px-2 border-b border-[#282b39]">
-                <div className="flex items-center h-full">
-                  {['Terminal', 'Git Status', 'Build Logs'].map(tab => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTerminalTab(tab)}
-                      className={`h-full px-4 flex items-center gap-2 border-b-2 text-[11px] font-bold transition-colors ${activeTerminalTab === tab ? 'border-indigo-500 text-white bg-[#111218]' : 'border-transparent text-[#9da1b9] hover:text-white'}`}
-                    >
-                      <span className={`material-symbols-rounded text-[16px] ${tab === 'Terminal' ? 'text-white' : tab === 'Git Status' ? 'text-[#9da1b9]' : 'text-red-400'}`}>
-                        {tab === 'Terminal' ? 'terminal' : tab === 'Git Status' ? 'history' : 'error'}
-                      </span>
-                      {tab}
-                    </button>
-                  ))}
-                </div>
-                <div className="ml-auto flex items-center gap-2 pr-2">
-                  {showLogActions && (
-                    <button
-                      onClick={() => setTerminalOutput([])}
-                      className="p-1 hover:bg-white/10 rounded text-[#5f637a]"
-                      title="Clear logs"
-                    >
-                      <span className="material-symbols-rounded text-[18px]">delete</span>
-                    </button>
-                  )}
+          <div className={`h-48 flex-none border-t border-[#282b39] flex flex-col bg-[#090a11] ${showTerminal ? '' : 'hidden'}`}>
+            <div className="h-9 flex-none flex items-center bg-[#1c1e2d] px-2 border-b border-[#282b39]">
+              <div className="flex items-center h-full">
+                {['Terminal', 'Git Status', 'Build Logs'].map(tab => (
                   <button
-                    onClick={toggleTerminal}
-                    className="p-1 hover:bg-white/10 rounded text-[#5f637a]"
-                    title="Close terminal (click Terminal icon to reopen)"
+                    key={tab}
+                    onClick={() => setActiveTerminalTab(tab)}
+                    className={`h-full px-4 flex items-center gap-2 border-b-2 text-[11px] font-bold transition-colors ${activeTerminalTab === tab ? 'border-indigo-500 text-white bg-[#111218]' : 'border-transparent text-[#9da1b9] hover:text-white'}`}
                   >
-                    <span className="material-symbols-rounded text-[18px]">close</span>
+                    <span className={`material-symbols-rounded text-[16px] ${tab === 'Terminal' ? 'text-white' : tab === 'Git Status' ? 'text-[#9da1b9]' : 'text-red-400'}`}>
+                      {tab === 'Terminal' ? 'terminal' : tab === 'Git Status' ? 'history' : 'error'}
+                    </span>
+                    {tab}
                   </button>
-                </div>
+                ))}
               </div>
-              <div className="flex-1 min-h-0 overflow-hidden">
-                {activeTerminalTab === 'Terminal' ? (
-                  <Terminal key={terminalKey.current} className="h-full" initialMode="mock" />
-                ) : activeTerminalTab === 'Git Status' ? (
-                  <div className="h-full overflow-y-auto p-4 font-mono text-[12px] text-[#d4d4d4]">
-                    <div className="mb-2 text-green-400">On branch: {currentBranch}</div>
-                    {gitChanges.length > 0 ? (
-                      <>
-                        <div className="text-yellow-400 mb-2">Changes not staged for commit:</div>
-                        {gitChanges.map((file, i) => (
-                          <div key={i} className="text-red-400 pl-4">modified: {file}</div>
-                        ))}
-                      </>
-                    ) : (
-                      <div className="text-[#5f637a]">No changes to commit</div>
-                    )}
-                    {githubRepo && (
-                      <div className="mt-4 border-t border-[#282b39] pt-4">
-                        <div className="text-[#9da1b9] text-[10px] uppercase mb-2">Quick Commit</div>
-                        <input
-                          type="text"
-                          value={commitMessage}
-                          onChange={(e) => setCommitMessage(e.target.value)}
-                          placeholder="Commit message..."
-                          className="w-full bg-[#161825] border border-[#282b39] rounded px-2 py-1 text-[11px] text-white placeholder-[#5f637a] focus:outline-none focus:border-indigo-500 mb-2"
-                        />
-                        <button
-                          onClick={commitChanges}
-                          disabled={!commitMessage.trim() || gitChanges.length === 0}
-                          className="px-3 py-1 bg-green-600 text-white text-[10px] rounded hover:bg-green-500 disabled:opacity-50"
-                        >
-                          Commit Changes
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="h-full overflow-y-auto p-4 font-mono text-[12px] text-[#d4d4d4]">
-                    {terminalOutput.map((line, i) => (
-                      <div
-                        key={i}
-                        className={`mb-1 ${line.startsWith('[OK]') ? 'text-green-400' :
-                            line.startsWith('[ERROR]') ? 'text-red-400' : ''
-                          }`}
-                      >
-                        {line.startsWith('[OK]') || line.startsWith('[ERROR]')
-                          ? line
-                          : <><span className="text-blue-400">~</span> {line}</>
-                        }
-                      </div>
-                    ))}
-                    <div className="mt-2 flex items-center gap-1">
-                      <span className="text-blue-400">~</span>
-                      <span className="w-2 h-4 bg-indigo-500/60 animate-pulse"></span>
-                    </div>
-                  </div>
+              <div className="ml-auto flex items-center gap-2 pr-2">
+                {showLogActions && (
+                  <button
+                    onClick={() => setTerminalOutput([])}
+                    className="p-1 hover:bg-white/10 rounded text-[#5f637a]"
+                    title="Clear logs"
+                  >
+                    <span className="material-symbols-rounded text-[18px]">delete</span>
+                  </button>
                 )}
+                <button
+                  onClick={toggleTerminal}
+                  className="p-1 hover:bg-white/10 rounded text-[#5f637a]"
+                  title="Close terminal (click Terminal icon to reopen)"
+                >
+                  <span className="material-symbols-rounded text-[18px]">close</span>
+                </button>
               </div>
             </div>
-          )}
+            <div className="flex-1 min-h-0 overflow-hidden">
+              {activeTerminalTab === 'Terminal' ? (
+                <Terminal key="terminal-persistent" className="h-full" initialMode="mock" />
+              ) : activeTerminalTab === 'Git Status' ? (
+                <div className="h-full overflow-y-auto p-4 font-mono text-[12px] text-[#d4d4d4]">
+                  <div className="mb-2 text-green-400">On branch: {currentBranch}</div>
+                  {gitChanges.length > 0 ? (
+                    <>
+                      <div className="text-yellow-400 mb-2">Changes not staged for commit:</div>
+                      {gitChanges.map((file, i) => (
+                        <div key={i} className="text-red-400 pl-4">modified: {file}</div>
+                      ))}
+                    </>
+                  ) : (
+                    <div className="text-[#5f637a]">No changes to commit</div>
+                  )}
+                  {githubRepo && (
+                    <div className="mt-4 border-t border-[#282b39] pt-4">
+                      <div className="text-[#9da1b9] text-[10px] uppercase mb-2">Quick Commit</div>
+                      <input
+                        type="text"
+                        value={commitMessage}
+                        onChange={(e) => setCommitMessage(e.target.value)}
+                        placeholder="Commit message..."
+                        className="w-full bg-[#161825] border border-[#282b39] rounded px-2 py-1 text-[11px] text-white placeholder-[#5f637a] focus:outline-none focus:border-indigo-500 mb-2"
+                      />
+                      <button
+                        onClick={commitChanges}
+                        disabled={!commitMessage.trim() || gitChanges.length === 0}
+                        className="px-3 py-1 bg-green-600 text-white text-[10px] rounded hover:bg-green-500 disabled:opacity-50"
+                      >
+                        Commit Changes
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="h-full overflow-y-auto p-4 font-mono text-[12px] text-[#d4d4d4]">
+                  {terminalOutput.map((line, i) => (
+                    <div
+                      key={i}
+                      className={`mb-1 ${line.startsWith('[OK]') ? 'text-green-400' :
+                          line.startsWith('[ERROR]') ? 'text-red-400' : ''
+                        }`}
+                    >
+                      {line.startsWith('[OK]') || line.startsWith('[ERROR]')
+                        ? line
+                        : <><span className="text-blue-400">~</span> {line}</>
+                      }
+                    </div>
+                  ))}
+                  <div className="mt-2 flex items-center gap-1">
+                    <span className="text-blue-400">~</span>
+                    <span className="w-2 h-4 bg-indigo-500/60 animate-pulse"></span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </main>
       </div>
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-8">
+          <div className="bg-zinc-950 w-full max-w-5xl h-full max-h-[80vh] rounded-xl border border-zinc-800 shadow-2xl overflow-hidden flex flex-col relative">
+            <button
+              onClick={() => setShowSettings(false)}
+              className="absolute top-4 right-4 z-10 p-1 bg-zinc-900 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+            >
+              <span className="material-symbols-rounded">close</span>
+            </button>
+            <Settings />
+          </div>
+        </div>
+      )}
+
+      {/* Extensions Modal */}
+      {showExtensions && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-8">
+           <div className="bg-zinc-950 w-full max-w-5xl h-full max-h-[80vh] rounded-xl border border-zinc-800 shadow-2xl overflow-hidden flex flex-col relative">
+            <button
+              onClick={() => setShowExtensions(false)}
+              className="absolute top-4 right-4 z-10 p-1 bg-zinc-900 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+            >
+              <span className="material-symbols-rounded">close</span>
+            </button>
+            <ExtensionMarketplace />
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="flex-none h-6 bg-indigo-600 text-white flex items-center px-3 justify-between text-[10px] font-mono">
