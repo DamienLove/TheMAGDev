@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import webContainerService from '../src/services/WebContainerService';
 
 interface BackendModule {
   name: string;
@@ -70,10 +71,136 @@ const Infrastructure: React.FC = () => {
       provider: '',
       project: ''
   });
+  const [deploying, setDeploying] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('themag_infrastructure', JSON.stringify(services));
   }, [services]);
+
+  const handleDeployTemplate = async (template: 'react' | 'node') => {
+    setDeploying(true);
+    try {
+      if (!webContainerService.isReady()) {
+        await webContainerService.boot();
+      }
+
+      if (template === 'react') {
+        await webContainerService.mount({
+          'package.json': {
+            file: {
+              contents: JSON.stringify({
+                name: 'react-app',
+                type: 'module',
+                scripts: { dev: 'vite', build: 'vite build', preview: 'vite preview' },
+                dependencies: { react: '^18.2.0', 'react-dom': '^18.2.0' },
+                devDependencies: { '@vitejs/plugin-react': '^4.0.0', vite: '^4.3.0' }
+              }, null, 2)
+            }
+          },
+          'index.html': {
+            file: {
+              contents: `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>`
+            }
+          },
+          'src': {
+            directory: {
+              'main.jsx': {
+                file: {
+                  contents: `import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.jsx'
+import './index.css'
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)`
+                }
+              },
+              'App.jsx': {
+                file: {
+                  contents: `import { useState } from 'react'
+import './App.css'
+
+function App() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <>
+      <h1>Vite + React</h1>
+      <div className="card">
+        <button onClick={() => setCount((count) => count + 1)}>
+          count is {count}
+        </button>
+        <p>
+          Edit <code>src/App.jsx</code> and save to test HMR
+        </p>
+      </div>
+    </>
+  )
+}
+
+export default App`
+                }
+              },
+              'index.css': {
+                file: { contents: `body { margin: 0; font-family: system-ui; }` }
+              },
+              'App.css': {
+                file: { contents: `.card { padding: 2em; }` }
+              }
+            }
+          }
+        });
+        alert('React template deployed to workspace! Open Terminal and run "npm install && npm run dev"');
+      } else if (template === 'node') {
+         await webContainerService.mount({
+          'package.json': {
+            file: {
+              contents: JSON.stringify({
+                name: 'node-api',
+                type: 'module',
+                scripts: { start: 'node index.js' },
+                dependencies: { express: '^4.18.2' }
+              }, null, 2)
+            }
+          },
+          'index.js': {
+            file: {
+              contents: `import express from 'express';
+const app = express();
+const port = 3000;
+
+app.get('/', (req, res) => {
+  res.send('Hello from Node.js in the Browser!');
+});
+
+app.listen(port, () => {
+  console.log(\`Server running at http://localhost:\${port}\`);
+});`
+            }
+          }
+        });
+        alert('Node.js template deployed! Run "npm install && npm start"');
+      }
+    } catch (e: any) {
+      alert('Failed to deploy template: ' + e.message);
+    } finally {
+      setDeploying(false);
+    }
+  };
 
   const handleAddService = () => {
     if (!newService.name || !newService.provider) return;
@@ -112,6 +239,42 @@ const Infrastructure: React.FC = () => {
           <span className="material-symbols-rounded text-sm">add</span> Provision New Service
         </button>
       </header>
+
+      {/* Quick Start Templates */}
+      <div className="mb-8">
+        <h2 className="text-lg font-bold text-white mb-4 uppercase tracking-tight">Quick Start Templates</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <button
+            onClick={() => handleDeployTemplate('react')}
+            disabled={deploying}
+            className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 p-4 rounded-xl hover:bg-zinc-800 hover:border-indigo-500/50 transition-all text-left group"
+          >
+            <div className="size-12 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
+              <span className="material-symbols-rounded text-3xl">code</span>
+            </div>
+            <div>
+              <h3 className="text-white font-bold">React + Vite</h3>
+              <p className="text-zinc-400 text-xs mt-1">Modern frontend stack with HMR</p>
+            </div>
+            <span className="ml-auto material-symbols-rounded text-zinc-600 group-hover:text-white transition-colors">arrow_forward</span>
+          </button>
+
+          <button
+            onClick={() => handleDeployTemplate('node')}
+            disabled={deploying}
+            className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 p-4 rounded-xl hover:bg-zinc-800 hover:border-emerald-500/50 transition-all text-left group"
+          >
+            <div className="size-12 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+              <span className="material-symbols-rounded text-3xl">terminal</span>
+            </div>
+            <div>
+              <h3 className="text-white font-bold">Node.js Express</h3>
+              <p className="text-zinc-400 text-xs mt-1">Simple REST API starter</p>
+            </div>
+            <span className="ml-auto material-symbols-rounded text-zinc-600 group-hover:text-white transition-colors">arrow_forward</span>
+          </button>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {services.map(service => (

@@ -100,6 +100,28 @@ class WebContainerService {
     }
   }
 
+  /**
+   * Spawns a new process in the WebContainer.
+   * Returns the process object directly for advanced control (streams, kill, etc).
+   */
+  async spawn(command: string, args: string[], options?: { cwd?: string; env?: Record<string, string> }) {
+    if (!this.container) {
+      throw new Error('WebContainer not initialized');
+    }
+    return this.container.spawn(command, args, options);
+  }
+
+  async mount(tree: FileSystemTree) {
+    if (!this.container) {
+      throw new Error('WebContainer not initialized');
+    }
+    return this.container.mount(tree);
+  }
+
+  /**
+   * Helper to run a command and pipe output to the registered callback.
+   * For interactive commands, use spawn() directly.
+   */
   async runCommand(command: string, options?: { cwd?: string }): Promise<number> {
     if (!this.container) {
       throw new Error('WebContainer not initialized. Call boot() first.');
