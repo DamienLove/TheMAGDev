@@ -2,12 +2,38 @@ const { WebSocketServer } = require('ws');
 const { spawn } = require('child_process');
 const path = require('path');
 const os = require('os');
+const http = require('http');
 
 const PORT = Number(process.env.THEMAG_AGENT_PORT || 4477);
 
-const wss = new WebSocketServer({ port: PORT });
+// Allowed origins to prevent CSWSH attacks
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://themag.dev',
+  'https://www.themag.dev'
+];
 
-console.log(`TheMAG.dev local agent listening on ws://localhost:${PORT}`);
+const server = http.createServer();
+const wss = new WebSocketServer({ noServer: true });
+
+server.on('upgrade', (request, socket, head) => {
+  const origin = request.headers.origin;
+
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      wss.emit('connection', ws, request);
+    });
+  } else {
+    console.log(`[Security] Blocked connection from origin: ${origin}`);
+    socket.write('HTTP/1.1 403 Forbidden\r\n\r\n');
+    socket.destroy();
+  }
+});
+
+server.listen(PORT, () => {
+  console.log(`TheMAG.dev local agent listening on ws://localhost:${PORT}`);
+});
 
 wss.on('connection', (ws) => {
   let cwd = process.cwd();
