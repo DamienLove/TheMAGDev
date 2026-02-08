@@ -18,9 +18,11 @@ interface WorkspaceState {
   terminalHistory: string[];
   currentDirectory: string;
   activeDriveFolderId: string | null;
+  pendingCommand: string | null;
 }
 
 interface WorkspaceContextType extends WorkspaceState {
+  setPendingCommand: (cmd: string | null) => void;
   openFile: (path: string) => void;
   closeFile: (path: string) => void;
   setActiveFile: (path: string) => void;
@@ -451,6 +453,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   ]);
   const [currentDirectory, setCurrentDirectory] = useState('/');
   const [activeDriveFolderId, setActiveDriveFolderId] = useState<string | null>(null);
+  const [pendingCommand, setPendingCommand] = useState<string | null>(null);
   const driveEmail = driveUser?.email ?? null;
 
   const applyWorkspaceState = useCallback((nextFiles: FileNode[], payload?: string) => {
@@ -815,6 +818,8 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setCurrentDirectory,
     activeDriveFolderId,
     setActiveDriveFolderId,
+    pendingCommand,
+    setPendingCommand,
   };
 
   return (

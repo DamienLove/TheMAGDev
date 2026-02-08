@@ -1,10 +1,14 @@
-import React, { useRef, useEffect, useCallback, useState } from 'react';
+import React, { useRef, useEffect, useCallback, useState, useImperativeHandle, forwardRef } from 'react';
 import { Terminal as XTerm } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
 import { useWorkspace } from './WorkspaceContext';
 import webContainerService from '../../services/WebContainerService';
 import localAgentService, { AgentStatus } from '../../services/LocalAgentService';
+
+export interface TerminalRef {
+  runCommand: (command: string) => void;
+}
 
 interface TerminalProps {
   className?: string;
@@ -13,7 +17,7 @@ interface TerminalProps {
 
 type TerminalMode = 'webcontainer' | 'local' | 'mock';
 
-const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
+const Terminal = forwardRef<TerminalRef, TerminalProps>(({ className, initialMode }, ref) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
@@ -21,8 +25,21 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const currentLineRef = useRef('');
-  const executeCommandRef = useRef<(command: string) => void>();
+  const executeCommandRef = useRef<(command: string) => Promise<void>>();
   const printPromptRef = useRef<() => void>();
+
+  useImperativeHandle(ref, () => ({
+    runCommand: (command: string) => {
+      const term = xtermRef.current;
+      if (term && executeCommandRef.current) {
+        term.write(command);
+        term.write('\r\n');
+        executeCommandRef.current(command).then(() => {
+           printPromptRef.current?.();
+        });
+      }
+    }
+  }));
   const defaultMode: TerminalMode = typeof window !== 'undefined' && window.crossOriginIsolated ? 'webcontainer' : 'mock';
   const [terminalMode, setTerminalMode] = useState<TerminalMode>(initialMode ?? defaultMode);
   const [webStatus, setWebStatus] = useState<'idle' | 'booting' | 'ready' | 'error'>('idle');
@@ -267,8 +284,6 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
       return;
     }
 
-
-
     if (terminalMode === 'mock') {
       if (trimmed === 'clear') {
         term.clear();
@@ -416,7 +431,9 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
     term.onData((data) => {
       switch (data) {
         case '\r': // Enter
-          executeCommandRef.current?.(currentLineRef.current);
+          executeCommandRef.current?.(currentLineRef.current).then(() => {
+             printPromptRef.current?.();
+          });
           setCommandHistory(prev => {
             if (currentLineRef.current.trim()) {
               return [...prev, currentLineRef.current];
@@ -425,7 +442,6 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
           });
           setHistoryIndex(-1);
           currentLineRef.current = '';
-          printPromptRef.current?.();
           break;
         case '\x7f': // Backspace
           if (currentLineRef.current.length > 0) {
@@ -599,6 +615,6 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
       <div ref={terminalRef} className="flex-1 min-h-0 w-full p-2" />
     </div>
   );
-};
+});
 
 export default Terminal;

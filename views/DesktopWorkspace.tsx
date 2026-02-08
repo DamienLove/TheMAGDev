@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
+import { Terminal, useWorkspace, FileNode as WorkspaceFileNode, TerminalRef } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
+import { View } from '../types';
 
 interface FileNode {
   id: string;
@@ -21,9 +22,14 @@ interface PanelConfig {
   isVisible: boolean;
 }
 
-const DesktopWorkspace: React.FC = () => {
+interface DesktopWorkspaceProps {
+  onNavigate: (view: View) => void;
+}
+
+const DesktopWorkspace: React.FC<DesktopWorkspaceProps> = ({ onNavigate }) => {
   // Get workspace context for IDE-wide file management
   const workspace = useWorkspace();
+  const terminalRef = useRef<TerminalRef>(null);
 
   const [activeTab, setActiveTab] = useState('MainController.ts');
   const [activeTerminalTab, setActiveTerminalTab] = useState('Terminal');
@@ -132,6 +138,13 @@ export class MainController {
       setLastDriveError(syncStatus.error);
     }
   }, [syncStatus.error, lastDriveError]);
+
+  useEffect(() => {
+    if (workspace.pendingCommand && terminalRef.current) {
+      terminalRef.current.runCommand(workspace.pendingCommand);
+      workspace.setPendingCommand(null);
+    }
+  }, [workspace.pendingCommand]);
 
   const loadUserInfo = async () => {
     const info = await googleDriveService.getUserInfo();
@@ -639,9 +652,9 @@ export class MainController {
             <h1 className="text-sm font-bold tracking-tight">DevStudio <span className="text-indigo-500">Master</span></h1>
           </div>
           <nav className="hidden md:flex items-center gap-4 text-[#9da1b9]">
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
+            <button onClick={() => onNavigate(View.Projects)} className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
+            <button onClick={() => onNavigate(View.Build)} className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
+            <button onClick={() => togglePanel('ai')} className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
             <button
               onClick={() => setShowDrivePanel(!showDrivePanel)}
               className={`text-[12px] font-medium transition-colors flex items-center gap-1 ${showDrivePanel ? 'text-indigo-400' : 'hover:text-white'}`}
@@ -1409,7 +1422,7 @@ export class MainController {
               </div>
               <div className="flex-1 min-h-0 overflow-hidden">
                 {activeTerminalTab === 'Terminal' ? (
-                  <Terminal key={terminalKey.current} className="h-full" initialMode="mock" />
+                  <Terminal ref={terminalRef} key={terminalKey.current} className="h-full" initialMode="mock" />
                 ) : activeTerminalTab === 'Git Status' ? (
                   <div className="h-full overflow-y-auto p-4 font-mono text-[12px] text-[#d4d4d4]">
                     <div className="mb-2 text-green-400">On branch: {currentBranch}</div>

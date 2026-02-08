@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import { useWorkspace, FileNode } from '../src/components/workspace/WorkspaceContext';
+import { View } from '../types';
 
 interface BuildTask {
   name: string;
-  type: 'android' | 'build' | 'verification';
+  type: 'android' | 'build' | 'verification' | 'npm';
   isKey?: boolean;
 }
 
@@ -14,13 +15,18 @@ interface Dependency {
   hasConflict?: boolean;
 }
 
-const BuildSystem: React.FC = () => {
+interface BuildSystemProps {
+  onNavigate: (view: View) => void;
+}
+
+const BuildSystem: React.FC<BuildSystemProps> = ({ onNavigate }) => {
   const [selectedProject, setSelectedProject] = useState('TheMAGCore:app');
   const [isOfflineMode, setIsOfflineMode] = useState(false);
   const [buildStatus, setBuildStatus] = useState<'idle' | 'building' | 'success' | 'error'>('idle');
   const [buildProgress, setBuildProgress] = useState(0);
   const [buildLogs, setBuildLogs] = useState<string[]>(['Ready to build...']);
   const logsEndRef = useRef<HTMLDivElement>(null);
+  const [npmScripts, setNpmScripts] = useState<string[]>([]);
 
   // Workspace context is guaranteed by App wrapper
   const workspace = useWorkspace();
@@ -32,7 +38,33 @@ const BuildSystem: React.FC = () => {
     }
   }, [buildLogs]);
 
+  useEffect(() => {
+    const findPackageJson = (nodes: FileNode[]): FileNode | undefined => {
+      for (const node of nodes) {
+        if (node.name === 'package.json') return node;
+        if (node.children) {
+          const found = findPackageJson(node.children);
+          if (found) return found;
+        }
+      }
+      return undefined;
+    };
+
+    const pkgNode = findPackageJson(workspaceFiles);
+    if (pkgNode && pkgNode.content) {
+      try {
+        const json = JSON.parse(pkgNode.content);
+        if (json.scripts) {
+          setNpmScripts(Object.keys(json.scripts));
+        }
+      } catch (e) {
+        console.error('Failed to parse package.json', e);
+      }
+    }
+  }, [workspaceFiles]);
+
   const tasks: Record<string, BuildTask[]> = {
+    'npm': npmScripts.map(script => ({ name: script, type: 'npm', isKey: script === 'dev' || script === 'build' })),
     'android': [
       { name: 'androidDependencies', type: 'android' },
       { name: 'signingReport', type: 'android' }
@@ -60,7 +92,13 @@ const BuildSystem: React.FC = () => {
     ]
   };
 
-  const runBuild = (taskName: string) => {
+  const runBuild = (taskName: string, type: string) => {
+    if (type === 'npm') {
+        workspace.setPendingCommand(`npm run ${taskName}`);
+        onNavigate(View.Desktop);
+        return;
+    }
+
     if (buildStatus === 'building') return;
 
     setBuildStatus('building');
@@ -148,12 +186,14 @@ const BuildSystem: React.FC = () => {
                  <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em]">Build Invocations</span>
               </div>
               
-              {Object.entries(tasks).map(([group, taskList]) => (
-                <details key={group} className="group/folder mb-1" open={group === 'build'}>
+              {Object.entries(tasks).map(([group, taskList]) => {
+                if (taskList.length === 0) return null;
+                return (
+                <details key={group} className="group/folder mb-1" open={group === 'build' || group === 'npm'}>
                    <summary className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-zinc-800 cursor-pointer select-none text-xs font-bold text-zinc-400 uppercase tracking-tight transition-colors">
                       <span className="material-symbols-rounded text-sm text-zinc-600 group-open/folder:rotate-90 transition-transform">chevron_right</span>
-                      <span className={`material-symbols-rounded text-sm ${group === 'android' ? 'text-emerald-500' : group === 'build' ? 'text-amber-500' : 'text-purple-500'}`}>
-                        {group === 'android' ? 'android' : group === 'build' ? 'build' : 'fact_check'}
+                      <span className={`material-symbols-rounded text-sm ${group === 'android' ? 'text-emerald-500' : group === 'build' ? 'text-amber-500' : group === 'npm' ? 'text-blue-500' : 'text-purple-500'}`}>
+                        {group === 'android' ? 'android' : group === 'build' ? 'build' : group === 'npm' ? 'terminal' : 'fact_check'}
                       </span>
                       {group}
                    </summary>
@@ -162,7 +202,7 @@ const BuildSystem: React.FC = () => {
                         <div
                             key={task.name}
                             className={`flex items-center justify-between px-2 py-1.5 rounded hover:bg-zinc-800 group/item transition-all cursor-pointer ${task.isKey ? 'bg-indigo-500/5 border-l border-indigo-500' : ''}`}
-                            onClick={() => runBuild(task.name)}
+                            onClick={() => runBuild(task.name, task.type)}
                         >
                            <span className={`text-xs ${task.isKey ? 'text-white font-bold' : 'text-zinc-500'}`}>{task.name}</span>
                            <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
@@ -172,7 +212,7 @@ const BuildSystem: React.FC = () => {
                       ))}
                    </div>
                 </details>
-              ))}
+              )})}
            </div>
         </aside>
 
