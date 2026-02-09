@@ -18,7 +18,7 @@ import SDKManager from './views/SDKManager';
 import PopoutModule from './views/PopoutModule';
 import LoadingScreen from './src/components/LoadingScreen';
 import { SettingsProvider } from './src/contexts/SettingsContext';
-import { WorkspaceProvider } from './src/components/workspace';
+import { WorkspaceProvider, useWorkspace, type FileNode } from './src/components/workspace';
 import './src/services/ModuleRegistryService';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
@@ -36,6 +36,9 @@ const AppContent: React.FC = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
+
+  // Workspace context for project navigation
+  const { replaceWorkspace } = useWorkspace();
 
   // Firebase auth session
   useEffect(() => {
@@ -154,10 +157,15 @@ const AppContent: React.FC = () => {
     setCurrentView(view);
   };
 
+  const handleOpenProject = (files: FileNode[]) => {
+    replaceWorkspace(files);
+    setCurrentView(View.Desktop);
+  };
+
   const renderView = () => {
     switch (currentView) {
       case View.Dashboard: return <Dashboard />;
-      case View.Projects: return <Projects />;
+      case View.Projects: return <Projects onOpenProject={handleOpenProject} />;
       case View.Editor: return <CodeEditor />;
       case View.Desktop: return <DesktopWorkspace />;
       case View.Design: return <DesignStudio />;

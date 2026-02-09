@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { MODULE_CATALOG } from '../src/data/moduleCatalog';
+import extensionService, { MarketplaceExtension } from '../src/services/ExtensionService';
 
-interface Extension {
+interface ExtensionDisplay {
   id: string;
   name: string;
   author: string;
@@ -20,112 +20,18 @@ const Marketplace: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [installing, setInstalling] = useState<string | null>(null);
-
-  const coreExtensions: Extension[] = [
-    { 
-      id: 'ext-flutter', 
-      name: 'Flutter', 
-      author: 'Google', 
-      description: 'Flutter and Dart tooling with hot reload, widget inspector, and DevTools.', 
-      downloads: '2.6M', 
-      rating: 4.8, 
-      icon: 'flutter_dash', 
-      category: 'Frameworks', 
-      installed: false,
-      color: 'bg-blue-500'
-    },
-    { 
-      id: 'ext-copilot', 
-      name: 'GitHub Copilot', 
-      author: 'GitHub', 
-      description: 'AI pair programmer for inline code completions and chat-driven refactors.', 
-      downloads: '1.4M', 
-      rating: 4.7, 
-      icon: 'smart_toy', 
-      category: 'AI & LLMs', 
-      installed: true,
-      color: 'bg-indigo-600'
-    },
-    { 
-      id: 'ext-aws-toolkit', 
-      name: 'AWS Toolkit', 
-      author: 'Amazon Web Services', 
-      description: 'Build, deploy, and debug serverless apps and cloud resources from your IDE.', 
-      downloads: '980K', 
-      rating: 4.6, 
-      icon: 'cloud', 
-      category: 'Cloud', 
-      installed: false,
-      color: 'bg-blue-600'
-    },
-    { 
-      id: 'ext-dracula', 
-      name: 'Dracula Official', 
-      author: 'Dracula Theme', 
-      description: 'Iconic dark theme with consistent colors across editors and terminals.', 
-      downloads: '3.9M', 
-      rating: 5.0, 
-      icon: 'palette', 
-      category: 'Themes', 
-      installed: true,
-      color: 'bg-purple-600'
-    },
-    { 
-      id: 'ext-mongodb', 
-      name: 'MongoDB for VS Code', 
-      author: 'MongoDB', 
-      description: 'Browse collections, run queries, and manage MongoDB connections.', 
-      downloads: '740K', 
-      rating: 4.5, 
-      icon: 'database', 
-      category: 'Data', 
-      installed: false,
-      color: 'bg-teal-600'
-    },
-    { 
-      id: 'ext-rust-analyzer', 
-      name: 'Rust Analyzer', 
-      author: 'Rust Analyzer', 
-      description: 'Rust language server with rich diagnostics, code navigation, and refactors.', 
-      downloads: '1.3M', 
-      rating: 4.8, 
-      icon: 'settings_input_component', 
-      category: 'Languages', 
-      installed: false,
-      color: 'bg-orange-600'
-    }
-  ];
-
-  const moduleExtensions: Extension[] = MODULE_CATALOG.map((moduleItem) => ({
-    id: `module-${moduleItem.id}`,
-    name: moduleItem.name,
-    author: 'TheMAG.dev',
-    description: moduleItem.description,
-    downloads: 'Built-in',
-    rating: 5.0,
-    icon: moduleItem.icon,
-    category: 'Modules',
-    installed: true,
-    color: 'bg-zinc-800'
-  }));
-
-  const [extensions, setExtensions] = useState<Extension[]>(() => {
-      const allExtensions = [...coreExtensions, ...moduleExtensions];
-      const savedState = localStorage.getItem('themag_marketplace_state');
-      if (savedState) {
-          const installedIds = JSON.parse(savedState);
-          return allExtensions.map(ext => ({
-              ...ext,
-              installed: installedIds.includes(ext.id) || (ext.installed && !savedState) // keep defaults if no state, else override
-          }));
-      }
-      return allExtensions;
-  });
+  const [extensions, setExtensions] = useState<MarketplaceExtension[]>([]);
+  const [installedIds, setInstalledIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-      const installedIds = extensions.filter(e => e.installed).map(e => e.id);
-      localStorage.setItem('themag_marketplace_state', JSON.stringify(installedIds));
-  }, [extensions]);
+    const updateState = () => {
+      setExtensions(extensionService.getMarketplaceExtensions());
+      setInstalledIds(new Set(extensionService.getInstalledExtensions().map(e => e.manifest.id)));
+    };
+
+    updateState();
+    return extensionService.onChange(updateState);
+  }, []);
 
   const categories = [
     { name: 'Popular', icon: 'trending_up' },
@@ -138,18 +44,48 @@ const Marketplace: React.FC = () => {
     { name: 'Modules', icon: 'view_quilt' }
   ];
 
-  const handleInstall = (extId: string) => {
+  const handleInstall = async (extId: string) => {
     setInstalling(extId);
-    // Simulate network delay
-    setTimeout(() => {
-      setExtensions(prev => prev.map(ext =>
-        ext.id === extId ? { ...ext, installed: !ext.installed } : ext
-      ));
-      setInstalling(null);
-    }, 1000);
+    if (installedIds.has(extId)) {
+      extensionService.uninstallExtension(extId);
+    } else {
+      await extensionService.installExtension(extId);
+    }
+    setInstalling(null);
   };
 
-  const filteredExtensions = extensions.filter(ext => {
+  const getDisplayExtensions = (): ExtensionDisplay[] => {
+    let source = extensions;
+
+    if (activeTab === 'INSTALLED') {
+      source = extensions.filter(ext => installedIds.has(ext.manifest.id));
+    }
+
+    return source.map(ext => {
+      const isInstalled = installedIds.has(ext.manifest.id);
+      return {
+        id: ext.manifest.id,
+        name: ext.manifest.displayName,
+        author: ext.manifest.author.name,
+        description: ext.manifest.description,
+        downloads: ext.downloads > 1000000 ? `${(ext.downloads / 1000000).toFixed(1)}M` : `${(ext.downloads / 1000).toFixed(1)}K`,
+        rating: ext.rating,
+        icon: ext.manifest.id.includes('theme') ? 'palette' :
+              ext.manifest.categories.includes('ai') ? 'smart_toy' :
+              ext.manifest.categories.includes('language') ? 'code' :
+              ext.manifest.categories.includes('git') ? 'merge' :
+              ext.manifest.categories.includes('testing') ? 'bug_report' :
+              ext.manifest.categories.includes('formatter') ? 'format_align_left' :
+              'extension',
+        category: ext.manifest.categories[0] ? ext.manifest.categories[0].charAt(0).toUpperCase() + ext.manifest.categories[0].slice(1) : 'Other',
+        installed: isInstalled,
+        color: isInstalled ? 'bg-zinc-700' : 'bg-zinc-800', // Dynamic color logic could be improved
+        isImage: false
+      };
+    });
+  };
+
+  const filteredExtensions = getDisplayExtensions().filter(ext => {
     const matchesSearch = searchQuery
       ? ext.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         ext.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -157,12 +93,10 @@ const Marketplace: React.FC = () => {
       : true;
 
     const matchesCategory = activeCategory
-      ? activeCategory === 'Popular' || ext.category === activeCategory
+      ? activeCategory === 'Popular' || ext.category.toLowerCase().includes(activeCategory.toLowerCase())
       : true;
 
-    const matchesTab = activeTab === 'INSTALLED' ? ext.installed : true;
-
-    return matchesSearch && matchesCategory && matchesTab;
+    return matchesSearch && matchesCategory;
   });
 
   return (
@@ -183,7 +117,7 @@ const Marketplace: React.FC = () => {
             onClick={() => setActiveTab('INSTALLED')}
             className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${activeTab === 'INSTALLED' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
-            Installed
+            Installed ({installedIds.size})
           </button>
         </div>
       </header>
