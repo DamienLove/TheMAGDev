@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "local-agent": "node scripts/local-agent.js",
+    "local-agent": "node scripts/local-agent.cjs",
     "seed-admin": "node scripts/seed-admin-user.mjs"
   },
   "dependencies": {

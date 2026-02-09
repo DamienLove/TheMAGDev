@@ -5,7 +5,33 @@ const os = require('os');
 
 const PORT = Number(process.env.THEMAG_AGENT_PORT || 4477);
 
-const wss = new WebSocketServer({ port: PORT });
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'https://themag.dev',
+];
+
+const wss = new WebSocketServer({
+  port: PORT,
+  verifyClient: (info, cb) => {
+    const origin = info.origin || info.req.headers.origin;
+    if (!origin) {
+      // Allow non-browser clients (like scripts) if needed,
+      // but for strict security against CSWSH we should be careful.
+      // However, browsers ALWAYS send Origin.
+      return cb(true);
+    }
+
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      return cb(true);
+    }
+
+    console.log(`Blocked connection from unauthorized origin: ${origin}`);
+    return cb(false, 403, 'Forbidden');
+  }
+});
 
 console.log(`TheMAG.dev local agent listening on ws://localhost:${PORT}`);
 
