@@ -24,7 +24,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, user }) =>
 
   return (
     <aside className="w-16 flex flex-col items-center bg-slate-900 border-r border-slate-800 py-4 h-full shrink-0 z-50">
-      <div className="mb-8 p-2 bg-indigo-600 rounded-lg shadow-lg shadow-indigo-500/30">
+      <div className="mb-8 p-2 bg-indigo-600 rounded-lg shadow-lg shadow-indigo-500/30" role="img" aria-label="DevStudio Logo">
         <span className="material-symbols-rounded text-white" style={{ fontSize: '24px' }}>deployed_code</span>
       </div>
 
@@ -33,6 +33,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, user }) =>
           <button
             key={item.id}
             onClick={() => onChangeView(item.id)}
+            aria-label={item.label}
+            aria-current={currentView === item.id ? 'page' : undefined}
             className={`group relative flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 shrink-0 ${
               currentView === item.id
                 ? 'bg-slate-800 text-indigo-400 shadow-md border border-slate-700'
@@ -51,6 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, user }) =>
       <div className="flex flex-col gap-4 w-full px-2 mt-4 pt-4 border-t border-slate-800">
         <button
           onClick={() => onChangeView(View.Support)}
+          aria-label="Support"
           className={`group relative flex items-center justify-center w-12 h-12 rounded-xl transition-all ${
             currentView === View.Support ? 'bg-slate-800 text-indigo-400' : 'text-slate-400 hover:text-slate-200'
           }`}
@@ -62,6 +65,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, user }) =>
         </button>
         <button 
           onClick={() => onChangeView(View.Settings)}
+          aria-label="Settings"
           className={`group relative flex items-center justify-center w-12 h-12 rounded-xl transition-all ${
             currentView === View.Settings ? 'bg-slate-800 text-indigo-400' : 'text-slate-400 hover:text-slate-200'
           }`}
@@ -71,9 +75,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, user }) =>
             Settings
           </div>
         </button>
-        <div className="w-10 h-10 mx-auto rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-xs font-bold border-2 border-slate-950 shadow-lg cursor-pointer hover:scale-110 transition-transform">
+        <button
+          className="w-10 h-10 mx-auto rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-xs font-bold border-2 border-slate-950 shadow-lg cursor-pointer hover:scale-110 transition-transform"
+          aria-label="User profile"
+        >
           {user?.avatar || 'JD'}
-        </div>
+        </button>
       </div>
     </aside>
   );
