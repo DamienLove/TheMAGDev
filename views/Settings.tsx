@@ -121,6 +121,12 @@ const Settings: React.FC = () => {
     setDriveLoading(false);
   };
 
+  const handleReset = () => {
+    if (window.confirm('Are you sure you want to reset all settings to default? This cannot be undone.')) {
+      resetSettings();
+    }
+  };
+
   const handleExport = () => {
     const data = exportSettings();
     const blob = new Blob([data], { type: 'application/json' });
@@ -259,7 +265,7 @@ const Settings: React.FC = () => {
             Import Settings
           </button>
           <button
-            onClick={resetSettings}
+            onClick={handleReset}
             className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded text-xs font-medium transition-colors"
           >
             <span className="material-symbols-rounded text-sm">restart_alt</span>

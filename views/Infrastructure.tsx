@@ -15,6 +15,7 @@ interface BackendService {
   modules: BackendModule[];
   color: string;
   icon: string;
+  lastChecked?: number;
 }
 
 const DEFAULT_SERVICES: BackendService[] = [
@@ -65,6 +66,7 @@ const Infrastructure: React.FC = () => {
     return saved ? JSON.parse(saved) : DEFAULT_SERVICES;
   });
   const [showAddModal, setShowAddModal] = useState(false);
+  const [checking, setChecking] = useState(false);
   const [newService, setNewService] = useState<Partial<BackendService>>({
       name: '',
       provider: '',
@@ -74,6 +76,22 @@ const Infrastructure: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('themag_infrastructure', JSON.stringify(services));
   }, [services]);
+
+  const handleCheckStatus = () => {
+    setChecking(true);
+    setTimeout(() => {
+      setServices(prev => prev.map(s => ({
+        ...s,
+        lastChecked: Date.now(),
+        status: Math.random() > 0.8 ? 'Warning' : 'Active',
+        modules: s.modules.map(m => ({
+          ...m,
+          status: Math.random() > 0.9 ? 'Syncing' : 'Online'
+        }))
+      })));
+      setChecking(false);
+    }, 1500);
+  };
 
   const handleAddService = () => {
     if (!newService.name || !newService.provider) return;
@@ -105,12 +123,22 @@ const Infrastructure: React.FC = () => {
           <h1 className="text-2xl font-bold text-white mb-1 uppercase tracking-tight">Infrastructure Stack</h1>
           <p className="text-zinc-400 text-sm">Manage multi-cloud backend services and service mesh connectivity.</p>
         </div>
-        <button
-            onClick={() => setShowAddModal(true)}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2"
-        >
-          <span className="material-symbols-rounded text-sm">add</span> Provision New Service
-        </button>
+        <div className="flex gap-3">
+          <button
+              onClick={handleCheckStatus}
+              disabled={checking}
+              className="px-4 py-2 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-300 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
+          >
+            <span className={`material-symbols-rounded text-sm ${checking ? 'animate-spin' : ''}`}>refresh</span>
+            {checking ? 'Checking...' : 'Check Status'}
+          </button>
+          <button
+              onClick={() => setShowAddModal(true)}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2"
+          >
+            <span className="material-symbols-rounded text-sm">add</span> Provision New Service
+          </button>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -170,9 +198,14 @@ const Infrastructure: React.FC = () => {
 
             {/* Service Footer / Quick Info */}
             <div className="p-4 bg-zinc-950/50 border-t border-zinc-800 flex items-center justify-between">
-               <div className="flex items-center gap-1.5">
-                  <span className="text-[9px] font-bold text-zinc-600 uppercase">Provider:</span>
-                  <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">{service.provider}</span>
+               <div className="flex flex-col gap-0.5">
+                  <div className="flex items-center gap-1.5">
+                      <span className="text-[9px] font-bold text-zinc-600 uppercase">Provider:</span>
+                      <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">{service.provider}</span>
+                  </div>
+                  {service.lastChecked && (
+                      <span className="text-[8px] text-zinc-600">Checked: {new Date(service.lastChecked).toLocaleTimeString()}</span>
+                  )}
                </div>
                <button className="text-[10px] font-bold text-indigo-400 hover:underline flex items-center gap-1">
                   Metrics <span className="material-symbols-rounded text-xs">open_in_new</span>

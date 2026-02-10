@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import { REACT_TEMPLATE, NODE_TEMPLATE } from '../src/data/templates';
+import { View } from '../types';
 
 interface Project {
   id: string;
@@ -12,10 +15,68 @@ interface Project {
   status: 'New' | 'Popular' | 'Updated' | 'Verified';
 }
 
-const Projects: React.FC = () => {
+interface ProjectsProps {
+  onNavigate?: (view: View) => void;
+}
+
+const Projects: React.FC<ProjectsProps> = ({ onNavigate }) => {
   const [activeFilter, setActiveFilter] = useState('All');
+  const workspace = useWorkspace();
+  const [starred, setStarred] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem('themag_starred_projects');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+
+  useEffect(() => {
+    localStorage.setItem('themag_starred_projects', JSON.stringify(Array.from(starred)));
+  }, [starred]);
+
+  const toggleStar = (id: string) => {
+    setStarred(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleClone = (project: Project) => {
+    if (project.id === 'template-react') {
+      workspace.replaceWorkspace(REACT_TEMPLATE);
+      if (onNavigate) onNavigate(View.Desktop);
+    } else if (project.id === 'template-node') {
+      workspace.replaceWorkspace(NODE_TEMPLATE);
+      if (onNavigate) onNavigate(View.Desktop);
+    } else {
+      // For now, map others to React template as a demo
+      workspace.replaceWorkspace(REACT_TEMPLATE);
+      if (onNavigate) onNavigate(View.Desktop);
+    }
+  };
 
   const projects: Project[] = [
+    {
+      id: 'template-react',
+      name: 'Vite + React Starter',
+      description: 'Clean React 18 template with TypeScript, Vite, and Tailwind CSS.',
+      author: 'TheMAG',
+      authorAvatar: 'TM',
+      stars: 'Official',
+      thumbnail: './assets/store/tech_pattern.svg',
+      platforms: ['language', 'devices'],
+      status: 'Verified'
+    },
+    {
+      id: 'template-node',
+      name: 'Node.js Express API',
+      description: 'Minimal Express server with JSON middleware and basic routing.',
+      author: 'TheMAG',
+      authorAvatar: 'TM',
+      stars: 'Official',
+      thumbnail: './assets/store/dark_hex_pattern.svg',
+      platforms: ['terminal', 'cloud'],
+      status: 'Verified'
+    },
     {
       id: 'p-1',
       name: 'TheMAG.dev FinTrack',
@@ -211,13 +272,19 @@ const Projects: React.FC = () => {
                              <div className="size-6 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[10px] font-bold text-indigo-400">{p.authorAvatar}</div>
                              <span className="text-xs text-zinc-500">{p.author}</span>
                           </div>
-                          <div className="flex items-center gap-1 text-amber-500">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); toggleStar(p.id); }}
+                            className={`flex items-center gap-1 ${starred.has(p.id) ? 'text-amber-400' : 'text-zinc-600 hover:text-amber-400'}`}
+                          >
                              <span className="material-symbols-rounded text-sm fill-[1]">star</span>
-                             <span className="text-xs font-bold text-zinc-300">{p.stars}</span>
-                          </div>
+                             <span className="text-xs font-bold">{p.stars}</span>
+                          </button>
                        </div>
-                       <button className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2">
-                          <span className="material-symbols-rounded text-lg">code</span> View Implementation
+                       <button
+                         onClick={(e) => { e.stopPropagation(); handleClone(p); }}
+                         className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 hover:border-indigo-500 hover:text-indigo-400"
+                       >
+                          <span className="material-symbols-rounded text-lg">code</span> Clone Project
                        </button>
                     </div>
                  </div>

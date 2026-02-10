@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import googleDriveService, { type DriveSyncStatus, type DriveUserInfo } from '../../services/GoogleDriveService';
+import webContainerService, { FileSystemTree } from '../../services/WebContainerService';
 
 export interface FileNode {
   name: string;
@@ -399,6 +400,22 @@ const findFirstFile = (nodes: FileNode[]): FileNode | null => {
   return null;
 };
 
+const convertNodesToTree = (nodes: FileNode[]): FileSystemTree => {
+  const tree: FileSystemTree = {};
+  for (const node of nodes) {
+    if (node.type === 'file') {
+      tree[node.name] = {
+        file: { contents: node.content || '' }
+      };
+    } else if (node.type === 'folder') {
+      tree[node.name] = {
+        directory: node.children ? convertNodesToTree(node.children) : {}
+      };
+    }
+  }
+  return tree;
+};
+
 const WorkspaceContext = createContext<WorkspaceContextType | null>(null);
 
 export const useWorkspace = () => {
@@ -457,6 +474,16 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     lastSavedRef.current = payload ?? JSON.stringify(nextFiles);
     setFiles(nextFiles);
     setUnsavedFiles(new Set());
+
+    // Sync to WebContainer
+    if (typeof window !== 'undefined' && window.crossOriginIsolated) {
+      webContainerService.boot().then(async () => {
+        const tree = convertNodesToTree(nextFiles);
+        await webContainerService.getContainer()?.mount(tree);
+        console.log('WebContainer synced with workspace state');
+      }).catch(console.warn);
+    }
+
     const firstFile = findFirstFile(nextFiles);
     if (firstFile) {
       setOpenFiles([firstFile.path]);
@@ -583,6 +610,16 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [applyWorkspaceState, driveEmail, driveStatus.connected, activeDriveFolderId]);
 
   useEffect(() => {
+    if (isHydrated && typeof window !== 'undefined' && window.crossOriginIsolated) {
+      // Ensure WebContainer is booted and mounted on initial hydration
+      webContainerService.boot().then(async () => {
+        const tree = convertNodesToTree(files);
+        await webContainerService.getContainer()?.mount(tree);
+      }).catch(console.warn);
+    }
+  }, [isHydrated]);
+
+  useEffect(() => {
     if (!isHydrated) {
       return;
     }
@@ -688,6 +725,13 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return updateNode(prev);
     });
     setUnsavedFiles(prev => new Set(prev).add(path));
+
+    // Sync to WebContainer
+    if (typeof window !== 'undefined' && window.crossOriginIsolated) {
+      // Remove leading slash for WebContainer
+      const relativePath = path.startsWith('/') ? path.slice(1) : path;
+      webContainerService.writeFile(relativePath, content).catch(console.warn);
+    }
   }, []);
 
   const saveFile = useCallback((path: string) => {
@@ -696,6 +740,12 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       next.delete(path);
       return next;
     });
+    // Dispatch analytics event
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('themag-event', {
+        detail: { type: 'file_save', message: `Saved file: ${path}` }
+      }));
+    }
     // Persistence is handled by the debounced workspace sync effect.
   }, []);
 
@@ -738,6 +788,16 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return addToParent(prev);
     });
 
+    // Sync to WebContainer
+    if (typeof window !== 'undefined' && window.crossOriginIsolated) {
+      const relativePath = newPath.startsWith('/') ? newPath.slice(1) : newPath;
+      if (type === 'file') {
+        webContainerService.writeFile(relativePath, '').catch(console.warn);
+      } else {
+        webContainerService.mkdir(relativePath).catch(console.warn);
+      }
+    }
+
     if (type === 'file') {
       openFile(newPath);
     }
@@ -757,6 +817,12 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return removeNode(prev);
     });
     closeFile(path);
+
+    // Sync to WebContainer
+    if (typeof window !== 'undefined' && window.crossOriginIsolated) {
+      const relativePath = path.startsWith('/') ? path.slice(1) : path;
+      webContainerService.rm(relativePath).catch(console.warn);
+    }
   }, [closeFile]);
 
   const renameFile = useCallback((oldPath: string, newName: string) => {
@@ -781,6 +847,14 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       };
       return renameNode(prev);
     });
+
+    // Sync to WebContainer (using mv command)
+    if (typeof window !== 'undefined' && window.crossOriginIsolated) {
+      const relativeOld = oldPath.startsWith('/') ? oldPath.slice(1) : oldPath;
+      const parentPath = relativeOld.substring(0, relativeOld.lastIndexOf('/'));
+      const relativeNew = parentPath ? `${parentPath}/${newName}` : newName;
+      webContainerService.runCommand(`mv "${relativeOld}" "${relativeNew}"`).catch(console.warn);
+    }
   }, []);
 
   const addTerminalLine = useCallback((line: string) => {

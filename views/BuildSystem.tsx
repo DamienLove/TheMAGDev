@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import webContainerService from '../src/services/WebContainerService';
 
 interface BuildTask {
   name: string;
@@ -33,6 +34,12 @@ const BuildSystem: React.FC = () => {
   }, [buildLogs]);
 
   const tasks: Record<string, BuildTask[]> = {
+    'npm': [
+      { name: 'npm install', type: 'build' },
+      { name: 'npm run build', type: 'build', isKey: true },
+      { name: 'npm run dev', type: 'build' },
+      { name: 'npm test', type: 'verification' }
+    ],
     'android': [
       { name: 'androidDependencies', type: 'android' },
       { name: 'signingReport', type: 'android' }
@@ -60,12 +67,60 @@ const BuildSystem: React.FC = () => {
     ]
   };
 
-  const runBuild = (taskName: string) => {
+  const runBuild = async (taskName: string) => {
     if (buildStatus === 'building') return;
 
     setBuildStatus('building');
     setBuildProgress(0);
-    setBuildLogs([`> Executing task: ${taskName}...`, 'Initializing Daemon...', 'Allocating resources...']);
+    setBuildLogs([`> Executing task: ${taskName}...`]);
+
+    // Handle real WebContainer builds
+    if (taskName.startsWith('npm')) {
+      if (!webContainerService.isReady()) {
+        setBuildLogs(prev => [...prev, 'Error: WebContainer is not ready. Please wait for it to boot in the Workspace.']);
+        setBuildStatus('error');
+        return;
+      }
+
+      try {
+        setBuildLogs(prev => [...prev, 'Starting process in WebContainer...']);
+        const [cmd, ...args] = taskName.split(' ');
+        const process = await webContainerService.getContainer()?.spawn(cmd, args);
+
+        if (!process) {
+          throw new Error('Failed to spawn process');
+        }
+
+        process.output.pipeTo(new WritableStream({
+          write(data) {
+            setBuildLogs(prev => [...prev, data.trimEnd()]);
+          }
+        }));
+
+        const code = await process.exit;
+        if (code === 0) {
+          setBuildStatus('success');
+          setBuildLogs(prev => [...prev, `Process exited with code ${code} (Success)`]);
+          setBuildProgress(100);
+          window.dispatchEvent(new CustomEvent('themag-event', {
+            detail: { type: 'build', message: `Build success: ${taskName}` }
+          }));
+        } else {
+          setBuildStatus('error');
+          setBuildLogs(prev => [...prev, `Process exited with code ${code} (Error)`]);
+          window.dispatchEvent(new CustomEvent('themag-event', {
+            detail: { type: 'build_error', message: `Build failed: ${taskName}` }
+          }));
+        }
+      } catch (e: any) {
+        setBuildStatus('error');
+        setBuildLogs(prev => [...prev, `Error: ${e.message}`]);
+      }
+      return;
+    }
+
+    // Mock behavior for legacy/android tasks
+    setBuildLogs(prev => [...prev, 'Initializing Daemon...', 'Allocating resources...']);
 
     const steps = [
         { progress: 10, msg: '> Configure project :app' },
@@ -149,11 +204,11 @@ const BuildSystem: React.FC = () => {
               </div>
               
               {Object.entries(tasks).map(([group, taskList]) => (
-                <details key={group} className="group/folder mb-1" open={group === 'build'}>
+                <details key={group} className="group/folder mb-1" open={group === 'npm' || group === 'build'}>
                    <summary className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-zinc-800 cursor-pointer select-none text-xs font-bold text-zinc-400 uppercase tracking-tight transition-colors">
                       <span className="material-symbols-rounded text-sm text-zinc-600 group-open/folder:rotate-90 transition-transform">chevron_right</span>
-                      <span className={`material-symbols-rounded text-sm ${group === 'android' ? 'text-emerald-500' : group === 'build' ? 'text-amber-500' : 'text-purple-500'}`}>
-                        {group === 'android' ? 'android' : group === 'build' ? 'build' : 'fact_check'}
+                      <span className={`material-symbols-rounded text-sm ${group === 'npm' ? 'text-indigo-500' : group === 'android' ? 'text-emerald-500' : group === 'build' ? 'text-amber-500' : 'text-purple-500'}`}>
+                        {group === 'npm' ? 'terminal' : group === 'android' ? 'android' : group === 'build' ? 'build' : 'fact_check'}
                       </span>
                       {group}
                    </summary>

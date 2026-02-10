@@ -1,10 +1,44 @@
 import React, { useState, useEffect } from 'react';
 
+interface AnalyticsEvent {
+  id: string;
+  type: string;
+  details: string;
+  timestamp: number;
+}
+
 const Analytics: React.FC = () => {
   const [dataPoints, setDataPoints] = useState<number[]>([]);
   const [activeSessions, setActiveSessions] = useState(1243);
   const [latency, setLatency] = useState(42);
   const [cpuUsage, setCpuUsage] = useState(24);
+  const [events, setEvents] = useState<AnalyticsEvent[]>(() => {
+    try {
+      const saved = localStorage.getItem('themag_analytics_events');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('themag_analytics_events', JSON.stringify(events.slice(-50)));
+  }, [events]);
+
+  useEffect(() => {
+    const handleEvent = (e: CustomEvent) => {
+      setEvents(prev => [{
+        id: Date.now().toString(),
+        type: e.detail.type || 'System',
+        details: e.detail.message || 'Event occurred',
+        timestamp: Date.now()
+      }, ...prev].slice(0, 50));
+
+      if (e.detail.type === 'build') setCpuUsage(prev => Math.min(100, prev + 40));
+      if (e.detail.type === 'file_save') setLatency(prev => Math.min(100, prev + 5));
+    };
+
+    window.addEventListener('themag-event' as any, handleEvent as any);
+    return () => window.removeEventListener('themag-event' as any, handleEvent as any);
+  }, []);
 
   // Simulate real-time data stream
   useEffect(() => {
