@@ -9,6 +9,7 @@ const SDKManager: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
   const [downloadingPluginId, setDownloadingPluginId] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const platforms = ['Android', 'iOS', 'Windows', 'Mac', 'Linux', 'Web'];
 
@@ -53,6 +54,8 @@ const SDKManager: React.FC = () => {
       setLoading(false);
       setProgress(null);
       loadData();
+      setToast({ message: `${sdk.name} ${sdk.status === 'Installed' ? 'uninstalled' : 'installed'} successfully`, type: 'success' });
+      setTimeout(() => setToast(null), 3000);
     }, 2000);
   };
 
@@ -250,6 +253,16 @@ const SDKManager: React.FC = () => {
               </div>
               <span className="text-xs font-mono text-zinc-500">{progress}%</span>
            </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed bottom-4 right-4 px-4 py-3 rounded-lg shadow-2xl border flex items-center gap-3 animate-in slide-in-from-bottom-5 z-[110] ${
+          toast.type === 'success' ? 'bg-zinc-900 border-emerald-500/50 text-emerald-400' : 'bg-zinc-900 border-red-500/50 text-red-400'
+        }`}>
+          <span className="material-symbols-rounded">{toast.type === 'success' ? 'check_circle' : 'error'}</span>
+          <span className="text-sm font-bold text-white">{toast.message}</span>
         </div>
       )}
 
