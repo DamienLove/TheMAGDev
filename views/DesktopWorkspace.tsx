@@ -705,8 +705,18 @@ export class MainController {
             />
           </div>
           <div className="flex items-center gap-1">
-            <button className="p-1.5 hover:bg-white/5 rounded-md text-[#9da1b9] transition-colors"><span className="material-symbols-rounded text-[18px]">account_circle</span></button>
-            <button className="p-1.5 hover:bg-white/5 rounded-md text-[#9da1b9] transition-colors relative">
+            <button
+              aria-label="User profile"
+              title="User profile"
+              className="p-1.5 hover:bg-white/5 rounded-md text-[#9da1b9] transition-colors"
+            >
+              <span className="material-symbols-rounded text-[18px]">account_circle</span>
+            </button>
+            <button
+              aria-label="Notifications"
+              title="Notifications"
+              className="p-1.5 hover:bg-white/5 rounded-md text-[#9da1b9] transition-colors relative"
+            >
               <span className="material-symbols-rounded text-[18px]">notifications</span>
               <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
             </button>
@@ -772,7 +782,12 @@ export class MainController {
             <div className="text-[9px] text-[#5f637a] leading-none mb-1 uppercase">Last Sync</div>
             <div className="text-[10px] text-white font-mono leading-none">{formatSyncTime(syncStatus.lastSync)}</div>
           </div>
-          <button onClick={loadProjects} className="p-1 text-[#5f637a] hover:text-white">
+          <button
+            onClick={loadProjects}
+            aria-label="Refresh projects"
+            title="Refresh projects"
+            className="p-1 text-[#5f637a] hover:text-white"
+          >
             <span className="material-symbols-rounded text-[18px]">refresh</span>
           </button>
         </div>
@@ -784,12 +799,18 @@ export class MainController {
           <div className="flex flex-col items-center gap-4">
             <button
               onClick={() => setShowDrivePanel(false)}
+              aria-label="Toggle File Explorer"
+              title="Toggle File Explorer"
+              aria-pressed={!showDrivePanel}
               className={`p-2 rounded-md transition-colors ${!showDrivePanel ? 'text-white bg-indigo-500/10 text-indigo-500 border-r-2 border-indigo-500' : 'text-[#5f637a] hover:text-white'}`}
             >
               <span className="material-symbols-rounded text-[24px]">folder</span>
             </button>
             <button
               onClick={() => setShowDrivePanel(true)}
+              aria-label="Toggle Google Drive"
+              title="Toggle Google Drive"
+              aria-pressed={showDrivePanel}
               className={`p-2 rounded-md transition-colors relative ${showDrivePanel ? 'text-white bg-indigo-500/10 text-indigo-500 border-r-2 border-indigo-500' : 'text-[#5f637a] hover:text-white'}`}
             >
               <span className="material-symbols-rounded text-[24px]">cloud</span>
@@ -797,10 +818,18 @@ export class MainController {
                 <span className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full border border-[#0d0e15]"></span>
               )}
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              aria-label="Debug"
+              title="Debug"
+              className="p-2 text-[#5f637a] hover:text-white transition-colors"
+            >
               <span className="material-symbols-rounded text-[24px]">bug_report</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors relative">
+            <button
+              aria-label="Git Graph"
+              title="Git Graph"
+              className="p-2 text-[#5f637a] hover:text-white transition-colors relative"
+            >
               <span className="material-symbols-rounded text-[24px]">rebase</span>
               <span className="absolute top-1 right-1 text-[8px] font-bold bg-indigo-500 text-white px-1 rounded-full">3</span>
             </button>
@@ -808,6 +837,8 @@ export class MainController {
           <div className="mt-auto flex flex-col items-center gap-4">
             <button
               onClick={toggleTerminal}
+              aria-label={showTerminal ? 'Hide Terminal' : 'Show Terminal'}
+              aria-pressed={showTerminal}
               className={`p-2 transition-colors ${showTerminal ? 'text-emerald-400' : 'text-[#5f637a] hover:text-white'}`}
               title={showTerminal ? 'Hide Terminal' : 'Show Terminal'}
             >
@@ -815,6 +846,8 @@ export class MainController {
             </button>
             <button
               onClick={() => togglePanel('git')}
+              aria-label="Toggle Git Panel"
+              aria-pressed={!!panels.find(p => p.id === 'git')?.isVisible}
               className={`p-2 transition-colors relative ${panels.find(p => p.id === 'git')?.isVisible ? 'text-orange-400' : 'text-[#5f637a] hover:text-white'}`}
               title="Toggle Git Panel"
             >
@@ -825,15 +858,25 @@ export class MainController {
             </button>
             <button
               onClick={() => setSplitView(!splitView)}
+              aria-label="Toggle Split View"
+              aria-pressed={splitView}
               className={`p-2 transition-colors ${splitView ? 'text-indigo-400' : 'text-[#5f637a] hover:text-white'}`}
               title="Toggle Split View"
             >
               <span className="material-symbols-rounded text-[24px]">view_column_2</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              aria-label="Extensions"
+              title="Extensions"
+              className="p-2 text-[#5f637a] hover:text-white transition-colors"
+            >
               <span className="material-symbols-rounded text-[24px]">extension</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              aria-label="Settings"
+              title="Settings"
+              className="p-2 text-[#5f637a] hover:text-white transition-colors"
+            >
               <span className="material-symbols-rounded text-[24px]">settings</span>
             </button>
           </div>
