@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
+import { useSettings } from '../src/contexts/SettingsContext';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
 
@@ -24,6 +25,7 @@ interface PanelConfig {
 const DesktopWorkspace: React.FC = () => {
   // Get workspace context for IDE-wide file management
   const workspace = useWorkspace();
+  const { settings } = useSettings();
 
   const [activeTab, setActiveTab] = useState('MainController.ts');
   const [activeTerminalTab, setActiveTerminalTab] = useState('Terminal');
@@ -639,9 +641,24 @@ export class MainController {
             <h1 className="text-sm font-bold tracking-tight">DevStudio <span className="text-indigo-500">Master</span></h1>
           </div>
           <nav className="hidden md:flex items-center gap-4 text-[#9da1b9]">
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
+            <button
+              onClick={() => setShowDrivePanel(false)}
+              className={`hover:text-white text-[12px] font-medium transition-colors ${!showDrivePanel ? 'text-white' : ''}`}
+            >
+              Project
+            </button>
+            <button
+              onClick={() => { setShowTerminal(true); setActiveTerminalTab('Terminal'); }}
+              className={`hover:text-white text-[12px] font-medium transition-colors ${showTerminal ? 'text-white' : ''}`}
+            >
+              Build
+            </button>
+            <button
+              onClick={() => { togglePanel('ai'); runLLMCommand('fix'); }}
+              className="hover:text-white text-[12px] font-medium transition-colors"
+            >
+              Debug
+            </button>
             <button
               onClick={() => setShowDrivePanel(!showDrivePanel)}
               className={`text-[12px] font-medium transition-colors flex items-center gap-1 ${showDrivePanel ? 'text-indigo-400' : 'hover:text-white'}`}
@@ -1118,6 +1135,10 @@ export class MainController {
                       setActiveFileContent(e.target.value);
                     }
                   }}
+                  style={{
+                    fontSize: `${settings.editor.fontSize}px`,
+                    fontFamily: settings.editor.fontFamily,
+                  }}
                   className="pl-8 w-full h-full bg-transparent text-[#d4d4d4] leading-6 resize-none focus:outline-none font-mono"
                   spellCheck={false}
                 />
@@ -1409,7 +1430,15 @@ export class MainController {
               </div>
               <div className="flex-1 min-h-0 overflow-hidden">
                 {activeTerminalTab === 'Terminal' ? (
-                  <Terminal key={terminalKey.current} className="h-full" initialMode="mock" />
+                  <Terminal
+                    key={terminalKey.current}
+                    className="h-full"
+                    initialMode="webcontainer"
+                    fontSize={settings.terminal.fontSize}
+                    fontFamily={settings.terminal.fontFamily}
+                    cursorStyle={settings.terminal.cursorStyle}
+                    cursorBlink={settings.terminal.cursorBlink}
+                  />
                 ) : activeTerminalTab === 'Git Status' ? (
                   <div className="h-full overflow-y-auto p-4 font-mono text-[12px] text-[#d4d4d4]">
                     <div className="mb-2 text-green-400">On branch: {currentBranch}</div>

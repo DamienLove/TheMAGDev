@@ -9,11 +9,22 @@ import localAgentService, { AgentStatus } from '../../services/LocalAgentService
 interface TerminalProps {
   className?: string;
   initialMode?: TerminalMode;
+  fontSize?: number;
+  fontFamily?: string;
+  cursorStyle?: 'block' | 'bar' | 'underline';
+  cursorBlink?: boolean;
 }
 
 type TerminalMode = 'webcontainer' | 'local' | 'mock';
 
-const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
+const Terminal: React.FC<TerminalProps> = ({
+  className,
+  initialMode,
+  fontSize = 13,
+  fontFamily = "'JetBrains Mono', 'Fira Code', Consolas, monospace",
+  cursorStyle = 'bar',
+  cursorBlink = true
+}) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
@@ -37,6 +48,16 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
     if (!term) return;
     term.write(data);
   }, []);
+
+  useEffect(() => {
+    if (xtermRef.current) {
+      xtermRef.current.options.fontSize = fontSize;
+      xtermRef.current.options.fontFamily = fontFamily;
+      xtermRef.current.options.cursorStyle = cursorStyle;
+      xtermRef.current.options.cursorBlink = cursorBlink;
+      fitAddonRef.current?.fit();
+    }
+  }, [fontSize, fontFamily, cursorStyle, cursorBlink]);
 
   useEffect(() => {
     webContainerService.setOutputCallback(writeToTerminal);
@@ -380,11 +401,11 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
         brightCyan: '#22d3ee',
         brightWhite: '#fafafa',
       },
-      fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
-      fontSize: 13,
+      fontFamily,
+      fontSize,
       lineHeight: 1.4,
-      cursorBlink: true,
-      cursorStyle: 'bar',
+      cursorBlink,
+      cursorStyle,
       allowTransparency: true,
     });
 
