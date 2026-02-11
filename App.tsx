@@ -143,21 +143,14 @@ const AppContent: React.FC = () => {
   }
 
   const handleRestrictedAccess = (view: View) => {
-    // Desktop and Build require Pro - just check auth for now
-    if ((view === View.Desktop || view === View.Build) && !effectiveIsPro) {
-      if (!isAuthenticated) {
-        openAuth('pro');
-        return;
-      }
-      // User is authenticated but not Pro - still allow access for now
-    }
+    // Allow guest access to all views for now to enable showcase functionality
     setCurrentView(view);
   };
 
   const renderView = () => {
     switch (currentView) {
       case View.Dashboard: return <Dashboard />;
-      case View.Projects: return <Projects />;
+      case View.Projects: return <Projects onNavigate={handleRestrictedAccess} />;
       case View.Editor: return <CodeEditor />;
       case View.Desktop: return <DesktopWorkspace />;
       case View.Design: return <DesignStudio />;
