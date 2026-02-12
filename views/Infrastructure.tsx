@@ -11,7 +11,7 @@ interface BackendService {
   name: string;
   provider: string;
   project: string;
-  status: 'Active' | 'Warning' | 'Disconnected';
+  status: 'Active' | 'Warning' | 'Disconnected' | 'Syncing';
   modules: BackendModule[];
   color: string;
   icon: string;
@@ -98,6 +98,32 @@ const Infrastructure: React.FC = () => {
       setServices(services.filter(s => s.id !== id));
   };
 
+  const checkServiceHealth = async (serviceId: string) => {
+    // Set status to 'Syncing' (we need to cast to any or add 'Syncing' to the type definition if strict)
+    // The interface says 'Active' | 'Warning' | 'Disconnected'. I should probably update the interface or just reuse 'Warning' as a loading state if I can't change it easily.
+    // Wait, the modules have 'Syncing'. The service status is stricter.
+    // I'll update the interface in a separate block if needed, but for now let's assume I can add 'Syncing' or just handle it.
+    // Actually, I'll update the interface definition at the top of the file as well in this same patch block? No, it's far away.
+    // I'll just use 'Active' for now but show a spinner if I track loading state separately?
+    // Better: I will update the interface to include 'Syncing'.
+
+    setServices(prev => prev.map(s => s.id === serviceId ? { ...s, status: 'Syncing' as any } : s));
+
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+
+    // Random status
+    const statuses: ('Active' | 'Warning' | 'Disconnected')[] = ['Active', 'Active', 'Active', 'Warning', 'Disconnected'];
+    const newStatus = statuses[Math.floor(Math.random() * statuses.length)];
+
+    setServices(prev => prev.map(s => s.id === serviceId ? { ...s, status: newStatus } : s));
+  };
+
+  const refreshAll = async () => {
+    const promises = services.map(s => checkServiceHealth(s.id));
+    await Promise.all(promises);
+  };
+
   return (
     <div className="flex-1 bg-zinc-950 overflow-y-auto p-8 font-sans relative">
       <header className="mb-8 flex justify-between items-end">
@@ -105,24 +131,41 @@ const Infrastructure: React.FC = () => {
           <h1 className="text-2xl font-bold text-white mb-1 uppercase tracking-tight">Infrastructure Stack</h1>
           <p className="text-zinc-400 text-sm">Manage multi-cloud backend services and service mesh connectivity.</p>
         </div>
-        <button
-            onClick={() => setShowAddModal(true)}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2"
-        >
-          <span className="material-symbols-rounded text-sm">add</span> Provision New Service
-        </button>
+        <div className="flex gap-3">
+            <button
+                onClick={refreshAll}
+                className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
+            >
+            <span className="material-symbols-rounded text-sm">refresh</span> Refresh Status
+            </button>
+            <button
+                onClick={() => setShowAddModal(true)}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-bold transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2"
+            >
+            <span className="material-symbols-rounded text-sm">add</span> Provision New Service
+            </button>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {services.map(service => (
           <div key={service.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl flex flex-col group relative">
-             <button
-                onClick={(e) => { e.stopPropagation(); removeService(service.id); }}
-                className="absolute top-2 right-2 p-1 text-zinc-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                title="Remove Service"
-             >
-                 <span className="material-symbols-rounded text-sm">close</span>
-             </button>
+             <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                 <button
+                    onClick={(e) => { e.stopPropagation(); checkServiceHealth(service.id); }}
+                    className="p-1 text-zinc-600 hover:text-indigo-400"
+                    title="Check Health"
+                 >
+                     <span className={`material-symbols-rounded text-sm ${(service.status as any) === 'Syncing' ? 'animate-spin' : ''}`}>sync</span>
+                 </button>
+                 <button
+                    onClick={(e) => { e.stopPropagation(); removeService(service.id); }}
+                    className="p-1 text-zinc-600 hover:text-red-400"
+                    title="Remove Service"
+                 >
+                     <span className="material-symbols-rounded text-sm">close</span>
+                 </button>
+             </div>
 
             {/* Service Header */}
             <div className="p-5 border-b border-zinc-800/50 flex items-center justify-between hover:bg-zinc-800/30 transition-colors cursor-pointer group">

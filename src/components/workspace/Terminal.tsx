@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback, useState } from 'react';
+import React, { useRef, useEffect, useCallback, useState, useImperativeHandle, forwardRef } from 'react';
 import { Terminal as XTerm } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
@@ -11,9 +11,13 @@ interface TerminalProps {
   initialMode?: TerminalMode;
 }
 
+export interface TerminalHandle {
+  runCommand: (command: string) => void;
+}
+
 type TerminalMode = 'webcontainer' | 'local' | 'mock';
 
-const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
+const Terminal = forwardRef<TerminalHandle, TerminalProps>(({ className, initialMode }, ref) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
@@ -338,6 +342,17 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
     executeCommandRef.current = executeCommand;
   }, [executeCommand]);
 
+  useImperativeHandle(ref, () => ({
+    runCommand: (command: string) => {
+      const term = xtermRef.current;
+      if (term) {
+        // Simulate typing the command and pressing enter
+        term.writeln(command);
+        executeCommand(command);
+      }
+    }
+  }));
+
   const printPrompt = useCallback(() => {
     const term = xtermRef.current;
     if (!term) return;
@@ -599,6 +614,6 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
       <div ref={terminalRef} className="flex-1 min-h-0 w-full p-2" />
     </div>
   );
-};
+});
 
 export default Terminal;

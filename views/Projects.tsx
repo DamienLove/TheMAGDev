@@ -1,4 +1,11 @@
 import React, { useState } from 'react';
+import { View } from '../types';
+import webContainerService from '../src/services/WebContainerService';
+import { REACT_TEMPLATE, NODE_TEMPLATE } from '../src/data/templates';
+
+interface ProjectsProps {
+  onNavigate?: (view: View) => void;
+}
 
 interface Project {
   id: string;
@@ -12,8 +19,30 @@ interface Project {
   status: 'New' | 'Popular' | 'Updated' | 'Verified';
 }
 
-const Projects: React.FC = () => {
+const Projects: React.FC<ProjectsProps> = ({ onNavigate }) => {
   const [activeFilter, setActiveFilter] = useState('All');
+  const [isCloning, setIsCloning] = useState<string | null>(null);
+
+  const handleCloneProject = async (project: Project) => {
+    if (isCloning) return;
+    setIsCloning(project.id);
+
+    try {
+      // Select template based on project type/tags (simplified logic)
+      const template = project.platforms.includes('language') ? NODE_TEMPLATE : REACT_TEMPLATE;
+
+      await webContainerService.mount(template);
+
+      if (onNavigate) {
+        onNavigate(View.Desktop);
+      }
+    } catch (error) {
+      console.error('Failed to clone project:', error);
+      alert('Failed to clone project. WebContainer may not be supported in this environment.');
+    } finally {
+      setIsCloning(null);
+    }
+  };
 
   const projects: Project[] = [
     {
@@ -216,8 +245,20 @@ const Projects: React.FC = () => {
                              <span className="text-xs font-bold text-zinc-300">{p.stars}</span>
                           </div>
                        </div>
-                       <button className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2">
-                          <span className="material-symbols-rounded text-lg">code</span> View Implementation
+                       <button
+                         onClick={() => handleCloneProject(p)}
+                         disabled={isCloning === p.id}
+                         className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                       >
+                          {isCloning === p.id ? (
+                            <>
+                              <span className="material-symbols-rounded text-lg animate-spin">sync</span> Cloning...
+                            </>
+                          ) : (
+                            <>
+                              <span className="material-symbols-rounded text-lg">code</span> Clone to Workspace
+                            </>
+                          )}
                        </button>
                     </div>
                  </div>

@@ -16,6 +16,17 @@ class WebContainerService {
   private outputCallback: TerminalOutput | null = null;
   private currentProcess: any = null;
 
+  async mount(files: FileSystemTree): Promise<void> {
+    if (!this.container) {
+      // If not booted, we can't mount yet, but we could boot first.
+      // For now, let's assume the caller ensures boot, or we auto-boot.
+      await this.boot();
+    }
+    if (this.container) {
+      await this.container.mount(files);
+    }
+  }
+
   async boot(): Promise<WebContainer> {
     if (typeof window !== 'undefined' && !window.crossOriginIsolated) {
       throw new Error('WebContainer requires cross-origin isolation (COOP/COEP). Use Mock/Local mode.');
