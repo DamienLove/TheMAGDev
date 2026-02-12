@@ -1,24 +1,28 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense, lazy } from 'react';
 import AppLayout from './components/AppLayout';
 import { View } from './types';
-import Dashboard from './views/Dashboard';
-import CodeEditor from './views/CodeEditor';
-import DesignStudio from './views/DesignStudio';
-import BuildSystem from './views/BuildSystem';
-import Analytics from './views/Analytics';
-import Marketplace from './views/Marketplace';
-import Infrastructure from './views/Infrastructure';
-import CommunitySupport from './views/CommunitySupport';
-import DesktopWorkspace from './views/DesktopWorkspace';
-import Projects from './views/Projects';
-import Auth from './views/Auth';
-import Settings from './views/Settings';
-import ExtensionMarketplace from './views/ExtensionMarketplace';
-import SDKManager from './views/SDKManager';
-import PopoutModule from './views/PopoutModule';
+
+// Lazy load views for code splitting and faster initial load
+const Dashboard = lazy(() => import('./views/Dashboard'));
+const CodeEditor = lazy(() => import('./views/CodeEditor'));
+const DesignStudio = lazy(() => import('./views/DesignStudio'));
+const BuildSystem = lazy(() => import('./views/BuildSystem'));
+const Analytics = lazy(() => import('./views/Analytics'));
+const Marketplace = lazy(() => import('./views/Marketplace'));
+const Infrastructure = lazy(() => import('./views/Infrastructure'));
+const CommunitySupport = lazy(() => import('./views/CommunitySupport'));
+const DesktopWorkspace = lazy(() => import('./views/DesktopWorkspace'));
+const Projects = lazy(() => import('./views/Projects'));
+const Auth = lazy(() => import('./views/Auth'));
+const Settings = lazy(() => import('./views/Settings'));
+const ExtensionMarketplace = lazy(() => import('./views/ExtensionMarketplace'));
+const SDKManager = lazy(() => import('./views/SDKManager'));
+const PopoutModule = lazy(() => import('./views/PopoutModule'));
+
 import LoadingScreen from './src/components/LoadingScreen';
 import { SettingsProvider } from './src/contexts/SettingsContext';
-import { WorkspaceProvider } from './src/components/workspace';
+// Import directly from context to avoid pulling in heavy components from barrel file
+import { WorkspaceProvider } from './src/components/workspace/WorkspaceContext';
 import './src/services/ModuleRegistryService';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
@@ -181,14 +185,18 @@ const AppContent: React.FC = () => {
       badges={{ isPro: effectiveIsPro, isAdmin }}
       auth={{ isAuthenticated, onLogin: openAuth, onLogout: handleLogout }}
     >
-      {renderView()}
+      <Suspense fallback={<LoadingScreen />}>
+        {renderView()}
+      </Suspense>
       {showAuth && (
         <div className="fixed inset-0 z-50">
-          <Auth
-            onLogin={handleAuthSuccess}
-            onClose={closeAuth}
-            intent={authIntent}
-          />
+          <Suspense fallback={<LoadingScreen />}>
+            <Auth
+              onLogin={handleAuthSuccess}
+              onClose={closeAuth}
+              intent={authIntent}
+            />
+          </Suspense>
         </div>
       )}
     </AppLayout>
@@ -200,7 +208,9 @@ const App: React.FC = () => {
   return (
     <SettingsProvider>
       <WorkspaceProvider>
-        {popoutModule ? <PopoutModule moduleId={popoutModule} /> : <AppContent />}
+        <Suspense fallback={<LoadingScreen />}>
+          {popoutModule ? <PopoutModule moduleId={popoutModule} /> : <AppContent />}
+        </Suspense>
       </WorkspaceProvider>
     </SettingsProvider>
   );
