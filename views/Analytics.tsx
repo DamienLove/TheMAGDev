@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
 
 const Analytics: React.FC = () => {
-  const [dataPoints, setDataPoints] = useState<number[]>([]);
+  const [dataPoints, setDataPoints] = useState<number[]>(() => {
+    const saved = localStorage.getItem('analytics_data');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) { }
+    }
+    return Array.from({ length: 20 }, () => Math.floor(Math.random() * 50) + 50);
+  });
   const [activeSessions, setActiveSessions] = useState(1243);
   const [latency, setLatency] = useState(42);
   const [cpuUsage, setCpuUsage] = useState(24);
 
   // Simulate real-time data stream
   useEffect(() => {
-    // Initial data
-    const initialData = Array.from({ length: 20 }, () => Math.floor(Math.random() * 50) + 50);
-    setDataPoints(initialData);
-
     const interval = setInterval(() => {
       // Update metrics
       setActiveSessions(prev => Math.max(1000, prev + Math.floor(Math.random() * 20) - 10));
@@ -21,12 +25,32 @@ const Analytics: React.FC = () => {
       // Update chart data
       setDataPoints(prev => {
         const next = [...prev.slice(1), Math.floor(Math.random() * 50) + 50];
+        localStorage.setItem('analytics_data', JSON.stringify(next));
         return next;
       });
     }, 1500);
 
     return () => clearInterval(interval);
   }, []);
+
+  const handleExport = () => {
+    const data = {
+      dataPoints,
+      metrics: {
+        activeSessions,
+        latency,
+        cpuUsage
+      },
+      timestamp: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'analytics.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const metrics = [
     { label: 'Active Sessions', value: activeSessions.toLocaleString(), change: '+12%', trend: 'up', color: 'text-indigo-500', icon: 'group' },
@@ -61,7 +85,7 @@ const Analytics: React.FC = () => {
           <p className="text-zinc-400 text-sm">Real-time user engagement and platform health telemetry.</p>
         </div>
         <div className="flex gap-3">
-           <button className="px-4 py-2 bg-zinc-900 border border-zinc-800 text-zinc-300 rounded-lg text-sm font-bold hover:bg-zinc-800 transition-all">Export JSON</button>
+           <button onClick={handleExport} className="px-4 py-2 bg-zinc-900 border border-zinc-800 text-zinc-300 rounded-lg text-sm font-bold hover:bg-zinc-800 transition-all">Export JSON</button>
            <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-bold shadow-lg shadow-indigo-500/20 transition-all">Configure Webhooks</button>
         </div>
       </header>

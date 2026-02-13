@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
+import aiProvider from '../src/services/AIProvider';
+import webContainerService from '../src/services/WebContainerService';
 
 interface FileNode {
   id: string;
@@ -475,30 +477,78 @@ export class MainController {
     const prompt = prompts[action] || action;
     setLlmPrompt(prompt);
 
-    // Simulate LLM response (replace with actual API call)
     addTerminalLine(`Running AI ${action}...`);
-    setTimeout(() => {
-      const mockResponses: Record<string, string> = {
-        explain: `This code defines a ${activeTab.includes('Controller') ? 'controller class' : 'module'} that handles platform-specific initialization. It uses a constructor pattern to set the target platform based on the current runtime environment.`,
-        fix: 'No critical bugs found. Consider adding error handling for the Platform.current() call in case it fails.',
-        optimize: 'The code is already well-optimized. Consider lazy-loading the platform detection if not immediately needed.',
-        refactor: 'Consider using dependency injection for the Platform instance to improve testability.',
-      };
-      setLlmResponse(mockResponses[action] || 'Analysis complete.');
+
+    try {
+      const response = await aiProvider.sendMessage(
+        [{ role: 'user', content: `${prompt}\n\nCode:\n${activeFileContent}`, id: Date.now().toString(), timestamp: Date.now() }]
+      );
+
+      if (response.error) {
+        setLlmResponse(`Error: ${response.error}`);
+        addTerminalLine(`AI Error: ${response.error}`, 'error');
+      } else {
+        setLlmResponse(response.content);
+        addTerminalLine(`AI ${action} complete`, 'success');
+      }
+    } catch (error: any) {
+      setLlmResponse(`Error: ${error.message}`);
+      addTerminalLine(`AI failed: ${error.message}`, 'error');
+    } finally {
       setLlmLoading(false);
-      addTerminalLine(`AI ${action} complete`, 'success');
-    }, 1500);
+    }
   };
 
   const runCustomLLMPrompt = async () => {
     if (!llmPrompt.trim()) return;
     setLlmLoading(true);
     addTerminalLine('Processing custom prompt...');
-    setTimeout(() => {
-      setLlmResponse(`Based on your prompt "${llmPrompt.slice(0, 50)}...", here's my analysis:\n\nThe code structure follows standard patterns. Consider implementing additional error boundaries and type guards for improved reliability.`);
+
+    try {
+      const response = await aiProvider.sendMessage(
+        [{ role: 'user', content: llmPrompt, id: Date.now().toString(), timestamp: Date.now() }],
+        activeFileContent ? `Current file content:\n${activeFileContent}` : undefined
+      );
+
+      if (response.error) {
+        setLlmResponse(`Error: ${response.error}`);
+        addTerminalLine(`AI Error: ${response.error}`, 'error');
+      } else {
+        setLlmResponse(response.content);
+        addTerminalLine('Custom prompt complete', 'success');
+      }
+    } catch (error: any) {
+      setLlmResponse(`Error: ${error.message}`);
+      addTerminalLine(`AI failed: ${error.message}`, 'error');
+    } finally {
       setLlmLoading(false);
-      addTerminalLine('Custom prompt complete', 'success');
-    }, 2000);
+    }
+  };
+
+  const handleBuild = async () => {
+    if (webContainerService.isReady()) {
+      addTerminalLine('$ npm run build');
+      await webContainerService.writeInput('npm run build\r\n');
+    } else {
+      addTerminalLine('> npm run build');
+      addTerminalLine('Building project...', 'success');
+      setTimeout(() => {
+        addTerminalLine('Build complete! (Mock)', 'success');
+      }, 1000);
+    }
+  };
+
+  const handleDebug = async () => {
+    if (webContainerService.isReady()) {
+      addTerminalLine('$ npm run dev');
+      await webContainerService.writeInput('npm run dev\r\n');
+    } else {
+      addTerminalLine('> npm run dev');
+      addTerminalLine('Starting development server...', 'success');
+      setTimeout(() => {
+        addTerminalLine('Server ready at http://localhost:5173 (Mock)', 'success');
+      }, 1000);
+    }
   };
 
   const openFile = async (file: FileNode) => {
@@ -639,9 +689,9 @@ export class MainController {
             <h1 className="text-sm font-bold tracking-tight">DevStudio <span className="text-indigo-500">Master</span></h1>
           </div>
           <nav className="hidden md:flex items-center gap-4 text-[#9da1b9]">
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
+            <button onClick={() => setShowDrivePanel(!showDrivePanel)} className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
+            <button onClick={handleBuild} className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
+            <button onClick={handleDebug} className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
             <button
               onClick={() => setShowDrivePanel(!showDrivePanel)}
               className={`text-[12px] font-medium transition-colors flex items-center gap-1 ${showDrivePanel ? 'text-indigo-400' : 'hover:text-white'}`}
