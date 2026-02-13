@@ -1,29 +1,31 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import AppLayout from './components/AppLayout';
 import { View } from './types';
-import Dashboard from './views/Dashboard';
-import CodeEditor from './views/CodeEditor';
-import DesignStudio from './views/DesignStudio';
-import BuildSystem from './views/BuildSystem';
-import Analytics from './views/Analytics';
-import Marketplace from './views/Marketplace';
-import Infrastructure from './views/Infrastructure';
-import CommunitySupport from './views/CommunitySupport';
-import DesktopWorkspace from './views/DesktopWorkspace';
-import Projects from './views/Projects';
-import Auth from './views/Auth';
-import Settings from './views/Settings';
-import ExtensionMarketplace from './views/ExtensionMarketplace';
-import SDKManager from './views/SDKManager';
-import PopoutModule from './views/PopoutModule';
 import LoadingScreen from './src/components/LoadingScreen';
 import { SettingsProvider } from './src/contexts/SettingsContext';
-import { WorkspaceProvider } from './src/components/workspace';
+import { WorkspaceProvider } from './src/components/workspace/WorkspaceContext';
+
 import './src/services/ModuleRegistryService';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig';
 import { UserProfile } from './src/services/userProfile';
+
+const Dashboard = React.lazy(() => import('./views/Dashboard'));
+const CodeEditor = React.lazy(() => import('./views/CodeEditor'));
+const DesignStudio = React.lazy(() => import('./views/DesignStudio'));
+const BuildSystem = React.lazy(() => import('./views/BuildSystem'));
+const Analytics = React.lazy(() => import('./views/Analytics'));
+const Marketplace = React.lazy(() => import('./views/Marketplace'));
+const Infrastructure = React.lazy(() => import('./views/Infrastructure'));
+const CommunitySupport = React.lazy(() => import('./views/CommunitySupport'));
+const DesktopWorkspace = React.lazy(() => import('./views/DesktopWorkspace'));
+const Projects = React.lazy(() => import('./views/Projects'));
+const Auth = React.lazy(() => import('./views/Auth'));
+const Settings = React.lazy(() => import('./views/Settings'));
+const ExtensionMarketplace = React.lazy(() => import('./views/ExtensionMarketplace'));
+const SDKManager = React.lazy(() => import('./views/SDKManager'));
+const PopoutModule = React.lazy(() => import('./views/PopoutModule'));
 
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.Dashboard);
@@ -181,14 +183,18 @@ const AppContent: React.FC = () => {
       badges={{ isPro: effectiveIsPro, isAdmin }}
       auth={{ isAuthenticated, onLogin: openAuth, onLogout: handleLogout }}
     >
-      {renderView()}
+      <React.Suspense fallback={<LoadingScreen />}>
+        {renderView()}
+      </React.Suspense>
       {showAuth && (
         <div className="fixed inset-0 z-50">
-          <Auth
-            onLogin={handleAuthSuccess}
-            onClose={closeAuth}
-            intent={authIntent}
-          />
+          <React.Suspense fallback={<LoadingScreen />}>
+            <Auth
+              onLogin={handleAuthSuccess}
+              onClose={closeAuth}
+              intent={authIntent}
+            />
+          </React.Suspense>
         </div>
       )}
     </AppLayout>
@@ -200,7 +206,9 @@ const App: React.FC = () => {
   return (
     <SettingsProvider>
       <WorkspaceProvider>
-        {popoutModule ? <PopoutModule moduleId={popoutModule} /> : <AppContent />}
+        <React.Suspense fallback={<LoadingScreen />}>
+          {popoutModule ? <PopoutModule moduleId={popoutModule} /> : <AppContent />}
+        </React.Suspense>
       </WorkspaceProvider>
     </SettingsProvider>
   );
