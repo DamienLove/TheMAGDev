@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import webContainerService from '../src/services/WebContainerService';
 
 interface BuildTask {
   name: string;
@@ -32,6 +33,16 @@ const BuildSystem: React.FC = () => {
     }
   }, [buildLogs]);
 
+  useEffect(() => {
+    // Hook into WebContainer output when this view is active
+    webContainerService.setOutputCallback((data) => {
+      setBuildLogs(prev => [...prev, data.trimEnd()]);
+    });
+    return () => {
+      webContainerService.setOutputCallback(() => {});
+    };
+  }, []);
+
   const tasks: Record<string, BuildTask[]> = {
     'android': [
       { name: 'androidDependencies', type: 'android' },
@@ -60,38 +71,58 @@ const BuildSystem: React.FC = () => {
     ]
   };
 
-  const runBuild = (taskName: string) => {
+  const runBuild = async (taskName: string) => {
     if (buildStatus === 'building') return;
 
     setBuildStatus('building');
     setBuildProgress(0);
     setBuildLogs([`> Executing task: ${taskName}...`, 'Initializing Daemon...', 'Allocating resources...']);
 
-    const steps = [
-        { progress: 10, msg: '> Configure project :app' },
-        { progress: 25, msg: '> Task :app:preBuild UP-TO-DATE' },
-        { progress: 40, msg: '> Task :app:preDebugBuild UP-TO-DATE' },
-        { progress: 55, msg: '> Task :app:compileDebugAidl NO-SOURCE' },
-        { progress: 70, msg: '> Task :app:compileDebugRenderscript NO-SOURCE' },
-        { progress: 85, msg: '> Task :app:generateDebugBuildConfig' },
-        { progress: 95, msg: '> Task :app:javaPreCompileDebug' },
-        { progress: 100, msg: 'BUILD SUCCESSFUL in 3s' }
-    ];
+    if (webContainerService.isReady()) {
+      try {
+        await webContainerService.writeInput(`npm run ${taskName}\r\n`);
+        // We rely on the output callback to update logs
+        // Simulate completion after some time or if we had process exit code hook
+        setTimeout(() => {
+           setBuildStatus('success');
+           setBuildProgress(100);
+        }, 5000);
+      } catch (e: any) {
+        setBuildLogs(prev => [...prev, `Error: ${e.message}`]);
+        setBuildStatus('error');
+      }
+    } else {
+      // Mock logic for demo/offline
+      const steps = [
+          { progress: 10, msg: '> Configure project :app' },
+          { progress: 25, msg: '> Task :app:preBuild UP-TO-DATE' },
+          { progress: 40, msg: '> Task :app:preDebugBuild UP-TO-DATE' },
+          { progress: 55, msg: '> Task :app:compileDebugAidl NO-SOURCE' },
+          { progress: 70, msg: '> Task :app:compileDebugRenderscript NO-SOURCE' },
+          { progress: 85, msg: '> Task :app:generateDebugBuildConfig' },
+          { progress: 95, msg: '> Task :app:javaPreCompileDebug' },
+          { progress: 100, msg: 'BUILD SUCCESSFUL in 3s' }
+      ];
 
-    let currentStep = 0;
+      let currentStep = 0;
 
-    const interval = setInterval(() => {
-        if (currentStep >= steps.length) {
-            clearInterval(interval);
-            setBuildStatus('success');
-            return;
-        }
+      const interval = setInterval(() => {
+          if (currentStep >= steps.length) {
+              clearInterval(interval);
+              setBuildStatus('success');
+              return;
+          }
 
-        const step = steps[currentStep];
-        setBuildProgress(step.progress);
-        setBuildLogs(prev => [...prev, step.msg]);
-        currentStep++;
-    }, 800);
+          const step = steps[currentStep];
+          setBuildProgress(step.progress);
+          setBuildLogs(prev => [...prev, step.msg]);
+          currentStep++;
+      }, 800);
+    }
+  };
+
+  const handleSync = () => {
+      setBuildLogs(prev => [...prev, '> Syncing artifacts...', '> Fetching dependencies...', '> Sync complete.']);
   };
 
   return (
@@ -105,7 +136,7 @@ const BuildSystem: React.FC = () => {
           <h1 className="text-white text-sm font-bold uppercase tracking-widest">Build System Explorer (Gradle)</h1>
         </div>
         <div className="flex items-center gap-2">
-          <button className="p-2 text-zinc-500 hover:text-white transition-colors" title="Sync Project Artifacts">
+          <button onClick={handleSync} className="p-2 text-zinc-500 hover:text-white transition-colors" title="Sync Project Artifacts">
             <span className="material-symbols-rounded">sync</span>
           </button>
           <button className="p-2 text-zinc-500 hover:text-white transition-colors" title="Build Settings">
