@@ -261,6 +261,29 @@ class AIProviderService {
     }
   }
 
+  private processMessages(messages: ChatMessage[]): { role: string; content: string }[] {
+    const result: { role: string; content: string }[] = [];
+    for (const m of messages) {
+      if (m.role !== 'system') {
+        result.push({ role: m.role, content: m.content });
+      }
+    }
+    return result;
+  }
+
+  private processGeminiMessages(messages: ChatMessage[]): { role: string; parts: { text: string }[] }[] {
+    const result: { role: string; parts: { text: string }[] }[] = [];
+    for (const m of messages) {
+      if (m.role !== 'system') {
+        result.push({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: m.content }],
+        });
+      }
+    }
+    return result;
+  }
+
   private async sendClaudeMessage(
     provider: AIProviderConfig,
     messages: ChatMessage[],
@@ -282,10 +305,7 @@ class AIProviderService {
         model: provider.model,
         max_tokens: provider.maxTokens || 4096,
         system: systemPrompt,
-        messages: messages.filter(m => m.role !== 'system').map(m => ({
-          role: m.role,
-          content: m.content,
-        })),
+        messages: this.processMessages(messages),
       }),
     });
 
@@ -325,10 +345,7 @@ class AIProviderService {
         temperature: provider.temperature || 0.7,
         messages: [
           { role: 'system', content: systemMessage },
-          ...messages.filter(m => m.role !== 'system').map(m => ({
-            role: m.role,
-            content: m.content,
-          })),
+          ...this.processMessages(messages),
         ],
       }),
     });
@@ -366,10 +383,7 @@ class AIProviderService {
         },
         body: JSON.stringify({
           system_instruction: { parts: [{ text: systemInstruction }] },
-          contents: messages.filter(m => m.role !== 'system').map(m => ({
-            role: m.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: m.content }],
-          })),
+          contents: this.processGeminiMessages(messages),
           generationConfig: {
             maxOutputTokens: provider.maxTokens || 4096,
             temperature: provider.temperature || 0.7,
@@ -414,10 +428,7 @@ class AIProviderService {
         temperature: provider.temperature || 0.7,
         messages: [
           { role: 'system', content: systemMessage },
-          ...messages.filter(m => m.role !== 'system').map(m => ({
-            role: m.role,
-            content: m.content,
-          })),
+          ...this.processMessages(messages),
         ],
       }),
     });
@@ -458,10 +469,7 @@ class AIProviderService {
         stream: false,
         messages: [
           { role: 'system', content: systemMessage },
-          ...messages.filter(m => m.role !== 'system').map(m => ({
-            role: m.role,
-            content: m.content,
-          })),
+          ...this.processMessages(messages),
         ],
       }),
     });
