@@ -109,6 +109,7 @@ class GoogleDriveService {
   };
   private listeners: Set<SyncStatusListener> = new Set();
   private fileCache: Map<string, DriveFile[]> = new Map();
+  private reverseFileCache: Map<string, Set<string>> = new Map();
 
   constructor() {
     this.loadSavedAuth();
@@ -135,19 +136,32 @@ class GoogleDriveService {
   }
 
   private removeFromCache(fileId: string) {
-    for (const files of this.fileCache.values()) {
-      const index = files.findIndex(f => f.id === fileId);
-      if (index !== -1) {
-        files.splice(index, 1);
+    const keys = this.reverseFileCache.get(fileId);
+    if (!keys) return;
+
+    for (const key of keys) {
+      const files = this.fileCache.get(key);
+      if (files) {
+        const index = files.findIndex(f => f.id === fileId);
+        if (index !== -1) {
+          files.splice(index, 1);
+        }
       }
     }
+    this.reverseFileCache.delete(fileId);
   }
 
   private updateCacheName(fileId: string, newName: string) {
-    for (const files of this.fileCache.values()) {
-      const file = files.find(f => f.id === fileId);
-      if (file) {
-        file.name = newName;
+    const keys = this.reverseFileCache.get(fileId);
+    if (!keys) return;
+
+    for (const key of keys) {
+      const files = this.fileCache.get(key);
+      if (files) {
+        const file = files.find(f => f.id === fileId);
+        if (file) {
+          file.name = newName;
+        }
       }
     }
   }
@@ -247,6 +261,37 @@ class GoogleDriveService {
     return value.replace(/'/g, "\\'");
   }
 
+  private setFileCache(key: string, files: DriveFile[]) {
+    // Remove old reverse mappings
+    const oldFiles = this.fileCache.get(key);
+    if (oldFiles) {
+      for (const file of oldFiles) {
+        this.removeKeyFromReverseCache(file.id, key);
+      }
+    }
+
+    // Set new files
+    this.fileCache.set(key, files);
+
+    // Add new reverse mappings
+    for (const file of files) {
+      if (!this.reverseFileCache.has(file.id)) {
+        this.reverseFileCache.set(file.id, new Set());
+      }
+      this.reverseFileCache.get(file.id)!.add(key);
+    }
+  }
+
+  private removeKeyFromReverseCache(fileId: string, key: string) {
+    const rev = this.reverseFileCache.get(fileId);
+    if (rev) {
+      rev.delete(key);
+      if (rev.size === 0) {
+        this.reverseFileCache.delete(fileId);
+      }
+    }
+  }
+
   private addToCache(parentId: string, file: DriveFile) {
     const keys = [parentId, `drive:${parentId}`];
     for (const key of keys) {
@@ -259,6 +304,11 @@ class GoogleDriveService {
         } else {
           cached.push(file);
         }
+
+        if (!this.reverseFileCache.has(file.id)) {
+          this.reverseFileCache.set(file.id, new Set());
+        }
+        this.reverseFileCache.get(file.id)!.add(key);
       }
     }
   }
@@ -428,6 +478,7 @@ class GoogleDriveService {
     this.projectFolderIds = {};
     this.syncStatus = { connected: false, syncInProgress: false };
     this.fileCache.clear();
+    this.reverseFileCache.clear();
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(FOLDER_CACHE_KEY);
     localStorage.removeItem(PROJECT_CACHE_KEY);
@@ -716,7 +767,7 @@ class GoogleDriveService {
         'id,name,mimeType,modifiedTime,createdTime,size,webViewLink,iconLink',
         'folder,name'
       );
-      this.fileCache.set(cacheKey, files);
+      this.setFileCache(cacheKey, files);
       return files;
     } catch (error) {
       console.error('Failed to list drive folder:', error);
@@ -842,7 +893,7 @@ class GoogleDriveService {
         'id,name,mimeType,size,modifiedTime,createdTime,iconLink,webViewLink',
         'folder,name'
       );
-      this.fileCache.set(cacheKey, files);
+      this.setFileCache(cacheKey, files);
       return files;
     } catch (error) {
       console.error('Failed to list files:', error);
@@ -1129,6 +1180,7 @@ class GoogleDriveService {
           if (idx !== -1) {
             fileToMove = files[idx];
             files.splice(idx, 1);
+            this.removeKeyFromReverseCache(fileId, key);
           }
         }
       }
