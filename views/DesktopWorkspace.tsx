@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
+import Terminal from '../src/components/workspace/Terminal';
+import { useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace/WorkspaceContext';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
 
