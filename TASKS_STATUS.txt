@@ -271,3 +271,15 @@ Status:
 - Implemented Set-based filtering in SDKService.loadFromStorage for both SDKs and Plugins.
 - Benchmarked ~130x improvement.
 - Verified build and logic.
+
+Performance Optimization (Code Splitting)
+Last updated: 2026-02-01 12:00:00
+
+Current objectives:
+- Implement code splitting for all views to reduce initial bundle size.
+
+Status:
+- Implemented React.lazy and Suspense for all top-level views and PopoutModule.
+- Optimized DesktopWorkspace imports to avoid barrel file bundling.
+- Verified ~49% reduction in main bundle size (1.47MB -> 752kB).
+- Verified frontend functionality with Playwright.
