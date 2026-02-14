@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import webContainerService from '../src/services/WebContainerService';
 
 interface BackendModule {
   name: string;
@@ -70,10 +71,20 @@ const Infrastructure: React.FC = () => {
       provider: '',
       project: ''
   });
+  const [webContainerStatus, setWebContainerStatus] = useState<'Active' | 'Offline'>('Offline');
 
   useEffect(() => {
     localStorage.setItem('themag_infrastructure', JSON.stringify(services));
   }, [services]);
+
+  useEffect(() => {
+    const checkStatus = () => {
+      setWebContainerStatus(webContainerService.isReady() ? 'Active' : 'Offline');
+    };
+    checkStatus();
+    const interval = setInterval(checkStatus, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleAddService = () => {
     if (!newService.name || !newService.provider) return;
@@ -114,6 +125,46 @@ const Infrastructure: React.FC = () => {
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {/* Local WebContainer Service */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl flex flex-col group relative">
+            <div className="p-5 border-b border-zinc-800/50 flex items-center justify-between hover:bg-zinc-800/30 transition-colors cursor-pointer group">
+              <div className="flex items-center gap-4">
+                <div className="size-12 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center text-indigo-500 shadow-lg group-hover:scale-105 transition-transform">
+                  <span className="material-symbols-rounded text-3xl">terminal</span>
+                </div>
+                <div>
+                  <h3 className="text-white font-bold tracking-tight">Local Environment</h3>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <span className={`size-1.5 rounded-full ${
+                      webContainerStatus === 'Active' ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'
+                    }`}></span>
+                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">WebContainer</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex-1 p-2">
+                <div className="space-y-1">
+                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-800/50 rounded-xl transition-colors">
+                      <span className="material-symbols-rounded text-zinc-500 text-xl">memory</span>
+                      <p className="text-zinc-300 text-xs font-medium flex-1">Runtime</p>
+                      <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">{webContainerStatus}</span>
+                    </div>
+                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-800/50 rounded-xl transition-colors">
+                      <span className="material-symbols-rounded text-zinc-500 text-xl">folder_open</span>
+                      <p className="text-zinc-300 text-xs font-medium flex-1">File System</p>
+                      <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">{webContainerStatus === 'Active' ? 'Mounted' : 'Unmounted'}</span>
+                    </div>
+                </div>
+            </div>
+            <div className="p-4 bg-zinc-950/50 border-t border-zinc-800 flex items-center justify-between">
+               <div className="flex items-center gap-1.5">
+                  <span className="text-[9px] font-bold text-zinc-600 uppercase">Provider:</span>
+                  <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Browser Native</span>
+               </div>
+            </div>
+        </div>
+
         {services.map(service => (
           <div key={service.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl flex flex-col group relative">
              <button

@@ -3,6 +3,7 @@ import { Terminal as XTerm } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
 import { useWorkspace } from './WorkspaceContext';
+import { useSettings } from '../../contexts/SettingsContext';
 import webContainerService from '../../services/WebContainerService';
 import localAgentService, { AgentStatus } from '../../services/LocalAgentService';
 
@@ -18,6 +19,7 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
   const { files, currentDirectory, setCurrentDirectory, addTerminalLine } = useWorkspace();
+  const { settings } = useSettings();
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const currentLineRef = useRef('');
@@ -380,11 +382,12 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
         brightCyan: '#22d3ee',
         brightWhite: '#fafafa',
       },
-      fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
-      fontSize: 13,
+      fontFamily: settings.terminal.fontFamily,
+      fontSize: settings.terminal.fontSize,
+      cursorBlink: settings.terminal.cursorBlink,
+      cursorStyle: settings.terminal.cursorStyle,
+      scrollback: settings.terminal.scrollback,
       lineHeight: 1.4,
-      cursorBlink: true,
-      cursorStyle: 'bar',
       allowTransparency: true,
     });
 
@@ -494,6 +497,17 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
       xtermRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    if (xtermRef.current) {
+      xtermRef.current.options.fontFamily = settings.terminal.fontFamily;
+      xtermRef.current.options.fontSize = settings.terminal.fontSize;
+      xtermRef.current.options.cursorBlink = settings.terminal.cursorBlink;
+      xtermRef.current.options.cursorStyle = settings.terminal.cursorStyle;
+      xtermRef.current.options.scrollback = settings.terminal.scrollback;
+      fitAddonRef.current?.fit();
+    }
+  }, [settings.terminal]);
 
   // Update prompt when directory changes
   useEffect(() => {

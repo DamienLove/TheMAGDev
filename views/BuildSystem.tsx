@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import webContainerService from '../src/services/WebContainerService';
 
 interface BuildTask {
   name: string;
-  type: 'android' | 'build' | 'verification';
+  type: 'npm' | 'build' | 'verification';
   isKey?: boolean;
 }
 
@@ -33,14 +34,15 @@ const BuildSystem: React.FC = () => {
   }, [buildLogs]);
 
   const tasks: Record<string, BuildTask[]> = {
-    'android': [
-      { name: 'androidDependencies', type: 'android' },
-      { name: 'signingReport', type: 'android' }
+    'npm': [
+      { name: 'install', type: 'npm' },
+      { name: 'ci', type: 'npm' },
+      { name: 'audit', type: 'npm' }
     ],
-    'build': [
-      { name: 'assemble', type: 'build' },
-      { name: 'assembleDebug', type: 'build', isKey: true },
-      { name: 'bundleRelease', type: 'build' },
+    'scripts': [
+      { name: 'dev', type: 'build' },
+      { name: 'build', type: 'build', isKey: true },
+      { name: 'start', type: 'build' },
       { name: 'clean', type: 'build' }
     ],
     'verification': [
@@ -50,48 +52,47 @@ const BuildSystem: React.FC = () => {
   };
 
   const dependencies: Record<string, Dependency[]> = {
-    'implementation': [
-      { group: 'androidx.core:core-ktx', version: '1.7.0' },
-      { group: 'com.google.android.material', version: '1.5.0', updateAvailable: '1.6.0', hasConflict: true },
-      { group: 'com.squareup.retrofit2:retrofit', version: '2.9.0' }
+    'dependencies': [
+      { group: 'react', version: '18.2.0' },
+      { group: 'react-dom', version: '18.2.0' },
+      { group: 'vite', version: '4.4.5' }
     ],
-    'testImplementation': [
-      { group: 'junit:junit', version: '4.13.2' }
+    'devDependencies': [
+      { group: 'typescript', version: '5.0.2' },
+      { group: '@types/react', version: '18.2.15' }
     ]
   };
 
-  const runBuild = (taskName: string) => {
+  const runBuild = async (taskName: string) => {
     if (buildStatus === 'building') return;
+
+    if (!webContainerService.isReady()) {
+      setBuildLogs(['WebContainer not ready. Please open a project in Desktop Workspace first.']);
+      return;
+    }
 
     setBuildStatus('building');
     setBuildProgress(0);
-    setBuildLogs([`> Executing task: ${taskName}...`, 'Initializing Daemon...', 'Allocating resources...']);
+    setBuildLogs([`> Executing npm task: ${taskName}...`]);
 
-    const steps = [
-        { progress: 10, msg: '> Configure project :app' },
-        { progress: 25, msg: '> Task :app:preBuild UP-TO-DATE' },
-        { progress: 40, msg: '> Task :app:preDebugBuild UP-TO-DATE' },
-        { progress: 55, msg: '> Task :app:compileDebugAidl NO-SOURCE' },
-        { progress: 70, msg: '> Task :app:compileDebugRenderscript NO-SOURCE' },
-        { progress: 85, msg: '> Task :app:generateDebugBuildConfig' },
-        { progress: 95, msg: '> Task :app:javaPreCompileDebug' },
-        { progress: 100, msg: 'BUILD SUCCESSFUL in 3s' }
-    ];
+    const command = tasks['npm'].some(t => t.name === taskName)
+      ? `npm ${taskName}`
+      : `npm run ${taskName}`;
 
-    let currentStep = 0;
-
-    const interval = setInterval(() => {
-        if (currentStep >= steps.length) {
-            clearInterval(interval);
-            setBuildStatus('success');
-            return;
+    try {
+      const exitCode = await webContainerService.runCommand(command, {
+        onOutput: (data) => {
+          setBuildLogs(prev => [...prev, data.trimEnd()]);
+          setBuildProgress(prev => Math.min(prev + 5, 90));
         }
-
-        const step = steps[currentStep];
-        setBuildProgress(step.progress);
-        setBuildLogs(prev => [...prev, step.msg]);
-        currentStep++;
-    }, 800);
+      });
+      setBuildProgress(100);
+      setBuildStatus(exitCode === 0 ? 'success' : 'error');
+      setBuildLogs(prev => [...prev, `\n> Task finished with exit code ${exitCode}`]);
+    } catch (error: any) {
+      setBuildStatus('error');
+      setBuildLogs(prev => [...prev, `\n> Error: ${error.message}`]);
+    }
   };
 
   return (
@@ -149,11 +150,11 @@ const BuildSystem: React.FC = () => {
               </div>
               
               {Object.entries(tasks).map(([group, taskList]) => (
-                <details key={group} className="group/folder mb-1" open={group === 'build'}>
+                <details key={group} className="group/folder mb-1" open={group === 'scripts'}>
                    <summary className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-zinc-800 cursor-pointer select-none text-xs font-bold text-zinc-400 uppercase tracking-tight transition-colors">
                       <span className="material-symbols-rounded text-sm text-zinc-600 group-open/folder:rotate-90 transition-transform">chevron_right</span>
-                      <span className={`material-symbols-rounded text-sm ${group === 'android' ? 'text-emerald-500' : group === 'build' ? 'text-amber-500' : 'text-purple-500'}`}>
-                        {group === 'android' ? 'android' : group === 'build' ? 'build' : 'fact_check'}
+                      <span className={`material-symbols-rounded text-sm ${group === 'npm' ? 'text-emerald-500' : group === 'scripts' ? 'text-amber-500' : 'text-purple-500'}`}>
+                        {group === 'npm' ? 'terminal' : group === 'scripts' ? 'build' : 'fact_check'}
                       </span>
                       {group}
                    </summary>
