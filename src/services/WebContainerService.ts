@@ -100,7 +100,7 @@ class WebContainerService {
     }
   }
 
-  async runCommand(command: string, options?: { cwd?: string }): Promise<number> {
+  async runCommand(command: string, options?: { cwd?: string; onOutput?: (data: string) => void }): Promise<number> {
     if (!this.container) {
       throw new Error('WebContainer not initialized. Call boot() first.');
     }
@@ -111,7 +111,9 @@ class WebContainerService {
 
     // Handle built-in shell commands
     if (cmd === 'cd') {
-      this.write(`\r\nNote: cd is handled at shell level\r\n`);
+      const msg = `\r\nNote: cd is handled at shell level\r\n`;
+      if (options?.onOutput) options.onOutput(msg);
+      else this.write(msg);
       return 0;
     }
 
@@ -120,12 +122,16 @@ class WebContainerService {
     }
 
     if (cmd === 'pwd') {
-      this.write(`\r\n/home/project\r\n`);
+      const msg = `\r\n/home/project\r\n`;
+      if (options?.onOutput) options.onOutput(msg);
+      else this.write(msg);
       return 0;
     }
 
     if (cmd === 'echo') {
-      this.write(`\r\n${cmdArgs.join(' ')}\r\n`);
+      const msg = `\r\n${cmdArgs.join(' ')}\r\n`;
+      if (options?.onOutput) options.onOutput(msg);
+      else this.write(msg);
       return 0;
     }
 
@@ -138,7 +144,11 @@ class WebContainerService {
       process.output.pipeTo(
         new WritableStream({
           write: (data) => {
-            this.write(data);
+            if (options?.onOutput) {
+              options.onOutput(data);
+            } else {
+              this.write(data);
+            }
           }
         })
       );
@@ -201,6 +211,13 @@ class WebContainerService {
       throw new Error('WebContainer not initialized');
     }
     await this.container.fs.rm(path, { recursive: true });
+  }
+
+  async mount(files: FileSystemTree): Promise<void> {
+    if (!this.container) {
+      throw new Error('WebContainer not initialized');
+    }
+    await this.container.mount(files);
   }
 
   getContainer(): WebContainer | null {

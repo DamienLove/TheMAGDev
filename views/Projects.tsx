@@ -1,4 +1,11 @@
 import React, { useState } from 'react';
+import { View } from '../types';
+import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import { REACT_TEMPLATE, NODE_TEMPLATE } from '../src/data/templates';
+
+interface ProjectsProps {
+  onNavigate?: (view: View) => void;
+}
 
 interface Project {
   id: string;
@@ -12,10 +19,33 @@ interface Project {
   status: 'New' | 'Popular' | 'Updated' | 'Verified';
 }
 
-const Projects: React.FC = () => {
+const Projects: React.FC<ProjectsProps> = ({ onNavigate }) => {
   const [activeFilter, setActiveFilter] = useState('All');
+  const workspace = useWorkspace();
 
   const projects: Project[] = [
+    {
+      id: 'template-react',
+      name: 'Vite + React Starter',
+      description: 'Functional React template with Vite, TypeScript, and HMR.',
+      author: '@themag',
+      authorAvatar: 'TM',
+      stars: 'New',
+      thumbnail: './assets/store/tech_pattern.svg',
+      platforms: ['language', 'desktop_windows'],
+      status: 'Verified'
+    },
+    {
+      id: 'template-node',
+      name: 'Express API Starter',
+      description: 'Node.js Express API with CORS and JSON middleware.',
+      author: '@themag',
+      authorAvatar: 'TM',
+      stars: 'New',
+      thumbnail: './assets/store/dark_hex_pattern.svg',
+      platforms: ['terminal', 'cloud'],
+      status: 'Verified'
+    },
     {
       id: 'p-1',
       name: 'TheMAG.dev FinTrack',
@@ -192,7 +222,19 @@ const Projects: React.FC = () => {
             <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-6">Explore Registry</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                {projects.map(p => (
-                 <div key={p.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-zinc-700 transition-all group shadow-xl">
+                 <div
+                    key={p.id}
+                    className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-zinc-700 transition-all group shadow-xl cursor-pointer"
+                    onClick={() => {
+                      if (p.id === 'template-react') {
+                        workspace.replaceWorkspace(REACT_TEMPLATE);
+                        onNavigate?.(View.Desktop);
+                      } else if (p.id === 'template-node') {
+                        workspace.replaceWorkspace(NODE_TEMPLATE);
+                        onNavigate?.(View.Desktop);
+                      }
+                    }}
+                 >
                     <div className="h-40 bg-zinc-800 relative overflow-hidden">
                        <img src={p.thumbnail} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" alt={p.name} />
                        <div className="absolute top-3 right-3 flex gap-1">
@@ -217,7 +259,8 @@ const Projects: React.FC = () => {
                           </div>
                        </div>
                        <button className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2">
-                          <span className="material-symbols-rounded text-lg">code</span> View Implementation
+                          <span className="material-symbols-rounded text-lg">code</span>
+                          {(p.id === 'template-react' || p.id === 'template-node') ? 'Open Template' : 'View Implementation'}
                        </button>
                     </div>
                  </div>

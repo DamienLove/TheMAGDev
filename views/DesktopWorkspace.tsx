@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
+import webContainerService, { FileSystemTree } from '../src/services/WebContainerService';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
+import Settings from './Settings';
+import ExtensionMarketplace from './ExtensionMarketplace';
 
 interface FileNode {
   id: string;
@@ -43,11 +46,52 @@ const DesktopWorkspace: React.FC = () => {
   const [openFiles, setOpenFiles] = useState<Map<string, string>>(new Map());
   const [activeFileContent, setActiveFileContent] = useState('');
   const [showDrivePanel, setShowDrivePanel] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showExtensions, setShowExtensions] = useState(false);
   const [isCreatingProject, setIsCreatingProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   const [terminalOutput, setTerminalOutput] = useState<string[]>([
     'Successfully connected to build worker: node-linux-01',
   ]);
+
+  // Initialize WebContainer
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.crossOriginIsolated) {
+      webContainerService.boot().then(() => {
+        addTerminalLine('WebContainer booted successfully', 'success');
+      }).catch((err) => {
+        addTerminalLine(`Failed to boot WebContainer: ${err.message}`, 'error');
+      });
+    }
+  }, []);
+
+  const convertToFileSystemTree = useCallback((nodes: WorkspaceFileNode[]): FileSystemTree => {
+    const tree: FileSystemTree = {};
+    for (const node of nodes) {
+      if (node.type === 'folder') {
+        tree[node.name] = {
+          directory: convertToFileSystemTree(node.children || [])
+        };
+      } else {
+        tree[node.name] = {
+          file: {
+            contents: node.content || ''
+          }
+        };
+      }
+    }
+    return tree;
+  }, []);
+
+  // Sync files to WebContainer when project changes
+  useEffect(() => {
+    if (projectFiles.length > 0 && webContainerService.isReady()) {
+      const tree = convertToFileSystemTree(projectFiles);
+      webContainerService.mount(tree).then(() => {
+        addTerminalLine('Files synced to WebContainer', 'success');
+      }).catch(console.error);
+    }
+  }, [projectFiles, convertToFileSystemTree]);
 
   // Terminal visibility state for re-opening
   const [showTerminal, setShowTerminal] = useState(true);
@@ -639,9 +683,9 @@ export class MainController {
             <h1 className="text-sm font-bold tracking-tight">DevStudio <span className="text-indigo-500">Master</span></h1>
           </div>
           <nav className="hidden md:flex items-center gap-4 text-[#9da1b9]">
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
+            <button onClick={() => setShowDrivePanel(true)} className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
+            <button onClick={() => webContainerService.runCommand('npm install && npm run build')} className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
+            <button onClick={() => webContainerService.runCommand('npm run dev')} className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
             <button
               onClick={() => setShowDrivePanel(!showDrivePanel)}
               className={`text-[12px] font-medium transition-colors flex items-center gap-1 ${showDrivePanel ? 'text-indigo-400' : 'hover:text-white'}`}
@@ -830,10 +874,16 @@ export class MainController {
             >
               <span className="material-symbols-rounded text-[24px]">view_column_2</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              onClick={() => setShowExtensions(true)}
+              className={`p-2 transition-colors ${showExtensions ? 'text-white' : 'text-[#5f637a] hover:text-white'}`}
+            >
               <span className="material-symbols-rounded text-[24px]">extension</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              onClick={() => setShowSettings(true)}
+              className={`p-2 transition-colors ${showSettings ? 'text-white' : 'text-[#5f637a] hover:text-white'}`}
+            >
               <span className="material-symbols-rounded text-[24px]">settings</span>
             </button>
           </div>
@@ -1409,7 +1459,11 @@ export class MainController {
               </div>
               <div className="flex-1 min-h-0 overflow-hidden">
                 {activeTerminalTab === 'Terminal' ? (
-                  <Terminal key={terminalKey.current} className="h-full" initialMode="mock" />
+                  <Terminal
+                    key={terminalKey.current}
+                    className="h-full"
+                    initialMode={typeof window !== 'undefined' && window.crossOriginIsolated ? 'webcontainer' : 'mock'}
+                  />
                 ) : activeTerminalTab === 'Git Status' ? (
                   <div className="h-full overflow-y-auto p-4 font-mono text-[12px] text-[#d4d4d4]">
                     <div className="mb-2 text-green-400">On branch: {currentBranch}</div>
@@ -1469,6 +1523,36 @@ export class MainController {
           )}
         </main>
       </div>
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-8">
+          <div className="bg-zinc-950 w-full h-full max-w-6xl rounded-xl border border-zinc-800 overflow-hidden relative">
+            <button
+              onClick={() => setShowSettings(false)}
+              className="absolute top-4 right-4 z-10 p-2 bg-zinc-900 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+            >
+              <span className="material-symbols-rounded">close</span>
+            </button>
+            <Settings />
+          </div>
+        </div>
+      )}
+
+      {/* Extensions Modal */}
+      {showExtensions && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-8">
+          <div className="bg-zinc-950 w-full h-full max-w-6xl rounded-xl border border-zinc-800 overflow-hidden relative">
+            <button
+              onClick={() => setShowExtensions(false)}
+              className="absolute top-4 right-4 z-10 p-2 bg-zinc-900 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+            >
+              <span className="material-symbols-rounded">close</span>
+            </button>
+            <ExtensionMarketplace />
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="flex-none h-6 bg-indigo-600 text-white flex items-center px-3 justify-between text-[10px] font-mono">
