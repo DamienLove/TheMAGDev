@@ -1,13 +1,48 @@
-const { WebSocketServer } = require('ws');
-const { spawn } = require('child_process');
-const path = require('path');
-const os = require('os');
+import { WebSocketServer } from 'ws';
+import { spawn } from 'child_process';
+import path from 'path';
+import os from 'os';
+import http from 'http';
 
 const PORT = Number(process.env.THEMAG_AGENT_PORT || 4477);
 
-const wss = new WebSocketServer({ port: PORT });
+const server = http.createServer();
+const wss = new WebSocketServer({ noServer: true });
 
 console.log(`TheMAG.dev local agent listening on ws://localhost:${PORT}`);
+
+function isAllowedOrigin(origin) {
+  if (!origin) return false;
+  try {
+    const url = new URL(origin);
+    const hostname = url.hostname;
+
+    // Allow localhost/127.0.0.1 on any port (development flexibility)
+    if (hostname === 'localhost' || hostname === '127.0.0.1') return true;
+
+    // Allow production domain
+    if (hostname === 'themag.dev' || hostname.endsWith('.themag.dev')) return true;
+
+    return false;
+  } catch (e) {
+    return false;
+  }
+}
+
+server.on('upgrade', (request, socket, head) => {
+  const origin = request.headers.origin;
+
+  if (!isAllowedOrigin(origin)) {
+    console.log(`Blocked connection from unauthorized origin: ${origin}`);
+    socket.write('HTTP/1.1 403 Forbidden\r\n\r\n');
+    socket.destroy();
+    return;
+  }
+
+  wss.handleUpgrade(request, socket, head, (ws) => {
+    wss.emit('connection', ws, request);
+  });
+});
 
 wss.on('connection', (ws) => {
   let cwd = process.cwd();
@@ -84,3 +119,5 @@ wss.on('connection', (ws) => {
     }
   });
 });
+
+server.listen(PORT);
