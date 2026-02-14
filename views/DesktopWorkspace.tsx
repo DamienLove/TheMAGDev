@@ -702,11 +702,22 @@ export class MainController {
             <input
               className="bg-transparent border-none focus:outline-none text-[12px] w-full p-0 placeholder-[#5f637a] text-white"
               placeholder="Global Search (Ctrl+P)"
+              aria-label="Global Search"
             />
           </div>
           <div className="flex items-center gap-1">
-            <button className="p-1.5 hover:bg-white/5 rounded-md text-[#9da1b9] transition-colors"><span className="material-symbols-rounded text-[18px]">account_circle</span></button>
-            <button className="p-1.5 hover:bg-white/5 rounded-md text-[#9da1b9] transition-colors relative">
+            <button
+              className="p-1.5 hover:bg-white/5 rounded-md text-[#9da1b9] transition-colors"
+              aria-label="User Profile"
+              title="User Profile"
+            >
+              <span className="material-symbols-rounded text-[18px]">account_circle</span>
+            </button>
+            <button
+              className="p-1.5 hover:bg-white/5 rounded-md text-[#9da1b9] transition-colors relative"
+              aria-label="Notifications"
+              title="Notifications"
+            >
               <span className="material-symbols-rounded text-[18px]">notifications</span>
               <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
             </button>
@@ -772,7 +783,12 @@ export class MainController {
             <div className="text-[9px] text-[#5f637a] leading-none mb-1 uppercase">Last Sync</div>
             <div className="text-[10px] text-white font-mono leading-none">{formatSyncTime(syncStatus.lastSync)}</div>
           </div>
-          <button onClick={loadProjects} className="p-1 text-[#5f637a] hover:text-white">
+          <button
+            onClick={loadProjects}
+            className="p-1 text-[#5f637a] hover:text-white"
+            aria-label="Refresh Projects"
+            title="Refresh Projects"
+          >
             <span className="material-symbols-rounded text-[18px]">refresh</span>
           </button>
         </div>
@@ -785,22 +801,34 @@ export class MainController {
             <button
               onClick={() => setShowDrivePanel(false)}
               className={`p-2 rounded-md transition-colors ${!showDrivePanel ? 'text-white bg-indigo-500/10 text-indigo-500 border-r-2 border-indigo-500' : 'text-[#5f637a] hover:text-white'}`}
+              aria-label="Explorer"
+              title="Explorer"
             >
               <span className="material-symbols-rounded text-[24px]">folder</span>
             </button>
             <button
               onClick={() => setShowDrivePanel(true)}
               className={`p-2 rounded-md transition-colors relative ${showDrivePanel ? 'text-white bg-indigo-500/10 text-indigo-500 border-r-2 border-indigo-500' : 'text-[#5f637a] hover:text-white'}`}
+              aria-label="Google Drive"
+              title="Google Drive"
             >
               <span className="material-symbols-rounded text-[24px]">cloud</span>
               {driveConnected && (
                 <span className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full border border-[#0d0e15]"></span>
               )}
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              className="p-2 text-[#5f637a] hover:text-white transition-colors"
+              aria-label="Report Bug"
+              title="Report Bug"
+            >
               <span className="material-symbols-rounded text-[24px]">bug_report</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors relative">
+            <button
+              className="p-2 text-[#5f637a] hover:text-white transition-colors relative"
+              aria-label="Pull Requests"
+              title="Pull Requests"
+            >
               <span className="material-symbols-rounded text-[24px]">rebase</span>
               <span className="absolute top-1 right-1 text-[8px] font-bold bg-indigo-500 text-white px-1 rounded-full">3</span>
             </button>
@@ -810,6 +838,7 @@ export class MainController {
               onClick={toggleTerminal}
               className={`p-2 transition-colors ${showTerminal ? 'text-emerald-400' : 'text-[#5f637a] hover:text-white'}`}
               title={showTerminal ? 'Hide Terminal' : 'Show Terminal'}
+              aria-label={showTerminal ? 'Hide Terminal' : 'Show Terminal'}
             >
               <span className="material-symbols-rounded text-[24px]">terminal</span>
             </button>
@@ -817,6 +846,7 @@ export class MainController {
               onClick={() => togglePanel('git')}
               className={`p-2 transition-colors relative ${panels.find(p => p.id === 'git')?.isVisible ? 'text-orange-400' : 'text-[#5f637a] hover:text-white'}`}
               title="Toggle Git Panel"
+              aria-label="Toggle Git Panel"
             >
               <span className="material-symbols-rounded text-[24px]">merge</span>
               {githubConnected && (
@@ -827,13 +857,22 @@ export class MainController {
               onClick={() => setSplitView(!splitView)}
               className={`p-2 transition-colors ${splitView ? 'text-indigo-400' : 'text-[#5f637a] hover:text-white'}`}
               title="Toggle Split View"
+              aria-label="Toggle Split View"
             >
               <span className="material-symbols-rounded text-[24px]">view_column_2</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              className="p-2 text-[#5f637a] hover:text-white transition-colors"
+              aria-label="Extensions"
+              title="Extensions"
+            >
               <span className="material-symbols-rounded text-[24px]">extension</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              className="p-2 text-[#5f637a] hover:text-white transition-colors"
+              aria-label="Settings"
+              title="Settings"
+            >
               <span className="material-symbols-rounded text-[24px]">settings</span>
             </button>
           </div>
@@ -849,6 +888,8 @@ export class MainController {
               <button
                 onClick={() => createNewFile(prompt('File name:') || '')}
                 className="material-symbols-rounded text-[16px] text-[#5f637a] cursor-pointer hover:text-white"
+                aria-label="New File"
+                title="New File"
               >
                 note_add
               </button>
@@ -1081,12 +1122,15 @@ export class MainController {
                     <span className={`material-symbols-rounded text-[14px] ${getFileIconColor(fileName)}`}>{getFileIcon(fileName)}</span>
                     {fileName}
                     {workspace.unsavedFiles.has(filePath) && <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>}
-                    <span
+                    <button
+                      type="button"
                       className="material-symbols-rounded text-[14px] hover:bg-white/10 rounded p-0.5 ml-1"
                       onClick={(e) => { e.stopPropagation(); workspace.closeFile(filePath); }}
+                      aria-label="Close file"
+                      title="Close file"
                     >
                       close
-                    </span>
+                    </button>
                   </div>
                 );
               })
@@ -1394,6 +1438,7 @@ export class MainController {
                       onClick={() => setTerminalOutput([])}
                       className="p-1 hover:bg-white/10 rounded text-[#5f637a]"
                       title="Clear logs"
+                      aria-label="Clear logs"
                     >
                       <span className="material-symbols-rounded text-[18px]">delete</span>
                     </button>
@@ -1402,6 +1447,7 @@ export class MainController {
                     onClick={toggleTerminal}
                     className="p-1 hover:bg-white/10 rounded text-[#5f637a]"
                     title="Close terminal (click Terminal icon to reopen)"
+                    aria-label="Close terminal"
                   >
                     <span className="material-symbols-rounded text-[18px]">close</span>
                   </button>
