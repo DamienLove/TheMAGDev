@@ -2,6 +2,10 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
+import aiProvider from '../src/services/AIProvider';
+import webContainerService from '../src/services/WebContainerService';
+import Settings from './Settings';
+import ExtensionMarketplace from './ExtensionMarketplace';
 
 interface FileNode {
   id: string;
@@ -43,6 +47,7 @@ const DesktopWorkspace: React.FC = () => {
   const [openFiles, setOpenFiles] = useState<Map<string, string>>(new Map());
   const [activeFileContent, setActiveFileContent] = useState('');
   const [showDrivePanel, setShowDrivePanel] = useState(false);
+  const [activeOverlay, setActiveOverlay] = useState<'none' | 'settings' | 'extensions'>('none');
   const [isCreatingProject, setIsCreatingProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   const [terminalOutput, setTerminalOutput] = useState<string[]>([
@@ -465,40 +470,51 @@ export class MainController {
     }
 
     setLlmLoading(true);
-    const prompts: Record<string, string> = {
-      explain: 'Explain this code concisely:',
-      fix: 'Identify and fix bugs in this code:',
-      optimize: 'Optimize this code for performance:',
-      refactor: 'Refactor this code for better readability:',
-    };
-
-    const prompt = prompts[action] || action;
-    setLlmPrompt(prompt);
-
-    // Simulate LLM response (replace with actual API call)
     addTerminalLine(`Running AI ${action}...`);
-    setTimeout(() => {
-      const mockResponses: Record<string, string> = {
-        explain: `This code defines a ${activeTab.includes('Controller') ? 'controller class' : 'module'} that handles platform-specific initialization. It uses a constructor pattern to set the target platform based on the current runtime environment.`,
-        fix: 'No critical bugs found. Consider adding error handling for the Platform.current() call in case it fails.',
-        optimize: 'The code is already well-optimized. Consider lazy-loading the platform detection if not immediately needed.',
-        refactor: 'Consider using dependency injection for the Platform instance to improve testability.',
-      };
-      setLlmResponse(mockResponses[action] || 'Analysis complete.');
-      setLlmLoading(false);
-      addTerminalLine(`AI ${action} complete`, 'success');
-    }, 1500);
+
+    try {
+        const response = await aiProvider.sendMessage([
+            { role: 'user', content: `${action} the following code:\n\n${activeFileContent}`, id: Date.now().toString(), timestamp: Date.now() }
+        ]);
+
+        if (response.error) {
+            addTerminalLine(`AI Error: ${response.error}`, 'error');
+            setLlmResponse(`Error: ${response.error}`);
+        } else {
+            setLlmResponse(response.content);
+            addTerminalLine(`AI ${action} complete`, 'success');
+        }
+    } catch (e: any) {
+        addTerminalLine(`AI Error: ${e.message}`, 'error');
+        setLlmResponse(`Error: ${e.message}`);
+    } finally {
+        setLlmLoading(false);
+    }
   };
 
   const runCustomLLMPrompt = async () => {
     if (!llmPrompt.trim()) return;
     setLlmLoading(true);
     addTerminalLine('Processing custom prompt...');
-    setTimeout(() => {
-      setLlmResponse(`Based on your prompt "${llmPrompt.slice(0, 50)}...", here's my analysis:\n\nThe code structure follows standard patterns. Consider implementing additional error boundaries and type guards for improved reliability.`);
-      setLlmLoading(false);
-      addTerminalLine('Custom prompt complete', 'success');
-    }, 2000);
+
+    try {
+        const response = await aiProvider.sendMessage([
+            { role: 'user', content: `${llmPrompt}\n\nCode Context:\n${activeFileContent}`, id: Date.now().toString(), timestamp: Date.now() }
+        ]);
+
+        if (response.error) {
+            addTerminalLine(`AI Error: ${response.error}`, 'error');
+            setLlmResponse(`Error: ${response.error}`);
+        } else {
+            setLlmResponse(response.content);
+            addTerminalLine('Custom prompt complete', 'success');
+        }
+    } catch (e: any) {
+        addTerminalLine(`AI Error: ${e.message}`, 'error');
+        setLlmResponse(`Error: ${e.message}`);
+    } finally {
+        setLlmLoading(false);
+    }
   };
 
   const openFile = async (file: FileNode) => {
@@ -546,11 +562,6 @@ export class MainController {
     } else {
       addTerminalLine(`Failed to create ${name}`, 'error');
     }
-  };
-
-  const addTerminalLine = (text: string, type?: 'success' | 'error') => {
-    const prefix = type === 'success' ? '[OK] ' : type === 'error' ? '[ERROR] ' : '';
-    setTerminalOutput(prev => [...prev.slice(-50), prefix + text]);
   };
 
   const formatSyncTime = (timestamp?: number) => {
@@ -627,8 +638,46 @@ export class MainController {
     ? (workspace.getFileContent(workspace.activeFile) || defaultCodeSnippet)
     : (openFiles.get(activeTab) || defaultCodeSnippet);
 
+  const runBuild = async () => {
+    addTerminalLine('Starting build process...', 'success');
+    if (webContainerService.isReady()) {
+        try {
+            await webContainerService.runCommand('npm install && npm run build');
+            addTerminalLine('Build command sent to WebContainer', 'success');
+        } catch (e: any) {
+            addTerminalLine(`Build failed: ${e.message}`, 'error');
+        }
+    } else {
+        // Mock build
+        addTerminalLine('[Mock] npm install...', 'success');
+        setTimeout(() => {
+            addTerminalLine('[Mock] npm run build...', 'success');
+            setTimeout(() => {
+                addTerminalLine('[Mock] Build completed successfully!', 'success');
+            }, 1500);
+        }, 1000);
+    }
+  };
+
+  const runDebug = async () => {
+    addTerminalLine('Starting debug session...', 'success');
+    if (webContainerService.isReady()) {
+        try {
+            await webContainerService.runCommand('npm run dev');
+            addTerminalLine('Dev server started on WebContainer', 'success');
+        } catch (e: any) {
+            addTerminalLine(`Debug failed: ${e.message}`, 'error');
+        }
+    } else {
+        addTerminalLine('[Mock] Starting dev server...', 'success');
+        setTimeout(() => {
+            addTerminalLine('[Mock] Server running at http://localhost:5173', 'success');
+        }, 1000);
+    }
+  };
+
   return (
-    <div className="flex flex-col h-full bg-[#090a11] text-slate-200 font-sans overflow-hidden">
+    <div className="flex flex-col h-full bg-[#090a11] text-slate-200 font-sans overflow-hidden relative">
       {/* Header */}
       <header className="flex-none flex items-center justify-between border-b border-[#282b39] bg-[#0d0e15] px-4 py-2">
         <div className="flex items-center gap-6">
@@ -640,8 +689,8 @@ export class MainController {
           </div>
           <nav className="hidden md:flex items-center gap-4 text-[#9da1b9]">
             <button className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
+            <button onClick={runBuild} className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
+            <button onClick={runDebug} className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
             <button
               onClick={() => setShowDrivePanel(!showDrivePanel)}
               className={`text-[12px] font-medium transition-colors flex items-center gap-1 ${showDrivePanel ? 'text-indigo-400' : 'hover:text-white'}`}
@@ -830,10 +879,16 @@ export class MainController {
             >
               <span className="material-symbols-rounded text-[24px]">view_column_2</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              onClick={() => setActiveOverlay(activeOverlay === 'extensions' ? 'none' : 'extensions')}
+              className={`p-2 transition-colors ${activeOverlay === 'extensions' ? 'text-indigo-400' : 'text-[#5f637a] hover:text-white'}`}
+            >
               <span className="material-symbols-rounded text-[24px]">extension</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              onClick={() => setActiveOverlay(activeOverlay === 'settings' ? 'none' : 'settings')}
+              className={`p-2 transition-colors ${activeOverlay === 'settings' ? 'text-indigo-400' : 'text-[#5f637a] hover:text-white'}`}
+            >
               <span className="material-symbols-rounded text-[24px]">settings</span>
             </button>
           </div>
@@ -1502,6 +1557,35 @@ export class MainController {
           </div>
         </div>
       </footer>
+
+      {/* Overlays */}
+      {activeOverlay === 'settings' && (
+        <div className="absolute inset-0 z-50 bg-[#090a11] flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b border-[#282b39] bg-[#0d0e15]">
+                <h2 className="text-sm font-bold text-white uppercase tracking-widest">Settings</h2>
+                <button onClick={() => setActiveOverlay('none')} className="text-[#9da1b9] hover:text-white">
+                    <span className="material-symbols-rounded">close</span>
+                </button>
+            </div>
+            <div className="flex-1 overflow-auto">
+                <Settings />
+            </div>
+        </div>
+      )}
+
+      {activeOverlay === 'extensions' && (
+        <div className="absolute inset-0 z-50 bg-[#090a11] flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b border-[#282b39] bg-[#0d0e15]">
+                <h2 className="text-sm font-bold text-white uppercase tracking-widest">Extensions Marketplace</h2>
+                <button onClick={() => setActiveOverlay('none')} className="text-[#9da1b9] hover:text-white">
+                    <span className="material-symbols-rounded">close</span>
+                </button>
+            </div>
+            <div className="flex-1 overflow-auto">
+                <ExtensionMarketplace />
+            </div>
+        </div>
+      )}
     </div>
   );
 };
