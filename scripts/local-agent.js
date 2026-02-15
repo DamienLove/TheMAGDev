@@ -1,11 +1,56 @@
-const { WebSocketServer } = require('ws');
-const { spawn } = require('child_process');
-const path = require('path');
-const os = require('os');
+import { WebSocketServer } from 'ws';
+import { spawn } from 'child_process';
+import path from 'path';
+import os from 'os';
+import process from 'process';
+
+// Converted to ESM to support "type": "module" in package.json
+// Originally this file used require() which caused a ReferenceError.
 
 const PORT = Number(process.env.THEMAG_AGENT_PORT || 4477);
 
-const wss = new WebSocketServer({ port: PORT });
+const wss = new WebSocketServer({
+  port: PORT,
+  verifyClient: (info, cb) => {
+    const origin = info.req.headers.origin;
+
+    // Block requests without Origin header (strict security for web-based agent)
+    if (!origin) {
+      console.log('Blocked connection with no Origin header');
+      cb(false, 403, 'Forbidden');
+      return;
+    }
+
+    try {
+      const url = new URL(origin);
+      const hostname = url.hostname;
+
+      // Allow localhost and 127.0.0.1 (any port)
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        cb(true);
+        return;
+      }
+
+      // Allow themag.dev and subdomains
+      if (hostname === 'themag.dev' || hostname.endsWith('.themag.dev')) {
+        cb(true);
+        return;
+      }
+
+      // Allow stackblitz.io (for webcontainers/demos)
+      if (hostname === 'stackblitz.io' || hostname.endsWith('.stackblitz.io')) {
+        cb(true);
+        return;
+      }
+
+    } catch (e) {
+      // Invalid URL in Origin, fall through to block
+    }
+
+    console.log(`Blocked connection from origin: ${origin}`);
+    cb(false, 403, 'Forbidden');
+  }
+});
 
 console.log(`TheMAG.dev local agent listening on ws://localhost:${PORT}`);
 
