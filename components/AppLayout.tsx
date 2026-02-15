@@ -82,6 +82,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, childr
 
             <button
               onClick={() => setShowNotifications(!showNotifications)}
+              aria-label={showNotifications ? "Hide notifications" : "Show notifications"}
               className={`relative p-2 rounded-lg transition-colors ${showNotifications ? 'bg-indigo-500/10 text-indigo-400' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900'}`}
             >
               <span className="material-symbols-rounded text-xl">notifications</span>
