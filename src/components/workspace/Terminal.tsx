@@ -17,7 +17,7 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
-  const { files, currentDirectory, setCurrentDirectory, addTerminalLine } = useWorkspace();
+  const { files, currentDirectory, setCurrentDirectory, addTerminalLine, createFile, deleteFile } = useWorkspace();
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const currentLineRef = useRef('');
@@ -114,6 +114,9 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
         writeLine('  \x1b[33mcd\x1b[0m <path>      - Change directory');
         writeLine('  \x1b[33mpwd\x1b[0m            - Print working directory');
         writeLine('  \x1b[33mcat\x1b[0m <file>     - Display file contents');
+        writeLine('  \x1b[33mmkdir\x1b[0m <name>   - Create directory');
+        writeLine('  \x1b[33mtouch\x1b[0m <name>   - Create empty file');
+        writeLine('  \x1b[33mrm\x1b[0m <name>      - Remove file or directory');
         writeLine('  \x1b[33mecho\x1b[0m <text>    - Print text');
         writeLine('  \x1b[33mclear\x1b[0m          - Clear terminal');
         writeLine('  \x1b[33mnpm\x1b[0m <cmd>      - Simulate npm commands');
@@ -163,12 +166,45 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
         writeLine(`\r\n${currentDirectory}`);
         break;
 
+      case 'mkdir':
+        if (!args[0]) {
+          writeLine('\r\n\x1b[31mmkdir: missing operand\x1b[0m');
+        } else {
+          createFile(currentDirectory, args[0], 'folder');
+          writeLine('');
+        }
+        break;
+
+      case 'touch':
+        if (!args[0]) {
+          writeLine('\r\n\x1b[31mtouch: missing operand\x1b[0m');
+        } else {
+          createFile(currentDirectory, args[0], 'file');
+          writeLine('');
+        }
+        break;
+
+      case 'rm':
+        if (!args[0]) {
+          writeLine('\r\n\x1b[31mrm: missing operand\x1b[0m');
+        } else {
+          const pathToDelete = args[0].startsWith('/') ? args[0] : `${currentDirectory}/${args[0]}`.replace(/\/+/g, '/');
+          const node = findNode(pathToDelete, files);
+          if (node) {
+            deleteFile(pathToDelete);
+            writeLine('');
+          } else {
+             writeLine(`\r\n\x1b[31mrm: ${args[0]}: No such file or directory\x1b[0m`);
+          }
+        }
+        break;
+
       case 'cat':
         if (!args[0]) {
           writeLine('\r\n\x1b[31mcat: missing operand\x1b[0m');
         } else {
           const file = findNode(args[0], files);
-          if (file && file.type === 'file' && file.content) {
+          if (file && file.type === 'file' && file.content !== undefined) {
             writeLine('');
             file.content.split('\n').forEach(line => writeLine(line));
           } else {
@@ -187,27 +223,43 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
 
       case 'npm':
         const npmCmd = args[0];
-        if (npmCmd === 'run' && args[1] === 'dev') {
-          writeLine('\r\n\x1b[1;37m> themag-framework@2.1.0 dev\x1b[0m');
-          writeLine('\x1b[1;37m> vite\x1b[0m');
+        if (npmCmd === 'run' && (args[1] === 'dev' || args[1] === 'start')) {
+          writeLine(`\r\n\x1b[1;37m> themag-app@0.1.0 ${args[1]}\x1b[0m`);
+          writeLine(`\x1b[1;37m> vite\x1b[0m`);
           writeLine('');
           setTimeout(() => {
-            writeLine('\x1b[1;32m  VITE v5.0.0\x1b[0m  ready in \x1b[1;33m127ms\x1b[0m');
+            writeLine('\x1b[1;32m  VITE v5.0.0\x1b[0m  ready in \x1b[1;33m142ms\x1b[0m');
             writeLine('');
             writeLine('  \x1b[36m➜\x1b[0m  \x1b[1mLocal:\x1b[0m   \x1b[36mhttp://localhost:5173/\x1b[0m');
             writeLine('  \x1b[90m➜\x1b[0m  \x1b[90mNetwork: use --host to expose\x1b[0m');
             writeLine('');
+            writeLine('\x1b[90mpress h + enter to show help\x1b[0m');
             printPromptRef.current?.();
           }, 500);
           return;
         } else if (npmCmd === 'install' || npmCmd === 'i') {
-          writeLine('\r\n\x1b[90madded 247 packages in 3.2s\x1b[0m');
-          writeLine('\x1b[90m43 packages are looking for funding\x1b[0m');
-          writeLine('  run `npm fund` for details');
+          writeLine('\r\n\x1b[1;36m[npm] Resolving dependencies...\x1b[0m');
+          setTimeout(() => {
+            writeLine('\x1b[1;36m[npm] Fetching packages...\x1b[0m');
+            setTimeout(() => {
+              writeLine('\x1b[1;36m[npm] Linking dependencies...\x1b[0m');
+              writeLine('');
+              writeLine('\x1b[90madded 247 packages in 2.1s\x1b[0m');
+              writeLine('\x1b[90m43 packages are looking for funding\x1b[0m');
+              writeLine('  run `npm fund` for details');
+              printPromptRef.current?.();
+            }, 800);
+          }, 800);
+          return;
         } else if (npmCmd === 'test') {
-          writeLine('\r\n\x1b[1;32m✓\x1b[0m 24 tests passed');
-          writeLine('\x1b[1;33m○\x1b[0m 2 tests skipped');
-          writeLine('\x1b[90mRan all test suites in 1.42s\x1b[0m');
+          writeLine('\r\n\x1b[1;32mPASS\x1b[0m src/App.test.tsx');
+          writeLine('\x1b[1;32mPASS\x1b[0m src/components/Button.test.tsx');
+          writeLine('');
+          writeLine('Test Suites: \x1b[1;32m2 passed\x1b[0m, 2 total');
+          writeLine('Tests:       \x1b[1;32m14 passed\x1b[0m, 14 total');
+          writeLine('Snapshots:   \x1b[1;32m0 total\x1b[0m');
+          writeLine('Time:        1.24s');
+          writeLine('\x1b[90mRan all test suites.\x1b[0m');
         } else {
           writeLine(`\r\n\x1b[90mnpm ${args.join(' ')}\x1b[0m`);
         }
@@ -220,18 +272,26 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
           writeLine('Your branch is up to date with \x1b[31morigin/main\x1b[0m.');
           writeLine('');
           writeLine('Changes not staged for commit:');
-          writeLine('  \x1b[31mmodified:   src/components/App.tsx\x1b[0m');
-          writeLine('  \x1b[31mmodified:   src/hooks/useAuth.ts\x1b[0m');
+          writeLine('  \x1b[31mmodified:   src/App.tsx\x1b[0m');
+          writeLine('');
+          writeLine('no changes added to commit (use "git add" and/or "git commit -a")');
         } else if (gitCmd === 'branch') {
           writeLine('\r\n* \x1b[32mmain\x1b[0m');
-          writeLine('  feature/auth-provider');
-          writeLine('  hotfix/v1.0.2-patch');
+          writeLine('  feature/auth');
+          writeLine('  bugfix/login-error');
         } else if (gitCmd === 'log') {
           writeLine('\r\n\x1b[33mcommit abc123def456\x1b[0m (HEAD -> main)');
           writeLine('Author: Developer <dev@themag.dev>');
           writeLine('Date:   Today');
           writeLine('');
-          writeLine('    feat: add authentication hooks');
+          writeLine('    feat: initial commit');
+        } else if (gitCmd === 'clone') {
+          writeLine(`\r\nCloning into '${args[1] || 'repo'}'...`);
+          writeLine('remote: Enumerating objects: 42, done.');
+          writeLine('remote: Counting objects: 100% (42/42), done.');
+          writeLine('remote: Compressing objects: 100% (30/30), done.');
+          writeLine('Receiving objects: 100% (42/42), 12.50 KiB | 4.10 MiB/s, done.');
+          writeLine('Resolving deltas: 100% (10/10), done.');
         } else {
           writeLine(`\r\n\x1b[90mgit ${args.join(' ')}\x1b[0m`);
         }
@@ -240,10 +300,13 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
       case 'node':
         if (args[0]) {
           writeLine(`\r\n\x1b[90mExecuting ${args[0]}...\x1b[0m`);
+          // Basic JS execution simulation could go here, but for now just mock success
           writeLine('\x1b[32mScript completed successfully\x1b[0m');
         } else {
           writeLine('\r\nWelcome to Node.js v20.0.0.');
           writeLine('Type ".help" for more information.');
+          writeLine('> ');
+          // Interactive mode is hard to mock without keeping state, effectively exiting immediately for now
         }
         break;
 
@@ -256,7 +319,7 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
     }
 
     addTerminalLine(`$ ${command}`);
-  }, [files, currentDirectory, setCurrentDirectory, addTerminalLine]);
+  }, [files, currentDirectory, setCurrentDirectory, addTerminalLine, createFile, deleteFile]);
 
   const executeCommand = useCallback(async (command: string) => {
     const term = xtermRef.current;
@@ -266,8 +329,6 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
     if (!trimmed) {
       return;
     }
-
-
 
     if (terminalMode === 'mock') {
       if (trimmed === 'clear') {

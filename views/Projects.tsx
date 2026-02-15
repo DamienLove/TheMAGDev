@@ -1,4 +1,12 @@
 import React, { useState } from 'react';
+import { View } from '../types';
+import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import { REACT_TEMPLATE, NODE_TEMPLATE, STATIC_TEMPLATE } from '../src/data/templates';
+import { FileNode } from '../src/components/workspace/WorkspaceContext';
+
+interface ProjectsProps {
+  onNavigate?: (view: View) => void;
+}
 
 interface Project {
   id: string;
@@ -10,10 +18,12 @@ interface Project {
   thumbnail: string;
   platforms: string[];
   status: 'New' | 'Popular' | 'Updated' | 'Verified';
+  template: FileNode[];
 }
 
-const Projects: React.FC = () => {
+const Projects: React.FC<ProjectsProps> = ({ onNavigate }) => {
   const [activeFilter, setActiveFilter] = useState('All');
+  const workspace = useWorkspace();
 
   const projects: Project[] = [
     {
@@ -25,7 +35,8 @@ const Projects: React.FC = () => {
       stars: '1.2k',
       thumbnail: './assets/store/hero_illustration.svg',
       platforms: ['android', 'phone_iphone'],
-      status: 'Verified'
+      status: 'Verified',
+      template: REACT_TEMPLATE
     },
     {
       id: 'p-2',
@@ -36,7 +47,8 @@ const Projects: React.FC = () => {
       stars: '854',
       thumbnail: './assets/store/tech_pattern.svg',
       platforms: ['language'],
-      status: 'Popular'
+      status: 'Popular',
+      template: STATIC_TEMPLATE
     },
     {
       id: 'p-3',
@@ -47,7 +59,8 @@ const Projects: React.FC = () => {
       stars: '2.4k',
       thumbnail: './assets/store/dark_hex_pattern.svg',
       platforms: ['desktop_mac', 'sports_esports'],
-      status: 'New'
+      status: 'New',
+      template: REACT_TEMPLATE
     },
     {
       id: 'p-4',
@@ -58,7 +71,8 @@ const Projects: React.FC = () => {
       stars: '3.1k',
       thumbnail: './assets/store/hero_illustration.svg',
       platforms: ['language', 'grid_view'],
-      status: 'Updated'
+      status: 'Updated',
+      template: NODE_TEMPLATE
     },
     {
       id: 'p-5',
@@ -69,7 +83,8 @@ const Projects: React.FC = () => {
       stars: '4.5k',
       thumbnail: './assets/store/tech_pattern.svg',
       platforms: ['palette', 'devices'],
-      status: 'Popular'
+      status: 'Popular',
+      template: REACT_TEMPLATE
     },
     {
       id: 'p-6',
@@ -80,7 +95,8 @@ const Projects: React.FC = () => {
       stars: '1.8k',
       thumbnail: './assets/store/hero_illustration.svg',
       platforms: ['cloud', 'analytics'],
-      status: 'Verified'
+      status: 'Verified',
+      template: NODE_TEMPLATE
     },
     {
       id: 'p-7',
@@ -91,7 +107,8 @@ const Projects: React.FC = () => {
       stars: '5.2k',
       thumbnail: './assets/store/game_hero.svg',
       platforms: ['sports_esports', 'desktop_windows'],
-      status: 'Trending'
+      status: 'Trending',
+      template: STATIC_TEMPLATE
     },
     {
       id: 'p-8',
@@ -102,7 +119,8 @@ const Projects: React.FC = () => {
       stars: '2.9k',
       thumbnail: './assets/store/widget_analytics.svg',
       platforms: ['analytics', 'monitoring'],
-      status: 'New'
+      status: 'New',
+      template: REACT_TEMPLATE
     },
     {
       id: 'p-9',
@@ -113,7 +131,8 @@ const Projects: React.FC = () => {
       stars: '3.4k',
       thumbnail: './assets/store/icon_chat.svg',
       platforms: ['chat', 'forum'],
-      status: 'Popular'
+      status: 'Popular',
+      template: NODE_TEMPLATE
     }
   ];
 
@@ -124,6 +143,16 @@ const Projects: React.FC = () => {
     { name: '@elena_ui', avatar: 'EU', color: 'bg-purple-500' },
     { name: '@tom_h', avatar: 'TH', color: 'bg-zinc-600' }
   ];
+
+  const handleOpenProject = (project: Project) => {
+    // Load the project template into the workspace
+    workspace.replaceWorkspace(project.template);
+
+    // Navigate to the Desktop view
+    if (onNavigate) {
+      onNavigate(View.Desktop);
+    }
+  };
 
   return (
     <div className="flex-1 bg-zinc-950 overflow-y-auto p-8 font-sans">
@@ -166,7 +195,11 @@ const Projects: React.FC = () => {
          <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-4">Featured Environments</h2>
          <div className="flex gap-6 overflow-x-auto no-scrollbar pb-4 snap-x">
             {projects.slice(0, 3).map(p => (
-              <div key={p.id} className="relative snap-start shrink-0 w-[450px] h-[240px] rounded-2xl overflow-hidden group cursor-pointer border border-zinc-800 shadow-2xl">
+              <div
+                key={p.id}
+                onClick={() => handleOpenProject(p)}
+                className="relative snap-start shrink-0 w-[450px] h-[240px] rounded-2xl overflow-hidden group cursor-pointer border border-zinc-800 shadow-2xl"
+              >
                  <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: `url(${p.thumbnail})` }} />
                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent"></div>
                  <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -216,7 +249,10 @@ const Projects: React.FC = () => {
                              <span className="text-xs font-bold text-zinc-300">{p.stars}</span>
                           </div>
                        </div>
-                       <button className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2">
+                       <button
+                          onClick={() => handleOpenProject(p)}
+                          className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                        >
                           <span className="material-symbols-rounded text-lg">code</span> View Implementation
                        </button>
                     </div>
