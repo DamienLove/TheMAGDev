@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { View } from '../types';
+import { useWorkspace } from '../src/components/workspace';
+import { REACT_TEMPLATE, NODE_TEMPLATE, STATIC_TEMPLATE } from '../src/data/templates';
 
 interface Project {
   id: string;
@@ -12,8 +15,13 @@ interface Project {
   status: 'New' | 'Popular' | 'Updated' | 'Verified';
 }
 
-const Projects: React.FC = () => {
+interface ProjectsProps {
+  onNavigate?: (view: View) => void;
+}
+
+const Projects: React.FC<ProjectsProps> = ({ onNavigate }) => {
   const [activeFilter, setActiveFilter] = useState('All');
+  const workspace = useWorkspace();
 
   const projects: Project[] = [
     {
@@ -125,6 +133,20 @@ const Projects: React.FC = () => {
     { name: '@tom_h', avatar: 'TH', color: 'bg-zinc-600' }
   ];
 
+  const handleLoadProject = (project: Project) => {
+    // Determine template based on project metadata
+    // For now, we'll just cycle or pick based on index/name hash
+    const index = projects.findIndex(p => p.id === project.id);
+    let template = REACT_TEMPLATE;
+    if (index % 3 === 1) template = NODE_TEMPLATE;
+    else if (index % 3 === 2) template = STATIC_TEMPLATE;
+
+    workspace.replaceWorkspace(template);
+    if (onNavigate) {
+      onNavigate(View.Desktop);
+    }
+  };
+
   return (
     <div className="flex-1 bg-zinc-950 overflow-y-auto p-8 font-sans">
       <header className="mb-10 flex flex-col gap-6">
@@ -166,7 +188,11 @@ const Projects: React.FC = () => {
          <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-4">Featured Environments</h2>
          <div className="flex gap-6 overflow-x-auto no-scrollbar pb-4 snap-x">
             {projects.slice(0, 3).map(p => (
-              <div key={p.id} className="relative snap-start shrink-0 w-[450px] h-[240px] rounded-2xl overflow-hidden group cursor-pointer border border-zinc-800 shadow-2xl">
+              <div
+                key={p.id}
+                onClick={() => handleLoadProject(p)}
+                className="relative snap-start shrink-0 w-[450px] h-[240px] rounded-2xl overflow-hidden group cursor-pointer border border-zinc-800 shadow-2xl"
+              >
                  <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: `url(${p.thumbnail})` }} />
                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent"></div>
                  <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -216,7 +242,10 @@ const Projects: React.FC = () => {
                              <span className="text-xs font-bold text-zinc-300">{p.stars}</span>
                           </div>
                        </div>
-                       <button className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2">
+                       <button
+                         onClick={() => handleLoadProject(p)}
+                         className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                        >
                           <span className="material-symbols-rounded text-lg">code</span> View Implementation
                        </button>
                     </div>

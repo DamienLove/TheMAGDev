@@ -17,7 +17,7 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
-  const { files, currentDirectory, setCurrentDirectory, addTerminalLine } = useWorkspace();
+  const { files, currentDirectory, setCurrentDirectory, addTerminalLine, createFile, deleteFile } = useWorkspace();
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const currentLineRef = useRef('');
@@ -115,11 +115,47 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
         writeLine('  \x1b[33mpwd\x1b[0m            - Print working directory');
         writeLine('  \x1b[33mcat\x1b[0m <file>     - Display file contents');
         writeLine('  \x1b[33mecho\x1b[0m <text>    - Print text');
+        writeLine('  \x1b[33mmkdir\x1b[0m <name>   - Create directory');
+        writeLine('  \x1b[33mtouch\x1b[0m <name>   - Create file');
+        writeLine('  \x1b[33mrm\x1b[0m <path>      - Remove file or directory');
         writeLine('  \x1b[33mclear\x1b[0m          - Clear terminal');
         writeLine('  \x1b[33mnpm\x1b[0m <cmd>      - Simulate npm commands');
         writeLine('  \x1b[33mgit\x1b[0m <cmd>      - Simulate git commands');
         writeLine('  \x1b[33mnode\x1b[0m <file>    - Simulate Node.js execution');
         writeLine('  \x1b[33mhelp\x1b[0m           - Show this help');
+        break;
+
+      case 'mkdir':
+        if (!args[0]) {
+          writeLine('\r\n\x1b[31mmkdir: missing operand\x1b[0m');
+        } else {
+          createFile(currentDirectory, args[0], 'folder');
+          writeLine('');
+        }
+        break;
+
+      case 'touch':
+        if (!args[0]) {
+          writeLine('\r\n\x1b[31mtouch: missing operand\x1b[0m');
+        } else {
+          createFile(currentDirectory, args[0], 'file');
+          writeLine('');
+        }
+        break;
+
+      case 'rm':
+        if (!args[0]) {
+          writeLine('\r\n\x1b[31mrm: missing operand\x1b[0m');
+        } else {
+          const pathToRemove = args[0].startsWith('/') ? args[0] : `${currentDirectory}/${args[0]}`.replace(/\/+/g, '/');
+          const node = findNode(pathToRemove, files);
+          if (node) {
+            deleteFile(pathToRemove);
+            writeLine('');
+          } else {
+             writeLine(`\r\n\x1b[31mrm: ${args[0]}: No such file or directory\x1b[0m`);
+          }
+        }
         break;
 
       case 'ls':

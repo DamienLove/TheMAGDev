@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
+import Settings from './Settings';
+import ExtensionMarketplace from './ExtensionMarketplace';
 
 interface FileNode {
   id: string;
@@ -43,6 +45,8 @@ const DesktopWorkspace: React.FC = () => {
   const [openFiles, setOpenFiles] = useState<Map<string, string>>(new Map());
   const [activeFileContent, setActiveFileContent] = useState('');
   const [showDrivePanel, setShowDrivePanel] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showExtensions, setShowExtensions] = useState(false);
   const [isCreatingProject, setIsCreatingProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   const [terminalOutput, setTerminalOutput] = useState<string[]>([
@@ -504,6 +508,15 @@ export class MainController {
   const openFile = async (file: FileNode) => {
     if (file.type === 'folder') return;
 
+    // If it's a workspace file, open it from context
+    // The explorer uses workspace.openFile, but this function is for Drive files?
+    // Let's defer to workspace context if it's there
+    if (!file.driveFile) {
+        workspace.openFile(file.id); // file.id is path for workspace files
+        setActiveTab(file.name);
+        return;
+    }
+
     addTerminalLine(`Reading file: ${file.name}...`);
     const content = await googleDriveService.readFile(file.id);
 
@@ -518,6 +531,25 @@ export class MainController {
   };
 
   const saveCurrentFile = async () => {
+    if (workspace.activeFile) {
+        workspace.saveFile(workspace.activeFile);
+        addTerminalLine(`Saved ${workspace.activeFile}`, 'success');
+
+        // Sync to Drive if connected
+        if (driveConnected && currentProject) {
+             const fileName = workspace.activeFile.split('/').pop();
+             const driveFile = projectFiles.find(f => f.name === fileName);
+             if (driveFile) {
+                 const content = workspace.getFileContent(workspace.activeFile);
+                 if (content) {
+                     await googleDriveService.updateFile(driveFile.id, content);
+                     addTerminalLine(`Synced ${fileName} to Drive`, 'success');
+                 }
+             }
+        }
+        return;
+    }
+
     if (!currentProject) return;
 
     const file = projectFiles.find(f => f.name === activeTab);
@@ -532,6 +564,42 @@ export class MainController {
     } else {
       addTerminalLine(`Failed to save ${activeTab}`, 'error');
     }
+  };
+
+  const handleRun = () => {
+    const indexFile = workspace.files.find(f => f.name === 'index.html') ||
+                      workspace.files.find(f => f.children?.find(c => c.name === 'index.html'));
+
+    // Recursive search for index.html
+    const findIndexHtml = (nodes: WorkspaceFileNode[]): WorkspaceFileNode | undefined => {
+        for (const node of nodes) {
+            if (node.name === 'index.html') return node;
+            if (node.children) {
+                const found = findIndexHtml(node.children);
+                if (found) return found;
+            }
+        }
+        return undefined;
+    };
+
+    const file = findIndexHtml(workspace.files);
+
+    if (!file || !file.content) {
+      addTerminalLine('No index.html found to run. Please add one to your project.', 'error');
+      return;
+    }
+
+    addTerminalLine('Starting preview...', 'success');
+
+    // Create a Blob URL for the HTML content
+    // We try to inject simple JS/CSS if possible, or just serve raw
+    // For a robust preview we would need a service worker or bundler
+    // Here we assume a simple static file structure or bundled output
+
+    const blob = new Blob([file.content], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    addTerminalLine('Preview opened in new tab', 'success');
   };
 
   const createNewFile = async (name: string) => {
@@ -640,7 +708,13 @@ export class MainController {
           </div>
           <nav className="hidden md:flex items-center gap-4 text-[#9da1b9]">
             <button className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
+            <button
+                onClick={handleRun}
+                className="hover:text-white text-[12px] font-medium transition-colors flex items-center gap-1"
+            >
+                <span className="material-symbols-rounded text-[16px] text-green-400">play_arrow</span>
+                Run
+            </button>
             <button className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
             <button
               onClick={() => setShowDrivePanel(!showDrivePanel)}
@@ -830,10 +904,16 @@ export class MainController {
             >
               <span className="material-symbols-rounded text-[24px]">view_column_2</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+                onClick={() => setShowExtensions(true)}
+                className={`p-2 transition-colors ${showExtensions ? 'text-white' : 'text-[#5f637a] hover:text-white'}`}
+            >
               <span className="material-symbols-rounded text-[24px]">extension</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+                onClick={() => setShowSettings(true)}
+                className={`p-2 transition-colors ${showSettings ? 'text-white' : 'text-[#5f637a] hover:text-white'}`}
+            >
               <span className="material-symbols-rounded text-[24px]">settings</span>
             </button>
           </div>
@@ -1502,6 +1582,36 @@ export class MainController {
           </div>
         </div>
       </footer>
+
+      {/* Settings Overlay */}
+      {showSettings && (
+        <div className="fixed inset-0 z-50 bg-[#090a11]">
+            <div className="absolute top-4 right-4 z-50">
+                <button
+                    onClick={() => setShowSettings(false)}
+                    className="p-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-full shadow-lg"
+                >
+                    <span className="material-symbols-rounded">close</span>
+                </button>
+            </div>
+            <Settings />
+        </div>
+      )}
+
+      {/* Extensions Overlay */}
+      {showExtensions && (
+        <div className="fixed inset-0 z-50 bg-[#090a11]">
+            <div className="absolute top-4 right-4 z-50">
+                <button
+                    onClick={() => setShowExtensions(false)}
+                    className="p-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-full shadow-lg"
+                >
+                    <span className="material-symbols-rounded">close</span>
+                </button>
+            </div>
+            <ExtensionMarketplace />
+        </div>
+      )}
     </div>
   );
 };
