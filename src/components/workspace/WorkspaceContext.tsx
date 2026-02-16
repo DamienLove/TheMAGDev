@@ -760,17 +760,29 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [closeFile]);
 
   const renameFile = useCallback((oldPath: string, newName: string) => {
+    const updateChildrenPaths = (children: FileNode[], parentPath: string): FileNode[] => {
+      return children.map(child => {
+        const newPath = parentPath === '/' ? `/${child.name}` : `${parentPath}/${child.name}`;
+        return {
+          ...child,
+          path: newPath,
+          children: child.children ? updateChildrenPaths(child.children, newPath) : undefined
+        };
+      });
+    };
+
     setFiles(prev => {
       const renameNode = (nodes: FileNode[]): FileNode[] => {
         return nodes.map(node => {
           if (node.path === oldPath) {
             const parentPath = oldPath.substring(0, oldPath.lastIndexOf('/'));
-            const newPath = parentPath ? `${parentPath}/${newName}` : `/${newName}`;
+            const newPath = parentPath === '' ? `/${newName}` : `${parentPath}/${newName}`;
             return {
               ...node,
               name: newName,
               path: newPath,
               language: node.type === 'file' ? getLanguageFromFilename(newName) : undefined,
+              children: node.children ? updateChildrenPaths(node.children, newPath) : undefined
             };
           }
           if (node.children) {

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import { useWorkspace, FileNode } from '../src/components/workspace/WorkspaceContext';
 
 interface BuildTask {
   name: string;
-  type: 'android' | 'build' | 'verification';
+  type: 'android' | 'build' | 'verification' | 'npm';
   isKey?: boolean;
 }
 
@@ -15,16 +15,16 @@ interface Dependency {
 }
 
 const BuildSystem: React.FC = () => {
-  const [selectedProject, setSelectedProject] = useState('TheMAGCore:app');
+  const [selectedProject, setSelectedProject] = useState('Current Project');
   const [isOfflineMode, setIsOfflineMode] = useState(false);
   const [buildStatus, setBuildStatus] = useState<'idle' | 'building' | 'success' | 'error'>('idle');
   const [buildProgress, setBuildProgress] = useState(0);
   const [buildLogs, setBuildLogs] = useState<string[]>(['Ready to build...']);
+  const [npmScripts, setNpmScripts] = useState<Record<string, string>>({});
   const logsEndRef = useRef<HTMLDivElement>(null);
 
   // Workspace context is guaranteed by App wrapper
   const workspace = useWorkspace();
-  const workspaceFiles = workspace.files;
 
   useEffect(() => {
     if (logsEndRef.current) {
@@ -32,31 +32,48 @@ const BuildSystem: React.FC = () => {
     }
   }, [buildLogs]);
 
+  useEffect(() => {
+    // Look for package.json
+    const findPackageJson = (nodes: FileNode[]): FileNode | undefined => {
+        for (const node of nodes) {
+            if (node.name === 'package.json') return node;
+            if (node.children) {
+                const found = findPackageJson(node.children);
+                if (found) return found;
+            }
+        }
+        return undefined;
+    };
+
+    const pkg = findPackageJson(workspace.files);
+    if (pkg && pkg.content) {
+        try {
+            const parsed = JSON.parse(pkg.content);
+            if (parsed.scripts) {
+                setNpmScripts(parsed.scripts);
+                setSelectedProject(parsed.name || 'Current Project');
+            }
+        } catch (e) {
+            console.error('Failed to parse package.json', e);
+        }
+    }
+  }, [workspace.files]);
+
   const tasks: Record<string, BuildTask[]> = {
-    'android': [
-      { name: 'androidDependencies', type: 'android' },
-      { name: 'signingReport', type: 'android' }
-    ],
-    'build': [
-      { name: 'assemble', type: 'build' },
+    'npm scripts': Object.keys(npmScripts).map(script => ({ name: script, type: 'npm', isKey: script === 'build' || script === 'dev' })),
+    'gradle (android)': [
       { name: 'assembleDebug', type: 'build', isKey: true },
       { name: 'bundleRelease', type: 'build' },
-      { name: 'clean', type: 'build' }
-    ],
-    'verification': [
       { name: 'lint', type: 'verification' },
       { name: 'test', type: 'verification' }
     ]
   };
 
   const dependencies: Record<string, Dependency[]> = {
-    'implementation': [
-      { group: 'androidx.core:core-ktx', version: '1.7.0' },
-      { group: 'com.google.android.material', version: '1.5.0', updateAvailable: '1.6.0', hasConflict: true },
-      { group: 'com.squareup.retrofit2:retrofit', version: '2.9.0' }
-    ],
-    'testImplementation': [
-      { group: 'junit:junit', version: '4.13.2' }
+    'npm': [
+        { group: 'react', version: '18.2.0' },
+        { group: 'typescript', version: '5.0.2', updateAvailable: '5.2.0' },
+        { group: 'vite', version: '4.4.5' }
     ]
   };
 
@@ -65,21 +82,53 @@ const BuildSystem: React.FC = () => {
 
     setBuildStatus('building');
     setBuildProgress(0);
-    setBuildLogs([`> Executing task: ${taskName}...`, 'Initializing Daemon...', 'Allocating resources...']);
+    setBuildLogs([`> Executing task: ${taskName}...`]);
 
+    // Handle NPM scripts
+    if (npmScripts[taskName]) {
+        setBuildLogs(prev => [...prev, `> ${npmScripts[taskName]}`, 'Starting process...']);
+
+        let steps = [
+            { progress: 20, msg: '> Resolving dependencies...' },
+            { progress: 40, msg: '> Transpiling modules...' },
+            { progress: 60, msg: '> Optimizing assets...' },
+            { progress: 80, msg: '> Generating bundles...' },
+            { progress: 100, msg: `Process exited with code 0` }
+        ];
+
+        if (taskName === 'dev' || taskName === 'start') {
+             steps = [
+                { progress: 50, msg: '> Server starting...' },
+                { progress: 100, msg: '> Ready on http://localhost:5173' }
+             ];
+        }
+
+        let currentStep = 0;
+        const interval = setInterval(() => {
+            if (currentStep >= steps.length) {
+                clearInterval(interval);
+                setBuildStatus('success');
+                return;
+            }
+
+            const step = steps[currentStep];
+            setBuildProgress(step.progress);
+            setBuildLogs(prev => [...prev, step.msg]);
+            currentStep++;
+        }, 800);
+        return;
+    }
+
+    // Fallback for Gradle/Mock
+    setBuildLogs(prev => [...prev, 'Initializing Daemon...', 'Allocating resources...']);
     const steps = [
-        { progress: 10, msg: '> Configure project :app' },
-        { progress: 25, msg: '> Task :app:preBuild UP-TO-DATE' },
-        { progress: 40, msg: '> Task :app:preDebugBuild UP-TO-DATE' },
-        { progress: 55, msg: '> Task :app:compileDebugAidl NO-SOURCE' },
-        { progress: 70, msg: '> Task :app:compileDebugRenderscript NO-SOURCE' },
-        { progress: 85, msg: '> Task :app:generateDebugBuildConfig' },
-        { progress: 95, msg: '> Task :app:javaPreCompileDebug' },
+        { progress: 10, msg: '> Configure project' },
+        { progress: 40, msg: '> Executing build tasks...' },
+        { progress: 80, msg: '> Packaging artifacts...' },
         { progress: 100, msg: 'BUILD SUCCESSFUL in 3s' }
     ];
 
     let currentStep = 0;
-
     const interval = setInterval(() => {
         if (currentStep >= steps.length) {
             clearInterval(interval);
@@ -102,7 +151,7 @@ const BuildSystem: React.FC = () => {
           <div className="size-8 rounded-lg bg-indigo-600/20 flex items-center justify-center text-indigo-500">
             <span className="material-symbols-rounded text-[20px]">dataset</span>
           </div>
-          <h1 className="text-white text-sm font-bold uppercase tracking-widest">Build System Explorer (Gradle)</h1>
+          <h1 className="text-white text-sm font-bold uppercase tracking-widest">Build System Explorer</h1>
         </div>
         <div className="flex items-center gap-2">
           <button className="p-2 text-zinc-500 hover:text-white transition-colors" title="Sync Project Artifacts">
@@ -126,9 +175,7 @@ const BuildSystem: React.FC = () => {
                       onChange={(e) => setSelectedProject(e.target.value)}
                       className="appearance-none w-full bg-zinc-950 border border-zinc-800 rounded-lg py-2 pl-3 pr-10 text-xs font-bold text-zinc-200 focus:outline-none focus:border-indigo-500 transition-all cursor-pointer"
                     >
-                       <option>TheMAGCore</option>
-                       <option>TheMAGCore:app</option>
-                       <option>TheMAGCore:infrastructure</option>
+                       <option>{selectedProject}</option>
                     </select>
                     <span className="absolute right-2 top-1/2 -translate-y-1/2 material-symbols-rounded text-zinc-600 pointer-events-none">arrow_drop_down</span>
                  </div>
@@ -149,11 +196,11 @@ const BuildSystem: React.FC = () => {
               </div>
               
               {Object.entries(tasks).map(([group, taskList]) => (
-                <details key={group} className="group/folder mb-1" open={group === 'build'}>
+                <details key={group} className="group/folder mb-1" open={true}>
                    <summary className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-zinc-800 cursor-pointer select-none text-xs font-bold text-zinc-400 uppercase tracking-tight transition-colors">
                       <span className="material-symbols-rounded text-sm text-zinc-600 group-open/folder:rotate-90 transition-transform">chevron_right</span>
-                      <span className={`material-symbols-rounded text-sm ${group === 'android' ? 'text-emerald-500' : group === 'build' ? 'text-amber-500' : 'text-purple-500'}`}>
-                        {group === 'android' ? 'android' : group === 'build' ? 'build' : 'fact_check'}
+                      <span className={`material-symbols-rounded text-sm ${group === 'npm scripts' ? 'text-emerald-500' : 'text-purple-500'}`}>
+                        {group === 'npm scripts' ? 'terminal' : 'fact_check'}
                       </span>
                       {group}
                    </summary>
@@ -237,7 +284,7 @@ const BuildSystem: React.FC = () => {
 
                     <div className="space-y-1 h-32 overflow-y-auto pr-2">
                         {buildLogs.map((log, i) => (
-                             <p key={i} className={`${log.includes('SUCCESSFUL') ? 'text-emerald-500 font-bold' : 'text-zinc-300'}`}>{log}</p>
+                             <p key={i} className={`${log.includes('SUCCESS') || log.includes('Ready') ? 'text-emerald-500 font-bold' : 'text-zinc-300'}`}>{log}</p>
                         ))}
                         <div ref={logsEndRef} />
                     </div>
