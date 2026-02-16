@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
+import { Terminal, useWorkspace, FileNode as WorkspaceFileNode, FileExplorer } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
 
@@ -579,50 +579,6 @@ export class MainController {
     return 'text-gray-400';
   };
 
-  // Recursive file tree renderer for workspace files
-  const renderFileTree = (files: WorkspaceFileNode[], depth: number): JSX.Element[] => {
-    return files.map((file) => {
-      const isActive = workspace.activeFile === file.path;
-      const paddingLeft = depth * 12 + 8;
-
-      if (file.type === 'folder') {
-        return (
-          <div key={file.path}>
-            <div
-              className="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-[#161825] rounded-sm"
-              style={{ paddingLeft }}
-            >
-              <span className="material-symbols-rounded text-[16px] text-yellow-400">folder</span>
-              <span className="truncate">{file.name}</span>
-            </div>
-            {file.children && renderFileTree(file.children, depth + 1)}
-          </div>
-        );
-      }
-
-      return (
-        <div
-          key={file.path}
-          onClick={() => {
-            workspace.openFile(file.path);
-            setActiveTab(file.name);
-            setActiveFileContent(workspace.getFileContent(file.path) || '');
-          }}
-          className={`flex items-center gap-2 px-2 py-1 rounded-sm cursor-pointer transition-colors ${isActive
-              ? 'text-white bg-indigo-500/20 border-l-2 border-indigo-500'
-              : 'text-[#9da1b9] hover:text-white hover:bg-[#161825]'
-            }`}
-          style={{ paddingLeft }}
-        >
-          <span className={`material-symbols-rounded text-[16px] ${getFileIconColor(file.name)}`}>
-            {getFileIcon(file.name)}
-          </span>
-          <span className="truncate">{file.name}</span>
-        </div>
-      );
-    });
-  };
-
   const codeToDisplay = workspace.activeFile
     ? (workspace.getFileContent(workspace.activeFile) || defaultCodeSnippet)
     : (openFiles.get(activeTab) || defaultCodeSnippet);
@@ -1037,7 +993,7 @@ export class MainController {
                       <span className="font-bold">{currentProject.name}</span>
                     </div>
                     {/* Render workspace files from context */}
-                    {renderFileTree(workspace.files, 0)}
+                    <FileExplorer hideHeader hideProjectName className="flex-1" />
                     {workspace.files.length === 0 && (
                       <div className="text-[11px] text-[#5f637a] px-2 py-4 text-center">
                         Empty project. Create a file to get started.
@@ -1048,7 +1004,7 @@ export class MainController {
                   // Show workspace files even without Drive project
                   <>
                     {workspace.files.length > 0 ? (
-                      renderFileTree(workspace.files, 0)
+                      <FileExplorer hideHeader hideProjectName className="flex-1" />
                     ) : (
                       <div className="text-[10px] text-[#5f637a] px-2 py-4 text-center">
                         Connect to Google Drive and open a project to edit files
