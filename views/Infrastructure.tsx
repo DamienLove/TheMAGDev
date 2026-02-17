@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import webContainerService from '../src/services/WebContainerService';
 
 interface BackendModule {
   name: string;
@@ -71,6 +72,17 @@ const Infrastructure: React.FC = () => {
       project: ''
   });
 
+  const [systemStatus, setSystemStatus] = useState<'Active' | 'Offline'>('Offline');
+
+  useEffect(() => {
+    const checkStatus = () => {
+      setSystemStatus(webContainerService.isReady() ? 'Active' : 'Offline');
+    };
+    checkStatus();
+    const interval = setInterval(checkStatus, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     localStorage.setItem('themag_infrastructure', JSON.stringify(services));
   }, [services]);
@@ -114,6 +126,39 @@ const Infrastructure: React.FC = () => {
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {/* Local Environment Status Card */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl flex flex-col group relative">
+             <div className="p-5 border-b border-zinc-800/50 flex items-center justify-between hover:bg-zinc-800/30 transition-colors">
+              <div className="flex items-center gap-4">
+                <div className="size-12 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center text-zinc-400 shadow-lg">
+                  <span className="material-symbols-rounded text-3xl">computer</span>
+                </div>
+                <div>
+                  <h3 className="text-white font-bold tracking-tight">Local Environment</h3>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <span className={`size-1.5 rounded-full ${
+                      systemStatus === 'Active' ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-600'
+                    }`}></span>
+                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">WebContainer</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex-1 p-4">
+                 <p className="text-zinc-400 text-xs">
+                     {systemStatus === 'Active'
+                        ? 'The in-browser Node.js runtime is active and ready for commands.'
+                        : 'The runtime is currently offline or initializing.'}
+                 </p>
+            </div>
+            <div className="p-4 bg-zinc-950/50 border-t border-zinc-800 flex items-center justify-between">
+               <div className="flex items-center gap-1.5">
+                  <span className="text-[9px] font-bold text-zinc-600 uppercase">Status:</span>
+                  <span className={`text-[9px] font-bold uppercase tracking-widest ${systemStatus === 'Active' ? 'text-emerald-500' : 'text-zinc-500'}`}>{systemStatus}</span>
+               </div>
+            </div>
+        </div>
+
         {services.map(service => (
           <div key={service.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl flex flex-col group relative">
              <button
