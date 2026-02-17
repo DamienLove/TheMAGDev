@@ -5,6 +5,9 @@ interface FileExplorerProps {
   className?: string;
   onPopOut?: () => void;
   onOpenWindow?: () => void;
+  hideHeader?: boolean;
+  hideProjectName?: boolean;
+  projectName?: string;
 }
 
 const getFileIcon = (name: string, type: 'file' | 'folder', isExpanded?: boolean): { icon: string; color: string } => {
@@ -237,7 +240,14 @@ const FileTreeNode = memo(({
   );
 });
 
-const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpenWindow }) => {
+const FileExplorer: React.FC<FileExplorerProps> = ({
+  className,
+  onPopOut,
+  onOpenWindow,
+  hideHeader,
+  hideProjectName,
+  projectName = 'themag-framework'
+}) => {
   const {
     files,
     activeFile,
@@ -321,57 +331,61 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
   return (
     <div className={`flex flex-col h-full ${className}`} onClick={closeContextMenu}>
       {/* Header */}
-      <div className="h-9 px-3 flex items-center justify-between border-b border-zinc-800/50 shrink-0">
-        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Explorer</span>
-        <div className="flex items-center gap-1">
-          {onPopOut && (
+      {!hideHeader && (
+        <div className="h-9 px-3 flex items-center justify-between border-b border-zinc-800/50 shrink-0">
+          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Explorer</span>
+          <div className="flex items-center gap-1">
+            {onPopOut && (
+              <button
+                onClick={onPopOut}
+                className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
+                title="Pop out"
+              >
+                <span className="material-symbols-rounded text-sm">open_in_new</span>
+              </button>
+            )}
+            {onOpenWindow && (
+              <button
+                onClick={onOpenWindow}
+                className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
+                title="Open in new window"
+              >
+                <span className="material-symbols-rounded text-sm">launch</span>
+              </button>
+            )}
             <button
-              onClick={onPopOut}
+              onClick={() => handleCreate('/', 'file')}
               className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
-              title="Pop out"
+              title="New File"
             >
-              <span className="material-symbols-rounded text-sm">open_in_new</span>
+              <span className="material-symbols-rounded text-sm">note_add</span>
             </button>
-          )}
-          {onOpenWindow && (
             <button
-              onClick={onOpenWindow}
+              onClick={() => handleCreate('/', 'folder')}
               className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
-              title="Open in new window"
+              title="New Folder"
             >
-              <span className="material-symbols-rounded text-sm">launch</span>
+              <span className="material-symbols-rounded text-sm">create_new_folder</span>
             </button>
-          )}
-          <button
-            onClick={() => handleCreate('/', 'file')}
-            className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
-            title="New File"
-          >
-            <span className="material-symbols-rounded text-sm">note_add</span>
-          </button>
-          <button
-            onClick={() => handleCreate('/', 'folder')}
-            className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
-            title="New Folder"
-          >
-            <span className="material-symbols-rounded text-sm">create_new_folder</span>
-          </button>
-          <button
-            className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
-            title="Refresh"
-          >
-            <span className="material-symbols-rounded text-sm">refresh</span>
-          </button>
+            <button
+              className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
+              title="Refresh"
+            >
+              <span className="material-symbols-rounded text-sm">refresh</span>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Project Name */}
-      <div className="px-3 py-2 border-b border-zinc-800/30">
-        <div className="flex items-center gap-1.5 text-zinc-200">
-          <span className="material-symbols-rounded text-sm text-indigo-400">deployed_code</span>
-          <span className="text-xs font-bold uppercase tracking-tight">themag-framework</span>
+      {!hideProjectName && (
+        <div className="px-3 py-2 border-b border-zinc-800/30">
+          <div className="flex items-center gap-1.5 text-zinc-200">
+            <span className="material-symbols-rounded text-sm text-indigo-400">deployed_code</span>
+            <span className="text-xs font-bold uppercase tracking-tight">{projectName}</span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* File Tree */}
       <div className="flex-1 overflow-y-auto py-2 px-1">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
+import { Terminal, useWorkspace, FileNode as WorkspaceFileNode, FileExplorer } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
 
@@ -109,6 +109,15 @@ export class MainController {
 
     return () => unsubscribe();
   }, []);
+
+  // Sync activeTab with workspace.activeFile
+  useEffect(() => {
+    if (workspace.activeFile) {
+      const fileName = workspace.activeFile.split('/').pop() || '';
+      setActiveTab(fileName);
+      setActiveFileContent(workspace.getFileContent(workspace.activeFile) || '');
+    }
+  }, [workspace.activeFile, workspace.getFileContent]);
 
   // Load user info when connected
   useEffect(() => {
@@ -579,50 +588,6 @@ export class MainController {
     return 'text-gray-400';
   };
 
-  // Recursive file tree renderer for workspace files
-  const renderFileTree = (files: WorkspaceFileNode[], depth: number): JSX.Element[] => {
-    return files.map((file) => {
-      const isActive = workspace.activeFile === file.path;
-      const paddingLeft = depth * 12 + 8;
-
-      if (file.type === 'folder') {
-        return (
-          <div key={file.path}>
-            <div
-              className="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-[#161825] rounded-sm"
-              style={{ paddingLeft }}
-            >
-              <span className="material-symbols-rounded text-[16px] text-yellow-400">folder</span>
-              <span className="truncate">{file.name}</span>
-            </div>
-            {file.children && renderFileTree(file.children, depth + 1)}
-          </div>
-        );
-      }
-
-      return (
-        <div
-          key={file.path}
-          onClick={() => {
-            workspace.openFile(file.path);
-            setActiveTab(file.name);
-            setActiveFileContent(workspace.getFileContent(file.path) || '');
-          }}
-          className={`flex items-center gap-2 px-2 py-1 rounded-sm cursor-pointer transition-colors ${isActive
-              ? 'text-white bg-indigo-500/20 border-l-2 border-indigo-500'
-              : 'text-[#9da1b9] hover:text-white hover:bg-[#161825]'
-            }`}
-          style={{ paddingLeft }}
-        >
-          <span className={`material-symbols-rounded text-[16px] ${getFileIconColor(file.name)}`}>
-            {getFileIcon(file.name)}
-          </span>
-          <span className="truncate">{file.name}</span>
-        </div>
-      );
-    });
-  };
-
   const codeToDisplay = workspace.activeFile
     ? (workspace.getFileContent(workspace.activeFile) || defaultCodeSnippet)
     : (openFiles.get(activeTab) || defaultCodeSnippet);
@@ -855,7 +820,7 @@ export class MainController {
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto p-2 font-mono text-[12px]">
+          <div className={`flex-1 font-mono text-[12px] ${showDrivePanel ? 'overflow-y-auto p-2' : 'flex flex-col'}`}>
             {showDrivePanel ? (
               // Google Drive Panel
               <div className="flex flex-col gap-2">
@@ -1022,41 +987,25 @@ export class MainController {
                   </>
                 )}
               </div>
-            ) : (
-              // Explorer Panel - Shows workspace files
-              <div className="flex flex-col gap-0.5">
-                {isLoadingProject ? (
-                  <div className="flex flex-col items-center justify-center py-8 gap-3">
-                    <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-[11px] text-[#9da1b9]">Loading project files...</span>
-                  </div>
-                ) : currentProject ? (
-                  <>
-                    <div className="flex items-center gap-2 px-2 py-1 text-white bg-white/5 rounded-sm cursor-pointer mb-1">
-                      <span className="material-symbols-rounded text-[16px] text-yellow-400">folder_open</span>
-                      <span className="font-bold">{currentProject.name}</span>
-                    </div>
-                    {/* Render workspace files from context */}
-                    {renderFileTree(workspace.files, 0)}
-                    {workspace.files.length === 0 && (
-                      <div className="text-[11px] text-[#5f637a] px-2 py-4 text-center">
-                        Empty project. Create a file to get started.
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  // Show workspace files even without Drive project
-                  <>
-                    {workspace.files.length > 0 ? (
-                      renderFileTree(workspace.files, 0)
-                    ) : (
-                      <div className="text-[10px] text-[#5f637a] px-2 py-4 text-center">
-                        Connect to Google Drive and open a project to edit files
-                      </div>
-                    )}
-                  </>
-                )}
+            ) : isLoadingProject ? (
+              <div className="flex flex-col items-center justify-center py-8 gap-3">
+                <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-[11px] text-[#9da1b9]">Loading project files...</span>
               </div>
+            ) : (
+              <>
+                <FileExplorer
+                  className="flex-1"
+                  hideHeader={true}
+                  hideProjectName={!currentProject}
+                  projectName={currentProject?.name}
+                />
+                {workspace.files.length === 0 && (
+                  <div className="text-[10px] text-[#5f637a] px-2 py-4 text-center">
+                    {currentProject ? 'Empty project. Create a file to get started.' : 'Connect to Google Drive and open a project to edit files'}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </nav>
