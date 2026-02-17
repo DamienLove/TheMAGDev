@@ -1,11 +1,37 @@
-const { WebSocketServer } = require('ws');
-const { spawn } = require('child_process');
-const path = require('path');
-const os = require('os');
+import { WebSocketServer } from 'ws';
+import { spawn } from 'child_process';
+import path from 'path';
+import os from 'os';
 
 const PORT = Number(process.env.THEMAG_AGENT_PORT || 4477);
 
-const wss = new WebSocketServer({ port: PORT });
+const ALLOWED_ORIGINS = [
+  /^https?:\/\/localhost(:\d+)?$/,
+  /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
+  /^https:\/\/themag\.dev$/,
+  /^https:\/\/stackblitz\.io$/,
+];
+
+const wss = new WebSocketServer({
+  port: PORT,
+  verifyClient: (info, cb) => {
+    const origin = info.origin;
+    if (!origin) {
+      // Block connections without Origin header (e.g. non-browser scripts)
+      // unless explicitly allowed. For security, we block them.
+      cb(false, 403, 'Forbidden');
+      return;
+    }
+
+    const isAllowed = ALLOWED_ORIGINS.some((pattern) => pattern.test(origin));
+    if (isAllowed) {
+      cb(true);
+    } else {
+      console.error(`[Security] Blocked connection from unauthorized origin: ${origin}`);
+      cb(false, 403, 'Forbidden');
+    }
+  }
+});
 
 console.log(`TheMAG.dev local agent listening on ws://localhost:${PORT}`);
 
