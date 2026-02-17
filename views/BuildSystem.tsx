@@ -1,30 +1,30 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import webContainerService from '../src/services/WebContainerService';
 
 interface BuildTask {
   name: string;
-  type: 'android' | 'build' | 'verification';
-  isKey?: boolean;
+  command: string;
 }
 
 interface Dependency {
-  group: string;
+  name: string;
   version: string;
-  updateAvailable?: string;
-  hasConflict?: boolean;
 }
 
 const BuildSystem: React.FC = () => {
-  const [selectedProject, setSelectedProject] = useState('TheMAGCore:app');
   const [isOfflineMode, setIsOfflineMode] = useState(false);
   const [buildStatus, setBuildStatus] = useState<'idle' | 'building' | 'success' | 'error'>('idle');
   const [buildProgress, setBuildProgress] = useState(0);
   const [buildLogs, setBuildLogs] = useState<string[]>(['Ready to build...']);
   const logsEndRef = useRef<HTMLDivElement>(null);
 
-  // Workspace context is guaranteed by App wrapper
+  const [npmScripts, setNpmScripts] = useState<BuildTask[]>([]);
+  const [dependencies, setDependencies] = useState<Dependency[]>([]);
+  const [devDependencies, setDevDependencies] = useState<Dependency[]>([]);
+  const [projectName, setProjectName] = useState('My Project');
+
   const workspace = useWorkspace();
-  const workspaceFiles = workspace.files;
 
   useEffect(() => {
     if (logsEndRef.current) {
@@ -32,66 +32,91 @@ const BuildSystem: React.FC = () => {
     }
   }, [buildLogs]);
 
-  const tasks: Record<string, BuildTask[]> = {
-    'android': [
-      { name: 'androidDependencies', type: 'android' },
-      { name: 'signingReport', type: 'android' }
-    ],
-    'build': [
-      { name: 'assemble', type: 'build' },
-      { name: 'assembleDebug', type: 'build', isKey: true },
-      { name: 'bundleRelease', type: 'build' },
-      { name: 'clean', type: 'build' }
-    ],
-    'verification': [
-      { name: 'lint', type: 'verification' },
-      { name: 'test', type: 'verification' }
-    ]
-  };
+  // Parse package.json
+  useEffect(() => {
+    const parsePackageJson = () => {
+      try {
+        const content = workspace.getFileContent('/package.json');
+        if (!content) return;
 
-  const dependencies: Record<string, Dependency[]> = {
-    'implementation': [
-      { group: 'androidx.core:core-ktx', version: '1.7.0' },
-      { group: 'com.google.android.material', version: '1.5.0', updateAvailable: '1.6.0', hasConflict: true },
-      { group: 'com.squareup.retrofit2:retrofit', version: '2.9.0' }
-    ],
-    'testImplementation': [
-      { group: 'junit:junit', version: '4.13.2' }
-    ]
-  };
+        const pkg = JSON.parse(content);
+        setProjectName(pkg.name || 'My Project');
 
-  const runBuild = (taskName: string) => {
+        if (pkg.scripts) {
+          const scripts = Object.entries(pkg.scripts).map(([name, command]) => ({
+            name,
+            command: command as string
+          }));
+          setNpmScripts(scripts);
+        }
+
+        if (pkg.dependencies) {
+            const deps = Object.entries(pkg.dependencies).map(([name, version]) => ({
+                name,
+                version: version as string
+            }));
+            setDependencies(deps);
+        } else {
+            setDependencies([]);
+        }
+
+        if (pkg.devDependencies) {
+            const deps = Object.entries(pkg.devDependencies).map(([name, version]) => ({
+                name,
+                version: version as string
+            }));
+            setDevDependencies(deps);
+        } else {
+            setDevDependencies([]);
+        }
+      } catch (e) {
+        console.error('Failed to parse package.json', e);
+      }
+    };
+
+    parsePackageJson();
+  }, [workspace.files, workspace.getFileContent]);
+
+  const runBuild = async (task: BuildTask) => {
     if (buildStatus === 'building') return;
 
     setBuildStatus('building');
     setBuildProgress(0);
-    setBuildLogs([`> Executing task: ${taskName}...`, 'Initializing Daemon...', 'Allocating resources...']);
+    setBuildLogs([`> Executing task: ${task.name} (${task.command})...`]);
 
-    const steps = [
-        { progress: 10, msg: '> Configure project :app' },
-        { progress: 25, msg: '> Task :app:preBuild UP-TO-DATE' },
-        { progress: 40, msg: '> Task :app:preDebugBuild UP-TO-DATE' },
-        { progress: 55, msg: '> Task :app:compileDebugAidl NO-SOURCE' },
-        { progress: 70, msg: '> Task :app:compileDebugRenderscript NO-SOURCE' },
-        { progress: 85, msg: '> Task :app:generateDebugBuildConfig' },
-        { progress: 95, msg: '> Task :app:javaPreCompileDebug' },
-        { progress: 100, msg: 'BUILD SUCCESSFUL in 3s' }
-    ];
-
-    let currentStep = 0;
-
-    const interval = setInterval(() => {
-        if (currentStep >= steps.length) {
-            clearInterval(interval);
-            setBuildStatus('success');
-            return;
+    try {
+        if (!webContainerService.isReady()) {
+             setBuildLogs(prev => [...prev, 'Booting WebContainer...']);
+             await webContainerService.boot();
+             setBuildLogs(prev => [...prev, 'WebContainer ready.']);
         }
 
-        const step = steps[currentStep];
-        setBuildProgress(step.progress);
-        setBuildLogs(prev => [...prev, step.msg]);
-        currentStep++;
-    }, 800);
+        // Split command for simple cases
+        const parts = task.command.split(' ');
+        const cmd = 'npm';
+        const args = ['run', task.name]; // Use npm run to execute the script
+
+        setBuildLogs(prev => [...prev, `$ ${cmd} ${args.join(' ')}`]);
+
+        await webContainerService.runCommand(`npm run ${task.name}`, {
+            onOutput: (data) => {
+                 setBuildLogs(prev => [...prev, data.trim()]);
+            }
+        });
+
+        setBuildStatus('success');
+        setBuildProgress(100);
+        setBuildLogs(prev => [...prev, 'Command completed successfully.']);
+
+    } catch (e: any) {
+        setBuildStatus('error');
+        setBuildLogs(prev => [...prev, `Error: ${e.message}`]);
+        // Fallback simulation for non-WebContainer environments (e.g. if blocked)
+        if (e.message.includes('not supported') || e.message.includes('Failed to fetch')) {
+             setBuildLogs(prev => [...prev, 'WebContainers not available, falling back to simulation...', '...', 'Build finished (Simulated).']);
+             setBuildStatus('success');
+        }
+    }
   };
 
   return (
@@ -102,7 +127,7 @@ const BuildSystem: React.FC = () => {
           <div className="size-8 rounded-lg bg-indigo-600/20 flex items-center justify-center text-indigo-500">
             <span className="material-symbols-rounded text-[20px]">dataset</span>
           </div>
-          <h1 className="text-white text-sm font-bold uppercase tracking-widest">Build System Explorer (Gradle)</h1>
+          <h1 className="text-white text-sm font-bold uppercase tracking-widest">Build System Explorer</h1>
         </div>
         <div className="flex items-center gap-2">
           <button className="p-2 text-zinc-500 hover:text-white transition-colors" title="Sync Project Artifacts">
@@ -122,57 +147,44 @@ const BuildSystem: React.FC = () => {
                  <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 ml-1">Active Project</label>
                  <div className="relative">
                     <select 
-                      value={selectedProject}
-                      onChange={(e) => setSelectedProject(e.target.value)}
-                      className="appearance-none w-full bg-zinc-950 border border-zinc-800 rounded-lg py-2 pl-3 pr-10 text-xs font-bold text-zinc-200 focus:outline-none focus:border-indigo-500 transition-all cursor-pointer"
+                      disabled
+                      className="appearance-none w-full bg-zinc-950 border border-zinc-800 rounded-lg py-2 pl-3 pr-10 text-xs font-bold text-zinc-200 focus:outline-none focus:border-indigo-500 transition-all cursor-not-allowed opacity-80"
                     >
-                       <option>TheMAGCore</option>
-                       <option>TheMAGCore:app</option>
-                       <option>TheMAGCore:infrastructure</option>
+                       <option>{projectName}</option>
                     </select>
                     <span className="absolute right-2 top-1/2 -translate-y-1/2 material-symbols-rounded text-zinc-600 pointer-events-none">arrow_drop_down</span>
                  </div>
-              </div>
-              <div className="relative">
-                 <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-rounded text-zinc-600 text-sm">search</span>
-                 <input 
-                  type="text" 
-                  placeholder="Filter build tasks..."
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg py-2 pl-9 pr-3 text-xs text-white focus:outline-none focus:border-indigo-500"
-                 />
               </div>
            </div>
 
            <div className="flex-1 overflow-y-auto p-2">
               <div className="px-2 py-2 flex items-center justify-between mb-2">
-                 <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em]">Build Invocations</span>
+                 <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em]">NPM Scripts</span>
               </div>
               
-              {Object.entries(tasks).map(([group, taskList]) => (
-                <details key={group} className="group/folder mb-1" open={group === 'build'}>
-                   <summary className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-zinc-800 cursor-pointer select-none text-xs font-bold text-zinc-400 uppercase tracking-tight transition-colors">
-                      <span className="material-symbols-rounded text-sm text-zinc-600 group-open/folder:rotate-90 transition-transform">chevron_right</span>
-                      <span className={`material-symbols-rounded text-sm ${group === 'android' ? 'text-emerald-500' : group === 'build' ? 'text-amber-500' : 'text-purple-500'}`}>
-                        {group === 'android' ? 'android' : group === 'build' ? 'build' : 'fact_check'}
-                      </span>
-                      {group}
-                   </summary>
-                   <div className="pl-4 ml-3 border-l border-zinc-800 mt-1 space-y-0.5">
-                      {taskList.map(task => (
+              {npmScripts.length > 0 ? (
+                  <div className="space-y-0.5">
+                      {npmScripts.map(task => (
                         <div
                             key={task.name}
-                            className={`flex items-center justify-between px-2 py-1.5 rounded hover:bg-zinc-800 group/item transition-all cursor-pointer ${task.isKey ? 'bg-indigo-500/5 border-l border-indigo-500' : ''}`}
-                            onClick={() => runBuild(task.name)}
+                            className={`flex items-center justify-between px-2 py-1.5 rounded hover:bg-zinc-800 group/item transition-all cursor-pointer`}
+                            onClick={() => runBuild(task)}
                         >
-                           <span className={`text-xs ${task.isKey ? 'text-white font-bold' : 'text-zinc-500'}`}>{task.name}</span>
+                           <div className="flex flex-col">
+                               <span className="text-xs text-white font-bold">{task.name}</span>
+                               <span className="text-[10px] text-zinc-500 truncate w-40">{task.command}</span>
+                           </div>
                            <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
                               <button className="text-emerald-500 hover:text-emerald-400 p-1"><span className="material-symbols-rounded text-sm">play_arrow</span></button>
                            </div>
                         </div>
                       ))}
-                   </div>
-                </details>
-              ))}
+                  </div>
+              ) : (
+                  <div className="px-4 py-8 text-center text-zinc-500 text-xs">
+                      No scripts found in package.json
+                  </div>
+              )}
            </div>
         </aside>
 
@@ -183,44 +195,63 @@ const BuildSystem: React.FC = () => {
                  <div className="flex items-center justify-between mb-6">
                     <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-3">
                        <span className="material-symbols-rounded text-indigo-500">inventory_2</span>
-                       Dependency Resolution
+                       Dependencies
                     </h2>
-                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800">Lockfile: enabled</span>
+                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800">
+                        Total: {dependencies.length + devDependencies.length}
+                    </span>
                  </div>
 
                  <div className="grid grid-cols-1 gap-4">
-                    {Object.entries(dependencies).map(([scope, deps]) => (
-                      <div key={scope} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl">
-                         <div className="px-5 py-3 bg-zinc-950/50 border-b border-zinc-800 flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.2em]">{scope}</span>
-                            <span className="text-[10px] font-bold text-zinc-600">{deps.length} Artifacts</span>
-                         </div>
-                         <div className="divide-y divide-zinc-800/50">
-                            {deps.map((dep, i) => (
-                              <div key={i} className={`p-4 flex items-start gap-4 hover:bg-zinc-800/30 transition-colors ${dep.hasConflict ? 'bg-amber-500/5' : ''}`}>
-                                 <div className={`size-10 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center shrink-0 ${dep.hasConflict ? 'text-amber-500' : 'text-zinc-500'}`}>
-                                    <span className="material-symbols-rounded text-xl">package_2</span>
-                                 </div>
-                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1">
-                                       <span className="text-sm font-bold text-zinc-200 truncate">{dep.group}</span>
-                                       {dep.hasConflict && <span className="material-symbols-rounded text-amber-500 text-sm">warning</span>}
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                       <span className="text-[10px] font-mono text-indigo-400 uppercase font-bold">v{dep.version}</span>
-                                       {dep.updateAvailable && (
-                                         <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded text-[9px] font-bold text-amber-500 uppercase tracking-widest animate-pulse">
-                                            Update Available: {dep.updateAvailable}
-                                         </div>
-                                       )}
-                                    </div>
-                                 </div>
-                                 <button className="text-[10px] font-bold text-zinc-500 hover:text-white uppercase tracking-tighter">Exclude</button>
-                              </div>
-                            ))}
-                         </div>
-                      </div>
-                    ))}
+                      {dependencies.length > 0 && (
+                          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl">
+                             <div className="px-5 py-3 bg-zinc-950/50 border-b border-zinc-800 flex items-center justify-between">
+                                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.2em]">Production</span>
+                             </div>
+                             <div className="divide-y divide-zinc-800/50">
+                                {dependencies.map((dep, i) => (
+                                  <div key={i} className="p-4 flex items-start gap-4 hover:bg-zinc-800/30 transition-colors">
+                                     <div className="size-10 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center shrink-0 text-zinc-500">
+                                        <span className="material-symbols-rounded text-xl">package_2</span>
+                                     </div>
+                                     <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                           <span className="text-sm font-bold text-zinc-200 truncate">{dep.name}</span>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                           <span className="text-[10px] font-mono text-indigo-400 uppercase font-bold">v{dep.version}</span>
+                                        </div>
+                                     </div>
+                                  </div>
+                                ))}
+                             </div>
+                          </div>
+                      )}
+
+                      {devDependencies.length > 0 && (
+                          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl">
+                             <div className="px-5 py-3 bg-zinc-950/50 border-b border-zinc-800 flex items-center justify-between">
+                                <span className="text-[10px] font-bold text-purple-400 uppercase tracking-[0.2em]">Dev Dependencies</span>
+                             </div>
+                             <div className="divide-y divide-zinc-800/50">
+                                {devDependencies.map((dep, i) => (
+                                  <div key={i} className="p-4 flex items-start gap-4 hover:bg-zinc-800/30 transition-colors">
+                                     <div className="size-10 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center shrink-0 text-zinc-500">
+                                        <span className="material-symbols-rounded text-xl">code</span>
+                                     </div>
+                                     <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                           <span className="text-sm font-bold text-zinc-200 truncate">{dep.name}</span>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                           <span className="text-[10px] font-mono text-purple-400 uppercase font-bold">v{dep.version}</span>
+                                        </div>
+                                     </div>
+                                  </div>
+                                ))}
+                             </div>
+                          </div>
+                      )}
                  </div>
               </section>
 
@@ -228,7 +259,6 @@ const BuildSystem: React.FC = () => {
               <section>
                  <div className="flex items-center justify-between mb-4">
                     <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Live Build Pipeline</h2>
-                    <button className="text-[10px] font-bold text-indigo-400 hover:underline uppercase">View Full Console</button>
                  </div>
                  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 font-mono text-[11px] leading-relaxed shadow-inner overflow-hidden relative group min-h-[160px]">
                     <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -237,7 +267,7 @@ const BuildSystem: React.FC = () => {
 
                     <div className="space-y-1 h-32 overflow-y-auto pr-2">
                         {buildLogs.map((log, i) => (
-                             <p key={i} className={`${log.includes('SUCCESSFUL') ? 'text-emerald-500 font-bold' : 'text-zinc-300'}`}>{log}</p>
+                             <p key={i} className={`${log.includes('SUCCESS') ? 'text-emerald-500 font-bold' : log.includes('Error') ? 'text-red-500' : 'text-zinc-300'}`}>{log}</p>
                         ))}
                         <div ref={logsEndRef} />
                     </div>
@@ -272,8 +302,7 @@ const BuildSystem: React.FC = () => {
             </div>
          </div>
          <div className="flex items-center gap-4 text-[9px] font-bold text-zinc-600 uppercase">
-            <span>Daemon: 8.4.1</span>
-            <span>JVM: 17.0.8</span>
+            <span>WebContainer</span>
          </div>
       </footer>
     </div>
