@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
+import ExtensionMarketplace from './ExtensionMarketplace';
 
 interface FileNode {
   id: string;
@@ -45,6 +46,7 @@ const DesktopWorkspace: React.FC = () => {
   const [showDrivePanel, setShowDrivePanel] = useState(false);
   const [isCreatingProject, setIsCreatingProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
+  const [showExtensions, setShowExtensions] = useState(false);
   const [terminalOutput, setTerminalOutput] = useState<string[]>([
     'Successfully connected to build worker: node-linux-01',
   ]);
@@ -490,6 +492,25 @@ export class MainController {
     }, 1500);
   };
 
+  const handleBuild = () => {
+    addTerminalLine('[BUILD] Starting build process...');
+    setTimeout(() => {
+      addTerminalLine('[BUILD] Compiling TypeScript...');
+    }, 500);
+    setTimeout(() => {
+      addTerminalLine('[BUILD] Bundling assets...');
+    }, 1500);
+    setTimeout(() => {
+      addTerminalLine('[BUILD] Build completed successfully!', 'success');
+    }, 2500);
+  };
+
+  const handleDebug = () => {
+    addTerminalLine('[DEBUG] Starting debugger...');
+    addTerminalLine('[DEBUG] Attached to process 1337');
+    addTerminalLine('[DEBUG] Listening on port 9229');
+  };
+
   const runCustomLLMPrompt = async () => {
     if (!llmPrompt.trim()) return;
     setLlmLoading(true);
@@ -580,7 +601,7 @@ export class MainController {
   };
 
   // Recursive file tree renderer for workspace files
-  const renderFileTree = (files: WorkspaceFileNode[], depth: number): JSX.Element[] => {
+  const renderFileTree = (files: WorkspaceFileNode[], depth: number): React.ReactNode[] => {
     return files.map((file) => {
       const isActive = workspace.activeFile === file.path;
       const paddingLeft = depth * 12 + 8;
@@ -640,8 +661,8 @@ export class MainController {
           </div>
           <nav className="hidden md:flex items-center gap-4 text-[#9da1b9]">
             <button className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
+            <button onClick={handleBuild} className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
+            <button onClick={handleDebug} className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
             <button
               onClick={() => setShowDrivePanel(!showDrivePanel)}
               className={`text-[12px] font-medium transition-colors flex items-center gap-1 ${showDrivePanel ? 'text-indigo-400' : 'hover:text-white'}`}
@@ -830,7 +851,11 @@ export class MainController {
             >
               <span className="material-symbols-rounded text-[24px]">view_column_2</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              onClick={() => setShowExtensions(true)}
+              className={`p-2 transition-colors ${showExtensions ? 'text-indigo-400' : 'text-[#5f637a] hover:text-white'}`}
+              title="Extensions"
+            >
               <span className="material-symbols-rounded text-[24px]">extension</span>
             </button>
             <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
@@ -1409,7 +1434,7 @@ export class MainController {
               </div>
               <div className="flex-1 min-h-0 overflow-hidden">
                 {activeTerminalTab === 'Terminal' ? (
-                  <Terminal key={terminalKey.current} className="h-full" initialMode="mock" />
+                  <Terminal key={terminalKey.current} className="h-full" />
                 ) : activeTerminalTab === 'Git Status' ? (
                   <div className="h-full overflow-y-auto p-4 font-mono text-[12px] text-[#d4d4d4]">
                     <div className="mb-2 text-green-400">On branch: {currentBranch}</div>
@@ -1471,6 +1496,21 @@ export class MainController {
       </div>
 
       {/* Footer */}
+      {/* Extensions Modal */}
+      {showExtensions && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-8">
+          <div className="bg-zinc-950 w-full h-full max-w-6xl rounded-2xl border border-zinc-800 shadow-2xl overflow-hidden flex flex-col relative">
+            <button
+              onClick={() => setShowExtensions(false)}
+              className="absolute top-4 right-4 z-10 p-2 bg-zinc-900 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+            >
+              <span className="material-symbols-rounded">close</span>
+            </button>
+            <ExtensionMarketplace />
+          </div>
+        </div>
+      )}
+
       <footer className="flex-none h-6 bg-indigo-600 text-white flex items-center px-3 justify-between text-[10px] font-mono">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
