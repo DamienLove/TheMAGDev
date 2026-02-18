@@ -3,9 +3,40 @@ const { spawn } = require('child_process');
 const os = require('os');
 
 const PORT = 4477;
-const wss = new WebSocketServer({ port: PORT });
+
+const ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://themag.dev',
+    'https://stackblitz.io'
+];
+
+const wss = new WebSocketServer({
+    port: PORT,
+    verifyClient: (info, cb) => {
+        const origin = info.origin || info.req.headers.origin;
+        console.log(`Verifying connection from origin: ${origin}`);
+
+        if (!origin) {
+            // Reject requests without Origin header (e.g. non-browser clients trying to be sneaky,
+            // or browsers in some very specific contexts, but better safe than sorry for a local agent)
+            // Note: Some non-browser tools might not send Origin, but this agent is for the web app.
+            console.log('Connection rejected: No origin header');
+            cb(false, 403, 'Forbidden: No origin header');
+            return;
+        }
+
+        if (ALLOWED_ORIGINS.includes(origin)) {
+            cb(true);
+        } else {
+            console.log(`Connection rejected: Origin ${origin} not allowed`);
+            cb(false, 403, 'Forbidden: Origin not allowed');
+        }
+    }
+});
 
 console.log(`Local Agent running on ws://localhost:${PORT}`);
+console.log('Allowed origins:', ALLOWED_ORIGINS);
 console.log('Waiting for connection...');
 
 wss.on('connection', (ws) => {
