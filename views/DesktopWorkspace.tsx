@@ -2,6 +2,10 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
+import webContainerService from '../src/services/WebContainerService';
+import { View } from '../types';
+import Settings from './Settings';
+import ExtensionMarketplace from './ExtensionMarketplace';
 
 interface FileNode {
   id: string;
@@ -21,7 +25,11 @@ interface PanelConfig {
   isVisible: boolean;
 }
 
-const DesktopWorkspace: React.FC = () => {
+interface DesktopWorkspaceProps {
+  onNavigate?: (view: View) => void;
+}
+
+const DesktopWorkspace: React.FC<DesktopWorkspaceProps> = ({ onNavigate }) => {
   // Get workspace context for IDE-wide file management
   const workspace = useWorkspace();
 
@@ -48,6 +56,9 @@ const DesktopWorkspace: React.FC = () => {
   const [terminalOutput, setTerminalOutput] = useState<string[]>([
     'Successfully connected to build worker: node-linux-01',
   ]);
+
+  const [showSettings, setShowSettings] = useState(false);
+  const [showExtensions, setShowExtensions] = useState(false);
 
   // Terminal visibility state for re-opening
   const [showTerminal, setShowTerminal] = useState(true);
@@ -99,6 +110,93 @@ export class MainController {
     this.targetPlatform = Platform.current();
   }
 }`;
+
+  const handleRun = async () => {
+    // 1. Try WebContainer for dynamic projects
+    if (webContainerService.isReady()) {
+      addTerminalLine('Starting dev server in WebContainer...');
+      const container = webContainerService.getContainer();
+      if (container) {
+        container.on('server-ready', (port, url) => {
+          window.open(url, '_blank');
+          addTerminalLine(`Server ready at ${url}`, 'success');
+        });
+      }
+
+      try {
+        await webContainerService.runCommand('npm install && npm run dev');
+      } catch (e: any) {
+        addTerminalLine(`WebContainer error: ${e.message}`, 'error');
+      }
+      return;
+    }
+
+    // 2. Fallback for Static projects (Blob URL with injection)
+    const indexHtml = workspace.getFileByPath('/public/index.html') || workspace.getFileByPath('/index.html');
+    if (!indexHtml || !indexHtml.content) {
+      addTerminalLine('No index.html found to run', 'error');
+      return;
+    }
+
+    let content = indexHtml.content;
+    const basePath = indexHtml.path.substring(0, indexHtml.path.lastIndexOf('/'));
+
+    // Inject CSS
+    const linkRegex = /<link\s+rel=["']stylesheet["']\s+href=["']([^"']+)["']\s*\/?>/g;
+    let match;
+    const replacements: {match: string, content: string}[] = [];
+
+    while ((match = linkRegex.exec(content)) !== null) {
+        const href = match[1];
+        let targetPath = href.startsWith('/') ? href : `${basePath}/${href}`.replace(/\/+/g, '/');
+        const cssFile = workspace.getFileByPath(targetPath) || workspace.getFileByPath(`/${href}`);
+
+        if (cssFile && cssFile.content) {
+            replacements.push({
+                match: match[0],
+                content: `<style>${cssFile.content}</style>`
+            });
+        }
+    }
+
+    for (const rep of replacements) {
+        content = content.replace(rep.match, rep.content);
+    }
+
+    // Inject JS
+    const scriptRegex = /<script\s+src=["']([^"']+)["']><\/script>/g;
+    const scriptReplacements: {match: string, content: string}[] = [];
+
+    while ((match = scriptRegex.exec(content)) !== null) {
+        const src = match[1];
+        let targetPath = src.startsWith('/') ? src : `${basePath}/${src}`.replace(/\/+/g, '/');
+        const jsFile = workspace.getFileByPath(targetPath) || workspace.getFileByPath(`/${src}`);
+
+        if (jsFile && jsFile.content) {
+             scriptReplacements.push({
+                match: match[0],
+                content: `<script>${jsFile.content}</script>`
+            });
+        }
+    }
+
+    for (const rep of scriptReplacements) {
+        content = content.replace(rep.match, rep.content);
+    }
+
+    const blob = new Blob([content], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    addTerminalLine('Project preview opened (Static mode)', 'success');
+  };
+
+  const handleDebug = () => {
+    // Open AI panel for debugging assistance
+    if (!panels.find(p => p.id === 'ai')?.isVisible) {
+      togglePanel('ai');
+    }
+    setLlmPrompt('Debug my code and find issues');
+  };
 
   // Initialize Google Drive connection
   useEffect(() => {
@@ -639,9 +737,31 @@ export class MainController {
             <h1 className="text-sm font-bold tracking-tight">DevStudio <span className="text-indigo-500">Master</span></h1>
           </div>
           <nav className="hidden md:flex items-center gap-4 text-[#9da1b9]">
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
+            <button
+              onClick={() => onNavigate?.(View.Projects)}
+              className="hover:text-white text-[12px] font-medium transition-colors"
+            >
+              Project
+            </button>
+            <button
+              onClick={() => onNavigate?.(View.Build)}
+              className="hover:text-white text-[12px] font-medium transition-colors"
+            >
+              Build
+            </button>
+            <button
+              onClick={handleDebug}
+              className="hover:text-white text-[12px] font-medium transition-colors"
+            >
+              Debug
+            </button>
+            <button
+              onClick={handleRun}
+              className="hover:text-white text-[12px] font-medium transition-colors flex items-center gap-1"
+            >
+              <span className="material-symbols-rounded text-[14px] text-green-400">play_arrow</span>
+              Run
+            </button>
             <button
               onClick={() => setShowDrivePanel(!showDrivePanel)}
               className={`text-[12px] font-medium transition-colors flex items-center gap-1 ${showDrivePanel ? 'text-indigo-400' : 'hover:text-white'}`}
@@ -830,10 +950,16 @@ export class MainController {
             >
               <span className="material-symbols-rounded text-[24px]">view_column_2</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              onClick={() => setShowExtensions(!showExtensions)}
+              className={`p-2 transition-colors ${showExtensions ? 'text-white' : 'text-[#5f637a] hover:text-white'}`}
+            >
               <span className="material-symbols-rounded text-[24px]">extension</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className={`p-2 transition-colors ${showSettings ? 'text-white' : 'text-[#5f637a] hover:text-white'}`}
+            >
               <span className="material-symbols-rounded text-[24px]">settings</span>
             </button>
           </div>
@@ -1502,6 +1628,42 @@ export class MainController {
           </div>
         </div>
       </footer>
+
+      {/* Settings Overlay */}
+      {showSettings && (
+        <div className="absolute inset-4 z-50 bg-[#090a11] rounded-lg shadow-2xl border border-[#282b39] flex flex-col overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 bg-[#0d0e15] border-b border-[#282b39]">
+            <span className="font-bold text-white">Settings</span>
+            <button
+              onClick={() => setShowSettings(false)}
+              className="text-[#9da1b9] hover:text-white"
+            >
+              <span className="material-symbols-rounded">close</span>
+            </button>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <Settings />
+          </div>
+        </div>
+      )}
+
+      {/* Extensions Overlay */}
+      {showExtensions && (
+        <div className="absolute inset-4 z-50 bg-[#090a11] rounded-lg shadow-2xl border border-[#282b39] flex flex-col overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 bg-[#0d0e15] border-b border-[#282b39]">
+            <span className="font-bold text-white">Extensions</span>
+            <button
+              onClick={() => setShowExtensions(false)}
+              className="text-[#9da1b9] hover:text-white"
+            >
+              <span className="material-symbols-rounded">close</span>
+            </button>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <ExtensionMarketplace />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
