@@ -271,3 +271,15 @@ Status:
 - Implemented Set-based filtering in SDKService.loadFromStorage for both SDKs and Plugins.
 - Benchmarked ~130x improvement.
 - Verified build and logic.
+
+Performance Optimization (Lazy Loading)
+Last updated: 2026-02-19 12:00:00
+
+Current objectives:
+- Reduce initial bundle size by lazy loading heavy views.
+
+Status:
+- Implemented route-based lazy loading in App.tsx for all top-level views.
+- Updated WorkspaceProvider import to avoid barrel file.
+- Reduced main bundle size by ~50% (1.47MB -> 750kB).
+- Verified with build and frontend smoke test.
