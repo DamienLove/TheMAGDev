@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useWorkspace, FileNode } from '../src/components/workspace/WorkspaceContext';
+import webContainerService from '../src/services/WebContainerService';
 
 interface BuildTask {
   name: string;
-  type: 'android' | 'build' | 'verification';
+  type: 'android' | 'build' | 'verification' | 'npm';
   isKey?: boolean;
+  script?: string;
 }
 
 interface Dependency {
@@ -15,11 +17,12 @@ interface Dependency {
 }
 
 const BuildSystem: React.FC = () => {
-  const [selectedProject, setSelectedProject] = useState('TheMAGCore:app');
+  const [selectedProject, setSelectedProject] = useState('Project Root');
   const [isOfflineMode, setIsOfflineMode] = useState(false);
   const [buildStatus, setBuildStatus] = useState<'idle' | 'building' | 'success' | 'error'>('idle');
   const [buildProgress, setBuildProgress] = useState(0);
   const [buildLogs, setBuildLogs] = useState<string[]>(['Ready to build...']);
+  const [npmTasks, setNpmTasks] = useState<BuildTask[]>([]);
   const logsEndRef = useRef<HTMLDivElement>(null);
 
   // Workspace context is guaranteed by App wrapper
@@ -32,17 +35,58 @@ const BuildSystem: React.FC = () => {
     }
   }, [buildLogs]);
 
+  // Hook into WebContainer output
+  useEffect(() => {
+    const handleOutput = (data: string) => {
+      // Split by newlines to avoid massive single strings
+      const lines = data.split('\n');
+      setBuildLogs(prev => [...prev.slice(-1000), ...lines]); // Keep last 1000 lines
+    };
+    webContainerService.setOutputCallback(handleOutput);
+
+    // Attempt to load package.json scripts
+    loadNpmScripts();
+
+    return () => {
+      // Clean up if needed, but output callback is global so maybe leave it or set to no-op
+      webContainerService.setOutputCallback(() => {});
+    };
+  }, [workspaceFiles]);
+
+  const loadNpmScripts = () => {
+    const findPackageJson = (nodes: FileNode[]): FileNode | null => {
+      for (const node of nodes) {
+        if (node.name === 'package.json' && node.type === 'file') return node;
+        if (node.children) {
+          const found = findPackageJson(node.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    const pkgNode = findPackageJson(workspaceFiles);
+    if (pkgNode && pkgNode.content) {
+      try {
+        const pkg = JSON.parse(pkgNode.content);
+        if (pkg.scripts) {
+          const tasks: BuildTask[] = Object.entries(pkg.scripts).map(([name, script]) => ({
+            name,
+            type: 'npm',
+            script: script as string,
+            isKey: name === 'build' || name === 'start' || name === 'dev'
+          }));
+          setNpmTasks(tasks);
+          setSelectedProject(pkg.name || 'Project Root');
+        }
+      } catch (e) {
+        console.error('Failed to parse package.json', e);
+      }
+    }
+  };
+
   const tasks: Record<string, BuildTask[]> = {
-    'android': [
-      { name: 'androidDependencies', type: 'android' },
-      { name: 'signingReport', type: 'android' }
-    ],
-    'build': [
-      { name: 'assemble', type: 'build' },
-      { name: 'assembleDebug', type: 'build', isKey: true },
-      { name: 'bundleRelease', type: 'build' },
-      { name: 'clean', type: 'build' }
-    ],
+    'npm scripts': npmTasks,
     'verification': [
       { name: 'lint', type: 'verification' },
       { name: 'test', type: 'verification' }
@@ -51,47 +95,67 @@ const BuildSystem: React.FC = () => {
 
   const dependencies: Record<string, Dependency[]> = {
     'implementation': [
-      { group: 'androidx.core:core-ktx', version: '1.7.0' },
-      { group: 'com.google.android.material', version: '1.5.0', updateAvailable: '1.6.0', hasConflict: true },
-      { group: 'com.squareup.retrofit2:retrofit', version: '2.9.0' }
+      { group: 'react', version: '^18.2.0' },
+      { group: 'react-dom', version: '^18.2.0', updateAvailable: '18.3.0' },
+      { group: 'vite', version: '^4.4.0', hasConflict: false }
     ],
-    'testImplementation': [
-      { group: 'junit:junit', version: '4.13.2' }
+    'devDependencies': [
+      { group: 'typescript', version: '^5.0.2' },
+      { group: 'eslint', version: '^8.45.0' }
     ]
   };
 
-  const runBuild = (taskName: string) => {
+  const runBuild = async (task: BuildTask) => {
     if (buildStatus === 'building') return;
 
     setBuildStatus('building');
-    setBuildProgress(0);
-    setBuildLogs([`> Executing task: ${taskName}...`, 'Initializing Daemon...', 'Allocating resources...']);
+    setBuildProgress(0); // Indeterminate or just start
+    setBuildLogs([`> Executing task: ${task.name}...`]);
 
-    const steps = [
-        { progress: 10, msg: '> Configure project :app' },
-        { progress: 25, msg: '> Task :app:preBuild UP-TO-DATE' },
-        { progress: 40, msg: '> Task :app:preDebugBuild UP-TO-DATE' },
-        { progress: 55, msg: '> Task :app:compileDebugAidl NO-SOURCE' },
-        { progress: 70, msg: '> Task :app:compileDebugRenderscript NO-SOURCE' },
-        { progress: 85, msg: '> Task :app:generateDebugBuildConfig' },
-        { progress: 95, msg: '> Task :app:javaPreCompileDebug' },
-        { progress: 100, msg: 'BUILD SUCCESSFUL in 3s' }
-    ];
-
-    let currentStep = 0;
-
-    const interval = setInterval(() => {
-        if (currentStep >= steps.length) {
-            clearInterval(interval);
-            setBuildStatus('success');
-            return;
+    if (task.type === 'npm') {
+      try {
+        if (!webContainerService.isReady()) {
+           setBuildLogs(prev => [...prev, 'WebContainer booting...']);
+           await webContainerService.boot();
         }
 
-        const step = steps[currentStep];
-        setBuildProgress(step.progress);
-        setBuildLogs(prev => [...prev, step.msg]);
-        currentStep++;
-    }, 800);
+        setBuildLogs(prev => [...prev, `> npm run ${task.name}`]);
+        // Simulate progress for UI feedback since we can't easily track real percentage
+        const progressInterval = setInterval(() => {
+           setBuildProgress(prev => (prev < 90 ? prev + 5 : prev));
+        }, 500);
+
+        await webContainerService.runCommand(`npm run ${task.name}`);
+
+        clearInterval(progressInterval);
+        setBuildProgress(100);
+        setBuildStatus('success');
+        setBuildLogs(prev => [...prev, 'Task completed.']);
+      } catch (error: any) {
+        setBuildStatus('error');
+        setBuildLogs(prev => [...prev, `Error: ${error.message}`]);
+      }
+    } else {
+        // Fallback mock behavior for non-npm tasks
+        const steps = [
+            { progress: 10, msg: `> Configure task ${task.name}` },
+            { progress: 50, msg: '> Running checks...' },
+            { progress: 100, msg: 'TASK COMPLETED' }
+        ];
+
+        let currentStep = 0;
+        const interval = setInterval(() => {
+            if (currentStep >= steps.length) {
+                clearInterval(interval);
+                setBuildStatus('success');
+                return;
+            }
+            const step = steps[currentStep];
+            setBuildProgress(step.progress);
+            setBuildLogs(prev => [...prev, step.msg]);
+            currentStep++;
+        }, 800);
+    }
   };
 
   return (
@@ -162,7 +226,7 @@ const BuildSystem: React.FC = () => {
                         <div
                             key={task.name}
                             className={`flex items-center justify-between px-2 py-1.5 rounded hover:bg-zinc-800 group/item transition-all cursor-pointer ${task.isKey ? 'bg-indigo-500/5 border-l border-indigo-500' : ''}`}
-                            onClick={() => runBuild(task.name)}
+                            onClick={() => runBuild(task)}
                         >
                            <span className={`text-xs ${task.isKey ? 'text-white font-bold' : 'text-zinc-500'}`}>{task.name}</span>
                            <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
