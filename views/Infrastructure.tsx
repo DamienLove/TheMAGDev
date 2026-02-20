@@ -98,6 +98,27 @@ const Infrastructure: React.FC = () => {
       setServices(services.filter(s => s.id !== id));
   };
 
+  const handleConnect = (serviceId: string) => {
+    setServices(prev => prev.map(s => {
+        if (s.id === serviceId) {
+            // Mock connection: toggle warning/active and add modules if empty
+            const isDisconnected = s.modules.length === 0;
+            if (isDisconnected) {
+                return {
+                    ...s,
+                    status: 'Active',
+                    modules: [
+                        { name: 'Database', status: 'Online', icon: 'database' },
+                        { name: 'Functions', status: 'Online', icon: 'functions' },
+                        { name: 'Storage', status: 'Syncing', icon: 'folder' }
+                    ]
+                };
+            }
+        }
+        return s;
+    }));
+  };
+
   return (
     <div className="flex-1 bg-zinc-950 overflow-y-auto p-8 font-sans relative">
       <header className="mb-8 flex justify-between items-end">
@@ -163,7 +184,12 @@ const Infrastructure: React.FC = () => {
               ) : (
                 <div className="p-8 text-center space-y-4">
                   <p className="text-zinc-500 text-xs italic">No active modules connected to this instance.</p>
-                  <button className="w-full py-2.5 rounded-xl border border-zinc-800 text-zinc-400 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-800 hover:text-white transition-all">Connect Provider API</button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleConnect(service.id); }}
+                    className="w-full py-2.5 rounded-xl border border-zinc-800 text-zinc-400 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-800 hover:text-white transition-all"
+                  >
+                    Connect Provider API
+                  </button>
                 </div>
               )}
             </div>
