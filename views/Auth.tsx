@@ -124,6 +124,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onClose, intent = 'general' }) => 
             onClick={onClose}
             className="absolute top-3 right-3 text-zinc-500 hover:text-white transition-colors"
             aria-label="Close"
+            title="Close"
           >
             <span className="material-symbols-rounded">close</span>
           </button>
@@ -186,12 +187,13 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onClose, intent = 'general' }) => 
           )}
           <div className="space-y-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-zinc-500 uppercase ml-1">Work Email</label>
+              <label htmlFor="email" className="text-xs font-bold text-zinc-500 uppercase ml-1">Work Email</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
                   <span className="material-symbols-rounded text-[18px]">mail</span>
                 </div>
                 <input 
+                  id="email"
                   type="email" 
                   required
                   value={email}
@@ -205,7 +207,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onClose, intent = 'general' }) => 
             {mode !== 'RESET' && (
               <div className="space-y-1">
                 <div className="flex justify-between items-center px-1">
-                  <label className="text-xs font-bold text-zinc-500 uppercase">Credential</label>
+                  <label htmlFor="password" className="text-xs font-bold text-zinc-500 uppercase">Credential</label>
                   {mode === 'LOGIN' && (
                     <button 
                       type="button"
@@ -221,6 +223,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onClose, intent = 'general' }) => 
                     <span className="material-symbols-rounded text-[18px]">lock</span>
                   </div>
                   <input 
+                    id="password"
                     type="password" 
                     required
                     value={password}
