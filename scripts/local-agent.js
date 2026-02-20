@@ -1,11 +1,30 @@
-const { WebSocketServer } = require('ws');
-const { spawn } = require('child_process');
-const path = require('path');
-const os = require('os');
+// Converted to ESM to match root package.json "type": "module"
+import { WebSocketServer } from 'ws';
+import { spawn } from 'child_process';
+import path from 'path';
+import os from 'os';
+import process from 'process';
 
 const PORT = Number(process.env.THEMAG_AGENT_PORT || 4477);
 
-const wss = new WebSocketServer({ port: PORT });
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://stackblitz.io',
+  'https://themag.dev'
+];
+
+function verifyClient(info, cb) {
+  const origin = info.origin;
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    cb(true);
+  } else {
+    console.log(`Blocked connection from unauthorized origin: ${origin}`);
+    cb(false, 403, 'Forbidden');
+  }
+}
+
+const wss = new WebSocketServer({ port: PORT, verifyClient });
 
 console.log(`TheMAG.dev local agent listening on ws://localhost:${PORT}`);
 
