@@ -400,6 +400,126 @@ const FEATURED_EXTENSIONS: MarketplaceExtension[] = [
     lastUpdated: Date.now() - 20 * 24 * 60 * 60 * 1000,
     scanReport: { safe: true, issues: [], scannedAt: Date.now() },
   },
+  {
+    manifest: {
+      id: 'react-snippets',
+      name: 'es7-react-js-snippets',
+      displayName: 'ES7+ React/Redux/React-Native Snippets',
+      version: 'stable',
+      description: 'Extensions for React, Redux and Graphql in JS/TS with ES7+ syntax.',
+      author: { name: 'dsznajder' },
+      license: 'MIT',
+      categories: ['snippets', 'language'],
+      keywords: ['react', 'snippets', 'redux', 'javascript'],
+      main: 'dist/extension.js',
+      activationEvents: ['onLanguage:javascript', 'onLanguage:typescript', 'onLanguage:javascriptreact', 'onLanguage:typescriptreact'],
+      contributes: {
+        snippets: [
+          { language: 'javascript', path: './snippets/snippets.json' },
+        ],
+      },
+      engines: { themag: '^1.0.0' },
+    },
+    status: 'approved',
+    downloads: 2450000,
+    rating: 4.8,
+    ratingCount: 56000,
+    publishedDate: Date.now() - 800 * 24 * 60 * 60 * 1000,
+    lastUpdated: Date.now() - 5 * 24 * 60 * 60 * 1000,
+    scanReport: { safe: true, issues: [], scannedAt: Date.now() },
+  },
+  {
+    manifest: {
+      id: 'vscode-icons',
+      name: 'vscode-icons',
+      displayName: 'VSCode Icons',
+      version: 'stable',
+      description: 'Icons for Visual Studio Code.',
+      author: { name: 'VSCode Icons Team' },
+      license: 'MIT',
+      categories: ['theme'],
+      keywords: ['icons', 'theme', 'ui'],
+      main: 'dist/extension.js',
+      activationEvents: ['*'],
+      contributes: {
+        configuration: {
+          title: 'VSCode Icons',
+          properties: {
+            'vsicons.dontShowNewVersionMessage': {
+              type: 'boolean',
+              default: false,
+              description: 'Don\'t show the new version message.'
+            }
+          }
+        }
+      },
+      engines: { themag: '^1.0.0' },
+    },
+    status: 'approved',
+    downloads: 3200000,
+    rating: 4.9,
+    ratingCount: 62000,
+    publishedDate: Date.now() - 1200 * 24 * 60 * 60 * 1000,
+    lastUpdated: Date.now() - 30 * 24 * 60 * 60 * 1000,
+    scanReport: { safe: true, issues: [], scannedAt: Date.now() },
+  },
+  {
+    manifest: {
+      id: 'xml-tools',
+      name: 'xml-tools',
+      displayName: 'XML Tools',
+      version: 'stable',
+      description: 'XML Formatting, XQuery, and XPath tools for VS Code.',
+      author: { name: 'Josh Peterson' },
+      license: 'MIT',
+      categories: ['utility', 'formatter'],
+      keywords: ['xml', 'formatting', 'xpath', 'xquery'],
+      main: 'dist/extension.js',
+      activationEvents: ['onLanguage:xml'],
+      contributes: {
+        commands: [
+          { command: 'xmlTools.formatXml', title: 'Format XML' },
+          { command: 'xmlTools.evaluateXPath', title: 'Evaluate XPath' },
+        ],
+      },
+      engines: { themag: '^1.0.0' },
+    },
+    status: 'approved',
+    downloads: 850000,
+    rating: 4.5,
+    ratingCount: 8400,
+    publishedDate: Date.now() - 750 * 24 * 60 * 60 * 1000,
+    lastUpdated: Date.now() - 45 * 24 * 60 * 60 * 1000,
+    scanReport: { safe: true, issues: [], scannedAt: Date.now() },
+  },
+  {
+    manifest: {
+      id: 'vetur',
+      name: 'vetur',
+      displayName: 'Vetur',
+      version: 'stable',
+      description: 'Vue tooling for VS Code.',
+      author: { name: 'Pine Wu' },
+      license: 'MIT',
+      categories: ['language'],
+      keywords: ['vue', 'vuejs', 'vetur'],
+      main: 'dist/extension.js',
+      activationEvents: ['onLanguage:vue'],
+      contributes: {
+        languages: [
+          { id: 'vue', extensions: ['.vue'], aliases: ['Vue', 'vue'] },
+        ],
+      },
+      engines: { themag: '^1.0.0' },
+    },
+    status: 'approved',
+    downloads: 1650000,
+    rating: 4.7,
+    ratingCount: 31000,
+    publishedDate: Date.now() - 1100 * 24 * 60 * 60 * 1000,
+    lastUpdated: Date.now() - 60 * 24 * 60 * 60 * 1000,
+    scanReport: { safe: true, issues: [], scannedAt: Date.now() },
+  },
 ];
 
 const FEATURED_EXTENSION_IDS = new Set(FEATURED_EXTENSIONS.map(e => e.manifest.id));

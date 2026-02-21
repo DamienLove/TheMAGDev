@@ -2,6 +2,9 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
+import webContainerService from '../src/services/WebContainerService';
+import Settings from './Settings';
+import ExtensionMarketplace from './ExtensionMarketplace';
 
 interface FileNode {
   id: string;
@@ -48,6 +51,8 @@ const DesktopWorkspace: React.FC = () => {
   const [terminalOutput, setTerminalOutput] = useState<string[]>([
     'Successfully connected to build worker: node-linux-01',
   ]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showExtensions, setShowExtensions] = useState(false);
 
   // Terminal visibility state for re-opening
   const [showTerminal, setShowTerminal] = useState(true);
@@ -477,12 +482,14 @@ export class MainController {
 
     // Simulate LLM response (replace with actual API call)
     addTerminalLine(`Running AI ${action}...`);
+
+    // In a real implementation, we would send 'activeFileContent' to the AI provider
     setTimeout(() => {
       const mockResponses: Record<string, string> = {
-        explain: `This code defines a ${activeTab.includes('Controller') ? 'controller class' : 'module'} that handles platform-specific initialization. It uses a constructor pattern to set the target platform based on the current runtime environment.`,
-        fix: 'No critical bugs found. Consider adding error handling for the Platform.current() call in case it fails.',
-        optimize: 'The code is already well-optimized. Consider lazy-loading the platform detection if not immediately needed.',
-        refactor: 'Consider using dependency injection for the Platform instance to improve testability.',
+        explain: `Based on the code provided in ${activeTab}:\n\nThis code appears to be a valid component/module. It is structured correctly.\n\nContext:\n${activeFileContent.substring(0, 100)}...`,
+        fix: 'No critical bugs found. Ensure all imports are installed.',
+        optimize: 'The code is concise. Consider memoizing expensive calculations if any.',
+        refactor: 'Consider extracting inline styles to a CSS module or Tailwind classes if applicable.',
       };
       setLlmResponse(mockResponses[action] || 'Analysis complete.');
       setLlmLoading(false);
@@ -640,8 +647,32 @@ export class MainController {
           </div>
           <nav className="hidden md:flex items-center gap-4 text-[#9da1b9]">
             <button className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
+            <button
+              onClick={() => {
+                if (webContainerService.isReady()) {
+                  addTerminalLine('Starting build...');
+                  webContainerService.runCommand('npm run build').catch(e => addTerminalLine(e.message, 'error'));
+                } else {
+                  addTerminalLine('Building project (mock)...', 'success');
+                }
+              }}
+              className="hover:text-white text-[12px] font-medium transition-colors"
+            >
+              Build
+            </button>
+            <button
+              onClick={() => {
+                if (webContainerService.isReady()) {
+                  addTerminalLine('Starting dev server...');
+                  webContainerService.runCommand('npm run dev').catch(e => addTerminalLine(e.message, 'error'));
+                } else {
+                  addTerminalLine('Starting debugger (mock)...', 'success');
+                }
+              }}
+              className="hover:text-white text-[12px] font-medium transition-colors"
+            >
+              Debug
+            </button>
             <button
               onClick={() => setShowDrivePanel(!showDrivePanel)}
               className={`text-[12px] font-medium transition-colors flex items-center gap-1 ${showDrivePanel ? 'text-indigo-400' : 'hover:text-white'}`}
@@ -830,10 +861,16 @@ export class MainController {
             >
               <span className="material-symbols-rounded text-[24px]">view_column_2</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              onClick={() => setShowExtensions(true)}
+              className={`p-2 transition-colors ${showExtensions ? 'text-indigo-400' : 'text-[#5f637a] hover:text-white'}`}
+            >
               <span className="material-symbols-rounded text-[24px]">extension</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button
+              onClick={() => setShowSettings(true)}
+              className={`p-2 transition-colors ${showSettings ? 'text-indigo-400' : 'text-[#5f637a] hover:text-white'}`}
+            >
               <span className="material-symbols-rounded text-[24px]">settings</span>
             </button>
           </div>
@@ -1409,7 +1446,11 @@ export class MainController {
               </div>
               <div className="flex-1 min-h-0 overflow-hidden">
                 {activeTerminalTab === 'Terminal' ? (
-                  <Terminal key={terminalKey.current} className="h-full" initialMode="mock" />
+                  <Terminal
+                    key={terminalKey.current}
+                    className="h-full"
+                    initialMode={typeof window !== 'undefined' && window.crossOriginIsolated ? 'webcontainer' : 'mock'}
+                  />
                 ) : activeTerminalTab === 'Git Status' ? (
                   <div className="h-full overflow-y-auto p-4 font-mono text-[12px] text-[#d4d4d4]">
                     <div className="mb-2 text-green-400">On branch: {currentBranch}</div>
@@ -1502,6 +1543,45 @@ export class MainController {
           </div>
         </div>
       </footer>
+
+      {/* Modals */}
+      {showSettings && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-8">
+          <div className="bg-zinc-950 w-full max-w-6xl h-full max-h-[85vh] rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl relative flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b border-zinc-800 bg-zinc-900">
+                <h2 className="text-sm font-bold text-white">Workspace Settings</h2>
+                <button
+                  onClick={() => setShowSettings(false)}
+                  className="p-1 hover:bg-zinc-800 rounded text-zinc-400 hover:text-white"
+                >
+                  <span className="material-symbols-rounded">close</span>
+                </button>
+            </div>
+            <div className="flex-1 overflow-hidden relative">
+               <Settings />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showExtensions && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-8">
+          <div className="bg-zinc-950 w-full max-w-6xl h-full max-h-[85vh] rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl relative flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b border-zinc-800 bg-zinc-900">
+                <h2 className="text-sm font-bold text-white">Extensions Marketplace</h2>
+                <button
+                  onClick={() => setShowExtensions(false)}
+                  className="p-1 hover:bg-zinc-800 rounded text-zinc-400 hover:text-white"
+                >
+                  <span className="material-symbols-rounded">close</span>
+                </button>
+            </div>
+            <div className="flex-1 overflow-hidden relative">
+               <ExtensionMarketplace />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

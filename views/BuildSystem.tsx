@@ -15,11 +15,12 @@ interface Dependency {
 }
 
 const BuildSystem: React.FC = () => {
-  const [selectedProject, setSelectedProject] = useState('TheMAGCore:app');
+  const [selectedProject, setSelectedProject] = useState('Workspace Project');
   const [isOfflineMode, setIsOfflineMode] = useState(false);
   const [buildStatus, setBuildStatus] = useState<'idle' | 'building' | 'success' | 'error'>('idle');
   const [buildProgress, setBuildProgress] = useState(0);
   const [buildLogs, setBuildLogs] = useState<string[]>(['Ready to build...']);
+  const [tasks, setTasks] = useState<Record<string, BuildTask[]>>({});
   const logsEndRef = useRef<HTMLDivElement>(null);
 
   // Workspace context is guaranteed by App wrapper
@@ -32,31 +33,40 @@ const BuildSystem: React.FC = () => {
     }
   }, [buildLogs]);
 
-  const tasks: Record<string, BuildTask[]> = {
-    'android': [
-      { name: 'androidDependencies', type: 'android' },
-      { name: 'signingReport', type: 'android' }
-    ],
-    'build': [
-      { name: 'assemble', type: 'build' },
-      { name: 'assembleDebug', type: 'build', isKey: true },
-      { name: 'bundleRelease', type: 'build' },
-      { name: 'clean', type: 'build' }
-    ],
-    'verification': [
-      { name: 'lint', type: 'verification' },
-      { name: 'test', type: 'verification' }
-    ]
-  };
+  useEffect(() => {
+    const pkgFile = workspace.files.find(f => f.name === 'package.json');
+    if (pkgFile && pkgFile.content) {
+      try {
+        const pkg = JSON.parse(pkgFile.content);
+        if (pkg.scripts) {
+          const scripts = Object.keys(pkg.scripts).map(name => ({
+            name,
+            type: 'build' as const,
+            isKey: name === 'build' || name === 'start' || name === 'dev'
+          }));
+          setTasks({ 'npm scripts': scripts });
+          setSelectedProject(pkg.name || 'Project');
+        }
+      } catch {
+        // ignore
+      }
+    } else {
+        // Fallback for demo
+        setTasks({
+            'demo': [
+                { name: 'build', type: 'build', isKey: true },
+                { name: 'test', type: 'verification' },
+                { name: 'lint', type: 'verification' }
+            ]
+        });
+    }
+  }, [workspace.files]);
 
   const dependencies: Record<string, Dependency[]> = {
-    'implementation': [
-      { group: 'androidx.core:core-ktx', version: '1.7.0' },
-      { group: 'com.google.android.material', version: '1.5.0', updateAvailable: '1.6.0', hasConflict: true },
-      { group: 'com.squareup.retrofit2:retrofit', version: '2.9.0' }
-    ],
-    'testImplementation': [
-      { group: 'junit:junit', version: '4.13.2' }
+    'dependencies': [
+      { group: 'react', version: '18.2.0' },
+      { group: 'react-dom', version: '18.2.0' },
+      { group: 'vite', version: '4.4.5', updateAvailable: '5.0.0' }
     ]
   };
 
@@ -65,17 +75,14 @@ const BuildSystem: React.FC = () => {
 
     setBuildStatus('building');
     setBuildProgress(0);
-    setBuildLogs([`> Executing task: ${taskName}...`, 'Initializing Daemon...', 'Allocating resources...']);
+    setBuildLogs([`> Executing npm run ${taskName}...`, 'Starting build process...']);
 
     const steps = [
-        { progress: 10, msg: '> Configure project :app' },
-        { progress: 25, msg: '> Task :app:preBuild UP-TO-DATE' },
-        { progress: 40, msg: '> Task :app:preDebugBuild UP-TO-DATE' },
-        { progress: 55, msg: '> Task :app:compileDebugAidl NO-SOURCE' },
-        { progress: 70, msg: '> Task :app:compileDebugRenderscript NO-SOURCE' },
-        { progress: 85, msg: '> Task :app:generateDebugBuildConfig' },
-        { progress: 95, msg: '> Task :app:javaPreCompileDebug' },
-        { progress: 100, msg: 'BUILD SUCCESSFUL in 3s' }
+        { progress: 20, msg: `> ${taskName}: processing...` },
+        { progress: 40, msg: '> resolving dependencies...' },
+        { progress: 60, msg: '> compiling modules...' },
+        { progress: 80, msg: '> optimizing assets...' },
+        { progress: 100, msg: 'BUILD SUCCESSFUL in 2.4s' }
     ];
 
     let currentStep = 0;
@@ -91,7 +98,7 @@ const BuildSystem: React.FC = () => {
         setBuildProgress(step.progress);
         setBuildLogs(prev => [...prev, step.msg]);
         currentStep++;
-    }, 800);
+    }, 600);
   };
 
   return (

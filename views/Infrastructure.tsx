@@ -15,6 +15,8 @@ interface BackendService {
   modules: BackendModule[];
   color: string;
   icon: string;
+  deploymentStatus?: 'idle' | 'deploying' | 'deployed' | 'failed';
+  lastDeployed?: number;
 }
 
 const DEFAULT_SERVICES: BackendService[] = [
@@ -26,6 +28,8 @@ const DEFAULT_SERVICES: BackendService[] = [
       status: 'Active',
       color: 'text-orange-500',
       icon: 'local_fire_department',
+      deploymentStatus: 'deployed',
+      lastDeployed: Date.now() - 3600000,
       modules: [
         { name: 'Authentication', status: 'Online', icon: 'group' },
         { name: 'Firestore Database', status: 'Online', icon: 'database' },
@@ -41,6 +45,7 @@ const DEFAULT_SERVICES: BackendService[] = [
       status: 'Warning',
       color: 'text-emerald-500',
       icon: 'bolt',
+      deploymentStatus: 'idle',
       modules: [
         { name: 'PostgreSQL', status: 'Syncing', icon: 'table_chart' },
         { name: 'Realtime Subscriptions', status: 'Online', icon: 'sensors' },
@@ -96,6 +101,18 @@ const Infrastructure: React.FC = () => {
 
   const removeService = (id: string) => {
       setServices(services.filter(s => s.id !== id));
+  };
+
+  const handleDeploy = (id: string) => {
+    setServices(services.map(s =>
+      s.id === id ? { ...s, deploymentStatus: 'deploying' } : s
+    ));
+
+    setTimeout(() => {
+      setServices(prev => prev.map(s =>
+        s.id === id ? { ...s, deploymentStatus: 'deployed', lastDeployed: Date.now(), status: 'Active' } : s
+      ));
+    }, 2500);
   };
 
   return (
@@ -174,9 +191,30 @@ const Infrastructure: React.FC = () => {
                   <span className="text-[9px] font-bold text-zinc-600 uppercase">Provider:</span>
                   <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">{service.provider}</span>
                </div>
-               <button className="text-[10px] font-bold text-indigo-400 hover:underline flex items-center gap-1">
-                  Metrics <span className="material-symbols-rounded text-xs">open_in_new</span>
-               </button>
+
+               <div className="flex items-center gap-3">
+                 {service.lastDeployed && (
+                   <span className="text-[9px] text-zinc-600 font-bold">
+                     Last deploy: {new Date(service.lastDeployed).toLocaleTimeString()}
+                   </span>
+                 )}
+                 <button
+                    onClick={() => handleDeploy(service.id)}
+                    disabled={service.deploymentStatus === 'deploying'}
+                    className={`px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-wide transition-all ${
+                      service.deploymentStatus === 'deploying'
+                        ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
+                        : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20'
+                    }`}
+                 >
+                    {service.deploymentStatus === 'deploying' ? (
+                      <span className="flex items-center gap-1">
+                        <span className="material-symbols-rounded text-xs animate-spin">refresh</span>
+                        Deploying
+                      </span>
+                    ) : 'Deploy'}
+                 </button>
+               </div>
             </div>
           </div>
         ))}
