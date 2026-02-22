@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
+import { Terminal, useWorkspace, FileNode as WorkspaceFileNode, MonacoEditor } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
+import aiProvider from '../src/services/AIProvider';
 
 interface FileNode {
   id: string;
@@ -464,6 +465,12 @@ export class MainController {
       return;
     }
 
+    const provider = aiProvider.getActiveProvider();
+    if (!provider) {
+      addTerminalLine('No active AI provider. Configure in Settings.', 'error');
+      return;
+    }
+
     setLlmLoading(true);
     const prompts: Record<string, string> = {
       explain: 'Explain this code concisely:',
@@ -474,20 +481,28 @@ export class MainController {
 
     const prompt = prompts[action] || action;
     setLlmPrompt(prompt);
+    addTerminalLine(`Running AI ${action} with ${provider.name}...`);
 
-    // Simulate LLM response (replace with actual API call)
-    addTerminalLine(`Running AI ${action}...`);
-    setTimeout(() => {
-      const mockResponses: Record<string, string> = {
-        explain: `This code defines a ${activeTab.includes('Controller') ? 'controller class' : 'module'} that handles platform-specific initialization. It uses a constructor pattern to set the target platform based on the current runtime environment.`,
-        fix: 'No critical bugs found. Consider adding error handling for the Platform.current() call in case it fails.',
-        optimize: 'The code is already well-optimized. Consider lazy-loading the platform detection if not immediately needed.',
-        refactor: 'Consider using dependency injection for the Platform instance to improve testability.',
-      };
-      setLlmResponse(mockResponses[action] || 'Analysis complete.');
+    try {
+      const response = await aiProvider.sendMessage([
+        { role: 'user', content: `Code:\n\`\`\`\n${activeFileContent}\n\`\`\`\n\nTask: ${prompt}`, id: Date.now().toString(), timestamp: Date.now() }
+      ]);
+
+      if (response.error) {
+        addTerminalLine(`AI Error: ${response.error}`, 'error');
+        setLlmResponse(`Error: ${response.error}`);
+      } else {
+        setLlmResponse(response.content);
+        addTerminalLine(`AI ${action} complete`, 'success');
+        if (response.usage) {
+          addTerminalLine(`Tokens: ${response.usage.inputTokens} in / ${response.usage.outputTokens} out`);
+        }
+      }
+    } catch (error: any) {
+      addTerminalLine(`AI Request Failed: ${error.message}`, 'error');
+    } finally {
       setLlmLoading(false);
-      addTerminalLine(`AI ${action} complete`, 'success');
-    }, 1500);
+    }
   };
 
   const runCustomLLMPrompt = async () => {
@@ -1101,27 +1116,14 @@ export class MainController {
           </div>
 
           <div className="flex-1 flex overflow-hidden">
-            <div className="flex-1 flex flex-col min-w-0 border-r border-[#282b39]">
-              <div className="flex-1 overflow-auto p-4 font-mono text-[13px] relative bg-[#111218]">
-                <div className="absolute left-0 top-4 bottom-0 w-10 flex flex-col items-end pr-2 text-[#4b5064] select-none">
-                  {codeToDisplay.split('\n').map((_, i) => (
-                    <div key={i} className={i === 5 ? 'text-indigo-500 font-bold' : ''}>{i + 1}</div>
-                  ))}
-                </div>
-                <textarea
-                  value={workspace.activeFile ? (workspace.getFileContent(workspace.activeFile) || '') : codeToDisplay}
-                  onChange={(e) => {
-                    if (workspace.activeFile) {
-                      workspace.updateFileContent(workspace.activeFile, e.target.value);
-                      markFileChanged(workspace.activeFile.split('/').pop() || '');
-                    } else {
-                      setActiveFileContent(e.target.value);
-                    }
-                  }}
-                  className="pl-8 w-full h-full bg-transparent text-[#d4d4d4] leading-6 resize-none focus:outline-none font-mono"
-                  spellCheck={false}
-                />
-              </div>
+            <div className="flex-1 flex flex-col min-w-0 border-r border-[#282b39] overflow-hidden bg-[#1e1e1e]">
+              <MonacoEditor
+                className="w-full h-full"
+                onContentChange={(path, content) => {
+                  setActiveFileContent(content);
+                  markFileChanged(path.split('/').pop() || '');
+                }}
+              />
             </div>
 
             {/* Right Side: AI Assistant / Git Panel */}
