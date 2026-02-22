@@ -142,6 +142,7 @@ const Projects: React.FC = () => {
            <div className="flex-1 relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-rounded text-zinc-500 text-sm">search</span>
               <input 
+                aria-label="Search repository registry"
                 type="text" 
                 placeholder="Search repository registry..."
                 className="bg-zinc-900 border border-zinc-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all w-full shadow-lg"
