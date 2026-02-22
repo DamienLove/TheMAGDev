@@ -1,121 +1,45 @@
 import React, { useState } from 'react';
+import { useWorkspace } from '../src/components/workspace';
+import { PROJECT_TEMPLATES, ProjectTemplate } from '../src/data/showcase';
 
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  author: string;
-  authorAvatar: string;
-  stars: string;
-  thumbnail: string;
-  platforms: string[];
-  status: 'New' | 'Popular' | 'Updated' | 'Verified';
+interface ProjectsProps {
+  onOpenProject?: () => void;
 }
 
-const Projects: React.FC = () => {
+const Projects: React.FC<ProjectsProps> = ({ onOpenProject }) => {
   const [activeFilter, setActiveFilter] = useState('All');
+  const workspace = useWorkspace();
 
-  const projects: Project[] = [
-    {
-      id: 'p-1',
-      name: 'TheMAG.dev FinTrack',
-      description: 'Enterprise finance tracker with OCR receipt scanning and automated reconciliation.',
-      author: '@alex_dev',
-      authorAvatar: 'AD',
-      stars: '1.2k',
-      thumbnail: './assets/store/hero_illustration.svg',
-      platforms: ['android', 'phone_iphone'],
-      status: 'Verified'
-    },
-    {
-      id: 'p-2',
-      name: 'DevFlow Architecture',
-      description: 'A minimalist developer portfolio template built with TheMAG.dev Design Studio.',
-      author: '@maria_s',
-      authorAvatar: 'MS',
-      stars: '854',
-      thumbnail: './assets/store/tech_pattern.svg',
-      platforms: ['language'],
-      status: 'Popular'
-    },
-    {
-      id: 'p-3',
-      name: 'Cyber Jumper Engine',
-      description: '2D platformer engine with zero-overhead physics and custom shader support.',
-      author: '@gamedev_x',
-      authorAvatar: 'GX',
-      stars: '2.4k',
-      thumbnail: './assets/store/dark_hex_pattern.svg',
-      platforms: ['desktop_mac', 'sports_esports'],
-      status: 'New'
-    },
-    {
-      id: 'p-4',
-      name: 'CryptoDash Core',
-      description: 'Real-time cryptocurrency analytics with optimized Web3 socket integration.',
-      author: '@token_master',
-      authorAvatar: 'TM',
-      stars: '3.1k',
-      thumbnail: './assets/store/hero_illustration.svg',
-      platforms: ['language', 'grid_view'],
-      status: 'Updated'
-    },
-    {
-      id: 'p-5',
-      name: 'Nexus UI Kit',
-      description: 'Comprehensive design system for React Native and Flutter with over 50 components.',
-      author: '@ui_wizard',
-      authorAvatar: 'UW',
-      stars: '4.5k',
-      thumbnail: './assets/store/tech_pattern.svg',
-      platforms: ['palette', 'devices'],
-      status: 'Popular'
-    },
-    {
-      id: 'p-6',
-      name: 'CloudScale Monitor',
-      description: 'Serverless infrastructure monitoring dashboard with real-time alerting.',
-      author: '@devops_pro',
-      authorAvatar: 'DP',
-      stars: '1.8k',
-      thumbnail: './assets/store/hero_illustration.svg',
-      platforms: ['cloud', 'analytics'],
-      status: 'Verified'
-    },
-    {
-      id: 'p-7',
-      name: 'Pixel Quest',
-      description: 'A retro-style dungeon crawler with procedurally generated levels and custom physics.',
-      author: '@pixel_art',
-      authorAvatar: 'PA',
-      stars: '5.2k',
-      thumbnail: './assets/store/game_hero.svg',
-      platforms: ['sports_esports', 'desktop_windows'],
-      status: 'Trending'
-    },
-    {
-      id: 'p-8',
-      name: 'DataViz Pro',
-      description: 'Advanced charting library for React and Vue with animated transitions.',
-      author: '@data_guru',
-      authorAvatar: 'DG',
-      stars: '2.9k',
-      thumbnail: './assets/store/widget_analytics.svg',
-      platforms: ['analytics', 'monitoring'],
-      status: 'New'
-    },
-    {
-      id: 'p-9',
-      name: 'Social Connect',
-      description: 'Unified messaging SDK for integrating chat, voice, and video into any app.',
-      author: '@social_dev',
-      authorAvatar: 'SD',
-      stars: '3.4k',
-      thumbnail: './assets/store/icon_chat.svg',
-      platforms: ['chat', 'forum'],
-      status: 'Popular'
+  const handleOpenProject = (template: ProjectTemplate) => {
+    // Load the project files into the workspace
+    workspace.replaceWorkspace(template.files);
+
+    // Set active file to something reasonable (first file in src or root)
+    const findFirstFile = (nodes: any[]): string | null => {
+      for (const node of nodes) {
+        if (node.type === 'file') return node.path;
+        if (node.children) {
+          const found = findFirstFile(node.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    const firstFile = findFirstFile(template.files);
+    if (firstFile) {
+      workspace.setActiveFile(firstFile);
     }
-  ];
+
+    // Add a welcome message to terminal
+    workspace.addTerminalLine(`\x1b[1;32mLoaded project: ${template.name}\x1b[0m`);
+    workspace.addTerminalLine(`\x1b[90m${template.description}\x1b[0m`);
+
+    // Navigate to workspace view
+    if (onOpenProject) {
+      onOpenProject();
+    }
+  };
 
   const trendingDevs = [
     { name: '@sarah_js', avatar: 'SJ', color: 'bg-indigo-500' },
@@ -165,8 +89,8 @@ const Projects: React.FC = () => {
       <section className="mb-12">
          <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-4">Featured Environments</h2>
          <div className="flex gap-6 overflow-x-auto no-scrollbar pb-4 snap-x">
-            {projects.slice(0, 3).map(p => (
-              <div key={p.id} className="relative snap-start shrink-0 w-[450px] h-[240px] rounded-2xl overflow-hidden group cursor-pointer border border-zinc-800 shadow-2xl">
+            {PROJECT_TEMPLATES.map(p => (
+              <div key={p.id} onClick={() => handleOpenProject(p)} className="relative snap-start shrink-0 w-[450px] h-[240px] rounded-2xl overflow-hidden group cursor-pointer border border-zinc-800 shadow-2xl">
                  <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: `url(${p.thumbnail})` }} />
                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent"></div>
                  <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -191,7 +115,7 @@ const Projects: React.FC = () => {
          <div className="lg:col-span-3">
             <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-6">Explore Registry</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               {projects.map(p => (
+               {PROJECT_TEMPLATES.map(p => (
                  <div key={p.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-zinc-700 transition-all group shadow-xl">
                     <div className="h-40 bg-zinc-800 relative overflow-hidden">
                        <img src={p.thumbnail} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" alt={p.name} />
@@ -216,8 +140,11 @@ const Projects: React.FC = () => {
                              <span className="text-xs font-bold text-zinc-300">{p.stars}</span>
                           </div>
                        </div>
-                       <button className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2">
-                          <span className="material-symbols-rounded text-lg">code</span> View Implementation
+                       <button
+                         onClick={() => handleOpenProject(p)}
+                         className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                        >
+                          <span className="material-symbols-rounded text-lg">code</span> Load Workspace
                        </button>
                     </div>
                  </div>
@@ -253,9 +180,9 @@ const Projects: React.FC = () => {
                </div>
                <div className="divide-y divide-zinc-800">
                   {[
-                    { user: '@jessica', action: 'forked', target: 'CryptoDash' },
-                    { user: '@david_k', action: 'starred', target: 'Pixel Jumper' },
-                    { user: '@alex_d', action: 'deployed', target: 'FinTrack' },
+                    { user: '@jessica', action: 'forked', target: 'React Starter' },
+                    { user: '@david_k', action: 'starred', target: 'Static Portfolio' },
+                    { user: '@alex_d', action: 'deployed', target: 'Node API' },
                   ].map((act, i) => (
                     <div key={i} className="p-4 hover:bg-zinc-800/30 transition-colors cursor-pointer">
                        <p className="text-xs text-zinc-300">
