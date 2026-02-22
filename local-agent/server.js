@@ -3,7 +3,31 @@ const { spawn } = require('child_process');
 const os = require('os');
 
 const PORT = 4477;
-const wss = new WebSocketServer({ port: PORT });
+
+// Allowed origins
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://themag.dev',
+  'https://stackblitz.io'
+];
+
+function verifyClient(info, cb) {
+  const origin = info.origin || info.req.headers.origin;
+
+  if (!origin) {
+    return cb(true);
+  }
+
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    return cb(true);
+  }
+
+  console.log(`Blocked connection from unauthorized origin: ${origin}`);
+  return cb(false, 403, 'Forbidden');
+}
+
+const wss = new WebSocketServer({ port: PORT, verifyClient });
 
 console.log(`Local Agent running on ws://localhost:${PORT}`);
 console.log('Waiting for connection...');
