@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useId } from 'react';
 import { GithubAuthProvider, GoogleAuthProvider, OAuthProvider, createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { ensureUserProfile } from '../src/services/userProfile';
@@ -17,6 +17,9 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onClose, intent = 'general' }) => 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  const emailId = useId();
+  const passwordId = useId();
 
   const intentCopy = useMemo(() => {
     if (intent === 'pro') {
@@ -186,12 +189,13 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onClose, intent = 'general' }) => 
           )}
           <div className="space-y-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-zinc-500 uppercase ml-1">Work Email</label>
+              <label htmlFor={emailId} className="text-xs font-bold text-zinc-500 uppercase ml-1">Work Email</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
                   <span className="material-symbols-rounded text-[18px]">mail</span>
                 </div>
                 <input 
+                  id={emailId}
                   type="email" 
                   required
                   value={email}
@@ -205,7 +209,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onClose, intent = 'general' }) => 
             {mode !== 'RESET' && (
               <div className="space-y-1">
                 <div className="flex justify-between items-center px-1">
-                  <label className="text-xs font-bold text-zinc-500 uppercase">Credential</label>
+                  <label htmlFor={passwordId} className="text-xs font-bold text-zinc-500 uppercase">Credential</label>
                   {mode === 'LOGIN' && (
                     <button 
                       type="button"
@@ -221,6 +225,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onClose, intent = 'general' }) => 
                     <span className="material-symbols-rounded text-[18px]">lock</span>
                   </div>
                   <input 
+                    id={passwordId}
                     type="password" 
                     required
                     value={password}
