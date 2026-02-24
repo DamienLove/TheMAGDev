@@ -17,7 +17,7 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
-  const { files, currentDirectory, setCurrentDirectory, addTerminalLine } = useWorkspace();
+  const { files, currentDirectory, setCurrentDirectory, addTerminalLine, createFile, deleteFile } = useWorkspace();
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const currentLineRef = useRef('');
@@ -114,6 +114,9 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
         writeLine('  \x1b[33mcd\x1b[0m <path>      - Change directory');
         writeLine('  \x1b[33mpwd\x1b[0m            - Print working directory');
         writeLine('  \x1b[33mcat\x1b[0m <file>     - Display file contents');
+        writeLine('  \x1b[33mtouch\x1b[0m <file>   - Create file');
+        writeLine('  \x1b[33mmkdir\x1b[0m <dir>    - Create directory');
+        writeLine('  \x1b[33mrm\x1b[0m <path>      - Remove file or directory');
         writeLine('  \x1b[33mecho\x1b[0m <text>    - Print text');
         writeLine('  \x1b[33mclear\x1b[0m          - Clear terminal');
         writeLine('  \x1b[33mnpm\x1b[0m <cmd>      - Simulate npm commands');
@@ -183,6 +186,34 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
 
       case 'clear':
         term.clear();
+        break;
+
+      case 'touch':
+        if (!args[0]) {
+          writeLine('\r\n\x1b[31mtouch: missing operand\x1b[0m');
+        } else {
+          createFile(currentDirectory, args[0], 'file');
+          writeLine('');
+        }
+        break;
+
+      case 'mkdir':
+        if (!args[0]) {
+          writeLine('\r\n\x1b[31mmkdir: missing operand\x1b[0m');
+        } else {
+          createFile(currentDirectory, args[0], 'folder');
+          writeLine('');
+        }
+        break;
+
+      case 'rm':
+        if (!args[0]) {
+          writeLine('\r\n\x1b[31mrm: missing operand\x1b[0m');
+        } else {
+          const targetPath = args[0].startsWith('/') ? args[0] : `${currentDirectory}/${args[0]}`.replace(/\/+/g, '/');
+          deleteFile(targetPath);
+          writeLine('');
+        }
         break;
 
       case 'npm':

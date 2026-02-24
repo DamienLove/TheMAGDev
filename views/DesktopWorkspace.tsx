@@ -49,6 +49,67 @@ const DesktopWorkspace: React.FC = () => {
     'Successfully connected to build worker: node-linux-01',
   ]);
 
+  const handleRun = async () => {
+    addTerminalLine('Starting development server...');
+
+    // Check for index.html
+    const indexHtml = workspace.getFileContent('/index.html');
+    if (indexHtml) {
+       addTerminalLine('Building for preview...');
+
+       if (indexHtml.includes('type="module"')) {
+         addTerminalLine('Preview not available: React templates require WebContainer environment (Cross-Origin Isolated).', 'error');
+         addTerminalLine('Simulating build process...', 'success');
+         return;
+       }
+
+       // For static sites, inline assets
+       let previewHtml = indexHtml;
+
+       // Inline CSS
+       const styleMatch = previewHtml.match(/<link[^>]*href="([^"]+)"[^>]*>/);
+       if (styleMatch && styleMatch[1]) {
+          const cssContent = workspace.getFileContent('/' + styleMatch[1]);
+          if (cssContent) {
+             previewHtml = previewHtml.replace(styleMatch[0], `<style>${cssContent}</style>`);
+          }
+       }
+
+       // Inline JS
+       const scriptMatch = previewHtml.match(/<script[^>]*src="([^"]+)"[^>]*><\/script>/);
+       if (scriptMatch && scriptMatch[1]) {
+          const jsContent = workspace.getFileContent('/' + scriptMatch[1]);
+          if (jsContent) {
+             previewHtml = previewHtml.replace(scriptMatch[0], `<script>${jsContent}</script>`);
+          }
+       }
+
+       setTimeout(() => {
+         const previewWindow = window.open('', '_blank');
+         if (previewWindow) {
+           previewWindow.document.write(previewHtml);
+           addTerminalLine('Preview running in new tab.', 'success');
+         } else {
+           addTerminalLine('Popup blocked. Allow popups to see preview.', 'error');
+         }
+       }, 1000);
+    } else {
+       // Node project
+       addTerminalLine('Running node process...');
+       setTimeout(() => {
+          addTerminalLine('Server running at http://localhost:3000', 'success');
+          addTerminalLine('Output: Hello from TheMAG.dev Node.js Template!');
+       }, 1000);
+    }
+  };
+
+  const handleBuild = () => {
+    addTerminalLine('Building project...');
+    setTimeout(() => {
+      addTerminalLine('Build complete! Dist folder created.', 'success');
+    }, 2000);
+  };
+
   // Terminal visibility state for re-opening
   const [showTerminal, setShowTerminal] = useState(true);
   const terminalKey = useRef(0);
@@ -640,8 +701,8 @@ export class MainController {
           </div>
           <nav className="hidden md:flex items-center gap-4 text-[#9da1b9]">
             <button className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
+            <button onClick={handleBuild} className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
+            <button onClick={handleRun} className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
             <button
               onClick={() => setShowDrivePanel(!showDrivePanel)}
               className={`text-[12px] font-medium transition-colors flex items-center gap-1 ${showDrivePanel ? 'text-indigo-400' : 'hover:text-white'}`}
