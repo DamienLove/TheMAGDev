@@ -2,8 +2,29 @@ const { WebSocketServer } = require('ws'); // Local Agent Server
 const { spawn } = require('child_process');
 const os = require('os');
 
-const PORT = 4477;
-const wss = new WebSocketServer({ port: PORT });
+const PORT = Number(process.env.THEMAG_AGENT_PORT || 4477);
+const ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://themag.dev',
+    'https://stackblitz.io'
+];
+
+const wss = new WebSocketServer({
+    port: PORT,
+    verifyClient: (info) => {
+        const origin = info.origin || info.req.headers.origin;
+        if (!origin) {
+            console.warn('Blocked connection with missing Origin header');
+            return false;
+        }
+        if (ALLOWED_ORIGINS.includes(origin)) {
+            return true;
+        }
+        console.warn(`Blocked connection from unauthorized origin: ${origin}`);
+        return false;
+    }
+});
 
 console.log(`Local Agent running on ws://localhost:${PORT}`);
 console.log('Waiting for connection...');

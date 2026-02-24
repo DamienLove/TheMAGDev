@@ -1,11 +1,37 @@
-const { WebSocketServer } = require('ws');
-const { spawn } = require('child_process');
-const path = require('path');
-const os = require('os');
+/**
+ * Local Agent Script
+ *
+ * This script runs in ES Module mode because the root package.json defines "type": "module".
+ * Use 'import' instead of 'require'.
+ */
+import { WebSocketServer } from 'ws';
+import { spawn } from 'child_process';
+import path from 'path';
+import os from 'os';
 
 const PORT = Number(process.env.THEMAG_AGENT_PORT || 4477);
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://themag.dev',
+  'https://stackblitz.io'
+];
 
-const wss = new WebSocketServer({ port: PORT });
+const wss = new WebSocketServer({
+  port: PORT,
+  verifyClient: (info) => {
+    const origin = info.origin || info.req.headers.origin;
+    if (!origin) {
+      console.warn('Blocked connection with missing Origin header');
+      return false;
+    }
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      return true;
+    }
+    console.warn(`Blocked connection from unauthorized origin: ${origin}`);
+    return false;
+  }
+});
 
 console.log(`TheMAG.dev local agent listening on ws://localhost:${PORT}`);
 
