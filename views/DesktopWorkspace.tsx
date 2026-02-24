@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
+import { Terminal, useWorkspace, FileExplorer, FileNode as WorkspaceFileNode } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
 
@@ -109,6 +109,15 @@ export class MainController {
 
     return () => unsubscribe();
   }, []);
+
+  // Sync active file to active tab and content
+  useEffect(() => {
+    if (workspace.activeFile) {
+      const fileName = workspace.activeFile.split('/').pop() || '';
+      setActiveTab(fileName);
+      setActiveFileContent(workspace.getFileContent(workspace.activeFile) || '');
+    }
+  }, [workspace.activeFile, workspace.getFileContent]);
 
   // Load user info when connected
   useEffect(() => {
@@ -579,50 +588,6 @@ export class MainController {
     return 'text-gray-400';
   };
 
-  // Recursive file tree renderer for workspace files
-  const renderFileTree = (files: WorkspaceFileNode[], depth: number): JSX.Element[] => {
-    return files.map((file) => {
-      const isActive = workspace.activeFile === file.path;
-      const paddingLeft = depth * 12 + 8;
-
-      if (file.type === 'folder') {
-        return (
-          <div key={file.path}>
-            <div
-              className="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-[#161825] rounded-sm"
-              style={{ paddingLeft }}
-            >
-              <span className="material-symbols-rounded text-[16px] text-yellow-400">folder</span>
-              <span className="truncate">{file.name}</span>
-            </div>
-            {file.children && renderFileTree(file.children, depth + 1)}
-          </div>
-        );
-      }
-
-      return (
-        <div
-          key={file.path}
-          onClick={() => {
-            workspace.openFile(file.path);
-            setActiveTab(file.name);
-            setActiveFileContent(workspace.getFileContent(file.path) || '');
-          }}
-          className={`flex items-center gap-2 px-2 py-1 rounded-sm cursor-pointer transition-colors ${isActive
-              ? 'text-white bg-indigo-500/20 border-l-2 border-indigo-500'
-              : 'text-[#9da1b9] hover:text-white hover:bg-[#161825]'
-            }`}
-          style={{ paddingLeft }}
-        >
-          <span className={`material-symbols-rounded text-[16px] ${getFileIconColor(file.name)}`}>
-            {getFileIcon(file.name)}
-          </span>
-          <span className="truncate">{file.name}</span>
-        </div>
-      );
-    });
-  };
-
   const codeToDisplay = workspace.activeFile
     ? (workspace.getFileContent(workspace.activeFile) || defaultCodeSnippet)
     : (openFiles.get(activeTab) || defaultCodeSnippet);
@@ -855,10 +820,10 @@ export class MainController {
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto p-2 font-mono text-[12px]">
+          <div className="flex-1 flex flex-col font-mono text-[12px] overflow-hidden">
             {showDrivePanel ? (
               // Google Drive Panel
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 p-2 overflow-y-auto">
                 {!driveConnected ? (
                   <div className="text-center py-8">
                     <span className="material-symbols-rounded text-[48px] text-[#5f637a] mb-4 block">cloud_off</span>
@@ -1024,7 +989,7 @@ export class MainController {
               </div>
             ) : (
               // Explorer Panel - Shows workspace files
-              <div className="flex flex-col gap-0.5">
+              <div className="flex flex-col h-full">
                 {isLoadingProject ? (
                   <div className="flex flex-col items-center justify-center py-8 gap-3">
                     <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
@@ -1032,12 +997,14 @@ export class MainController {
                   </div>
                 ) : currentProject ? (
                   <>
-                    <div className="flex items-center gap-2 px-2 py-1 text-white bg-white/5 rounded-sm cursor-pointer mb-1">
+                    <div className="flex items-center gap-2 px-2 py-1 text-white bg-white/5 rounded-sm cursor-pointer mb-1 mx-2 mt-2 shrink-0">
                       <span className="material-symbols-rounded text-[16px] text-yellow-400">folder_open</span>
                       <span className="font-bold">{currentProject.name}</span>
                     </div>
                     {/* Render workspace files from context */}
-                    {renderFileTree(workspace.files, 0)}
+                    <div className="flex-1 min-h-0">
+                      <FileExplorer hideHeader hideProjectName />
+                    </div>
                     {workspace.files.length === 0 && (
                       <div className="text-[11px] text-[#5f637a] px-2 py-4 text-center">
                         Empty project. Create a file to get started.
@@ -1048,7 +1015,9 @@ export class MainController {
                   // Show workspace files even without Drive project
                   <>
                     {workspace.files.length > 0 ? (
-                      renderFileTree(workspace.files, 0)
+                      <div className="flex-1 min-h-0">
+                        <FileExplorer hideHeader hideProjectName />
+                      </div>
                     ) : (
                       <div className="text-[10px] text-[#5f637a] px-2 py-4 text-center">
                         Connect to Google Drive and open a project to edit files
@@ -1111,11 +1080,10 @@ export class MainController {
                 <textarea
                   value={workspace.activeFile ? (workspace.getFileContent(workspace.activeFile) || '') : codeToDisplay}
                   onChange={(e) => {
+                    setActiveFileContent(e.target.value);
                     if (workspace.activeFile) {
                       workspace.updateFileContent(workspace.activeFile, e.target.value);
                       markFileChanged(workspace.activeFile.split('/').pop() || '');
-                    } else {
-                      setActiveFileContent(e.target.value);
                     }
                   }}
                   className="pl-8 w-full h-full bg-transparent text-[#d4d4d4] leading-6 resize-none focus:outline-none font-mono"
