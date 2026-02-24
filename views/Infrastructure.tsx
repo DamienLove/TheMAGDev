@@ -11,7 +11,7 @@ interface BackendService {
   name: string;
   provider: string;
   project: string;
-  status: 'Active' | 'Warning' | 'Disconnected';
+  status: 'Active' | 'Warning' | 'Disconnected' | 'Deploying';
   modules: BackendModule[];
   color: string;
   icon: string;
@@ -98,6 +98,14 @@ const Infrastructure: React.FC = () => {
       setServices(services.filter(s => s.id !== id));
   };
 
+  const handleDeploy = (id: string) => {
+    setServices(prev => prev.map(s => s.id === id ? { ...s, status: 'Deploying' } : s));
+
+    setTimeout(() => {
+      setServices(prev => prev.map(s => s.id === id ? { ...s, status: 'Active' } : s));
+    }, 3000);
+  };
+
   return (
     <div className="flex-1 bg-zinc-950 overflow-y-auto p-8 font-sans relative">
       <header className="mb-8 flex justify-between items-end">
@@ -135,7 +143,8 @@ const Infrastructure: React.FC = () => {
                   <div className="flex items-center gap-1.5 mt-1">
                     <span className={`size-1.5 rounded-full ${
                       service.status === 'Active' ? 'bg-emerald-500 animate-pulse' : 
-                      service.status === 'Warning' ? 'bg-amber-500 animate-pulse' : 'bg-zinc-600'
+                      service.status === 'Warning' ? 'bg-amber-500 animate-pulse' :
+                      service.status === 'Deploying' ? 'bg-indigo-500 animate-bounce' : 'bg-zinc-600'
                     }`}></span>
                     <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">{service.project}</span>
                   </div>
@@ -174,9 +183,19 @@ const Infrastructure: React.FC = () => {
                   <span className="text-[9px] font-bold text-zinc-600 uppercase">Provider:</span>
                   <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">{service.provider}</span>
                </div>
-               <button className="text-[10px] font-bold text-indigo-400 hover:underline flex items-center gap-1">
-                  Metrics <span className="material-symbols-rounded text-xs">open_in_new</span>
-               </button>
+               <div className="flex gap-4">
+                 <button className="text-[10px] font-bold text-indigo-400 hover:underline flex items-center gap-1">
+                    Metrics <span className="material-symbols-rounded text-xs">open_in_new</span>
+                 </button>
+                 <button
+                   onClick={(e) => { e.stopPropagation(); handleDeploy(service.id); }}
+                   disabled={service.status === 'Deploying'}
+                   className="text-[10px] font-bold text-emerald-400 hover:underline flex items-center gap-1 disabled:opacity-50"
+                 >
+                    {service.status === 'Deploying' ? 'Deploying...' : 'Deploy'}
+                    <span className="material-symbols-rounded text-xs">rocket_launch</span>
+                 </button>
+               </div>
             </div>
           </div>
         ))}

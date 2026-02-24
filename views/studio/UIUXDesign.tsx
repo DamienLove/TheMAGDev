@@ -51,10 +51,52 @@ const UIUXDesign: React.FC = () => {
   const filteredDevices = DEVICES.filter(d => d.category === selectedCategory);
   const selectedComponent = components.find(c => c.id === selectedComponentId);
 
+  const generateReactCode = (cmps: UIComponent[]) => {
+    return `import React from 'react';
+
+const GeneratedComponent = () => {
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%', padding: '20px' }}>
+      ${cmps.map(c => {
+        // Simple style to string for inline styles in JSX string (approximate)
+        const styleObj = { ...c.style, marginBottom: '10px' };
+        const styleString = JSON.stringify(styleObj);
+
+        switch (c.type) {
+          case 'button':
+            return `<button style={${styleString}}>${c.props.label}</button>`;
+          case 'input':
+            return `<input style={${styleString}} placeholder="${c.props.placeholder}" />`;
+          case 'text':
+            return `<div style={${styleString}}>${c.props.content}</div>`;
+          case 'image':
+            return `<img style={${styleString}} src="${c.props.src}" alt="" />`;
+          case 'card':
+            return `<div style={${styleString}}>{/* Container content */}</div>`;
+          case 'switch':
+            return `<div style={${styleString}}><input type="checkbox" defaultChecked={${c.props.checked}} /></div>`;
+          default:
+            return '';
+        }
+      }).join('\n      ')}
+    </div>
+  );
+};
+
+export default GeneratedComponent;`;
+  };
+
   const handleExport = () => {
+    const code = generateReactCode(components);
+    console.log(code);
+
+    // Attempt to copy to clipboard
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(code).catch(err => console.error('Failed to copy', err));
+    }
+
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
-    console.log('Exporting Schema:', JSON.stringify(components, null, 2));
   };
 
   const addComponent = (type: ComponentType) => {
@@ -123,7 +165,7 @@ const UIUXDesign: React.FC = () => {
           </div>
           <div>
              <h4 className="text-xs font-bold text-white">Export Successful</h4>
-             <p className="text-[10px] text-zinc-400">UI schema saved to local clipboard.</p>
+             <p className="text-[10px] text-zinc-400">React code copied to clipboard.</p>
           </div>
        </div>
 

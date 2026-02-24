@@ -1,4 +1,11 @@
 import React, { useState } from 'react';
+import { View } from '../types';
+import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import { REACT_TEMPLATE, NODE_TEMPLATE, STATIC_TEMPLATE } from '../src/data/templates';
+
+interface ProjectsProps {
+  onNavigate?: (view: View) => void;
+}
 
 interface Project {
   id: string;
@@ -10,44 +17,73 @@ interface Project {
   thumbnail: string;
   platforms: string[];
   status: 'New' | 'Popular' | 'Updated' | 'Verified';
+  templateId?: 'react' | 'node' | 'static';
 }
 
-const Projects: React.FC = () => {
+const Projects: React.FC<ProjectsProps> = ({ onNavigate }) => {
   const [activeFilter, setActiveFilter] = useState('All');
+  const { replaceWorkspace } = useWorkspace();
+
+  const handleOpenProject = (templateId?: 'react' | 'node' | 'static') => {
+    let template;
+    switch (templateId) {
+      case 'react':
+        template = REACT_TEMPLATE;
+        break;
+      case 'node':
+        template = NODE_TEMPLATE;
+        break;
+      case 'static':
+        template = STATIC_TEMPLATE;
+        break;
+      default:
+        // Default to React if no template specified or unknown
+        template = REACT_TEMPLATE;
+    }
+
+    replaceWorkspace(template);
+
+    if (onNavigate) {
+      onNavigate(View.Desktop);
+    }
+  };
 
   const projects: Project[] = [
     {
       id: 'p-1',
-      name: 'TheMAG.dev FinTrack',
-      description: 'Enterprise finance tracker with OCR receipt scanning and automated reconciliation.',
-      author: '@alex_dev',
-      authorAvatar: 'AD',
+      name: 'TheMAG.dev React Starter',
+      description: 'A Vite + React + TypeScript starter template with pre-configured tooling.',
+      author: '@themag_dev',
+      authorAvatar: 'MD',
       stars: '1.2k',
-      thumbnail: './assets/store/hero_illustration.svg',
-      platforms: ['android', 'phone_iphone'],
-      status: 'Verified'
+      thumbnail: 'https://placehold.co/600x400/18181b/6366f1?text=React+Template',
+      platforms: ['web', 'phone_iphone'],
+      status: 'Verified',
+      templateId: 'react'
     },
     {
       id: 'p-2',
-      name: 'DevFlow Architecture',
-      description: 'A minimalist developer portfolio template built with TheMAG.dev Design Studio.',
-      author: '@maria_s',
-      authorAvatar: 'MS',
+      name: 'Node.js Microservice',
+      description: 'Lightweight Node.js HTTP server template for backend services.',
+      author: '@backend_pro',
+      authorAvatar: 'BP',
       stars: '854',
-      thumbnail: './assets/store/tech_pattern.svg',
-      platforms: ['language'],
-      status: 'Popular'
+      thumbnail: 'https://placehold.co/600x400/18181b/22c55e?text=Node+Service',
+      platforms: ['terminal'],
+      status: 'Popular',
+      templateId: 'node'
     },
     {
       id: 'p-3',
-      name: 'Cyber Jumper Engine',
-      description: '2D platformer engine with zero-overhead physics and custom shader support.',
-      author: '@gamedev_x',
-      authorAvatar: 'GX',
+      name: 'Static Landing Page',
+      description: 'Simple HTML/CSS/JS template for landing pages and portfolios.',
+      author: '@frontend_wiz',
+      authorAvatar: 'FW',
       stars: '2.4k',
-      thumbnail: './assets/store/dark_hex_pattern.svg',
-      platforms: ['desktop_mac', 'sports_esports'],
-      status: 'New'
+      thumbnail: 'https://placehold.co/600x400/18181b/eab308?text=Static+Site',
+      platforms: ['desktop_mac'],
+      status: 'New',
+      templateId: 'static'
     },
     {
       id: 'p-4',
@@ -166,8 +202,12 @@ const Projects: React.FC = () => {
          <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-4">Featured Environments</h2>
          <div className="flex gap-6 overflow-x-auto no-scrollbar pb-4 snap-x">
             {projects.slice(0, 3).map(p => (
-              <div key={p.id} className="relative snap-start shrink-0 w-[450px] h-[240px] rounded-2xl overflow-hidden group cursor-pointer border border-zinc-800 shadow-2xl">
-                 <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: `url(${p.thumbnail})` }} />
+              <div key={p.id} className="relative snap-start shrink-0 w-[450px] h-[240px] rounded-2xl overflow-hidden group cursor-pointer border border-zinc-800 shadow-2xl" onClick={() => handleOpenProject(p.templateId)}>
+                 {p.thumbnail.startsWith('http') ? (
+                    <img src={p.thumbnail} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={p.name} />
+                 ) : (
+                    <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: `url(${p.thumbnail})` }} />
+                 )}
                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent"></div>
                  <div className="absolute bottom-0 left-0 right-0 p-6">
                     <div className="flex items-center gap-2 mb-2">
@@ -194,7 +234,11 @@ const Projects: React.FC = () => {
                {projects.map(p => (
                  <div key={p.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-zinc-700 transition-all group shadow-xl">
                     <div className="h-40 bg-zinc-800 relative overflow-hidden">
-                       <img src={p.thumbnail} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" alt={p.name} />
+                       {p.thumbnail.startsWith('http') ? (
+                          <img src={p.thumbnail} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" alt={p.name} />
+                       ) : (
+                          <img src={p.thumbnail} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" alt={p.name} />
+                       )}
                        <div className="absolute top-3 right-3 flex gap-1">
                           {p.platforms.map(icon => (
                             <div key={icon} className="size-6 rounded bg-zinc-950/80 backdrop-blur flex items-center justify-center text-white border border-zinc-800">
@@ -216,7 +260,10 @@ const Projects: React.FC = () => {
                              <span className="text-xs font-bold text-zinc-300">{p.stars}</span>
                           </div>
                        </div>
-                       <button className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2">
+                       <button
+                         onClick={() => handleOpenProject(p.templateId)}
+                         className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                       >
                           <span className="material-symbols-rounded text-lg">code</span> View Implementation
                        </button>
                     </div>
