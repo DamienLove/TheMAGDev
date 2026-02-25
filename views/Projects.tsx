@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import { REACT_TEMPLATE, NODE_TEMPLATE, STATIC_TEMPLATE } from '../src/data/templates';
+import { View } from '../types';
 
 interface Project {
   id: string;
@@ -12,8 +15,31 @@ interface Project {
   status: 'New' | 'Popular' | 'Updated' | 'Verified';
 }
 
-const Projects: React.FC = () => {
+interface ProjectsProps {
+  onNavigate?: (view: View) => void;
+}
+
+const Projects: React.FC<ProjectsProps> = ({ onNavigate }) => {
   const [activeFilter, setActiveFilter] = useState('All');
+  const workspace = useWorkspace();
+
+  const handleTemplateClick = (template: typeof REACT_TEMPLATE, name: string) => {
+    // Clone the template to avoid mutating the original
+    const clonedTemplate = JSON.parse(JSON.stringify(template));
+
+    // Update package.json name if it exists
+    const pkgJson = clonedTemplate.find((f: any) => f.name === 'package.json');
+    if (pkgJson && pkgJson.content) {
+       const content = JSON.parse(pkgJson.content);
+       content.name = name.toLowerCase().replace(/\s+/g, '-');
+       pkgJson.content = JSON.stringify(content, null, 2);
+    }
+
+    workspace.replaceWorkspace(clonedTemplate);
+    if (onNavigate) {
+      onNavigate(View.Desktop);
+    }
+  };
 
   const projects: Project[] = [
     {
@@ -160,6 +186,57 @@ const Projects: React.FC = () => {
            </div>
         </div>
       </header>
+
+      {/* Start New Project Section */}
+      <section className="mb-12">
+        <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-4">Start New Project</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div
+              onClick={() => handleTemplateClick(REACT_TEMPLATE, 'React App')}
+              className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl cursor-pointer hover:border-indigo-500 hover:bg-zinc-800 transition-all group relative overflow-hidden"
+            >
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <span className="material-symbols-rounded text-9xl text-indigo-500">code</span>
+                </div>
+                <div className="size-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 mb-4 border border-indigo-500/20 group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-rounded text-2xl">grid_view</span>
+                </div>
+                <h3 className="text-white font-bold text-lg mb-1">React + Vite</h3>
+                <p className="text-zinc-400 text-xs mb-4">Modern React stack with fast HMR.</p>
+                <button className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest group-hover:text-indigo-300">Launch Template &rarr;</button>
+            </div>
+
+            <div
+              onClick={() => handleTemplateClick(NODE_TEMPLATE, 'Node Service')}
+              className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl cursor-pointer hover:border-emerald-500 hover:bg-zinc-800 transition-all group relative overflow-hidden"
+            >
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <span className="material-symbols-rounded text-9xl text-emerald-500">dns</span>
+                </div>
+                 <div className="size-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-4 border border-emerald-500/20 group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-rounded text-2xl">terminal</span>
+                </div>
+                <h3 className="text-white font-bold text-lg mb-1">Node.js Server</h3>
+                <p className="text-zinc-400 text-xs mb-4">Basic HTTP server setup.</p>
+                <button className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest group-hover:text-emerald-300">Launch Template &rarr;</button>
+            </div>
+
+            <div
+              onClick={() => handleTemplateClick(STATIC_TEMPLATE, 'Static Site')}
+              className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl cursor-pointer hover:border-amber-500 hover:bg-zinc-800 transition-all group relative overflow-hidden"
+            >
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <span className="material-symbols-rounded text-9xl text-amber-500">html</span>
+                </div>
+                 <div className="size-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 mb-4 border border-amber-500/20 group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-rounded text-2xl">web</span>
+                </div>
+                <h3 className="text-white font-bold text-lg mb-1">Static HTML</h3>
+                <p className="text-zinc-400 text-xs mb-4">Simple HTML/CSS/JS boilerplate.</p>
+                <button className="text-[10px] font-bold text-amber-400 uppercase tracking-widest group-hover:text-amber-300">Launch Template &rarr;</button>
+            </div>
+        </div>
+      </section>
 
       {/* Featured / Hero Section */}
       <section className="mb-12">

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
 
 interface BackendModule {
   name: string;
@@ -60,6 +61,7 @@ const DEFAULT_SERVICES: BackendService[] = [
   ];
 
 const Infrastructure: React.FC = () => {
+  const { files } = useWorkspace();
   const [services, setServices] = useState<BackendService[]>(() => {
     const saved = localStorage.getItem('themag_infrastructure');
     return saved ? JSON.parse(saved) : DEFAULT_SERVICES;
@@ -70,6 +72,44 @@ const Infrastructure: React.FC = () => {
       provider: '',
       project: ''
   });
+
+  // Auto-detect services from workspace files
+  useEffect(() => {
+    const detectServices = () => {
+        let detected = false;
+        const newServices = [...services];
+
+        const findFile = (nodes: typeof files, name: string): boolean => {
+            for (const node of nodes) {
+                if (node.name === name) return true;
+                if (node.children && findFile(node.children, name)) return true;
+            }
+            return false;
+        };
+
+        if (findFile(files, 'firebase.json')) {
+            const fbService = newServices.find(s => s.name === 'Google Firebase');
+            if (fbService && fbService.status !== 'Active') {
+                fbService.status = 'Active';
+                detected = true;
+            }
+        }
+
+        if (findFile(files, 'supabase')) { // Check for supabase folder
+             const sbService = newServices.find(s => s.name === 'Supabase');
+             if (sbService && sbService.status !== 'Active') {
+                 sbService.status = 'Active';
+                 detected = true;
+             }
+        }
+
+        if (detected) {
+            setServices(newServices);
+        }
+    };
+
+    detectServices();
+  }, [files]);
 
   useEffect(() => {
     localStorage.setItem('themag_infrastructure', JSON.stringify(services));
