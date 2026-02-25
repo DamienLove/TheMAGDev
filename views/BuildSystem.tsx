@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import webContainerService from '../src/services/WebContainerService';
 
 interface BuildTask {
   name: string;
-  type: 'android' | 'build' | 'verification';
+  type: 'script' | 'android' | 'build' | 'verification';
   isKey?: boolean;
+  command?: string;
 }
 
 interface Dependency {
@@ -15,39 +17,77 @@ interface Dependency {
 }
 
 const BuildSystem: React.FC = () => {
-  const [selectedProject, setSelectedProject] = useState('TheMAGCore:app');
+  const [selectedProject, setSelectedProject] = useState('Workspace Project');
   const [isOfflineMode, setIsOfflineMode] = useState(false);
   const [buildStatus, setBuildStatus] = useState<'idle' | 'building' | 'success' | 'error'>('idle');
   const [buildProgress, setBuildProgress] = useState(0);
   const [buildLogs, setBuildLogs] = useState<string[]>(['Ready to build...']);
   const logsEndRef = useRef<HTMLDivElement>(null);
 
-  // Workspace context is guaranteed by App wrapper
+  // Tasks derived from package.json
+  const [projectTasks, setProjectTasks] = useState<Record<string, BuildTask[]>>({});
+
+  // Workspace context
   const workspace = useWorkspace();
   const workspaceFiles = workspace.files;
+
+  useEffect(() => {
+    // Detect package.json
+    const findPackageJson = (files: typeof workspace.files): any | null => {
+      for (const file of files) {
+        if (file.name === 'package.json' && file.content) {
+          try {
+            return JSON.parse(file.content);
+          } catch (e) {
+            console.error('Failed to parse package.json', e);
+          }
+        }
+        if (file.children) {
+          const found = findPackageJson(file.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    const pkg = findPackageJson(workspaceFiles);
+    if (pkg && pkg.scripts) {
+      setSelectedProject(pkg.name || 'Workspace Project');
+      const scriptTasks: BuildTask[] = Object.entries(pkg.scripts).map(([name, cmd]) => ({
+        name,
+        type: 'script',
+        command: cmd as string,
+        isKey: name === 'build' || name === 'start' || name === 'dev'
+      }));
+      setProjectTasks({
+        'npm scripts': scriptTasks
+      });
+    } else {
+        // Fallback or Android defaults if no package.json
+        setProjectTasks({
+            'android': [
+              { name: 'androidDependencies', type: 'android' },
+              { name: 'signingReport', type: 'android' }
+            ],
+            'build': [
+              { name: 'assemble', type: 'build' },
+              { name: 'assembleDebug', type: 'build', isKey: true },
+              { name: 'bundleRelease', type: 'build' },
+              { name: 'clean', type: 'build' }
+            ],
+            'verification': [
+              { name: 'lint', type: 'verification' },
+              { name: 'test', type: 'verification' }
+            ]
+        });
+    }
+  }, [workspaceFiles]);
 
   useEffect(() => {
     if (logsEndRef.current) {
       logsEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [buildLogs]);
-
-  const tasks: Record<string, BuildTask[]> = {
-    'android': [
-      { name: 'androidDependencies', type: 'android' },
-      { name: 'signingReport', type: 'android' }
-    ],
-    'build': [
-      { name: 'assemble', type: 'build' },
-      { name: 'assembleDebug', type: 'build', isKey: true },
-      { name: 'bundleRelease', type: 'build' },
-      { name: 'clean', type: 'build' }
-    ],
-    'verification': [
-      { name: 'lint', type: 'verification' },
-      { name: 'test', type: 'verification' }
-    ]
-  };
 
   const dependencies: Record<string, Dependency[]> = {
     'implementation': [
@@ -60,22 +100,45 @@ const BuildSystem: React.FC = () => {
     ]
   };
 
-  const runBuild = (taskName: string) => {
+  const runBuild = async (task: BuildTask) => {
     if (buildStatus === 'building') return;
 
     setBuildStatus('building');
     setBuildProgress(0);
-    setBuildLogs([`> Executing task: ${taskName}...`, 'Initializing Daemon...', 'Allocating resources...']);
+    setBuildLogs([`> Executing task: ${task.name}...`, `> Command: ${task.command || task.name}`]);
 
+    if (task.type === 'script' && typeof window !== 'undefined' && window.crossOriginIsolated && webContainerService.isReady()) {
+        try {
+            setBuildLogs(prev => [...prev, 'Running in WebContainer...']);
+            // Override output callback to capture logs here
+            const originalCallback = (webContainerService as any).outputCallback;
+            webContainerService.setOutputCallback((data) => {
+                setBuildLogs(prev => [...prev, data.replace(/\x1b\[[0-9;]*m/g, '')]); // Strip ANSI codes for simple display
+            });
+
+            await webContainerService.runCommand(`npm run ${task.name}`);
+
+            // Restore callback? Or keep it? Ideally we should have a multi-listener setup.
+            // For now, let's just assume we captured enough.
+            webContainerService.setOutputCallback(originalCallback); // Restore
+
+            setBuildStatus('success');
+            setBuildProgress(100);
+            setBuildLogs(prev => [...prev, 'Script finished successfully.']);
+        } catch (e: any) {
+            setBuildStatus('error');
+            setBuildLogs(prev => [...prev, `Error: ${e.message}`]);
+        }
+        return;
+    }
+
+    // Mock simulation
     const steps = [
-        { progress: 10, msg: '> Configure project :app' },
-        { progress: 25, msg: '> Task :app:preBuild UP-TO-DATE' },
-        { progress: 40, msg: '> Task :app:preDebugBuild UP-TO-DATE' },
-        { progress: 55, msg: '> Task :app:compileDebugAidl NO-SOURCE' },
-        { progress: 70, msg: '> Task :app:compileDebugRenderscript NO-SOURCE' },
-        { progress: 85, msg: '> Task :app:generateDebugBuildConfig' },
-        { progress: 95, msg: '> Task :app:javaPreCompileDebug' },
-        { progress: 100, msg: 'BUILD SUCCESSFUL in 3s' }
+        { progress: 10, msg: '> Initializing...' },
+        { progress: 30, msg: '> Resolving dependencies...' },
+        { progress: 50, msg: '> Compiling...' },
+        { progress: 80, msg: '> Optimizing assets...' },
+        { progress: 100, msg: 'BUILD SUCCESSFUL in 2s' }
     ];
 
     let currentStep = 0;
@@ -91,7 +154,7 @@ const BuildSystem: React.FC = () => {
         setBuildProgress(step.progress);
         setBuildLogs(prev => [...prev, step.msg]);
         currentStep++;
-    }, 800);
+    }, 500);
   };
 
   return (
@@ -102,7 +165,7 @@ const BuildSystem: React.FC = () => {
           <div className="size-8 rounded-lg bg-indigo-600/20 flex items-center justify-center text-indigo-500">
             <span className="material-symbols-rounded text-[20px]">dataset</span>
           </div>
-          <h1 className="text-white text-sm font-bold uppercase tracking-widest">Build System Explorer (Gradle)</h1>
+          <h1 className="text-white text-sm font-bold uppercase tracking-widest">Build System Explorer</h1>
         </div>
         <div className="flex items-center gap-2">
           <button className="p-2 text-zinc-500 hover:text-white transition-colors" title="Sync Project Artifacts">
@@ -126,9 +189,7 @@ const BuildSystem: React.FC = () => {
                       onChange={(e) => setSelectedProject(e.target.value)}
                       className="appearance-none w-full bg-zinc-950 border border-zinc-800 rounded-lg py-2 pl-3 pr-10 text-xs font-bold text-zinc-200 focus:outline-none focus:border-indigo-500 transition-all cursor-pointer"
                     >
-                       <option>TheMAGCore</option>
-                       <option>TheMAGCore:app</option>
-                       <option>TheMAGCore:infrastructure</option>
+                       <option value={selectedProject}>{selectedProject}</option>
                     </select>
                     <span className="absolute right-2 top-1/2 -translate-y-1/2 material-symbols-rounded text-zinc-600 pointer-events-none">arrow_drop_down</span>
                  </div>
@@ -148,8 +209,8 @@ const BuildSystem: React.FC = () => {
                  <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em]">Build Invocations</span>
               </div>
               
-              {Object.entries(tasks).map(([group, taskList]) => (
-                <details key={group} className="group/folder mb-1" open={group === 'build'}>
+              {Object.entries(projectTasks).map(([group, taskList]) => (
+                <details key={group} className="group/folder mb-1" open={true}>
                    <summary className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-zinc-800 cursor-pointer select-none text-xs font-bold text-zinc-400 uppercase tracking-tight transition-colors">
                       <span className="material-symbols-rounded text-sm text-zinc-600 group-open/folder:rotate-90 transition-transform">chevron_right</span>
                       <span className={`material-symbols-rounded text-sm ${group === 'android' ? 'text-emerald-500' : group === 'build' ? 'text-amber-500' : 'text-purple-500'}`}>
@@ -162,7 +223,7 @@ const BuildSystem: React.FC = () => {
                         <div
                             key={task.name}
                             className={`flex items-center justify-between px-2 py-1.5 rounded hover:bg-zinc-800 group/item transition-all cursor-pointer ${task.isKey ? 'bg-indigo-500/5 border-l border-indigo-500' : ''}`}
-                            onClick={() => runBuild(task.name)}
+                            onClick={() => runBuild(task)}
                         >
                            <span className={`text-xs ${task.isKey ? 'text-white font-bold' : 'text-zinc-500'}`}>{task.name}</span>
                            <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
@@ -272,8 +333,8 @@ const BuildSystem: React.FC = () => {
             </div>
          </div>
          <div className="flex items-center gap-4 text-[9px] font-bold text-zinc-600 uppercase">
-            <span>Daemon: 8.4.1</span>
-            <span>JVM: 17.0.8</span>
+            <span>System: Local</span>
+            <span>WebContainer: {typeof window !== 'undefined' && window.crossOriginIsolated ? 'Ready' : 'Mock'}</span>
          </div>
       </footer>
     </div>

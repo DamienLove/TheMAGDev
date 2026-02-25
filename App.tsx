@@ -157,7 +157,7 @@ const AppContent: React.FC = () => {
   const renderView = () => {
     switch (currentView) {
       case View.Dashboard: return <Dashboard />;
-      case View.Projects: return <Projects />;
+      case View.Projects: return <Projects onNavigate={handleRestrictedAccess} />;
       case View.Editor: return <CodeEditor />;
       case View.Desktop: return <DesktopWorkspace />;
       case View.Design: return <DesignStudio />;
