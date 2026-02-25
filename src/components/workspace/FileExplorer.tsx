@@ -1,4 +1,4 @@
-import React, { useState, useCallback, memo, useEffect } from 'react';
+import React, { useState, useCallback, memo, useEffect, useRef } from 'react';
 import { useWorkspace, FileNode } from './WorkspaceContext';
 
 interface FileExplorerProps {
@@ -32,6 +32,44 @@ const getFileIcon = (name: string, type: 'file' | 'folder', isExpanded?: boolean
   };
 
   return iconMap[ext || ''] || { icon: 'description', color: 'text-zinc-500' };
+};
+
+const FileCreationInput: React.FC<{
+  type: 'file' | 'folder';
+  depth?: number;
+  onSubmit: (name: string) => void;
+  onCancel: () => void;
+}> = ({ type, depth = 0, onSubmit, onCancel }) => {
+  const [value, setValue] = useState('');
+
+  const handleSubmit = () => {
+    onSubmit(value);
+  };
+
+  return (
+    <div
+      className="flex items-center gap-1.5 py-1 px-2"
+      style={{ paddingLeft: `${(depth + 1) * 12 + 8}px` }}
+    >
+      <span className={`material-symbols-rounded text-sm ${type === 'folder' ? 'text-amber-400' : 'text-zinc-500'}`}>
+        {type === 'folder' ? 'folder' : 'description'}
+      </span>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={handleSubmit}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') handleSubmit();
+          if (e.key === 'Escape') onCancel();
+        }}
+        placeholder={type === 'folder' ? 'folder name' : 'file name'}
+        className="flex-1 bg-zinc-900 border border-indigo-500 rounded px-1 py-0.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none"
+        autoFocus
+        onClick={(e) => e.stopPropagation()}
+      />
+    </div>
+  );
 };
 
 interface FileTreeItemProps {
@@ -134,15 +172,13 @@ interface FileTreeNodeProps {
   unsavedFiles: Set<string>;
   renaming: string | null;
   creating: { parentPath: string; type: 'file' | 'folder' } | null;
-  newItemName: string;
-  setNewItemName: (name: string) => void;
   onToggle: (path: string) => void;
   onOpen: (path: string) => void;
   onContextMenu: (e: React.MouseEvent, path: string, type: 'file' | 'folder') => void;
   onRenameSubmit: (name: string) => void;
   onRenameCancel: () => void;
-  submitCreate: () => void;
-  setCreating: (val: { parentPath: string; type: 'file' | 'folder' } | null) => void;
+  onCommitCreate: (name: string) => void;
+  onCancelCreate: () => void;
 }
 
 const FileTreeNode = memo(({
@@ -153,15 +189,13 @@ const FileTreeNode = memo(({
   unsavedFiles,
   renaming,
   creating,
-  newItemName,
-  setNewItemName,
   onToggle,
   onOpen,
   onContextMenu,
   onRenameSubmit,
   onRenameCancel,
-  submitCreate,
-  setCreating
+  onCommitCreate,
+  onCancelCreate
 }: FileTreeNodeProps) => {
   const isExpanded = expandedFolders.has(node.path);
   const isActive = activeFile === node.path;
@@ -187,28 +221,13 @@ const FileTreeNode = memo(({
 
       {node.type === 'folder' && isExpanded && (
         <>
-          {isCreatingHere && (
-            <div
-              className="flex items-center gap-1.5 py-1 px-2"
-              style={{ paddingLeft: `${(depth + 1) * 12 + 8}px` }}
-            >
-              <span className={`material-symbols-rounded text-sm ${creating.type === 'folder' ? 'text-amber-400' : 'text-zinc-500'}`}>
-                {creating.type === 'folder' ? 'folder' : 'description'}
-              </span>
-              <input
-                type="text"
-                value={newItemName}
-                onChange={(e) => setNewItemName(e.target.value)}
-                onBlur={submitCreate}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') submitCreate();
-                  if (e.key === 'Escape') { setCreating(null); setNewItemName(''); }
-                }}
-                placeholder={creating.type === 'folder' ? 'folder name' : 'file name'}
-                className="flex-1 bg-zinc-900 border border-indigo-500 rounded px-1 py-0.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none"
-                autoFocus
-              />
-            </div>
+          {isCreatingHere && creating && (
+            <FileCreationInput
+              type={creating.type}
+              depth={depth + 1}
+              onSubmit={onCommitCreate}
+              onCancel={onCancelCreate}
+            />
           )}
           {node.children && node.children.map(child => (
             <FileTreeNode
@@ -220,15 +239,13 @@ const FileTreeNode = memo(({
               unsavedFiles={unsavedFiles}
               renaming={renaming}
               creating={creating}
-              newItemName={newItemName}
-              setNewItemName={setNewItemName}
               onToggle={onToggle}
               onOpen={onOpen}
               onContextMenu={onContextMenu}
               onRenameSubmit={onRenameSubmit}
               onRenameCancel={onRenameCancel}
-              submitCreate={submitCreate}
-              setCreating={setCreating}
+              onCommitCreate={onCommitCreate}
+              onCancelCreate={onCancelCreate}
             />
           ))}
         </>
@@ -248,12 +265,26 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
     unsavedFiles
   } = useWorkspace();
 
+  // Bolt Optimization: Stabilize callbacks to prevent unnecessary re-renders of the file tree
+  // caused by WorkspaceContext updates (e.g. typing in editor).
+  const openFileRef = useRef(openFile);
+  const createFileRef = useRef(createFile);
+  const deleteFileRef = useRef(deleteFile);
+  const renameFileRef = useRef(renameFile);
+
+  // Update refs when context functions change (which is frequent)
+  // This allows us to pass stable callbacks to children.
+  useEffect(() => {
+    openFileRef.current = openFile;
+    createFileRef.current = createFile;
+    deleteFileRef.current = deleteFile;
+    renameFileRef.current = renameFile;
+  }, [openFile, createFile, deleteFile, renameFile]);
+
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['/src', '/src/components', '/src/hooks']));
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; path: string; type: 'file' | 'folder' } | null>(null);
   const [renaming, setRenaming] = useState<string | null>(null);
-  // Removed global newName state to prevent re-renders of the whole tree when typing
   const [creating, setCreating] = useState<{ parentPath: string; type: 'file' | 'folder' } | null>(null);
-  const [newItemName, setNewItemName] = useState('');
 
   const toggleFolder = useCallback((path: string) => {
     setExpandedFolders(prev => {
@@ -265,6 +296,10 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
       }
       return next;
     });
+  }, []);
+
+  const handleOpen = useCallback((path: string) => {
+    openFileRef.current(path);
   }, []);
 
   const handleContextMenu = useCallback((e: React.MouseEvent, path: string, type: 'file' | 'folder') => {
@@ -284,10 +319,10 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
 
   const submitRename = useCallback((name: string) => {
     if (renaming && name.trim()) {
-      renameFile(renaming, name.trim());
+      renameFileRef.current(renaming, name.trim());
     }
     setRenaming(null);
-  }, [renaming, renameFile]);
+  }, [renaming]);
 
   const onRenameCancel = useCallback(() => {
     setRenaming(null);
@@ -295,27 +330,31 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
 
   const handleDelete = useCallback((path: string) => {
     if (confirm('Are you sure you want to delete this item?')) {
-      deleteFile(path);
+      deleteFileRef.current(path);
     }
     closeContextMenu();
-  }, [deleteFile, closeContextMenu]);
+  }, [closeContextMenu]);
 
   const handleCreate = useCallback((parentPath: string, type: 'file' | 'folder') => {
     setCreating({ parentPath, type });
-    setNewItemName('');
-    if (!expandedFolders.has(parentPath)) {
-      setExpandedFolders(prev => new Set(prev).add(parentPath));
-    }
+    // Bolt Optimization: Functional update avoids dependency on expandedFolders
+    setExpandedFolders(prev => {
+      if (prev.has(parentPath)) return prev;
+      return new Set(prev).add(parentPath);
+    });
     closeContextMenu();
-  }, [expandedFolders, closeContextMenu]);
+  }, [closeContextMenu]);
 
-  const submitCreate = useCallback(() => {
-    if (creating && newItemName.trim()) {
-      createFile(creating.parentPath, newItemName.trim(), creating.type);
+  const submitCreate = useCallback((name: string) => {
+    if (creating && name.trim()) {
+      createFileRef.current(creating.parentPath, name.trim(), creating.type);
     }
     setCreating(null);
-    setNewItemName('');
-  }, [creating, newItemName, createFile]);
+  }, [creating]);
+
+  const cancelCreate = useCallback(() => {
+    setCreating(null);
+  }, []);
 
 
   return (
@@ -375,23 +414,12 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
 
       {/* File Tree */}
       <div className="flex-1 overflow-y-auto py-2 px-1">
-        {creating?.parentPath === '/' && (
-          <div className="flex items-center gap-1.5 py-1 px-2 ml-2">
-            <span className={`material-symbols-rounded text-sm ${creating.type === 'folder' ? 'text-amber-400' : 'text-zinc-500'}`}>
-              {creating.type === 'folder' ? 'folder' : 'description'}
-            </span>
-            <input
-              type="text"
-              value={newItemName}
-              onChange={(e) => setNewItemName(e.target.value)}
-              onBlur={submitCreate}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') submitCreate();
-                if (e.key === 'Escape') { setCreating(null); setNewItemName(''); }
-              }}
-              placeholder={creating.type === 'folder' ? 'folder name' : 'file name'}
-              className="flex-1 bg-zinc-900 border border-indigo-500 rounded px-1 py-0.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none"
-              autoFocus
+        {creating?.parentPath === '/' && creating && (
+          <div className="ml-2">
+            <FileCreationInput
+              type={creating.type}
+              onSubmit={submitCreate}
+              onCancel={cancelCreate}
             />
           </div>
         )}
@@ -405,15 +433,13 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
             unsavedFiles={unsavedFiles}
             renaming={renaming}
             creating={creating}
-            newItemName={newItemName}
-            setNewItemName={setNewItemName}
             onToggle={toggleFolder}
-            onOpen={openFile}
+            onOpen={handleOpen}
             onContextMenu={handleContextMenu}
             onRenameSubmit={submitRename}
             onRenameCancel={onRenameCancel}
-            submitCreate={submitCreate}
-            setCreating={setCreating}
+            onCommitCreate={submitCreate}
+            onCancelCreate={cancelCreate}
           />
         ))}
       </div>
