@@ -152,6 +152,8 @@ const Settings: React.FC = () => {
 
   const renderToggle = (value: boolean, onChange: (val: boolean) => void) => (
     <button
+      role="switch"
+      aria-checked={value}
       onClick={() => onChange(!value)}
       className={`relative w-11 h-6 rounded-full transition-colors ${value ? 'bg-indigo-600' : 'bg-zinc-700'}`}
     >
@@ -188,15 +190,18 @@ const Settings: React.FC = () => {
     />
   );
 
-  const renderSettingRow = (label: string, description: string, control: React.ReactNode) => (
-    <div className="flex items-center justify-between py-3 border-b border-zinc-800/50">
-      <div>
-        <div className="text-sm text-zinc-200">{label}</div>
-        <div className="text-xs text-zinc-500 mt-0.5">{description}</div>
+  const renderSettingRow = (label: string, description: string, control: React.ReactElement) => {
+    const labelId = `setting-label-${label.replace(/\s+/g, '-').toLowerCase()}`;
+    return (
+      <div className="flex items-center justify-between py-3 border-b border-zinc-800/50">
+        <div>
+          <div id={labelId} className="text-sm text-zinc-200">{label}</div>
+          <div className="text-xs text-zinc-500 mt-0.5">{description}</div>
+        </div>
+        {React.cloneElement(control, { 'aria-labelledby': labelId })}
       </div>
-      {control}
-    </div>
-  );
+    );
+  };
 
   const formatBytes = (bytes?: number) => {
     if (bytes === undefined || bytes === null) return '—';
