@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
+import { Terminal, useWorkspace, FileNode as WorkspaceFileNode, FileExplorer, MonacoEditor } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
 
@@ -25,7 +25,6 @@ const DesktopWorkspace: React.FC = () => {
   // Get workspace context for IDE-wide file management
   const workspace = useWorkspace();
 
-  const [activeTab, setActiveTab] = useState('MainController.ts');
   const [activeTerminalTab, setActiveTerminalTab] = useState('Terminal');
   const showLogActions = activeTerminalTab !== 'Terminal';
   const [isLoadingProject, setIsLoadingProject] = useState(false);
@@ -39,9 +38,6 @@ const DesktopWorkspace: React.FC = () => {
   const [driveLoading, setDriveLoading] = useState(false);
   const [lastDriveError, setLastDriveError] = useState<string | null>(null);
   const [currentProject, setCurrentProject] = useState<DriveFile | null>(null);
-  const [projectFiles, setProjectFiles] = useState<FileNode[]>([]);
-  const [openFiles, setOpenFiles] = useState<Map<string, string>>(new Map());
-  const [activeFileContent, setActiveFileContent] = useState('');
   const [showDrivePanel, setShowDrivePanel] = useState(false);
   const [isCreatingProject, setIsCreatingProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
@@ -87,18 +83,6 @@ const DesktopWorkspace: React.FC = () => {
     popoutWindow.current = window.open(url, `${panelType}_window`, features);
     addTerminalLine(`Opened ${panelType} in new window`, 'success');
   };
-
-  // Default code snippet for demo
-  const defaultCodeSnippet = `import { Controller, Platform } from '@devstudio/core';
-
-// Initialize multi-platform handler
-export class MainController {
-  private targetPlatform: Platform;
-
-  constructor() {
-    this.targetPlatform = Platform.current();
-  }
-}`;
 
   // Initialize Google Drive connection
   useEffect(() => {
@@ -185,7 +169,6 @@ export class MainController {
   const disconnectDrive = () => {
     googleDriveService.disconnect();
     setCurrentProject(null);
-    setProjectFiles([]);
     setDriveFolderFiles([]);
     setDrivePath([]);
     addTerminalLine('Disconnected from Google Drive');
@@ -209,36 +192,13 @@ export class MainController {
     setIsCreatingProject(false);
   };
 
-  const openProject = async (project: DriveFile) => {
-    setCurrentProject(project);
-    addTerminalLine(`Opening project: ${project.name}...`);
-
-    const files = await googleDriveService.listFiles(project.id);
-    const fileNodes = files.map(f => ({
-      id: f.id,
-      name: f.name,
-      type: f.mimeType === 'application/vnd.google-apps.folder' ? 'folder' : 'file',
-      mimeType: f.mimeType,
-      driveFile: f,
-    } as FileNode));
-
-    setProjectFiles(fileNodes);
-    addTerminalLine(`Loaded ${files.length} file(s) from project`, 'success');
-  };
-
   const openDriveItem = async (item: DriveFile) => {
     if (item.mimeType === 'application/vnd.google-apps.folder') {
       await openDriveFolder(item);
       return;
     }
-
-    await openFile({
-      id: item.id,
-      name: item.name,
-      type: 'file',
-      mimeType: item.mimeType,
-      driveFile: item,
-    });
+    // Cannot open individual files from "My Drive" view directly into workspace yet without context
+    addTerminalLine(`Selected file: ${item.name}`, 'success');
   };
 
   // Helper to get language from filename
@@ -315,17 +275,6 @@ export class MainController {
       // Update the workspace context - this updates the entire IDE
       workspace.setActiveDriveFolderId(folder.id);
       workspace.replaceWorkspace(workspaceFiles);
-
-      // Also update local state for display
-      const files = await googleDriveService.listFiles(folder.id);
-      const fileNodes = files.map(f => ({
-        id: f.id,
-        name: f.name,
-        type: f.mimeType === 'application/vnd.google-apps.folder' ? 'folder' : 'file',
-        mimeType: f.mimeType,
-        driveFile: f,
-      } as FileNode));
-      setProjectFiles(fileNodes);
 
       // Count total files
       const countFiles = (nodes: WorkspaceFileNode[]): number => {
@@ -424,15 +373,17 @@ export class MainController {
       addTerminalLine('Repository and commit message required', 'error');
       return;
     }
+    // We need a way to track changes for git. For now we use the ones marked by the editor.
+    // In a real implementation we would diff the workspace against the repo.
     if (gitChanges.length === 0) {
-      addTerminalLine('No changes to commit', 'error');
+      addTerminalLine('No changes to commit (mock)', 'error');
       return;
     }
 
     try {
       addTerminalLine(`Committing ${gitChanges.length} file(s)...`);
       for (const filePath of gitChanges) {
-        const content = openFiles.get(filePath);
+        const content = workspace.getFileContent(filePath);
         if (content !== undefined) {
           await githubService.updateFile(
             githubRepo.owner,
@@ -453,13 +404,14 @@ export class MainController {
   };
 
   // Track file changes for git
-  const markFileChanged = (fileName: string) => {
-    setGitChanges(prev => prev.includes(fileName) ? prev : [...prev, fileName]);
+  const markFileChanged = (path: string) => {
+    setGitChanges(prev => prev.includes(path) ? prev : [...prev, path]);
   };
 
   // CLI LLM integration
   const runLLMCommand = async (action: string) => {
-    if (!activeFileContent) {
+    const content = workspace.activeFile ? workspace.getFileContent(workspace.activeFile) : '';
+    if (!content) {
       addTerminalLine('No file content to analyze', 'error');
       return;
     }
@@ -479,10 +431,10 @@ export class MainController {
     addTerminalLine(`Running AI ${action}...`);
     setTimeout(() => {
       const mockResponses: Record<string, string> = {
-        explain: `This code defines a ${activeTab.includes('Controller') ? 'controller class' : 'module'} that handles platform-specific initialization. It uses a constructor pattern to set the target platform based on the current runtime environment.`,
-        fix: 'No critical bugs found. Consider adding error handling for the Platform.current() call in case it fails.',
-        optimize: 'The code is already well-optimized. Consider lazy-loading the platform detection if not immediately needed.',
-        refactor: 'Consider using dependency injection for the Platform instance to improve testability.',
+        explain: `This code appears to be part of the active project. It is structured according to the framework conventions.`,
+        fix: 'No critical bugs found.',
+        optimize: 'The code is concise.',
+        refactor: 'Consider extracting some logic into utility functions.',
       };
       setLlmResponse(mockResponses[action] || 'Analysis complete.');
       setLlmLoading(false);
@@ -495,56 +447,16 @@ export class MainController {
     setLlmLoading(true);
     addTerminalLine('Processing custom prompt...');
     setTimeout(() => {
-      setLlmResponse(`Based on your prompt "${llmPrompt.slice(0, 50)}...", here's my analysis:\n\nThe code structure follows standard patterns. Consider implementing additional error boundaries and type guards for improved reliability.`);
+      setLlmResponse(`Based on your prompt "${llmPrompt.slice(0, 50)}...", here's my analysis:\n\nThe code structure follows standard patterns.`);
       setLlmLoading(false);
       addTerminalLine('Custom prompt complete', 'success');
     }, 2000);
   };
 
-  const openFile = async (file: FileNode) => {
-    if (file.type === 'folder') return;
-
-    addTerminalLine(`Reading file: ${file.name}...`);
-    const content = await googleDriveService.readFile(file.id);
-
-    if (content !== null) {
-      setOpenFiles(prev => new Map(prev).set(file.name, content));
-      setActiveTab(file.name);
-      setActiveFileContent(content);
-      addTerminalLine(`File loaded: ${file.name}`, 'success');
-    } else {
-      addTerminalLine(`Failed to read file: ${file.name}`, 'error');
-    }
-  };
-
   const saveCurrentFile = async () => {
-    if (!currentProject) return;
-
-    const file = projectFiles.find(f => f.name === activeTab);
-    if (!file) return;
-
-    addTerminalLine(`Saving ${activeTab}...`);
-    const success = await googleDriveService.updateFile(file.id, activeFileContent);
-
-    if (success) {
-      setOpenFiles(prev => new Map(prev).set(activeTab, activeFileContent));
-      addTerminalLine(`Saved ${activeTab}`, 'success');
-    } else {
-      addTerminalLine(`Failed to save ${activeTab}`, 'error');
-    }
-  };
-
-  const createNewFile = async (name: string) => {
-    if (!currentProject) return;
-
-    addTerminalLine(`Creating file: ${name}...`);
-    const file = await googleDriveService.createFile(name, '', currentProject.id);
-
-    if (file) {
-      addTerminalLine(`Created ${name}`, 'success');
-      openProject(currentProject);
-    } else {
-      addTerminalLine(`Failed to create ${name}`, 'error');
+    if (workspace.activeFile) {
+        workspace.saveFile(workspace.activeFile);
+        addTerminalLine(`Saved ${workspace.activeFile}`, 'success');
     }
   };
 
@@ -578,54 +490,6 @@ export class MainController {
     if (name.endsWith('.json')) return 'text-orange-400';
     return 'text-gray-400';
   };
-
-  // Recursive file tree renderer for workspace files
-  const renderFileTree = (files: WorkspaceFileNode[], depth: number): JSX.Element[] => {
-    return files.map((file) => {
-      const isActive = workspace.activeFile === file.path;
-      const paddingLeft = depth * 12 + 8;
-
-      if (file.type === 'folder') {
-        return (
-          <div key={file.path}>
-            <div
-              className="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-[#161825] rounded-sm"
-              style={{ paddingLeft }}
-            >
-              <span className="material-symbols-rounded text-[16px] text-yellow-400">folder</span>
-              <span className="truncate">{file.name}</span>
-            </div>
-            {file.children && renderFileTree(file.children, depth + 1)}
-          </div>
-        );
-      }
-
-      return (
-        <div
-          key={file.path}
-          onClick={() => {
-            workspace.openFile(file.path);
-            setActiveTab(file.name);
-            setActiveFileContent(workspace.getFileContent(file.path) || '');
-          }}
-          className={`flex items-center gap-2 px-2 py-1 rounded-sm cursor-pointer transition-colors ${isActive
-              ? 'text-white bg-indigo-500/20 border-l-2 border-indigo-500'
-              : 'text-[#9da1b9] hover:text-white hover:bg-[#161825]'
-            }`}
-          style={{ paddingLeft }}
-        >
-          <span className={`material-symbols-rounded text-[16px] ${getFileIconColor(file.name)}`}>
-            {getFileIcon(file.name)}
-          </span>
-          <span className="truncate">{file.name}</span>
-        </div>
-      );
-    });
-  };
-
-  const codeToDisplay = workspace.activeFile
-    ? (workspace.getFileContent(workspace.activeFile) || defaultCodeSnippet)
-    : (openFiles.get(activeTab) || defaultCodeSnippet);
 
   return (
     <div className="flex flex-col h-full bg-[#090a11] text-slate-200 font-sans overflow-hidden">
@@ -762,7 +626,7 @@ export class MainController {
               <span className="material-symbols-rounded text-indigo-400 text-[18px]">folder_open</span>
               <div className="flex flex-col">
                 <span className="text-[10px] font-bold leading-none text-white">{currentProject.name}</span>
-                <span className="text-[9px] text-indigo-400 font-medium">{projectFiles.length} files</span>
+                <span className="text-[9px] text-indigo-400 font-medium">{workspace.files.length} files</span>
               </div>
             </div>
           )}
@@ -847,7 +711,7 @@ export class MainController {
             </span>
             {currentProject && !showDrivePanel && (
               <button
-                onClick={() => createNewFile(prompt('File name:') || '')}
+                onClick={() => workspace.createFile('/', prompt('File name:') || 'new-file', 'file')}
                 className="material-symbols-rounded text-[16px] text-[#5f637a] cursor-pointer hover:text-white"
               >
                 note_add
@@ -1024,37 +888,14 @@ export class MainController {
               </div>
             ) : (
               // Explorer Panel - Shows workspace files
-              <div className="flex flex-col gap-0.5">
+              <div className="flex flex-col gap-0.5 h-full">
                 {isLoadingProject ? (
                   <div className="flex flex-col items-center justify-center py-8 gap-3">
                     <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
                     <span className="text-[11px] text-[#9da1b9]">Loading project files...</span>
                   </div>
-                ) : currentProject ? (
-                  <>
-                    <div className="flex items-center gap-2 px-2 py-1 text-white bg-white/5 rounded-sm cursor-pointer mb-1">
-                      <span className="material-symbols-rounded text-[16px] text-yellow-400">folder_open</span>
-                      <span className="font-bold">{currentProject.name}</span>
-                    </div>
-                    {/* Render workspace files from context */}
-                    {renderFileTree(workspace.files, 0)}
-                    {workspace.files.length === 0 && (
-                      <div className="text-[11px] text-[#5f637a] px-2 py-4 text-center">
-                        Empty project. Create a file to get started.
-                      </div>
-                    )}
-                  </>
                 ) : (
-                  // Show workspace files even without Drive project
-                  <>
-                    {workspace.files.length > 0 ? (
-                      renderFileTree(workspace.files, 0)
-                    ) : (
-                      <div className="text-[10px] text-[#5f637a] px-2 py-4 text-center">
-                        Connect to Google Drive and open a project to edit files
-                      </div>
-                    )}
-                  </>
+                  <FileExplorer className="flex-1" onPopOut={() => openPopoutWindow('editor')} />
                 )}
               </div>
             )}
@@ -1075,7 +916,6 @@ export class MainController {
                     className={`h-full flex items-center px-4 border-r border-[#282b39] border-t-2 text-[12px] font-medium gap-2 min-w-fit cursor-pointer ${isActive ? 'bg-[#111218] border-t-indigo-500 text-white' : 'border-t-transparent text-[#9da1b9] hover:bg-[#161825]'}`}
                     onClick={() => {
                       workspace.setActiveFile(filePath);
-                      setActiveTab(fileName);
                     }}
                   >
                     <span className={`material-symbols-rounded text-[14px] ${getFileIconColor(fileName)}`}>{getFileIcon(fileName)}</span>
@@ -1102,26 +942,10 @@ export class MainController {
 
           <div className="flex-1 flex overflow-hidden">
             <div className="flex-1 flex flex-col min-w-0 border-r border-[#282b39]">
-              <div className="flex-1 overflow-auto p-4 font-mono text-[13px] relative bg-[#111218]">
-                <div className="absolute left-0 top-4 bottom-0 w-10 flex flex-col items-end pr-2 text-[#4b5064] select-none">
-                  {codeToDisplay.split('\n').map((_, i) => (
-                    <div key={i} className={i === 5 ? 'text-indigo-500 font-bold' : ''}>{i + 1}</div>
-                  ))}
-                </div>
-                <textarea
-                  value={workspace.activeFile ? (workspace.getFileContent(workspace.activeFile) || '') : codeToDisplay}
-                  onChange={(e) => {
-                    if (workspace.activeFile) {
-                      workspace.updateFileContent(workspace.activeFile, e.target.value);
-                      markFileChanged(workspace.activeFile.split('/').pop() || '');
-                    } else {
-                      setActiveFileContent(e.target.value);
-                    }
-                  }}
-                  className="pl-8 w-full h-full bg-transparent text-[#d4d4d4] leading-6 resize-none focus:outline-none font-mono"
-                  spellCheck={false}
-                />
-              </div>
+               <MonacoEditor
+                 className="h-full"
+                 onContentChange={(path) => markFileChanged(path)}
+               />
             </div>
 
             {/* Right Side: AI Assistant / Git Panel */}

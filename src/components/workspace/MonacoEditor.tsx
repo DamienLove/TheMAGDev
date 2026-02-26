@@ -5,9 +5,10 @@ import { useWorkspace } from './WorkspaceContext';
 
 interface MonacoEditorProps {
   className?: string;
+  onContentChange?: (path: string, content: string) => void;
 }
 
-const MonacoEditor: React.FC<MonacoEditorProps> = ({ className }) => {
+const MonacoEditor: React.FC<MonacoEditorProps> = ({ className, onContentChange }) => {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const { activeFile, getFileByPath, getFileContent, updateFileContent, saveFile, unsavedFiles } = useWorkspace();
 
@@ -140,6 +141,7 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ className }) => {
   const handleChange: OnChange = useCallback((value) => {
     if (activeFile && value !== undefined) {
       pendingUpdateRef.current = { path: activeFile, content: value };
+      onContentChange?.(activeFile, value);
 
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
@@ -149,7 +151,7 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ className }) => {
         flushUpdate();
       }, 1000);
     }
-  }, [activeFile, flushUpdate]);
+  }, [activeFile, flushUpdate, onContentChange]);
 
   // Focus editor when file changes
   useEffect(() => {
