@@ -153,7 +153,9 @@ const Settings: React.FC = () => {
   const renderToggle = (value: boolean, onChange: (val: boolean) => void) => (
     <button
       onClick={() => onChange(!value)}
-      className={`relative w-11 h-6 rounded-full transition-colors ${value ? 'bg-indigo-600' : 'bg-zinc-700'}`}
+      role="switch"
+      aria-checked={value}
+      className={`relative w-11 h-6 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900 ${value ? 'bg-indigo-600' : 'bg-zinc-700'}`}
     >
       <div
         className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${value ? 'left-6' : 'left-1'}`}
@@ -188,15 +190,19 @@ const Settings: React.FC = () => {
     />
   );
 
-  const renderSettingRow = (label: string, description: string, control: React.ReactNode) => (
-    <div className="flex items-center justify-between py-3 border-b border-zinc-800/50">
-      <div>
-        <div className="text-sm text-zinc-200">{label}</div>
-        <div className="text-xs text-zinc-500 mt-0.5">{description}</div>
+  const renderSettingRow = (label: string, description: string, control: React.ReactNode) => {
+    const labelId = `setting-${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+
+    return (
+      <div className="flex items-center justify-between py-3 border-b border-zinc-800/50">
+        <div>
+          <div id={labelId} className="text-sm text-zinc-200">{label}</div>
+          <div className="text-xs text-zinc-500 mt-0.5">{description}</div>
+        </div>
+        {React.isValidElement(control) ? React.cloneElement(control as React.ReactElement, { 'aria-labelledby': labelId }) : control}
       </div>
-      {control}
-    </div>
-  );
+    );
+  };
 
   const formatBytes = (bytes?: number) => {
     if (bytes === undefined || bytes === null) return '—';

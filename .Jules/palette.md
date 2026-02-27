@@ -9,3 +9,7 @@ This journal records critical UX and accessibility learnings.
 ## 2025-05-18 - [Copy Confirmation Pattern]
 **Learning:** Copy actions without visual feedback leave users uncertain if the action succeeded.
 **Action:** Always provide immediate visual feedback (e.g., checkmark icon, "Copied!" tooltip) for copy-to-clipboard actions.
+
+## 2026-02-27 - [Implicit Label Association]
+**Learning:** In configuration UIs with helper functions (like `renderSettingRow`), explicitly associating labels with controls can be tricky when the control is passed as a React Node.
+**Action:** Use `React.cloneElement` to inject `aria-labelledby` into the control element, ensuring screen readers can correctly associate the label text with the input or toggle, even without a direct `htmlFor` / `id` link in the JSX.
