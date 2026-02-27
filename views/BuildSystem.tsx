@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import Terminal from '../src/components/workspace/Terminal';
 
 interface BuildTask {
   name: string;
@@ -15,16 +16,36 @@ interface Dependency {
 }
 
 const BuildSystem: React.FC = () => {
-  const [selectedProject, setSelectedProject] = useState('TheMAGCore:app');
+  const [selectedProject, setSelectedProject] = useState('Current Workspace');
   const [isOfflineMode, setIsOfflineMode] = useState(false);
   const [buildStatus, setBuildStatus] = useState<'idle' | 'building' | 'success' | 'error'>('idle');
   const [buildProgress, setBuildProgress] = useState(0);
   const [buildLogs, setBuildLogs] = useState<string[]>(['Ready to build...']);
   const logsEndRef = useRef<HTMLDivElement>(null);
 
-  // Workspace context is guaranteed by App wrapper
+  // Terminal state
+  const terminalRef = useRef<any>(null);
+
+  // Workspace context
   const workspace = useWorkspace();
-  const workspaceFiles = workspace.files;
+  const [packageScripts, setPackageScripts] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Parse package.json to find available scripts
+    const packageJsonNode = workspace.getFileByPath('/package.json');
+    if (packageJsonNode && packageJsonNode.content) {
+      try {
+        const pkg = JSON.parse(packageJsonNode.content);
+        if (pkg.scripts) {
+          setPackageScripts(Object.keys(pkg.scripts));
+        }
+      } catch (e) {
+        console.error('Failed to parse package.json', e);
+      }
+    } else {
+      setPackageScripts([]);
+    }
+  }, [workspace.files]);
 
   useEffect(() => {
     if (logsEndRef.current) {
@@ -33,15 +54,10 @@ const BuildSystem: React.FC = () => {
   }, [buildLogs]);
 
   const tasks: Record<string, BuildTask[]> = {
+    'npm': packageScripts.map(script => ({ name: script, type: 'build' })),
     'android': [
       { name: 'androidDependencies', type: 'android' },
       { name: 'signingReport', type: 'android' }
-    ],
-    'build': [
-      { name: 'assemble', type: 'build' },
-      { name: 'assembleDebug', type: 'build', isKey: true },
-      { name: 'bundleRelease', type: 'build' },
-      { name: 'clean', type: 'build' }
     ],
     'verification': [
       { name: 'lint', type: 'verification' },
@@ -61,20 +77,26 @@ const BuildSystem: React.FC = () => {
   };
 
   const runBuild = (taskName: string) => {
+    // If it's an npm script, run it in the terminal?
+    // For now, let's simulate the build log for visualization
     if (buildStatus === 'building') return;
 
     setBuildStatus('building');
     setBuildProgress(0);
     setBuildLogs([`> Executing task: ${taskName}...`, 'Initializing Daemon...', 'Allocating resources...']);
 
+    // Attempt to run in simulated terminal if available
+    // In a real implementation, we would send this command to the Terminal component
+    // terminalRef.current?.execute(`npm run ${taskName}`);
+
     const steps = [
-        { progress: 10, msg: '> Configure project :app' },
-        { progress: 25, msg: '> Task :app:preBuild UP-TO-DATE' },
-        { progress: 40, msg: '> Task :app:preDebugBuild UP-TO-DATE' },
-        { progress: 55, msg: '> Task :app:compileDebugAidl NO-SOURCE' },
-        { progress: 70, msg: '> Task :app:compileDebugRenderscript NO-SOURCE' },
-        { progress: 85, msg: '> Task :app:generateDebugBuildConfig' },
-        { progress: 95, msg: '> Task :app:javaPreCompileDebug' },
+        { progress: 10, msg: `> Configure project :${selectedProject}` },
+        { progress: 25, msg: '> Task :preBuild UP-TO-DATE' },
+        { progress: 40, msg: '> Task :preDebugBuild UP-TO-DATE' },
+        { progress: 55, msg: '> Task :compileDebugAidl NO-SOURCE' },
+        { progress: 70, msg: '> Task :compileDebugRenderscript NO-SOURCE' },
+        { progress: 85, msg: '> Task :generateDebugBuildConfig' },
+        { progress: 95, msg: '> Task :javaPreCompileDebug' },
         { progress: 100, msg: 'BUILD SUCCESSFUL in 3s' }
     ];
 
@@ -102,7 +124,7 @@ const BuildSystem: React.FC = () => {
           <div className="size-8 rounded-lg bg-indigo-600/20 flex items-center justify-center text-indigo-500">
             <span className="material-symbols-rounded text-[20px]">dataset</span>
           </div>
-          <h1 className="text-white text-sm font-bold uppercase tracking-widest">Build System Explorer (Gradle)</h1>
+          <h1 className="text-white text-sm font-bold uppercase tracking-widest">Build System Explorer</h1>
         </div>
         <div className="flex items-center gap-2">
           <button className="p-2 text-zinc-500 hover:text-white transition-colors" title="Sync Project Artifacts">
@@ -126,7 +148,7 @@ const BuildSystem: React.FC = () => {
                       onChange={(e) => setSelectedProject(e.target.value)}
                       className="appearance-none w-full bg-zinc-950 border border-zinc-800 rounded-lg py-2 pl-3 pr-10 text-xs font-bold text-zinc-200 focus:outline-none focus:border-indigo-500 transition-all cursor-pointer"
                     >
-                       <option>TheMAGCore</option>
+                       <option>Current Workspace</option>
                        <option>TheMAGCore:app</option>
                        <option>TheMAGCore:infrastructure</option>
                     </select>
@@ -149,11 +171,11 @@ const BuildSystem: React.FC = () => {
               </div>
               
               {Object.entries(tasks).map(([group, taskList]) => (
-                <details key={group} className="group/folder mb-1" open={group === 'build'}>
+                <details key={group} className="group/folder mb-1" open={group === 'npm' || group === 'build'}>
                    <summary className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-zinc-800 cursor-pointer select-none text-xs font-bold text-zinc-400 uppercase tracking-tight transition-colors">
                       <span className="material-symbols-rounded text-sm text-zinc-600 group-open/folder:rotate-90 transition-transform">chevron_right</span>
-                      <span className={`material-symbols-rounded text-sm ${group === 'android' ? 'text-emerald-500' : group === 'build' ? 'text-amber-500' : 'text-purple-500'}`}>
-                        {group === 'android' ? 'android' : group === 'build' ? 'build' : 'fact_check'}
+                      <span className={`material-symbols-rounded text-sm ${group === 'android' ? 'text-emerald-500' : group === 'npm' ? 'text-blue-500' : group === 'build' ? 'text-amber-500' : 'text-purple-500'}`}>
+                        {group === 'android' ? 'android' : group === 'npm' ? 'terminal' : group === 'build' ? 'build' : 'fact_check'}
                       </span>
                       {group}
                    </summary>
@@ -176,80 +198,86 @@ const BuildSystem: React.FC = () => {
            </div>
         </aside>
 
-        {/* Main Panel: Dependencies & Resolution */}
-        <main className="flex-1 overflow-y-auto p-8 bg-zinc-950">
-           <div className="max-w-4xl mx-auto space-y-10">
-              <section>
-                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-3">
-                       <span className="material-symbols-rounded text-indigo-500">inventory_2</span>
-                       Dependency Resolution
-                    </h2>
-                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800">Lockfile: enabled</span>
-                 </div>
-
-                 <div className="grid grid-cols-1 gap-4">
-                    {Object.entries(dependencies).map(([scope, deps]) => (
-                      <div key={scope} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl">
-                         <div className="px-5 py-3 bg-zinc-950/50 border-b border-zinc-800 flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.2em]">{scope}</span>
-                            <span className="text-[10px] font-bold text-zinc-600">{deps.length} Artifacts</span>
-                         </div>
-                         <div className="divide-y divide-zinc-800/50">
-                            {deps.map((dep, i) => (
-                              <div key={i} className={`p-4 flex items-start gap-4 hover:bg-zinc-800/30 transition-colors ${dep.hasConflict ? 'bg-amber-500/5' : ''}`}>
-                                 <div className={`size-10 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center shrink-0 ${dep.hasConflict ? 'text-amber-500' : 'text-zinc-500'}`}>
-                                    <span className="material-symbols-rounded text-xl">package_2</span>
-                                 </div>
-                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1">
-                                       <span className="text-sm font-bold text-zinc-200 truncate">{dep.group}</span>
-                                       {dep.hasConflict && <span className="material-symbols-rounded text-amber-500 text-sm">warning</span>}
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                       <span className="text-[10px] font-mono text-indigo-400 uppercase font-bold">v{dep.version}</span>
-                                       {dep.updateAvailable && (
-                                         <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded text-[9px] font-bold text-amber-500 uppercase tracking-widest animate-pulse">
-                                            Update Available: {dep.updateAvailable}
-                                         </div>
-                                       )}
-                                    </div>
-                                 </div>
-                                 <button className="text-[10px] font-bold text-zinc-500 hover:text-white uppercase tracking-tighter">Exclude</button>
-                              </div>
-                            ))}
-                         </div>
-                      </div>
-                    ))}
-                 </div>
-              </section>
-
-              {/* Build Logs / Console Preview */}
-              <section>
-                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Live Build Pipeline</h2>
-                    <button className="text-[10px] font-bold text-indigo-400 hover:underline uppercase">View Full Console</button>
-                 </div>
-                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 font-mono text-[11px] leading-relaxed shadow-inner overflow-hidden relative group min-h-[160px]">
-                    <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                       <button className="p-1 bg-zinc-800 rounded border border-zinc-700 text-zinc-400 hover:text-white"><span className="material-symbols-rounded text-sm">content_copy</span></button>
+        {/* Main Panel */}
+        <main className="flex-1 flex flex-col min-w-0 bg-zinc-950">
+           {/* Top Half: Dependencies & Resolution */}
+           <div className="flex-1 overflow-y-auto p-8 border-b border-zinc-800">
+              <div className="max-w-4xl mx-auto space-y-10">
+                 <section>
+                    <div className="flex items-center justify-between mb-6">
+                       <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-3">
+                          <span className="material-symbols-rounded text-indigo-500">inventory_2</span>
+                          Dependency Resolution
+                       </h2>
+                       <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800">Lockfile: enabled</span>
                     </div>
 
-                    <div className="space-y-1 h-32 overflow-y-auto pr-2">
+                    <div className="grid grid-cols-1 gap-4">
+                       {Object.entries(dependencies).map(([scope, deps]) => (
+                         <div key={scope} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl">
+                            <div className="px-5 py-3 bg-zinc-950/50 border-b border-zinc-800 flex items-center justify-between">
+                               <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.2em]">{scope}</span>
+                               <span className="text-[10px] font-bold text-zinc-600">{deps.length} Artifacts</span>
+                            </div>
+                            <div className="divide-y divide-zinc-800/50">
+                               {deps.map((dep, i) => (
+                                 <div key={i} className={`p-4 flex items-start gap-4 hover:bg-zinc-800/30 transition-colors ${dep.hasConflict ? 'bg-amber-500/5' : ''}`}>
+                                    <div className={`size-10 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center shrink-0 ${dep.hasConflict ? 'text-amber-500' : 'text-zinc-500'}`}>
+                                       <span className="material-symbols-rounded text-xl">package_2</span>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                       <div className="flex items-center gap-2 mb-1">
+                                          <span className="text-sm font-bold text-zinc-200 truncate">{dep.group}</span>
+                                          {dep.hasConflict && <span className="material-symbols-rounded text-amber-500 text-sm">warning</span>}
+                                       </div>
+                                       <div className="flex items-center gap-3">
+                                          <span className="text-[10px] font-mono text-indigo-400 uppercase font-bold">v{dep.version}</span>
+                                          {dep.updateAvailable && (
+                                            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded text-[9px] font-bold text-amber-500 uppercase tracking-widest animate-pulse">
+                                               Update Available: {dep.updateAvailable}
+                                            </div>
+                                          )}
+                                       </div>
+                                    </div>
+                                    <button className="text-[10px] font-bold text-zinc-500 hover:text-white uppercase tracking-tighter">Exclude</button>
+                                 </div>
+                               ))}
+                            </div>
+                         </div>
+                       ))}
+                    </div>
+                 </section>
+              </div>
+           </div>
+
+           {/* Bottom Half: Build Logs / Console Preview */}
+           <div className="h-64 flex flex-col border-t border-zinc-800 bg-[#09090b]">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-800 bg-zinc-900/50">
+                 <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Build Output</h2>
+                 <div className="flex gap-2">
+                    <button className="text-[10px] font-bold text-indigo-400 hover:underline uppercase" onClick={() => setBuildLogs([])}>Clear</button>
+                 </div>
+              </div>
+
+              <div className="flex-1 relative">
+                 <Terminal className="h-full" initialMode="mock" />
+
+                 {/* Overlay logs if using simple display instead of terminal */}
+                 {buildLogs.length > 1 && (
+                    <div className="absolute inset-0 bg-zinc-900/90 p-4 font-mono text-[11px] leading-relaxed overflow-y-auto pointer-events-none">
                         {buildLogs.map((log, i) => (
                              <p key={i} className={`${log.includes('SUCCESSFUL') ? 'text-emerald-500 font-bold' : 'text-zinc-300'}`}>{log}</p>
                         ))}
                         <div ref={logsEndRef} />
+                        <div className="w-full h-1 bg-zinc-800 rounded-full mt-4 overflow-hidden">
+                           <div
+                             className={`h-full transition-all duration-300 ${buildStatus === 'success' ? 'bg-emerald-500' : 'bg-indigo-500'}`}
+                             style={{ width: `${buildProgress}%` }}
+                           ></div>
+                        </div>
                     </div>
-
-                    <div className="w-full h-1 bg-zinc-800 rounded-full mt-4 overflow-hidden">
-                       <div
-                         className={`h-full transition-all duration-300 ${buildStatus === 'success' ? 'bg-emerald-500' : 'bg-indigo-500'}`}
-                         style={{ width: `${buildProgress}%` }}
-                       ></div>
-                    </div>
-                 </div>
-              </section>
+                 )}
+              </div>
            </div>
         </main>
       </div>

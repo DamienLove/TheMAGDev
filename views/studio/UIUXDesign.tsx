@@ -51,10 +51,42 @@ const UIUXDesign: React.FC = () => {
   const filteredDevices = DEVICES.filter(d => d.category === selectedCategory);
   const selectedComponent = components.find(c => c.id === selectedComponentId);
 
+  const generateReactCode = (components: UIComponent[]) => {
+    const imports = `import React from 'react';\n\n`;
+
+    const componentCode = components.map(c => {
+      const styleString = JSON.stringify(c.style).replace(/"([^"]+)":/g, '$1:');
+
+      switch (c.type) {
+        case 'button':
+          return `      <button style={${styleString}}>${c.props.label}</button>`;
+        case 'input':
+          return `      <input style={${styleString}} placeholder="${c.props.placeholder}" />`;
+        case 'text':
+          return `      <div style={${styleString}}>${c.props.content}</div>`;
+        case 'card':
+          return `      <div style={${styleString}}>${c.props.children || ''}</div>`;
+        case 'image':
+          return `      <img style={${styleString}} src="${c.props.src}" alt="generated" />`;
+        case 'switch':
+          return `      <div style={${styleString}}>
+        <input type="checkbox" checked={${c.props.checked}} readOnly />
+        <span>Label</span>
+      </div>`;
+        default:
+          return '';
+      }
+    }).join('\n');
+
+    return `${imports}export const GeneratedComponent = () => {\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '24px' }}>\n${componentCode}\n    </div>\n  );\n};`;
+  };
+
   const handleExport = () => {
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
-    console.log('Exporting Schema:', JSON.stringify(components, null, 2));
+    const code = generateReactCode(components);
+    navigator.clipboard.writeText(code).then(() => {
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    });
   };
 
   const addComponent = (type: ComponentType) => {
@@ -123,7 +155,7 @@ const UIUXDesign: React.FC = () => {
           </div>
           <div>
              <h4 className="text-xs font-bold text-white">Export Successful</h4>
-             <p className="text-[10px] text-zinc-400">UI schema saved to local clipboard.</p>
+             <p className="text-[10px] text-zinc-400">UI code copied to clipboard.</p>
           </div>
        </div>
 
@@ -177,7 +209,7 @@ const UIUXDesign: React.FC = () => {
              <button onClick={() => setZoom(Math.min(200, zoom + 10))} className="size-6 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-colors"><span className="material-symbols-rounded text-sm">add</span></button>
           </div>
           <button onClick={handleExport} className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-[10px] font-bold uppercase tracking-wider transition-all shadow-lg shadow-indigo-500/20">
-            Export UI
+            Export UI Code
           </button>
         </div>
       </header>
