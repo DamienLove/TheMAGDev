@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { useWorkspace, FileNode } from '../src/components/workspace/WorkspaceContext';
+import { REACT_TEMPLATE, NODE_TEMPLATE, STATIC_TEMPLATE } from '../src/data/templates';
+import { View } from '../types';
 
 interface Project {
   id: string;
@@ -10,44 +13,53 @@ interface Project {
   thumbnail: string;
   platforms: string[];
   status: 'New' | 'Popular' | 'Updated' | 'Verified';
+  template?: FileNode[];
 }
 
-const Projects: React.FC = () => {
+interface ProjectsProps {
+  onNavigate: (view: View) => void;
+}
+
+const Projects: React.FC<ProjectsProps> = ({ onNavigate }) => {
   const [activeFilter, setActiveFilter] = useState('All');
+  const workspace = useWorkspace();
 
   const projects: Project[] = [
     {
       id: 'p-1',
       name: 'TheMAG.dev FinTrack',
-      description: 'Enterprise finance tracker with OCR receipt scanning and automated reconciliation.',
+      description: 'Enterprise finance tracker with OCR receipt scanning and automated reconciliation (React).',
       author: '@alex_dev',
       authorAvatar: 'AD',
       stars: '1.2k',
       thumbnail: './assets/store/hero_illustration.svg',
       platforms: ['android', 'phone_iphone'],
-      status: 'Verified'
+      status: 'Verified',
+      template: REACT_TEMPLATE
     },
     {
       id: 'p-2',
       name: 'DevFlow Architecture',
-      description: 'A minimalist developer portfolio template built with TheMAG.dev Design Studio.',
+      description: 'A minimalist developer portfolio template built with TheMAG.dev Design Studio (Static).',
       author: '@maria_s',
       authorAvatar: 'MS',
       stars: '854',
       thumbnail: './assets/store/tech_pattern.svg',
       platforms: ['language'],
-      status: 'Popular'
+      status: 'Popular',
+      template: STATIC_TEMPLATE
     },
     {
       id: 'p-3',
       name: 'Cyber Jumper Engine',
-      description: '2D platformer engine with zero-overhead physics and custom shader support.',
+      description: '2D platformer engine with zero-overhead physics and custom shader support (Node).',
       author: '@gamedev_x',
       authorAvatar: 'GX',
       stars: '2.4k',
       thumbnail: './assets/store/dark_hex_pattern.svg',
       platforms: ['desktop_mac', 'sports_esports'],
-      status: 'New'
+      status: 'New',
+      template: NODE_TEMPLATE
     },
     {
       id: 'p-4',
@@ -58,7 +70,8 @@ const Projects: React.FC = () => {
       stars: '3.1k',
       thumbnail: './assets/store/hero_illustration.svg',
       platforms: ['language', 'grid_view'],
-      status: 'Updated'
+      status: 'Updated',
+      template: REACT_TEMPLATE
     },
     {
       id: 'p-5',
@@ -69,7 +82,8 @@ const Projects: React.FC = () => {
       stars: '4.5k',
       thumbnail: './assets/store/tech_pattern.svg',
       platforms: ['palette', 'devices'],
-      status: 'Popular'
+      status: 'Popular',
+      template: REACT_TEMPLATE
     },
     {
       id: 'p-6',
@@ -80,7 +94,8 @@ const Projects: React.FC = () => {
       stars: '1.8k',
       thumbnail: './assets/store/hero_illustration.svg',
       platforms: ['cloud', 'analytics'],
-      status: 'Verified'
+      status: 'Verified',
+      template: NODE_TEMPLATE
     },
     {
       id: 'p-7',
@@ -91,7 +106,8 @@ const Projects: React.FC = () => {
       stars: '5.2k',
       thumbnail: './assets/store/game_hero.svg',
       platforms: ['sports_esports', 'desktop_windows'],
-      status: 'Trending'
+      status: 'Trending',
+      template: STATIC_TEMPLATE
     },
     {
       id: 'p-8',
@@ -102,7 +118,8 @@ const Projects: React.FC = () => {
       stars: '2.9k',
       thumbnail: './assets/store/widget_analytics.svg',
       platforms: ['analytics', 'monitoring'],
-      status: 'New'
+      status: 'New',
+      template: REACT_TEMPLATE
     },
     {
       id: 'p-9',
@@ -113,9 +130,19 @@ const Projects: React.FC = () => {
       stars: '3.4k',
       thumbnail: './assets/store/icon_chat.svg',
       platforms: ['chat', 'forum'],
-      status: 'Popular'
+      status: 'Popular',
+      template: NODE_TEMPLATE
     }
   ];
+
+  const handleOpenProject = (project: Project) => {
+    if (project.template) {
+      workspace.replaceWorkspace(project.template);
+      onNavigate(View.Desktop);
+    } else {
+      alert('This project template is not yet available.');
+    }
+  };
 
   const trendingDevs = [
     { name: '@sarah_js', avatar: 'SJ', color: 'bg-indigo-500' },
@@ -216,8 +243,11 @@ const Projects: React.FC = () => {
                              <span className="text-xs font-bold text-zinc-300">{p.stars}</span>
                           </div>
                        </div>
-                       <button className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2">
-                          <span className="material-symbols-rounded text-lg">code</span> View Implementation
+                       <button
+                         onClick={() => handleOpenProject(p)}
+                         className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                       >
+                          <span className="material-symbols-rounded text-lg">code</span> Open Project
                        </button>
                     </div>
                  </div>
