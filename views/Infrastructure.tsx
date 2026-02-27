@@ -11,7 +11,7 @@ interface BackendService {
   name: string;
   provider: string;
   project: string;
-  status: 'Active' | 'Warning' | 'Disconnected';
+  status: 'Active' | 'Warning' | 'Disconnected' | 'Offline';
   modules: BackendModule[];
   color: string;
   icon: string;
@@ -70,6 +70,7 @@ const Infrastructure: React.FC = () => {
       provider: '',
       project: ''
   });
+  const [testingId, setTestingId] = useState<string | null>(null);
 
   useEffect(() => {
     localStorage.setItem('themag_infrastructure', JSON.stringify(services));
@@ -96,6 +97,30 @@ const Infrastructure: React.FC = () => {
 
   const removeService = (id: string) => {
       setServices(services.filter(s => s.id !== id));
+  };
+
+  const testConnection = async (id: string, project: string) => {
+    setTestingId(id);
+
+    // Simulate connection check
+    const isUrl = project.startsWith('http');
+    let newStatus: BackendService['status'] = 'Active';
+
+    if (isUrl) {
+        try {
+            await fetch(project, { method: 'HEAD', mode: 'no-cors' });
+            newStatus = 'Active';
+        } catch {
+            newStatus = 'Offline';
+        }
+    } else {
+        // Mock check
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        newStatus = Math.random() > 0.3 ? 'Active' : 'Offline';
+    }
+
+    setServices(prev => prev.map(s => s.id === id ? { ...s, status: newStatus } : s));
+    setTestingId(null);
   };
 
   return (
@@ -135,7 +160,8 @@ const Infrastructure: React.FC = () => {
                   <div className="flex items-center gap-1.5 mt-1">
                     <span className={`size-1.5 rounded-full ${
                       service.status === 'Active' ? 'bg-emerald-500 animate-pulse' : 
-                      service.status === 'Warning' ? 'bg-amber-500 animate-pulse' : 'bg-zinc-600'
+                      service.status === 'Warning' ? 'bg-amber-500 animate-pulse' :
+                      service.status === 'Offline' ? 'bg-red-500' : 'bg-zinc-600'
                     }`}></span>
                     <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">{service.project}</span>
                   </div>
@@ -174,9 +200,23 @@ const Infrastructure: React.FC = () => {
                   <span className="text-[9px] font-bold text-zinc-600 uppercase">Provider:</span>
                   <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">{service.provider}</span>
                </div>
-               <button className="text-[10px] font-bold text-indigo-400 hover:underline flex items-center gap-1">
-                  Metrics <span className="material-symbols-rounded text-xs">open_in_new</span>
-               </button>
+               <div className="flex items-center gap-3">
+                   <button
+                     onClick={() => testConnection(service.id, service.project)}
+                     disabled={testingId === service.id}
+                     className="text-[10px] font-bold text-zinc-500 hover:text-white flex items-center gap-1 disabled:opacity-50"
+                   >
+                      {testingId === service.id ? (
+                          <span className="material-symbols-rounded text-xs animate-spin">refresh</span>
+                      ) : (
+                          <span className="material-symbols-rounded text-xs">network_check</span>
+                      )}
+                      Test
+                   </button>
+                   <button className="text-[10px] font-bold text-indigo-400 hover:underline flex items-center gap-1">
+                      Metrics <span className="material-symbols-rounded text-xs">open_in_new</span>
+                   </button>
+               </div>
             </div>
           </div>
         ))}
