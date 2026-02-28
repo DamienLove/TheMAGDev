@@ -33,6 +33,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, user }) =>
           <button
             key={item.id}
             onClick={() => onChangeView(item.id)}
+            aria-label={item.label}
             className={`group relative flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 shrink-0 ${
               currentView === item.id
                 ? 'bg-slate-800 text-indigo-400 shadow-md border border-slate-700'
@@ -51,6 +52,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, user }) =>
       <div className="flex flex-col gap-4 w-full px-2 mt-4 pt-4 border-t border-slate-800">
         <button
           onClick={() => onChangeView(View.Support)}
+          aria-label="Support"
           className={`group relative flex items-center justify-center w-12 h-12 rounded-xl transition-all ${
             currentView === View.Support ? 'bg-slate-800 text-indigo-400' : 'text-slate-400 hover:text-slate-200'
           }`}
@@ -62,6 +64,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, user }) =>
         </button>
         <button 
           onClick={() => onChangeView(View.Settings)}
+          aria-label="Settings"
           className={`group relative flex items-center justify-center w-12 h-12 rounded-xl transition-all ${
             currentView === View.Settings ? 'bg-slate-800 text-indigo-400' : 'text-slate-400 hover:text-slate-200'
           }`}
