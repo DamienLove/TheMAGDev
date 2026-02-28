@@ -1,4 +1,4 @@
-## 2024-05-22 - Hardcoded Third-Party API Keys
-**Vulnerability:** Hardcoded RevenueCat API key in React hook.
-**Learning:** Developers often hardcode "public" keys (like RevenueCat or Firebase) directly in components/hooks for convenience, but this prevents environment separation (test vs prod) and makes rotation difficult.
-**Prevention:** Always use environment variables (e.g., `VITE_APP_KEY`) even for public keys, and enforce this via lint rules or code reviews.
+## 2024-05-17 - [CRITICAL] Hardcoded Firebase Credentials in Configuration File
+**Vulnerability:** Found hardcoded Firebase credentials (including `apiKey`, `projectId`, etc.) directly in the `firebaseConfig.ts` file. While Firebase API keys for web clients are generally safe to expose to the client side, hardcoding them directly into source code that might be committed to public repositories is a poor security practice and makes rotating keys or deploying to different environments difficult and risky.
+**Learning:** Even though some web API keys are safe for public clients, they should always be loaded from environment variables rather than hardcoded in the source files. This prevents accidental exposure in source control, enables easier rotation, and supports multi-environment setups (dev/staging/prod) without code changes.
+**Prevention:** Use `import.meta.env` (in Vite) or `process.env` (in Node.js/Webpack) to load all configuration values and secrets. Provide an `.env.example` file to document the required variables for developers.
