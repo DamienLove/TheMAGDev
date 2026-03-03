@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import googleDriveService from '../services/GoogleDriveService';
 
 export interface EditorSettings {
@@ -344,21 +344,32 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
+  const contextValue = useMemo(() => ({
+    settings,
+    updateEditorSettings,
+    updateTerminalSettings,
+    updateDebugSettings,
+    updateAISettings,
+    updateExplorerSettings,
+    updateGeneralSettings,
+    resetSettings,
+    exportSettings,
+    importSettings,
+  }), [
+    settings,
+    updateEditorSettings,
+    updateTerminalSettings,
+    updateDebugSettings,
+    updateAISettings,
+    updateExplorerSettings,
+    updateGeneralSettings,
+    resetSettings,
+    exportSettings,
+    importSettings,
+  ]);
+
   return (
-    <SettingsContext.Provider
-      value={{
-        settings,
-        updateEditorSettings,
-        updateTerminalSettings,
-        updateDebugSettings,
-        updateAISettings,
-        updateExplorerSettings,
-        updateGeneralSettings,
-        resetSettings,
-        exportSettings,
-        importSettings,
-      }}
-    >
+    <SettingsContext.Provider value={contextValue}>
       {children}
     </SettingsContext.Provider>
   );
