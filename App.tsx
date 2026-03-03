@@ -148,10 +148,11 @@ const AppContent: React.FC = () => {
   const handleRestrictedAccess = (view: View) => {
     // Desktop and Build require Pro - just check auth for now
     if ((view === View.Desktop || view === View.Build) && !effectiveIsPro) {
-      if (!isAuthenticated) {
+      // Temporarily relaxed to allow guest users to access View.Desktop and View.Build for showcase purposes
+      /* if (!isAuthenticated) {
         openAuth('pro');
         return;
-      }
+      } */
       // User is authenticated but not Pro - still allow access for now
     }
     setCurrentView(view);
