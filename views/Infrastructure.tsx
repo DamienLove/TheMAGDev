@@ -94,6 +94,33 @@ const Infrastructure: React.FC = () => {
     setNewService({ name: '', provider: '', project: '' });
   };
 
+
+  const handleDeploy = (id: string) => {
+    setServices(prev => prev.map(s => {
+        if (s.id === id) {
+            return {
+                ...s,
+                status: 'Warning',
+                modules: s.modules.map(m => ({ ...m, status: 'Syncing' }))
+            };
+        }
+        return s;
+    }));
+
+    setTimeout(() => {
+        setServices(prev => prev.map(s => {
+            if (s.id === id) {
+                return {
+                    ...s,
+                    status: 'Active',
+                    modules: s.modules.map(m => ({ ...m, status: 'Online' }))
+                };
+            }
+            return s;
+        }));
+    }, 3000);
+  };
+
   const removeService = (id: string) => {
       setServices(services.filter(s => s.id !== id));
   };
@@ -163,7 +190,7 @@ const Infrastructure: React.FC = () => {
               ) : (
                 <div className="p-8 text-center space-y-4">
                   <p className="text-zinc-500 text-xs italic">No active modules connected to this instance.</p>
-                  <button className="w-full py-2.5 rounded-xl border border-zinc-800 text-zinc-400 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-800 hover:text-white transition-all">Connect Provider API</button>
+                  <button onClick={() => handleDeploy(service.id)} className="w-full py-2.5 rounded-xl border border-zinc-800 text-zinc-400 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-800 hover:text-white transition-all">Test Connection</button>
                 </div>
               )}
             </div>
@@ -174,8 +201,8 @@ const Infrastructure: React.FC = () => {
                   <span className="text-[9px] font-bold text-zinc-600 uppercase">Provider:</span>
                   <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">{service.provider}</span>
                </div>
-               <button className="text-[10px] font-bold text-indigo-400 hover:underline flex items-center gap-1">
-                  Metrics <span className="material-symbols-rounded text-xs">open_in_new</span>
+               <button onClick={() => handleDeploy(service.id)} className="text-[10px] font-bold text-indigo-400 hover:underline flex items-center gap-1">
+                  Deploy <span className="material-symbols-rounded text-xs">cloud_upload</span>
                </button>
             </div>
           </div>

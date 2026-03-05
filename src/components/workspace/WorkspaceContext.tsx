@@ -621,20 +621,23 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, [files, isHydrated, driveEmail, driveStatus.connected, activeDriveFolderId]);
 
-  const findFileByPath = useCallback((nodes: FileNode[], path: string): FileNode | undefined => {
-    for (const node of nodes) {
-      if (node.path === path) return node;
-      if (node.children) {
-        const found = findFileByPath(node.children, path);
-        if (found) return found;
+  const fileMap = useMemo(() => {
+    const map = new Map<string, FileNode>();
+    const traverse = (nodes: FileNode[]) => {
+      for (const node of nodes) {
+        map.set(node.path, node);
+        if (node.children) {
+          traverse(node.children);
+        }
       }
-    }
-    return undefined;
-  }, []);
+    };
+    traverse(files);
+    return map;
+  }, [files]);
 
   const getFileByPath = useCallback((path: string): FileNode | undefined => {
-    return findFileByPath(files, path);
-  }, [files, findFileByPath]);
+    return fileMap.get(path);
+  }, [fileMap]);
 
   const getFileContent = useCallback((path: string): string | undefined => {
     const file = getFileByPath(path);
@@ -791,7 +794,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setTerminalHistory(['$ Terminal cleared', '']);
   }, []);
 
-  const value: WorkspaceContextType = useMemo(() => ({
+  const value = useMemo<WorkspaceContextType>(() => ({
     files,
     openFiles,
     activeFile,
