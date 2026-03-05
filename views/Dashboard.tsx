@@ -233,7 +233,7 @@ const Dashboard: React.FC = () => {
           <a
             href="https://magstack.rf.gd/"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg text-sm font-bold transition-all border border-zinc-800 flex items-center gap-2"
           >
             <span className="material-symbols-rounded text-sm">hub</span>
@@ -410,7 +410,7 @@ const Dashboard: React.FC = () => {
                       <a
                         href={target.url}
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                         className="px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest border border-zinc-700 text-zinc-300 hover:text-white hover:border-emerald-500/60 hover:bg-zinc-900 transition-all"
                       >
                         Open
