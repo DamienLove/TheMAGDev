@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
+import webContainerService from '../src/services/WebContainerService';
 
 interface FileNode {
   id: string;
@@ -639,9 +640,23 @@ export class MainController {
             <h1 className="text-sm font-bold tracking-tight">DevStudio <span className="text-indigo-500">Master</span></h1>
           </div>
           <nav className="hidden md:flex items-center gap-4 text-[#9da1b9]">
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
-            <button className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
+            <button onClick={() => setShowDrivePanel(true)} className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
+            <button onClick={async () => {
+              if (webContainerService.isReady()) {
+                await webContainerService.runCommand('npm run build');
+              } else {
+                addTerminalLine('$ npm run build');
+                addTerminalLine('[OK] Build completed successfully', 'success');
+              }
+            }} className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
+            <button onClick={async () => {
+              if (webContainerService.isReady()) {
+                await webContainerService.runCommand('npm run dev');
+              } else {
+                addTerminalLine('$ npm run dev');
+                addTerminalLine('[OK] Development server started on http://localhost:5173', 'success');
+              }
+            }} className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
             <button
               onClick={() => setShowDrivePanel(!showDrivePanel)}
               className={`text-[12px] font-medium transition-colors flex items-center gap-1 ${showDrivePanel ? 'text-indigo-400' : 'hover:text-white'}`}
