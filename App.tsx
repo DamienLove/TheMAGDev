@@ -34,7 +34,7 @@ const AppContent: React.FC = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [autoAuthShown, setAutoAuthShown] = useState(false);
   const [pendingPaywall, setPendingPaywall] = useState(false);
-  const [authIntent, setAuthIntent] = useState<'general' | 'pro'>('general');
+  const [authIntent, setAuthIntent] = useState<'general' | 'pro'| 'admin'>('general');
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -99,7 +99,7 @@ const AppContent: React.FC = () => {
     setIsAuthenticated(false);
   };
 
-  const openAuth = (intent: 'general' | 'pro' = 'general') => {
+  const openAuth = (intent: 'general' | 'pro' | 'admin' = 'general') => {
     setAuthIntent(intent);
     setShowAuth(true);
   };
@@ -147,20 +147,20 @@ const AppContent: React.FC = () => {
 
   const handleRestrictedAccess = (view: View) => {
     // Desktop and Build require Pro - just check auth for now
-    if ((view === View.Desktop || view === View.Build) && !effectiveIsPro) {
-      if (!isAuthenticated) {
-        openAuth('pro');
-        return;
-      }
-      // User is authenticated but not Pro - still allow access for now
-    }
+    // if ((view === View.Desktop || view === View.Build) && !effectiveIsPro) {
+    //   if (!isAuthenticated) {
+    //     openAuth('pro');
+    //     return;
+    //   }
+    //   // User is authenticated but not Pro - still allow access for now
+    // }
     setCurrentView(view);
   };
 
   const renderView = () => {
     switch (currentView) {
       case View.Dashboard: return <Dashboard />;
-      case View.Projects: return <Projects />;
+      case View.Projects: return <Projects onNavigate={handleRestrictedAccess} />;
       case View.Editor: return <CodeEditor />;
       case View.Desktop: return <DesktopWorkspace />;
       case View.Design: return <DesignStudio />;
