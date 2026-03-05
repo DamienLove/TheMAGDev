@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import googleDriveService, { type DriveSyncStatus, type DriveUserInfo } from '../../services/GoogleDriveService';
 
 export interface FileNode {
@@ -621,20 +621,23 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, [files, isHydrated, driveEmail, driveStatus.connected, activeDriveFolderId]);
 
-  const findFileByPath = useCallback((nodes: FileNode[], path: string): FileNode | undefined => {
-    for (const node of nodes) {
-      if (node.path === path) return node;
-      if (node.children) {
-        const found = findFileByPath(node.children, path);
-        if (found) return found;
+  const fileMap = useMemo(() => {
+    const map = new Map<string, FileNode>();
+    const traverse = (nodes: FileNode[]) => {
+      for (const node of nodes) {
+        map.set(node.path, node);
+        if (node.children) {
+          traverse(node.children);
+        }
       }
-    }
-    return undefined;
-  }, []);
+    };
+    traverse(files);
+    return map;
+  }, [files]);
 
   const getFileByPath = useCallback((path: string): FileNode | undefined => {
-    return findFileByPath(files, path);
-  }, [files, findFileByPath]);
+    return fileMap.get(path);
+  }, [fileMap]);
 
   const getFileContent = useCallback((path: string): string | undefined => {
     const file = getFileByPath(path);
@@ -791,7 +794,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setTerminalHistory(['$ Terminal cleared', '']);
   }, []);
 
-  const value: WorkspaceContextType = {
+  const value = useMemo<WorkspaceContextType>(() => ({
     files,
     openFiles,
     activeFile,
@@ -815,7 +818,30 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setCurrentDirectory,
     activeDriveFolderId,
     setActiveDriveFolderId,
-  };
+  }), [
+    files,
+    openFiles,
+    activeFile,
+    unsavedFiles,
+    terminalHistory,
+    currentDirectory,
+    openFile,
+    closeFile,
+    setActiveFile,
+    updateFileContent,
+    saveFile,
+    replaceWorkspace,
+    createFile,
+    deleteFile,
+    renameFile,
+    getFileContent,
+    getFileByPath,
+    addTerminalLine,
+    clearTerminal,
+    setCurrentDirectory,
+    activeDriveFolderId,
+    setActiveDriveFolderId,
+  ]);
 
   return (
     <WorkspaceContext.Provider value={value}>
