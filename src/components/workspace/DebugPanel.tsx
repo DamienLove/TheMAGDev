@@ -200,6 +200,7 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ className }) => {
               disabled={session?.status === 'running'}
               className="p-1.5 text-emerald-400 hover:bg-zinc-800 rounded disabled:opacity-30"
               title="Continue (F5)"
+              aria-label="Continue (F5)"
             >
               <span className="material-symbols-rounded text-lg">play_arrow</span>
             </button>
@@ -208,6 +209,7 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ className }) => {
               disabled={session?.status === 'running'}
               className="p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 rounded disabled:opacity-30"
               title="Step Over (F10)"
+              aria-label="Step Over (F10)"
             >
               <span className="material-symbols-rounded text-lg">redo</span>
             </button>
@@ -216,6 +218,7 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ className }) => {
               disabled={session?.status === 'running'}
               className="p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 rounded disabled:opacity-30"
               title="Step Into (F11)"
+              aria-label="Step Into (F11)"
             >
               <span className="material-symbols-rounded text-lg">arrow_downward</span>
             </button>
@@ -224,6 +227,7 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ className }) => {
               disabled={session?.status === 'running'}
               className="p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 rounded disabled:opacity-30"
               title="Step Out (Shift+F11)"
+              aria-label="Step Out (Shift+F11)"
             >
               <span className="material-symbols-rounded text-lg">arrow_upward</span>
             </button>
@@ -232,6 +236,7 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ className }) => {
               disabled={session?.status === 'running'}
               className="p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 rounded disabled:opacity-30"
               title="Restart"
+              aria-label="Restart"
             >
               <span className="material-symbols-rounded text-lg">refresh</span>
             </button>
@@ -239,6 +244,7 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ className }) => {
               onClick={handleStopDebug}
               className="p-1.5 text-red-400 hover:bg-zinc-800 rounded"
               title="Stop (Shift+F5)"
+              aria-label="Stop (Shift+F5)"
             >
               <span className="material-symbols-rounded text-lg">stop</span>
             </button>

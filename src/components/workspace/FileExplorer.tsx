@@ -329,6 +329,7 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
               onClick={onPopOut}
               className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
               title="Pop out"
+              aria-label="Pop out"
             >
               <span className="material-symbols-rounded text-sm">open_in_new</span>
             </button>
@@ -338,6 +339,7 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
               onClick={onOpenWindow}
               className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
               title="Open in new window"
+              aria-label="Open in new window"
             >
               <span className="material-symbols-rounded text-sm">launch</span>
             </button>
@@ -346,6 +348,7 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
             onClick={() => handleCreate('/', 'file')}
             className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
             title="New File"
+            aria-label="New File"
           >
             <span className="material-symbols-rounded text-sm">note_add</span>
           </button>
@@ -353,12 +356,14 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
             onClick={() => handleCreate('/', 'folder')}
             className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
             title="New Folder"
+            aria-label="New Folder"
           >
             <span className="material-symbols-rounded text-sm">create_new_folder</span>
           </button>
           <button
             className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
             title="Refresh"
+            aria-label="Refresh"
           >
             <span className="material-symbols-rounded text-sm">refresh</span>
           </button>
