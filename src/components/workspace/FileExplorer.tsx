@@ -5,6 +5,9 @@ interface FileExplorerProps {
   className?: string;
   onPopOut?: () => void;
   onOpenWindow?: () => void;
+  hideHeader?: boolean;
+  hideProjectName?: boolean;
+  projectName?: string;
 }
 
 const getFileIcon = (name: string, type: 'file' | 'folder', isExpanded?: boolean): { icon: string; color: string } => {
@@ -32,6 +35,51 @@ const getFileIcon = (name: string, type: 'file' | 'folder', isExpanded?: boolean
   };
 
   return iconMap[ext || ''] || { icon: 'description', color: 'text-zinc-500' };
+};
+
+// Optimized component to prevent whole-tree re-renders on keystroke
+interface FileCreationInputProps {
+  type: 'file' | 'folder';
+  onConfirm: (name: string) => void;
+  onCancel: () => void;
+  style?: React.CSSProperties;
+  className?: string;
+}
+
+const FileCreationInput = ({ type, onConfirm, onCancel, style, className }: FileCreationInputProps) => {
+  const [name, setName] = useState('');
+  const submitted = React.useRef(false);
+
+  const handleSubmit = () => {
+    if (submitted.current) return;
+    submitted.current = true;
+    onConfirm(name);
+  };
+
+  return (
+    <div
+      className={`flex items-center gap-1.5 py-1 px-2 ${className || ''}`}
+      style={style}
+    >
+      <span className={`material-symbols-rounded text-sm ${type === 'folder' ? 'text-amber-400' : 'text-zinc-500'}`}>
+        {type === 'folder' ? 'folder' : 'description'}
+      </span>
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        onBlur={handleSubmit}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') handleSubmit();
+          if (e.key === 'Escape') onCancel();
+        }}
+        placeholder={type === 'folder' ? 'folder name' : 'file name'}
+        className="flex-1 bg-zinc-900 border border-indigo-500 rounded px-1 py-0.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none"
+        autoFocus
+        onClick={(e) => e.stopPropagation()}
+      />
+    </div>
+  );
 };
 
 interface FileTreeItemProps {
@@ -134,14 +182,12 @@ interface FileTreeNodeProps {
   unsavedFiles: Set<string>;
   renaming: string | null;
   creating: { parentPath: string; type: 'file' | 'folder' } | null;
-  newItemName: string;
-  setNewItemName: (name: string) => void;
+  onCreateSubmit: (name: string) => void;
   onToggle: (path: string) => void;
   onOpen: (path: string) => void;
   onContextMenu: (e: React.MouseEvent, path: string, type: 'file' | 'folder') => void;
   onRenameSubmit: (name: string) => void;
   onRenameCancel: () => void;
-  submitCreate: () => void;
   setCreating: (val: { parentPath: string; type: 'file' | 'folder' } | null) => void;
 }
 
@@ -153,14 +199,12 @@ const FileTreeNode = memo(({
   unsavedFiles,
   renaming,
   creating,
-  newItemName,
-  setNewItemName,
+  onCreateSubmit,
   onToggle,
   onOpen,
   onContextMenu,
   onRenameSubmit,
   onRenameCancel,
-  submitCreate,
   setCreating
 }: FileTreeNodeProps) => {
   const isExpanded = expandedFolders.has(node.path);
@@ -188,27 +232,12 @@ const FileTreeNode = memo(({
       {node.type === 'folder' && isExpanded && (
         <>
           {isCreatingHere && (
-            <div
-              className="flex items-center gap-1.5 py-1 px-2"
+            <FileCreationInput
+              type={creating.type}
+              onConfirm={onCreateSubmit}
+              onCancel={() => setCreating(null)}
               style={{ paddingLeft: `${(depth + 1) * 12 + 8}px` }}
-            >
-              <span className={`material-symbols-rounded text-sm ${creating.type === 'folder' ? 'text-amber-400' : 'text-zinc-500'}`}>
-                {creating.type === 'folder' ? 'folder' : 'description'}
-              </span>
-              <input
-                type="text"
-                value={newItemName}
-                onChange={(e) => setNewItemName(e.target.value)}
-                onBlur={submitCreate}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') submitCreate();
-                  if (e.key === 'Escape') { setCreating(null); setNewItemName(''); }
-                }}
-                placeholder={creating.type === 'folder' ? 'folder name' : 'file name'}
-                className="flex-1 bg-zinc-900 border border-indigo-500 rounded px-1 py-0.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none"
-                autoFocus
-              />
-            </div>
+            />
           )}
           {node.children && node.children.map(child => (
             <FileTreeNode
@@ -220,14 +249,12 @@ const FileTreeNode = memo(({
               unsavedFiles={unsavedFiles}
               renaming={renaming}
               creating={creating}
-              newItemName={newItemName}
-              setNewItemName={setNewItemName}
+              onCreateSubmit={onCreateSubmit}
               onToggle={onToggle}
               onOpen={onOpen}
               onContextMenu={onContextMenu}
               onRenameSubmit={onRenameSubmit}
               onRenameCancel={onRenameCancel}
-              submitCreate={submitCreate}
               setCreating={setCreating}
             />
           ))}
@@ -237,7 +264,14 @@ const FileTreeNode = memo(({
   );
 });
 
-const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpenWindow }) => {
+const FileExplorer: React.FC<FileExplorerProps> = ({
+  className,
+  onPopOut,
+  onOpenWindow,
+  hideHeader,
+  hideProjectName,
+  projectName = 'themag-framework'
+}) => {
   const {
     files,
     activeFile,
@@ -251,9 +285,7 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['/src', '/src/components', '/src/hooks']));
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; path: string; type: 'file' | 'folder' } | null>(null);
   const [renaming, setRenaming] = useState<string | null>(null);
-  // Removed global newName state to prevent re-renders of the whole tree when typing
   const [creating, setCreating] = useState<{ parentPath: string; type: 'file' | 'folder' } | null>(null);
-  const [newItemName, setNewItemName] = useState('');
 
   const toggleFolder = useCallback((path: string) => {
     setExpandedFolders(prev => {
@@ -302,98 +334,93 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
 
   const handleCreate = useCallback((parentPath: string, type: 'file' | 'folder') => {
     setCreating({ parentPath, type });
-    setNewItemName('');
     if (!expandedFolders.has(parentPath)) {
       setExpandedFolders(prev => new Set(prev).add(parentPath));
     }
     closeContextMenu();
   }, [expandedFolders, closeContextMenu]);
 
-  const submitCreate = useCallback(() => {
-    if (creating && newItemName.trim()) {
-      createFile(creating.parentPath, newItemName.trim(), creating.type);
+  const handleCreateSubmit = useCallback((name: string) => {
+    if (creating && name.trim()) {
+      createFile(creating.parentPath, name.trim(), creating.type);
     }
     setCreating(null);
-    setNewItemName('');
-  }, [creating, newItemName, createFile]);
+  }, [creating, createFile]);
 
 
   return (
     <div className={`flex flex-col h-full ${className}`} onClick={closeContextMenu}>
       {/* Header */}
-      <div className="h-9 px-3 flex items-center justify-between border-b border-zinc-800/50 shrink-0">
-        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Explorer</span>
-        <div className="flex items-center gap-1">
-          {onPopOut && (
+      {!hideHeader && (
+        <div className="h-9 px-3 flex items-center justify-between border-b border-zinc-800/50 shrink-0">
+          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Explorer</span>
+          <div className="flex items-center gap-1">
+            {onPopOut && (
+              <button
+                onClick={onPopOut}
+                className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
+                title="Pop out"
+                aria-label="Pop out Explorer"
+              >
+                <span className="material-symbols-rounded text-sm">open_in_new</span>
+              </button>
+            )}
+            {onOpenWindow && (
+              <button
+                onClick={onOpenWindow}
+                className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
+                title="Open in new window"
+                aria-label="Open Explorer in new window"
+              >
+                <span className="material-symbols-rounded text-sm">launch</span>
+              </button>
+            )}
             <button
-              onClick={onPopOut}
+              onClick={() => handleCreate('/', 'file')}
               className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
-              title="Pop out"
+              title="New File"
+              aria-label="Create new file"
             >
-              <span className="material-symbols-rounded text-sm">open_in_new</span>
+              <span className="material-symbols-rounded text-sm">note_add</span>
             </button>
-          )}
-          {onOpenWindow && (
             <button
-              onClick={onOpenWindow}
+              onClick={() => handleCreate('/', 'folder')}
               className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
-              title="Open in new window"
+              title="New Folder"
+              aria-label="Create new folder"
             >
-              <span className="material-symbols-rounded text-sm">launch</span>
+              <span className="material-symbols-rounded text-sm">create_new_folder</span>
             </button>
-          )}
-          <button
-            onClick={() => handleCreate('/', 'file')}
-            className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
-            title="New File"
-          >
-            <span className="material-symbols-rounded text-sm">note_add</span>
-          </button>
-          <button
-            onClick={() => handleCreate('/', 'folder')}
-            className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
-            title="New Folder"
-          >
-            <span className="material-symbols-rounded text-sm">create_new_folder</span>
-          </button>
-          <button
-            className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
-            title="Refresh"
-          >
-            <span className="material-symbols-rounded text-sm">refresh</span>
-          </button>
+            <button
+              className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
+              title="Refresh"
+              aria-label="Refresh file explorer"
+            >
+              <span className="material-symbols-rounded text-sm">refresh</span>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Project Name */}
-      <div className="px-3 py-2 border-b border-zinc-800/30">
-        <div className="flex items-center gap-1.5 text-zinc-200">
-          <span className="material-symbols-rounded text-sm text-indigo-400">deployed_code</span>
-          <span className="text-xs font-bold uppercase tracking-tight">themag-framework</span>
+      {!hideProjectName && (
+        <div className="px-3 py-2 border-b border-zinc-800/30">
+          <div className="flex items-center gap-1.5 text-zinc-200">
+            <span className="material-symbols-rounded text-sm text-indigo-400">deployed_code</span>
+            <span className="text-xs font-bold uppercase tracking-tight">{projectName}</span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* File Tree */}
       <div className="flex-1 overflow-y-auto py-2 px-1">
         {creating?.parentPath === '/' && (
-          <div className="flex items-center gap-1.5 py-1 px-2 ml-2">
-            <span className={`material-symbols-rounded text-sm ${creating.type === 'folder' ? 'text-amber-400' : 'text-zinc-500'}`}>
-              {creating.type === 'folder' ? 'folder' : 'description'}
-            </span>
-            <input
-              type="text"
-              value={newItemName}
-              onChange={(e) => setNewItemName(e.target.value)}
-              onBlur={submitCreate}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') submitCreate();
-                if (e.key === 'Escape') { setCreating(null); setNewItemName(''); }
-              }}
-              placeholder={creating.type === 'folder' ? 'folder name' : 'file name'}
-              className="flex-1 bg-zinc-900 border border-indigo-500 rounded px-1 py-0.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none"
-              autoFocus
-            />
-          </div>
+          <FileCreationInput
+            type={creating.type}
+            onConfirm={handleCreateSubmit}
+            onCancel={() => setCreating(null)}
+            className="ml-2"
+          />
         )}
         {files.map(node => (
           <FileTreeNode
@@ -405,14 +432,12 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ className, onPopOut, onOpen
             unsavedFiles={unsavedFiles}
             renaming={renaming}
             creating={creating}
-            newItemName={newItemName}
-            setNewItemName={setNewItemName}
+            onCreateSubmit={handleCreateSubmit}
             onToggle={toggleFolder}
             onOpen={openFile}
             onContextMenu={handleContextMenu}
             onRenameSubmit={submitRename}
             onRenameCancel={onRenameCancel}
-            submitCreate={submitCreate}
             setCreating={setCreating}
           />
         ))}
