@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { REACT_TEMPLATE, NODE_TEMPLATE, STATIC_TEMPLATE } from '../src/data/templates';
+import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import { View } from '../types';
 
 interface Project {
   id: string;
@@ -12,8 +15,30 @@ interface Project {
   status: 'New' | 'Popular' | 'Updated' | 'Verified';
 }
 
-const Projects: React.FC = () => {
+interface ProjectsProps {
+  onSelect?: (template: any[]) => void;
+  onNavigate?: (view: View) => void;
+}
+
+const Projects: React.FC<ProjectsProps> = ({ onSelect, onNavigate }) => {
   const [activeFilter, setActiveFilter] = useState('All');
+  const workspace = useWorkspace();
+
+  const handleOpenProject = (project: Project) => {
+    let template = REACT_TEMPLATE;
+    if (project.id === 'p-2') template = STATIC_TEMPLATE;
+    if (project.id === 'p-3') template = NODE_TEMPLATE;
+    if (project.id === 'p-4') template = NODE_TEMPLATE;
+
+    if (onSelect) {
+      onSelect(template);
+    } else {
+      workspace.replaceWorkspace(template);
+      if (onNavigate) {
+        onNavigate(View.Desktop);
+      }
+    }
+  };
 
   const projects: Project[] = [
     {
@@ -216,7 +241,10 @@ const Projects: React.FC = () => {
                              <span className="text-xs font-bold text-zinc-300">{p.stars}</span>
                           </div>
                        </div>
-                       <button className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2">
+                       <button
+                          onClick={() => handleOpenProject(p)}
+                          className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                        >
                           <span className="material-symbols-rounded text-lg">code</span> View Implementation
                        </button>
                     </div>
