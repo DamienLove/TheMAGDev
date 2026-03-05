@@ -34,7 +34,7 @@ const AppContent: React.FC = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [autoAuthShown, setAutoAuthShown] = useState(false);
   const [pendingPaywall, setPendingPaywall] = useState(false);
-  const [authIntent, setAuthIntent] = useState<'general' | 'pro'>('general');
+  const [authIntent, setAuthIntent] = useState<'general' | 'pro'| 'admin'>('general');
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -99,7 +99,7 @@ const AppContent: React.FC = () => {
     setIsAuthenticated(false);
   };
 
-  const openAuth = (intent: 'general' | 'pro' = 'general') => {
+  const openAuth = (intent: 'general' | 'pro' | 'admin' = 'general') => {
     setAuthIntent(intent);
     setShowAuth(true);
   };
