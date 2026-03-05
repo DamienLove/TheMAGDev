@@ -32,33 +32,58 @@ const BuildSystem: React.FC = () => {
     }
   }, [buildLogs]);
 
-  const tasks: Record<string, BuildTask[]> = {
-    'android': [
-      { name: 'androidDependencies', type: 'android' },
-      { name: 'signingReport', type: 'android' }
-    ],
-    'build': [
-      { name: 'assemble', type: 'build' },
-      { name: 'assembleDebug', type: 'build', isKey: true },
-      { name: 'bundleRelease', type: 'build' },
-      { name: 'clean', type: 'build' }
-    ],
-    'verification': [
-      { name: 'lint', type: 'verification' },
-      { name: 'test', type: 'verification' }
-    ]
-  };
+  let pkg: any = null;
+  const pkgFile = workspaceFiles.find((f: any) => f.name === 'package.json');
+  if (pkgFile && pkgFile.content) {
+    try {
+      pkg = JSON.parse(pkgFile.content);
+    } catch (e) {
+      // Ignore parse error
+    }
+  }
 
-  const dependencies: Record<string, Dependency[]> = {
-    'implementation': [
-      { group: 'androidx.core:core-ktx', version: '1.7.0' },
-      { group: 'com.google.android.material', version: '1.5.0', updateAvailable: '1.6.0', hasConflict: true },
-      { group: 'com.squareup.retrofit2:retrofit', version: '2.9.0' }
-    ],
-    'testImplementation': [
-      { group: 'junit:junit', version: '4.13.2' }
-    ]
-  };
+  let tasks: Record<string, BuildTask[]> = {};
+  if (pkg && pkg.scripts) {
+    tasks['npm'] = Object.keys(pkg.scripts).map(name => ({ name, type: 'build' }));
+  } else {
+    tasks = {
+      'android': [
+        { name: 'androidDependencies', type: 'android' },
+        { name: 'signingReport', type: 'android' }
+      ],
+      'build': [
+        { name: 'assemble', type: 'build' },
+        { name: 'assembleDebug', type: 'build', isKey: true },
+        { name: 'bundleRelease', type: 'build' },
+        { name: 'clean', type: 'build' }
+      ],
+      'verification': [
+        { name: 'lint', type: 'verification' },
+        { name: 'test', type: 'verification' }
+      ]
+    };
+  }
+
+  let dependencies: Record<string, Dependency[]> = {};
+  if (pkg && (pkg.dependencies || pkg.devDependencies)) {
+    if (pkg.dependencies) {
+      dependencies['dependencies'] = Object.entries(pkg.dependencies).map(([group, version]) => ({ group, version: version as string }));
+    }
+    if (pkg.devDependencies) {
+      dependencies['devDependencies'] = Object.entries(pkg.devDependencies).map(([group, version]) => ({ group, version: version as string }));
+    }
+  } else {
+    dependencies = {
+      'implementation': [
+        { group: 'androidx.core:core-ktx', version: '1.7.0' },
+        { group: 'com.google.android.material', version: '1.5.0', updateAvailable: '1.6.0', hasConflict: true },
+        { group: 'com.squareup.retrofit2:retrofit', version: '2.9.0' }
+      ],
+      'testImplementation': [
+        { group: 'junit:junit', version: '4.13.2' }
+      ]
+    };
+  }
 
   const runBuild = (taskName: string) => {
     if (buildStatus === 'building') return;
@@ -105,10 +130,10 @@ const BuildSystem: React.FC = () => {
           <h1 className="text-white text-sm font-bold uppercase tracking-widest">Build System Explorer (Gradle)</h1>
         </div>
         <div className="flex items-center gap-2">
-          <button className="p-2 text-zinc-500 hover:text-white transition-colors" title="Sync Project Artifacts">
+          <button className="p-2 text-zinc-500 hover:text-white transition-colors" title="Sync Project Artifacts" aria-label="Sync Project Artifacts">
             <span className="material-symbols-rounded">sync</span>
           </button>
-          <button className="p-2 text-zinc-500 hover:text-white transition-colors" title="Build Settings">
+          <button className="p-2 text-zinc-500 hover:text-white transition-colors" title="Build Settings" aria-label="Build Settings">
             <span className="material-symbols-rounded">settings</span>
           </button>
         </div>
@@ -166,7 +191,7 @@ const BuildSystem: React.FC = () => {
                         >
                            <span className={`text-xs ${task.isKey ? 'text-white font-bold' : 'text-zinc-500'}`}>{task.name}</span>
                            <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
-                              <button className="text-emerald-500 hover:text-emerald-400 p-1"><span className="material-symbols-rounded text-sm">play_arrow</span></button>
+                              <button className="text-emerald-500 hover:text-emerald-400 p-1" title={`Run ${task.name}`} aria-label={`Run ${task.name}`}><span className="material-symbols-rounded text-sm">play_arrow</span></button>
                            </div>
                         </div>
                       ))}
@@ -232,7 +257,7 @@ const BuildSystem: React.FC = () => {
                  </div>
                  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 font-mono text-[11px] leading-relaxed shadow-inner overflow-hidden relative group min-h-[160px]">
                     <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                       <button className="p-1 bg-zinc-800 rounded border border-zinc-700 text-zinc-400 hover:text-white"><span className="material-symbols-rounded text-sm">content_copy</span></button>
+                       <button className="p-1 bg-zinc-800 rounded border border-zinc-700 text-zinc-400 hover:text-white" title="Copy logs" aria-label="Copy logs"><span className="material-symbols-rounded text-sm">content_copy</span></button>
                     </div>
 
                     <div className="space-y-1 h-32 overflow-y-auto pr-2">
