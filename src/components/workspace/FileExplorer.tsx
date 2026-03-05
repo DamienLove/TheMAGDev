@@ -360,6 +360,7 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
                 onClick={onPopOut}
                 className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
                 title="Pop out"
+                aria-label="Pop out Explorer"
               >
                 <span className="material-symbols-rounded text-sm">open_in_new</span>
               </button>
@@ -369,6 +370,7 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
                 onClick={onOpenWindow}
                 className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
                 title="Open in new window"
+                aria-label="Open Explorer in new window"
               >
                 <span className="material-symbols-rounded text-sm">launch</span>
               </button>
@@ -377,6 +379,7 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
               onClick={() => handleCreate('/', 'file')}
               className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
               title="New File"
+              aria-label="Create new file"
             >
               <span className="material-symbols-rounded text-sm">note_add</span>
             </button>
@@ -384,12 +387,14 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
               onClick={() => handleCreate('/', 'folder')}
               className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
               title="New Folder"
+              aria-label="Create new folder"
             >
               <span className="material-symbols-rounded text-sm">create_new_folder</span>
             </button>
             <button
               className="p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 rounded"
               title="Refresh"
+              aria-label="Refresh file explorer"
             >
               <span className="material-symbols-rounded text-sm">refresh</span>
             </button>
