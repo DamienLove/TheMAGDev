@@ -794,7 +794,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setTerminalHistory(['$ Terminal cleared', '']);
   }, []);
 
-  const value: WorkspaceContextType = {
+  const value = useMemo<WorkspaceContextType>(() => ({
     files,
     openFiles,
     activeFile,
@@ -818,7 +818,30 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setCurrentDirectory,
     activeDriveFolderId,
     setActiveDriveFolderId,
-  };
+  }), [
+    files,
+    openFiles,
+    activeFile,
+    unsavedFiles,
+    terminalHistory,
+    currentDirectory,
+    openFile,
+    closeFile,
+    setActiveFile,
+    updateFileContent,
+    saveFile,
+    replaceWorkspace,
+    createFile,
+    deleteFile,
+    renameFile,
+    getFileContent,
+    getFileByPath,
+    addTerminalLine,
+    clearTerminal,
+    setCurrentDirectory,
+    activeDriveFolderId,
+    setActiveDriveFolderId,
+  ]);
 
   return (
     <WorkspaceContext.Provider value={value}>
