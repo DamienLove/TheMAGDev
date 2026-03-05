@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import googleDriveService, { type DriveSyncStatus, type DriveUserInfo } from '../../services/GoogleDriveService';
 
 export interface FileNode {
@@ -791,7 +791,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setTerminalHistory(['$ Terminal cleared', '']);
   }, []);
 
-  const value: WorkspaceContextType = {
+  const value: WorkspaceContextType = useMemo(() => ({
     files,
     openFiles,
     activeFile,
@@ -815,7 +815,30 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setCurrentDirectory,
     activeDriveFolderId,
     setActiveDriveFolderId,
-  };
+  }), [
+    files,
+    openFiles,
+    activeFile,
+    unsavedFiles,
+    terminalHistory,
+    currentDirectory,
+    openFile,
+    closeFile,
+    setActiveFile,
+    updateFileContent,
+    saveFile,
+    replaceWorkspace,
+    createFile,
+    deleteFile,
+    renameFile,
+    getFileContent,
+    getFileByPath,
+    addTerminalLine,
+    clearTerminal,
+    setCurrentDirectory,
+    activeDriveFolderId,
+    setActiveDriveFolderId,
+  ]);
 
   return (
     <WorkspaceContext.Provider value={value}>
