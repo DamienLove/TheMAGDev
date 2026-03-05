@@ -344,7 +344,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
-  const contextValue = useMemo(() => ({
+  const value = useMemo(() => ({
     settings,
     updateEditorSettings,
     updateTerminalSettings,
@@ -369,7 +369,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   ]);
 
   return (
-    <SettingsContext.Provider value={contextValue}>
+    <SettingsContext.Provider value={value}>
       {children}
     </SettingsContext.Provider>
   );

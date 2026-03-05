@@ -8,6 +8,6 @@
 **Learning:** Monolithic bundle size was driven by static imports of 15 large views in `App.tsx`. Implementing `React.lazy` with `Suspense` automatically triggered Vite to generate separate chunks for each route, reducing initial load weight significantly.
 **Action:** When adding new views, always use `React.lazy` imports and verify chunk generation with `pnpm build`. Ensure fallbacks are scoped appropriately (e.g., content area vs full screen).
 
-## 2026-03-03 - [Context Memoization]
-**Learning:** Passing inline object literals as context provider values causes widespread, unnecessary re-renders of all consuming components whenever the provider re-renders, even if the actual state values haven't changed. This is a significant performance bottleneck in large applications like this one.
-**Action:** Always wrap React Context provider values in `useMemo` with correctly configured dependency arrays, rather than using inline object literals. This prevents unnecessary re-renders across the application.
+## 2026-03-01 - [React Context Object Re-render Trap & Memoization]
+**Learning:** Using an unmemoized object literal as a Context `value` forces *every* consuming component to re-render on every Provider render, bypassing React's bailout mechanisms. This creates massive performance bottlenecks in large component trees (like WorkspaceContext and SettingsContext) because a new object reference is created even if the underlying data hasn't changed.
+**Action:** Always wrap Context Provider `value` objects in `useMemo` with a complete and correctly configured dependency array to ensure referential equality and prevent unnecessary downstream re-renders.

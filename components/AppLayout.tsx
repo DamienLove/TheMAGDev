@@ -73,7 +73,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, childr
             <a
               href="https://magstack.rf.gd/"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-800 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:border-emerald-500/60 hover:bg-zinc-900 transition-all"
             >
               <span className="material-symbols-rounded text-[14px]">hub</span>
@@ -82,6 +82,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, childr
 
             <button
               onClick={() => setShowNotifications(!showNotifications)}
+              aria-label="Notifications"
               className={`relative p-2 rounded-lg transition-colors ${showNotifications ? 'bg-indigo-500/10 text-indigo-400' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900'}`}
             >
               <span className="material-symbols-rounded text-xl">notifications</span>
