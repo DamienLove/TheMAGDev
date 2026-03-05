@@ -150,10 +150,13 @@ const Settings: React.FC = () => {
     { id: 'explorer', label: 'Explorer', icon: 'folder' },
   ];
 
-  const renderToggle = (value: boolean, onChange: (val: boolean) => void) => (
+  const renderToggle = (value: boolean, onChange: (val: boolean) => void, ariaLabel?: string) => (
     <button
+      role="switch"
+      aria-checked={value}
+      aria-label={ariaLabel}
       onClick={() => onChange(!value)}
-      className={`relative w-11 h-6 rounded-full transition-colors ${value ? 'bg-indigo-600' : 'bg-zinc-700'}`}
+      className={`relative w-11 h-6 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900 ${value ? 'bg-indigo-600' : 'bg-zinc-700'}`}
     >
       <div
         className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${value ? 'left-6' : 'left-1'}`}
@@ -188,15 +191,21 @@ const Settings: React.FC = () => {
     />
   );
 
-  const renderSettingRow = (label: string, description: string, control: React.ReactNode) => (
-    <div className="flex items-center justify-between py-3 border-b border-zinc-800/50">
-      <div>
-        <div className="text-sm text-zinc-200">{label}</div>
-        <div className="text-xs text-zinc-500 mt-0.5">{description}</div>
+  const renderSettingRow = (label: string, description: string, control: React.ReactElement) => {
+    const id = `setting-${label.replace(/\s+/g, '-').toLowerCase()}`;
+    return (
+      <div className="flex items-center justify-between py-3 border-b border-zinc-800/50">
+        <div>
+          <label htmlFor={id} id={`${id}-label`} className="text-sm text-zinc-200 block">{label}</label>
+          <div className="text-xs text-zinc-500 mt-0.5">{description}</div>
+        </div>
+        {React.cloneElement(control, {
+          id,
+          'aria-labelledby': `${id}-label`
+        })}
       </div>
-      {control}
-    </div>
-  );
+    );
+  };
 
   const formatBytes = (bytes?: number) => {
     if (bytes === undefined || bytes === null) return '—';
@@ -802,7 +811,7 @@ const Settings: React.FC = () => {
                                 provider.mcpServers[idx].enabled = val;
                                 handleProviderUpdate(provider.id, { mcpServers: [...provider.mcpServers] });
                               }
-                            })}
+                            }, `Enable ${server.name}`)}
                             <button
                               onClick={() => handleRemoveMCPServer(provider.id, server.id)}
                               className="p-1 text-zinc-500 hover:text-red-400"
