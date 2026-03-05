@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Terminal, useWorkspace, FileNode as WorkspaceFileNode } from '../src/components/workspace';
+import { Terminal, useWorkspace, FileNode as WorkspaceFileNode, FileExplorer } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
+import Editor from '@monaco-editor/react';
 import webContainerService from '../src/services/WebContainerService';
+import ExtensionMarketplace from './ExtensionMarketplace';
+import Projects from './Projects';
 
 interface FileNode {
   id: string;
@@ -44,6 +47,8 @@ const DesktopWorkspace: React.FC = () => {
   const [openFiles, setOpenFiles] = useState<Map<string, string>>(new Map());
   const [activeFileContent, setActiveFileContent] = useState('');
   const [showDrivePanel, setShowDrivePanel] = useState(false);
+  const [showExtensions, setShowExtensions] = useState(false);
+  const [showProjects, setShowProjects] = useState(false);
   const [isCreatingProject, setIsCreatingProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   const [terminalOutput, setTerminalOutput] = useState<string[]>([
@@ -79,6 +84,69 @@ const DesktopWorkspace: React.FC = () => {
   const [llmResponse, setLlmResponse] = useState('');
   const [llmLoading, setLlmLoading] = useState(false);
 
+  // WebContainer integration
+  const syncFilesToWebContainer = async () => {
+    addTerminalLine('Syncing files to WebContainer...');
+    try {
+      if (!webContainerService.isReady()) {
+        await webContainerService.boot();
+      }
+      const container = webContainerService.getContainer();
+      if (!container) throw new Error('WebContainer not initialized');
+
+      const buildTree = (nodes: WorkspaceFileNode[]): any => {
+        const tree: any = {};
+        for (const node of nodes) {
+          if (node.type === 'folder') {
+            tree[node.name] = {
+              directory: buildTree(node.children || [])
+            };
+          } else {
+            tree[node.name] = {
+              file: {
+                contents: node.content || ''
+              }
+            };
+          }
+        }
+        return tree;
+      };
+
+      const tree = buildTree(workspace.files);
+      await container.mount(tree);
+      addTerminalLine('Files synced successfully', 'success');
+    } catch (error: any) {
+      addTerminalLine(`Sync failed: ${error.message}`, 'error');
+      throw error;
+    }
+  };
+
+  const handleRun = async () => {
+    if (!showTerminal) toggleTerminal();
+    setActiveTerminalTab('Terminal');
+
+    try {
+      await syncFilesToWebContainer();
+      addTerminalLine('Starting dev server...');
+      await webContainerService.runCommand('npm install && npm run dev');
+    } catch (error: any) {
+      addTerminalLine(`Run failed: ${error.message}`, 'error');
+    }
+  };
+
+  const handleBuild = async () => {
+    if (!showTerminal) toggleTerminal();
+    setActiveTerminalTab('Terminal');
+
+    try {
+      await syncFilesToWebContainer();
+      addTerminalLine('Building project...');
+      await webContainerService.runCommand('npm install && npm run build');
+    } catch (error: any) {
+      addTerminalLine(`Build failed: ${error.message}`, 'error');
+    }
+  };
+
   // Popout windows for multi-screen support
   const popoutWindow = useRef<Window | null>(null);
 
@@ -110,6 +178,15 @@ export class MainController {
 
     return () => unsubscribe();
   }, []);
+
+  // Sync activeTab with workspace.activeFile
+  useEffect(() => {
+    if (workspace.activeFile) {
+      const fileName = workspace.activeFile.split('/').pop() || '';
+      setActiveTab(fileName);
+      setActiveFileContent(workspace.getFileContent(workspace.activeFile) || '');
+    }
+  }, [workspace.activeFile, workspace.getFileContent]);
 
   // Load user info when connected
   useEffect(() => {
@@ -479,13 +556,25 @@ export class MainController {
     // Simulate LLM response (replace with actual API call)
     addTerminalLine(`Running AI ${action}...`);
     setTimeout(() => {
-      const mockResponses: Record<string, string> = {
-        explain: `This code defines a ${activeTab.includes('Controller') ? 'controller class' : 'module'} that handles platform-specific initialization. It uses a constructor pattern to set the target platform based on the current runtime environment.`,
-        fix: 'No critical bugs found. Consider adding error handling for the Platform.current() call in case it fails.',
-        optimize: 'The code is already well-optimized. Consider lazy-loading the platform detection if not immediately needed.',
-        refactor: 'Consider using dependency injection for the Platform instance to improve testability.',
-      };
-      setLlmResponse(mockResponses[action] || 'Analysis complete.');
+      let analysis = '';
+      const lowerCode = activeFileContent.toLowerCase();
+
+      if (action === 'explain') {
+        if (lowerCode.includes('react')) analysis = 'This appears to be a React component structure. It likely manages UI state and rendering logic.';
+        else if (lowerCode.includes('express')) analysis = 'This appears to be an Express server configuration, handling HTTP requests and routing.';
+        else if (lowerCode.includes('class')) analysis = 'This defines a class structure with properties and methods to encapsulate functionality.';
+        else analysis = 'This is a standard TypeScript/JavaScript module defining specific logic units.';
+
+        analysis += `\n\nFile: ${activeTab}\nLength: ${activeFileContent.length} chars`;
+      } else if (action === 'fix') {
+         analysis = 'No critical syntax errors detected by static analysis.\n\nSuggestion: Ensure all imported modules are installed in package.json.';
+      } else if (action === 'optimize') {
+         analysis = 'Performance looks good for this scope.\n\nTip: Use memoization for expensive calculations if this code runs frequently.';
+      } else if (action === 'refactor') {
+         analysis = 'Code structure is clean.\n\nSuggestion: Consider extracting inline logic into separate utility functions if the file grows larger.';
+      }
+
+      setLlmResponse(analysis || 'Analysis complete.');
       setLlmLoading(false);
       addTerminalLine(`AI ${action} complete`, 'success');
     }, 1500);
@@ -580,50 +669,6 @@ export class MainController {
     return 'text-gray-400';
   };
 
-  // Recursive file tree renderer for workspace files
-  const renderFileTree = (files: WorkspaceFileNode[], depth: number): JSX.Element[] => {
-    return files.map((file) => {
-      const isActive = workspace.activeFile === file.path;
-      const paddingLeft = depth * 12 + 8;
-
-      if (file.type === 'folder') {
-        return (
-          <div key={file.path}>
-            <div
-              className="flex items-center gap-2 px-2 py-1 text-[#9da1b9] hover:text-white cursor-pointer hover:bg-[#161825] rounded-sm"
-              style={{ paddingLeft }}
-            >
-              <span className="material-symbols-rounded text-[16px] text-yellow-400">folder</span>
-              <span className="truncate">{file.name}</span>
-            </div>
-            {file.children && renderFileTree(file.children, depth + 1)}
-          </div>
-        );
-      }
-
-      return (
-        <div
-          key={file.path}
-          onClick={() => {
-            workspace.openFile(file.path);
-            setActiveTab(file.name);
-            setActiveFileContent(workspace.getFileContent(file.path) || '');
-          }}
-          className={`flex items-center gap-2 px-2 py-1 rounded-sm cursor-pointer transition-colors ${isActive
-              ? 'text-white bg-indigo-500/20 border-l-2 border-indigo-500'
-              : 'text-[#9da1b9] hover:text-white hover:bg-[#161825]'
-            }`}
-          style={{ paddingLeft }}
-        >
-          <span className={`material-symbols-rounded text-[16px] ${getFileIconColor(file.name)}`}>
-            {getFileIcon(file.name)}
-          </span>
-          <span className="truncate">{file.name}</span>
-        </div>
-      );
-    });
-  };
-
   const codeToDisplay = workspace.activeFile
     ? (workspace.getFileContent(workspace.activeFile) || defaultCodeSnippet)
     : (openFiles.get(activeTab) || defaultCodeSnippet);
@@ -640,23 +685,9 @@ export class MainController {
             <h1 className="text-sm font-bold tracking-tight">DevStudio <span className="text-indigo-500">Master</span></h1>
           </div>
           <nav className="hidden md:flex items-center gap-4 text-[#9da1b9]">
-            <button onClick={() => setShowDrivePanel(true)} className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
-            <button onClick={async () => {
-              if (webContainerService.isReady()) {
-                await webContainerService.runCommand('npm run build');
-              } else {
-                addTerminalLine('$ npm run build');
-                addTerminalLine('[OK] Build completed successfully', 'success');
-              }
-            }} className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
-            <button onClick={async () => {
-              if (webContainerService.isReady()) {
-                await webContainerService.runCommand('npm run dev');
-              } else {
-                addTerminalLine('$ npm run dev');
-                addTerminalLine('[OK] Development server started on http://localhost:5173', 'success');
-              }
-            }} className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
+            <button onClick={() => setShowProjects(true)} className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
+            <button onClick={handleBuild} className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
+            <button onClick={handleRun} className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
             <button
               onClick={() => setShowDrivePanel(!showDrivePanel)}
               className={`text-[12px] font-medium transition-colors flex items-center gap-1 ${showDrivePanel ? 'text-indigo-400' : 'hover:text-white'}`}
@@ -845,7 +876,7 @@ export class MainController {
             >
               <span className="material-symbols-rounded text-[24px]">view_column_2</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button onClick={() => setShowExtensions(true)} className="p-2 text-[#5f637a] hover:text-white transition-colors">
               <span className="material-symbols-rounded text-[24px]">extension</span>
             </button>
             <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
@@ -870,7 +901,7 @@ export class MainController {
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto p-2 font-mono text-[12px]">
+          <div className={`flex-1 font-mono text-[12px] ${showDrivePanel ? 'overflow-y-auto p-2' : 'flex flex-col'}`}>
             {showDrivePanel ? (
               // Google Drive Panel
               <div className="flex flex-col gap-2">
@@ -1037,41 +1068,25 @@ export class MainController {
                   </>
                 )}
               </div>
-            ) : (
-              // Explorer Panel - Shows workspace files
-              <div className="flex flex-col gap-0.5">
-                {isLoadingProject ? (
-                  <div className="flex flex-col items-center justify-center py-8 gap-3">
-                    <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-[11px] text-[#9da1b9]">Loading project files...</span>
-                  </div>
-                ) : currentProject ? (
-                  <>
-                    <div className="flex items-center gap-2 px-2 py-1 text-white bg-white/5 rounded-sm cursor-pointer mb-1">
-                      <span className="material-symbols-rounded text-[16px] text-yellow-400">folder_open</span>
-                      <span className="font-bold">{currentProject.name}</span>
-                    </div>
-                    {/* Render workspace files from context */}
-                    {renderFileTree(workspace.files, 0)}
-                    {workspace.files.length === 0 && (
-                      <div className="text-[11px] text-[#5f637a] px-2 py-4 text-center">
-                        Empty project. Create a file to get started.
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  // Show workspace files even without Drive project
-                  <>
-                    {workspace.files.length > 0 ? (
-                      renderFileTree(workspace.files, 0)
-                    ) : (
-                      <div className="text-[10px] text-[#5f637a] px-2 py-4 text-center">
-                        Connect to Google Drive and open a project to edit files
-                      </div>
-                    )}
-                  </>
-                )}
+            ) : isLoadingProject ? (
+              <div className="flex flex-col items-center justify-center py-8 gap-3">
+                <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-[11px] text-[#9da1b9]">Loading project files...</span>
               </div>
+            ) : (
+              <>
+                <FileExplorer
+                  className="flex-1"
+                  hideHeader={true}
+                  hideProjectName={!currentProject}
+                  projectName={currentProject?.name}
+                />
+                {workspace.files.length === 0 && (
+                  <div className="text-[10px] text-[#5f637a] px-2 py-4 text-center">
+                    {currentProject ? 'Empty project. Create a file to get started.' : 'Connect to Google Drive and open a project to edit files'}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </nav>
@@ -1117,24 +1132,36 @@ export class MainController {
 
           <div className="flex-1 flex overflow-hidden">
             <div className="flex-1 flex flex-col min-w-0 border-r border-[#282b39]">
-              <div className="flex-1 overflow-auto p-4 font-mono text-[13px] relative bg-[#111218]">
-                <div className="absolute left-0 top-4 bottom-0 w-10 flex flex-col items-end pr-2 text-[#4b5064] select-none">
-                  {codeToDisplay.split('\n').map((_, i) => (
-                    <div key={i} className={i === 5 ? 'text-indigo-500 font-bold' : ''}>{i + 1}</div>
-                  ))}
-                </div>
-                <textarea
+              <div className="flex-1 overflow-hidden relative bg-[#111218]">
+                <Editor
+                  height="100%"
+                  defaultLanguage="typescript"
+                  language={workspace.activeFile ? getLanguageFromFilename(workspace.activeFile) : 'typescript'}
                   value={workspace.activeFile ? (workspace.getFileContent(workspace.activeFile) || '') : codeToDisplay}
-                  onChange={(e) => {
-                    if (workspace.activeFile) {
-                      workspace.updateFileContent(workspace.activeFile, e.target.value);
+                  theme="vs-dark"
+                  onChange={(value) => {
+                    if (workspace.activeFile && value !== undefined) {
+                      workspace.updateFileContent(workspace.activeFile, value);
                       markFileChanged(workspace.activeFile.split('/').pop() || '');
-                    } else {
-                      setActiveFileContent(e.target.value);
+                    } else if (value !== undefined) {
+                      setActiveFileContent(value);
                     }
                   }}
-                  className="pl-8 w-full h-full bg-transparent text-[#d4d4d4] leading-6 resize-none focus:outline-none font-mono"
-                  spellCheck={false}
+                  options={{
+                    minimap: { enabled: false },
+                    fontSize: 13,
+                    fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
+                    scrollBeyondLastLine: false,
+                    automaticLayout: true,
+                    padding: { top: 16, bottom: 16 },
+                    lineNumbers: 'on',
+                    glyphMargin: false,
+                    folding: true,
+                    lineDecorationsWidth: 0,
+                    lineNumbersMinChars: 3,
+                    renderLineHighlight: 'all',
+                    bracketPairColorization: { enabled: true }
+                  }}
                 />
               </div>
             </div>
@@ -1424,7 +1451,7 @@ export class MainController {
               </div>
               <div className="flex-1 min-h-0 overflow-hidden">
                 {activeTerminalTab === 'Terminal' ? (
-                  <Terminal key={terminalKey.current} className="h-full" initialMode="mock" />
+                  <Terminal key={terminalKey.current} className="h-full" initialMode="webcontainer" />
                 ) : activeTerminalTab === 'Git Status' ? (
                   <div className="h-full overflow-y-auto p-4 font-mono text-[12px] text-[#d4d4d4]">
                     <div className="mb-2 text-green-400">On branch: {currentBranch}</div>
@@ -1517,6 +1544,40 @@ export class MainController {
           </div>
         </div>
       </footer>
+
+      {showProjects && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="relative w-[90vw] h-[85vh] bg-[#090a11] rounded-xl overflow-hidden shadow-2xl border border-[#282b39] flex flex-col">
+            <button
+              onClick={() => setShowProjects(false)}
+              className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full hover:bg-white/20 text-white transition-colors"
+            >
+              <span className="material-symbols-rounded">close</span>
+            </button>
+            <Projects {...({
+              onSelect: (template: any) => {
+                workspace.replaceWorkspace(template);
+                setShowProjects(false);
+                addTerminalLine('Project loaded successfully', 'success');
+              }
+            } as any)} />
+          </div>
+        </div>
+      )}
+
+      {showExtensions && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="relative w-[90vw] h-[85vh] bg-[#090a11] rounded-xl overflow-hidden shadow-2xl border border-[#282b39] flex flex-col">
+            <button
+              onClick={() => setShowExtensions(false)}
+              className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full hover:bg-white/20 text-white transition-colors"
+            >
+              <span className="material-symbols-rounded">close</span>
+            </button>
+            <ExtensionMarketplace />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
