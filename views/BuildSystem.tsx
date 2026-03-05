@@ -32,33 +32,58 @@ const BuildSystem: React.FC = () => {
     }
   }, [buildLogs]);
 
-  const tasks: Record<string, BuildTask[]> = {
-    'android': [
-      { name: 'androidDependencies', type: 'android' },
-      { name: 'signingReport', type: 'android' }
-    ],
-    'build': [
-      { name: 'assemble', type: 'build' },
-      { name: 'assembleDebug', type: 'build', isKey: true },
-      { name: 'bundleRelease', type: 'build' },
-      { name: 'clean', type: 'build' }
-    ],
-    'verification': [
-      { name: 'lint', type: 'verification' },
-      { name: 'test', type: 'verification' }
-    ]
-  };
+  let pkg: any = null;
+  const pkgFile = workspaceFiles.find((f: any) => f.name === 'package.json');
+  if (pkgFile && pkgFile.content) {
+    try {
+      pkg = JSON.parse(pkgFile.content);
+    } catch (e) {
+      // Ignore parse error
+    }
+  }
 
-  const dependencies: Record<string, Dependency[]> = {
-    'implementation': [
-      { group: 'androidx.core:core-ktx', version: '1.7.0' },
-      { group: 'com.google.android.material', version: '1.5.0', updateAvailable: '1.6.0', hasConflict: true },
-      { group: 'com.squareup.retrofit2:retrofit', version: '2.9.0' }
-    ],
-    'testImplementation': [
-      { group: 'junit:junit', version: '4.13.2' }
-    ]
-  };
+  let tasks: Record<string, BuildTask[]> = {};
+  if (pkg && pkg.scripts) {
+    tasks['npm'] = Object.keys(pkg.scripts).map(name => ({ name, type: 'build' }));
+  } else {
+    tasks = {
+      'android': [
+        { name: 'androidDependencies', type: 'android' },
+        { name: 'signingReport', type: 'android' }
+      ],
+      'build': [
+        { name: 'assemble', type: 'build' },
+        { name: 'assembleDebug', type: 'build', isKey: true },
+        { name: 'bundleRelease', type: 'build' },
+        { name: 'clean', type: 'build' }
+      ],
+      'verification': [
+        { name: 'lint', type: 'verification' },
+        { name: 'test', type: 'verification' }
+      ]
+    };
+  }
+
+  let dependencies: Record<string, Dependency[]> = {};
+  if (pkg && (pkg.dependencies || pkg.devDependencies)) {
+    if (pkg.dependencies) {
+      dependencies['dependencies'] = Object.entries(pkg.dependencies).map(([group, version]) => ({ group, version: version as string }));
+    }
+    if (pkg.devDependencies) {
+      dependencies['devDependencies'] = Object.entries(pkg.devDependencies).map(([group, version]) => ({ group, version: version as string }));
+    }
+  } else {
+    dependencies = {
+      'implementation': [
+        { group: 'androidx.core:core-ktx', version: '1.7.0' },
+        { group: 'com.google.android.material', version: '1.5.0', updateAvailable: '1.6.0', hasConflict: true },
+        { group: 'com.squareup.retrofit2:retrofit', version: '2.9.0' }
+      ],
+      'testImplementation': [
+        { group: 'junit:junit', version: '4.13.2' }
+      ]
+    };
+  }
 
   const runBuild = (taskName: string) => {
     if (buildStatus === 'building') return;
