@@ -336,21 +336,21 @@ export class MainController {
     basePath: string
   ): Promise<WorkspaceFileNode[]> => {
     const items = await googleDriveService.listFiles(folderId);
-    const nodes: WorkspaceFileNode[] = [];
 
-    for (const item of items) {
+    // ⚡ Bolt: Use Promise.all to fetch file contents and subfolders concurrently instead of sequential for...of
+    const nodePromises = items.map(async (item) => {
       const itemPath = `${basePath}/${item.name}`;
       const isFolder = item.mimeType === 'application/vnd.google-apps.folder';
 
       if (isFolder) {
         // Recursively load subfolder
         const children = await loadDriveFolderRecursive(item.id, itemPath);
-        nodes.push({
+        return {
           name: item.name,
           path: itemPath,
           type: 'folder',
           children,
-        });
+        } as WorkspaceFileNode;
       } else {
         // Load file content
         let content = '';
@@ -361,17 +361,17 @@ export class MainController {
           console.warn(`Could not read file ${item.name}:`, e);
         }
 
-        nodes.push({
+        return {
           name: item.name,
           path: itemPath,
           type: 'file',
           content,
           language: getLanguageFromFilename(item.name),
-        });
+        } as WorkspaceFileNode;
       }
-    }
+    });
 
-    return nodes;
+    return await Promise.all(nodePromises);
   };
 
   // Open any Drive folder as an active project - loads into entire IDE
