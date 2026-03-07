@@ -831,22 +831,26 @@ export class MainController {
             <button
               onClick={() => setShowDrivePanel(false)}
               className={`p-2 rounded-md transition-colors ${!showDrivePanel ? 'text-white bg-indigo-500/10 text-indigo-500 border-r-2 border-indigo-500' : 'text-[#5f637a] hover:text-white'}`}
+              title="Explorer"
+              aria-label="Explorer"
             >
               <span className="material-symbols-rounded text-[24px]">folder</span>
             </button>
             <button
               onClick={() => setShowDrivePanel(true)}
               className={`p-2 rounded-md transition-colors relative ${showDrivePanel ? 'text-white bg-indigo-500/10 text-indigo-500 border-r-2 border-indigo-500' : 'text-[#5f637a] hover:text-white'}`}
+              title="Google Drive"
+              aria-label="Google Drive"
             >
               <span className="material-symbols-rounded text-[24px]">cloud</span>
               {driveConnected && (
                 <span className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full border border-[#0d0e15]"></span>
               )}
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button className="p-2 text-[#5f637a] hover:text-white transition-colors" title="Debug" aria-label="Debug">
               <span className="material-symbols-rounded text-[24px]">bug_report</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors relative">
+            <button className="p-2 text-[#5f637a] hover:text-white transition-colors relative" title="Source Control" aria-label="Source Control">
               <span className="material-symbols-rounded text-[24px]">rebase</span>
               <span className="absolute top-1 right-1 text-[8px] font-bold bg-indigo-500 text-white px-1 rounded-full">3</span>
             </button>
@@ -856,6 +860,7 @@ export class MainController {
               onClick={toggleTerminal}
               className={`p-2 transition-colors ${showTerminal ? 'text-emerald-400' : 'text-[#5f637a] hover:text-white'}`}
               title={showTerminal ? 'Hide Terminal' : 'Show Terminal'}
+              aria-label={showTerminal ? 'Hide Terminal' : 'Show Terminal'}
             >
               <span className="material-symbols-rounded text-[24px]">terminal</span>
             </button>
@@ -863,6 +868,7 @@ export class MainController {
               onClick={() => togglePanel('git')}
               className={`p-2 transition-colors relative ${panels.find(p => p.id === 'git')?.isVisible ? 'text-orange-400' : 'text-[#5f637a] hover:text-white'}`}
               title="Toggle Git Panel"
+              aria-label="Toggle Git Panel"
             >
               <span className="material-symbols-rounded text-[24px]">merge</span>
               {githubConnected && (
@@ -873,13 +879,14 @@ export class MainController {
               onClick={() => setSplitView(!splitView)}
               className={`p-2 transition-colors ${splitView ? 'text-indigo-400' : 'text-[#5f637a] hover:text-white'}`}
               title="Toggle Split View"
+              aria-label="Toggle Split View"
             >
               <span className="material-symbols-rounded text-[24px]">view_column_2</span>
             </button>
-            <button onClick={() => setShowExtensions(true)} className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button onClick={() => setShowExtensions(true)} className="p-2 text-[#5f637a] hover:text-white transition-colors" title="Extensions" aria-label="Extensions">
               <span className="material-symbols-rounded text-[24px]">extension</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors">
+            <button className="p-2 text-[#5f637a] hover:text-white transition-colors" title="Settings" aria-label="Settings">
               <span className="material-symbols-rounded text-[24px]">settings</span>
             </button>
           </div>
