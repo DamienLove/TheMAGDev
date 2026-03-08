@@ -71,6 +71,10 @@ const Infrastructure: React.FC = () => {
       project: ''
   });
 
+  // Real deployment state simulation
+  const [deployLogs, setDeployLogs] = useState<Record<string, string[]>>({});
+  const [showLogsModal, setShowLogsModal] = useState<string | null>(null);
+
   useEffect(() => {
     localStorage.setItem('themag_infrastructure', JSON.stringify(services));
   }, [services]);
@@ -107,7 +111,20 @@ const Infrastructure: React.FC = () => {
         return s;
     }));
 
-    setTimeout(() => {
+    setDeployLogs(prev => ({ ...prev, [id]: ['> Initializing deployment pipeline...', '> Resolving dependencies...'] }));
+
+    let step = 0;
+    const logs = [
+      '> Building container image...',
+      '> Pushing to registry...',
+      '> Applying configuration...',
+      '> Routing traffic...',
+      '> Deployment Successful.'
+    ];
+
+    const interval = setInterval(() => {
+      if (step >= logs.length) {
+        clearInterval(interval);
         setServices(prev => prev.map(s => {
             if (s.id === id) {
                 return {
@@ -118,7 +135,16 @@ const Infrastructure: React.FC = () => {
             }
             return s;
         }));
-    }, 3000);
+        return;
+      }
+
+      const currentLog = logs[step];
+      setDeployLogs(prev => ({
+        ...prev,
+        [id]: [...(prev[id] || []), currentLog]
+      }));
+      step++;
+    }, 600);
   };
 
   const removeService = (id: string) => {
@@ -201,9 +227,16 @@ const Infrastructure: React.FC = () => {
                   <span className="text-[9px] font-bold text-zinc-600 uppercase">Provider:</span>
                   <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">{service.provider}</span>
                </div>
-               <button onClick={() => handleDeploy(service.id)} className="text-[10px] font-bold text-indigo-400 hover:underline flex items-center gap-1">
-                  Deploy <span className="material-symbols-rounded text-xs">cloud_upload</span>
-               </button>
+               <div className="flex items-center gap-3">
+                 {deployLogs[service.id] && (
+                   <button onClick={() => setShowLogsModal(service.id)} className="text-[10px] font-bold text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1">
+                      Logs <span className="material-symbols-rounded text-xs">terminal</span>
+                   </button>
+                 )}
+                 <button onClick={() => handleDeploy(service.id)} disabled={service.status === 'Warning'} className="text-[10px] font-bold text-indigo-400 hover:underline flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed">
+                    {service.status === 'Warning' ? 'Deploying...' : 'Deploy'} <span className="material-symbols-rounded text-xs">cloud_upload</span>
+                 </button>
+               </div>
             </div>
           </div>
         ))}
@@ -282,6 +315,35 @@ const Infrastructure: React.FC = () => {
                   </div>
               </div>
           </div>
+      )}
+
+      {showLogsModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0d0e15] border border-[#282b39] rounded-xl w-full max-w-2xl shadow-2xl flex flex-col h-[60vh]">
+            <div className="flex items-center justify-between p-4 border-b border-[#282b39]">
+              <h3 className="text-sm font-bold text-white font-mono flex items-center gap-2">
+                <span className="material-symbols-rounded text-indigo-500">terminal</span>
+                Deployment Logs
+              </h3>
+              <button onClick={() => setShowLogsModal(null)} className="text-zinc-500 hover:text-white transition-colors">
+                <span className="material-symbols-rounded text-lg">close</span>
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 font-mono text-[12px] text-[#d4d4d4] space-y-1">
+              {(deployLogs[showLogsModal] || []).map((line, i) => (
+                 <div key={i} className={line.includes('Successful') ? 'text-emerald-400 font-bold' : line.includes('Error') ? 'text-red-400 font-bold' : 'text-zinc-300'}>
+                   {line}
+                 </div>
+              ))}
+              {services.find(s => s.id === showLogsModal)?.status === 'Warning' && (
+                 <div className="mt-2 flex items-center gap-1">
+                    <span className="text-blue-400">~</span>
+                    <span className="w-2 h-4 bg-indigo-500/60 animate-pulse"></span>
+                 </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

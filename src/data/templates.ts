@@ -250,31 +250,166 @@ export const NODE_TEMPLATE: FileNode[] = [
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node --watch index.js"
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "echo \\"Running tests...\\" && exit 0"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0"
   }
 }`
   },
   {
-    name: 'index.js',
-    path: '/index.js',
-    type: 'file',
-    language: 'javascript',
-    content: `import express from 'express';
+    name: 'src',
+    path: '/src',
+    type: 'folder',
+    children: [
+      {
+        name: 'index.js',
+        path: '/src/index.js',
+        type: 'file',
+        language: 'javascript',
+        content: `import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import { router as apiRouter } from './routes/api.js';
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
+
+// Middleware
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
+
+// Routes
+app.use('/api', apiRouter);
 
 app.get('/', (req, res) => {
-  res.send('Hello form Express!');
+  res.json({ message: 'Welcome to the API', status: 'active' });
+});
+
+// Error handling
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something broke!' });
 });
 
 app.listen(port, () => {
-  console.log(\`Example app listening on port \${port}\`);
+  console.log(\`API server running on port \${port}\`);
 });`
+      },
+      {
+        name: 'routes',
+        path: '/src/routes',
+        type: 'folder',
+        children: [
+          {
+            name: 'api.js',
+            path: '/src/routes/api.js',
+            type: 'file',
+            language: 'javascript',
+            content: `import { Router } from 'express';
+
+export const router = Router();
+
+// Mock database
+const items = [
+  { id: 1, name: 'Item One' },
+  { id: 2, name: 'Item Two' }
+];
+
+router.get('/items', (req, res) => {
+  res.json(items);
+});
+
+router.post('/items', (req, res) => {
+  const newItem = {
+    id: items.length + 1,
+    ...req.body
+  };
+  items.push(newItem);
+  res.status(201).json(newItem);
+});`
+          }
+        ]
+      }
+    ]
+  }
+];
+
+export const PYTHON_TEMPLATE: FileNode[] = [
+  {
+    name: 'main.py',
+    path: '/main.py',
+    type: 'file',
+    language: 'python',
+    content: `def greet(name: str) -> str:
+    """Returns a greeting message."""
+    return f"Hello, {name}!"
+
+def main():
+    print("Welcome to the Python Starter Template!")
+
+    # Calculate first 10 Fibonacci numbers
+    fib = [0, 1]
+    for _ in range(8):
+        fib.append(fib[-1] + fib[-2])
+
+    print(f"First 10 Fibonacci numbers: {fib}")
+
+if __name__ == "__main__":
+    main()
+`
+  },
+  {
+    name: 'requirements.txt',
+    path: '/requirements.txt',
+    type: 'file',
+    language: 'plaintext',
+    content: `# Add your Python dependencies here
+# e.g., requests==2.31.0
+`
+  }
+];
+
+export const RUST_TEMPLATE: FileNode[] = [
+  {
+    name: 'Cargo.toml',
+    path: '/Cargo.toml',
+    type: 'file',
+    language: 'toml',
+    content: `[package]
+name = "rust-starter"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+`
+  },
+  {
+    name: 'src',
+    path: '/src',
+    type: 'folder',
+    children: [
+      {
+        name: 'main.rs',
+        path: '/src/main.rs',
+        type: 'file',
+        language: 'rust',
+        content: `fn main() {
+    println!("Hello, from Rust!");
+
+    let numbers = vec![1, 2, 3, 4, 5];
+    let sum: i32 = numbers.iter().sum();
+
+    println!("Sum of 1 to 5 is: {}", sum);
+}
+`
+      }
+    ]
   }
 ];
 

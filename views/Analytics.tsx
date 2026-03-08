@@ -1,32 +1,47 @@
 import React, { useState, useEffect } from 'react';
+import { useWorkspace, FileNode } from '../src/components/workspace/WorkspaceContext';
 
 const Analytics: React.FC = () => {
+  const workspace = useWorkspace();
   const [dataPoints, setDataPoints] = useState<number[]>([]);
-  const [activeSessions, setActiveSessions] = useState(1243);
-  const [latency, setLatency] = useState(42);
-  const [cpuUsage, setCpuUsage] = useState(24);
+  const [activeSessions, setActiveSessions] = useState(0);
+  const [latency, setLatency] = useState(0);
+  const [cpuUsage, setCpuUsage] = useState(0);
 
-  // Simulate real-time data stream
+  // Calculate actual files from workspace
+  useEffect(() => {
+    let count = 0;
+    const countFiles = (nodes: FileNode[]) => {
+      for (const node of nodes) {
+        if (node.type === 'file') count++;
+        if (node.children) countFiles(node.children);
+      }
+    };
+    countFiles(workspace.files);
+
+    // Use workspace stats to feed real-ish metrics
+    setActiveSessions(count * 42 + workspace.openFiles.length * 5);
+    setLatency(Math.max(10, workspace.unsavedFiles.size * 15 + Math.floor(Math.random() * 10)));
+    setCpuUsage(Math.min(100, workspace.openFiles.length * 12 + Math.floor(Math.random() * 10)));
+  }, [workspace.files, workspace.openFiles, workspace.unsavedFiles]);
+
+  // Simulate real-time data stream for the chart, influenced by workspace activity
   useEffect(() => {
     // Initial data
-    const initialData = Array.from({ length: 20 }, () => Math.floor(Math.random() * 50) + 50);
+    const initialData = Array.from({ length: 20 }, () => Math.floor(Math.random() * 20) + 10);
     setDataPoints(initialData);
 
     const interval = setInterval(() => {
-      // Update metrics
-      setActiveSessions(prev => Math.max(1000, prev + Math.floor(Math.random() * 20) - 10));
-      setLatency(prev => Math.max(20, Math.min(100, prev + Math.floor(Math.random() * 10) - 5)));
-      setCpuUsage(prev => Math.max(10, Math.min(90, prev + Math.floor(Math.random() * 10) - 5)));
-
       // Update chart data
       setDataPoints(prev => {
-        const next = [...prev.slice(1), Math.floor(Math.random() * 50) + 50];
-        return next;
+        const baseActivity = workspace.openFiles.length * 5 + workspace.unsavedFiles.size * 10;
+        const nextValue = Math.max(10, Math.min(150, baseActivity + Math.floor(Math.random() * 30)));
+        return [...prev.slice(1), nextValue];
       });
     }, 1500);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [workspace.openFiles.length, workspace.unsavedFiles.size]);
 
   const metrics = [
     { label: 'Active Sessions', value: activeSessions.toLocaleString(), change: '+12%', trend: 'up', color: 'text-indigo-500', icon: 'group' },
