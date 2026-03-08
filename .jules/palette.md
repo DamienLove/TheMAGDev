@@ -1,0 +1,3 @@
+## 2024-05-15 - Paywall Modal Keyboard Focus and ARIA
+**Learning:** Absolute-positioned close buttons in modal dialogs (like Paywall) are critical for users relying on screen readers and keyboard navigation, yet often lack both `aria-label` and `focus-visible` styles. Because these buttons are typically icon-only, omitting them creates an accessibility trap where the user cannot identify the button's purpose or see when it is focused.
+**Action:** Always ensure absolute-positioned icon-only buttons in modals have explicit `aria-label` attributes, tooltips (`title`), and explicit `focus-visible` styling with `ring` classes to ensure they are both identifiable and visually indicated during keyboard navigation.

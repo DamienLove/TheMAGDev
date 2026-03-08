@@ -13,7 +13,9 @@ const Paywall: React.FC<PaywallProps> = ({ packages, onPurchase, onClose }) => {
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 max-w-4xl w-full relative">
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 text-zinc-500 hover:text-white"
+          className="absolute top-4 right-4 text-zinc-500 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded"
+          aria-label="Close paywall"
+          title="Close paywall"
         >
           <span className="material-symbols-rounded">close</span>
         </button>
@@ -32,7 +34,7 @@ const Paywall: React.FC<PaywallProps> = ({ packages, onPurchase, onClose }) => {
               </p>
               <button
                 onClick={() => onPurchase(pkg)}
-                className="mt-auto w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-sm transition-colors"
+                className="mt-auto w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 Subscribe
               </button>
