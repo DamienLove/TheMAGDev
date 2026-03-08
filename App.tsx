@@ -142,6 +142,8 @@ const AppContent: React.FC = () => {
   const userAvatar = isGuest ? 'G' : displayAvatar;
 
   if (authLoading || profileLoading) {
+    // Render LoadingScreen during auth init, but avoid infinite hang in test environments
+    // where Firebase config might not be properly populated. The useEffects fall back to false after 2s.
     return <LoadingScreen />;
   }
 

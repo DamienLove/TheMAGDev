@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import { useWorkspace, FileNode } from '../src/components/workspace/WorkspaceContext';
+import webContainerService from '../src/services/WebContainerService';
 
 interface BuildTask {
   name: string;
@@ -85,26 +86,89 @@ const BuildSystem: React.FC = () => {
     };
   }
 
-  const runBuild = (taskName: string) => {
+  const syncFilesToWebContainer = async () => {
+    try {
+      if (!webContainerService.isReady()) {
+        await webContainerService.boot();
+      }
+      const container = webContainerService.getContainer();
+      if (!container) throw new Error('WebContainer not initialized');
+
+      const buildTree = (nodes: FileNode[]): any => {
+        const tree: any = {};
+        for (const node of nodes) {
+          if (node.type === 'folder') {
+            tree[node.name] = {
+              directory: buildTree(node.children || [])
+            };
+          } else {
+            tree[node.name] = {
+              file: {
+                contents: node.content || ''
+              }
+            };
+          }
+        }
+        return tree;
+      };
+
+      const tree = buildTree(workspaceFiles);
+      await container.mount(tree);
+      return true;
+    } catch (error: any) {
+      console.error(error);
+      return false;
+    }
+  };
+
+  const runBuild = async (taskName: string) => {
     if (buildStatus === 'building') return;
 
     setBuildStatus('building');
-    setBuildProgress(0);
-    setBuildLogs([`> Executing task: ${taskName}...`, 'Initializing Daemon...', 'Allocating resources...']);
+    setBuildProgress(10);
+    setBuildLogs([`> Executing task: ${taskName}...`, 'Syncing workspace files to container...']);
+
+    // Attempt real execution
+    const isBooted = await syncFilesToWebContainer();
+
+    if (isBooted) {
+      setBuildProgress(30);
+      setBuildLogs(prev => [...prev, `> Running: npm run ${taskName}`]);
+
+      // Wire up output
+      webContainerService.setOutputCallback((data) => {
+         setBuildLogs(prev => [...prev, data.trim()]);
+      });
+
+      // Actually run the command
+      const exitCode = await webContainerService.runCommand(`npm run ${taskName}`);
+
+      setBuildProgress(100);
+      if (exitCode === 0) {
+        setBuildStatus('success');
+        setBuildLogs(prev => [...prev, '\nBUILD SUCCESSFUL']);
+      } else {
+        setBuildStatus('error');
+        setBuildLogs(prev => [...prev, `\nBUILD FAILED with exit code ${exitCode}`]);
+      }
+      return;
+    }
+
+    // Fallback Mock Execution if WebContainer fails to boot (e.g. cross-origin isolation missing)
+    setBuildLogs(prev => [...prev, '[WARN] WebContainer failed to boot. Using mock runner...']);
 
     const steps = [
-        { progress: 10, msg: '> Configure project :app' },
-        { progress: 25, msg: '> Task :app:preBuild UP-TO-DATE' },
-        { progress: 40, msg: '> Task :app:preDebugBuild UP-TO-DATE' },
-        { progress: 55, msg: '> Task :app:compileDebugAidl NO-SOURCE' },
-        { progress: 70, msg: '> Task :app:compileDebugRenderscript NO-SOURCE' },
-        { progress: 85, msg: '> Task :app:generateDebugBuildConfig' },
-        { progress: 95, msg: '> Task :app:javaPreCompileDebug' },
+        { progress: 10, msg: '> Configure project context' },
+        { progress: 25, msg: '> Task :preBuild UP-TO-DATE' },
+        { progress: 40, msg: '> Task :resolveDependencies' },
+        { progress: 55, msg: `> Task :execute npm run ${taskName}` },
+        { progress: 70, msg: '> Task :bundleArtifacts' },
+        { progress: 85, msg: '> Task :generateMetadata' },
+        { progress: 95, msg: '> Task :verify' },
         { progress: 100, msg: 'BUILD SUCCESSFUL in 3s' }
     ];
 
     let currentStep = 0;
-
     const interval = setInterval(() => {
         if (currentStep >= steps.length) {
             clearInterval(interval);

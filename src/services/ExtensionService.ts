@@ -400,6 +400,70 @@ const FEATURED_EXTENSIONS: MarketplaceExtension[] = [
     lastUpdated: Date.now() - 20 * 24 * 60 * 60 * 1000,
     scanReport: { safe: true, issues: [], scannedAt: Date.now() },
   },
+  {
+    manifest: {
+      id: 'monaco-theme-config',
+      name: 'monaco-theme-config',
+      displayName: 'Monaco Theme Configurator',
+      version: 'stable',
+      description: 'Advanced theme customizer for the Monaco Editor instance.',
+      author: { name: 'TheMAG.dev' },
+      license: 'MIT',
+      categories: ['theme', 'utility'],
+      keywords: ['theme', 'monaco', 'editor', 'colors'],
+      main: 'dist/extension.js',
+      activationEvents: ['*'],
+      contributes: {
+        commands: [
+          { command: 'theme.generate', title: 'Generate Custom Theme' },
+          { command: 'theme.reset', title: 'Reset to Default Theme' },
+        ],
+        configuration: {
+          title: 'Monaco Themes',
+          properties: {
+            'monaco.theme.accent': { type: 'string', default: '#6366f1', description: 'Primary accent color' }
+          }
+        }
+      },
+      engines: { themag: '^1.0.0' },
+    },
+    status: 'approved',
+    downloads: 125000,
+    rating: 4.8,
+    ratingCount: 3100,
+    publishedDate: Date.now() - 150 * 24 * 60 * 60 * 1000,
+    lastUpdated: Date.now() - 5 * 24 * 60 * 60 * 1000,
+    scanReport: { safe: true, issues: [], scannedAt: Date.now() },
+  },
+  {
+    manifest: {
+      id: 'react-snippets',
+      name: 'react-snippets',
+      displayName: 'React Code Snippets',
+      version: 'stable',
+      description: 'Essential React and Redux snippets for faster component building.',
+      author: { name: 'React Community' },
+      license: 'MIT',
+      categories: ['snippets', 'language'],
+      keywords: ['react', 'snippets', 'jsx', 'tsx'],
+      main: 'dist/extension.js',
+      activationEvents: ['onLanguage:javascript', 'onLanguage:typescript', 'onLanguage:html'],
+      contributes: {
+        snippets: [
+          { language: 'typescript', path: 'snippets/react.json' },
+          { language: 'javascript', path: 'snippets/react.json' }
+        ],
+      },
+      engines: { themag: '^1.0.0' },
+    },
+    status: 'approved',
+    downloads: 2500000,
+    rating: 4.9,
+    ratingCount: 45000,
+    publishedDate: Date.now() - 1000 * 24 * 60 * 60 * 1000,
+    lastUpdated: Date.now() - 2 * 24 * 60 * 60 * 1000,
+    scanReport: { safe: true, issues: [], scannedAt: Date.now() },
+  },
 ];
 
 const FEATURED_EXTENSION_IDS = new Set(FEATURED_EXTENSIONS.map(e => e.manifest.id));

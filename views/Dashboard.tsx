@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useWorkspace, FileNode } from '../src/components/workspace/WorkspaceContext';
 
 interface Metric {
   label: string;
@@ -57,16 +58,50 @@ const Dashboard: React.FC = () => {
     { label: 'Active Service Mesh', value: '94.8%', change: 0.01, trend: 'neutral', subtext: 'Infrastructure availability' },
   ]);
 
+  const workspace = useWorkspace();
+
   const [platforms, setPlatforms] = useState<PlatformStatus[]>([
-    { name: 'iOS App Store', version: 'v2.1.0', status: 'Stable', timestamp: '12m ago', icon: 'phone_iphone' },
-    { name: 'Android Play Store', version: 'v2.1.1-rc', status: 'Building', timestamp: 'Syncing assets...', icon: 'android', progress: 45 },
-    { name: 'TheMAG.dev Desktop', version: 'v1.4.0', status: 'Failed', timestamp: 'Linker Error', icon: 'desktop_windows' },
+    { name: 'Local Workspace', version: 'Live', status: 'Stable', timestamp: 'Just now', icon: 'folder' },
+    { name: 'WebContainer Build', version: 'Dev', status: 'Stable', timestamp: 'Ready', icon: 'deployed_code' },
   ]);
 
   const [activities, setActivities] = useState<ActivityItem[]>([
-    { id: '1', type: 'deploy', title: 'Auto-deploy triggered by', highlight: 'CI/CD Pipeline #8492', subtitle: '24 minutes ago - Cluster: production-main', icon: 'smart_toy', iconBg: 'bg-zinc-800 border-zinc-700' },
-    { id: '2', type: 'merge', title: 'Mike Chen merged PR', highlight: '#402', subtitle: '1 hour ago - Repository: core-api', icon: 'merge', iconBg: 'bg-indigo-600/20 border-indigo-500/30' },
+    { id: '1', type: 'alert', title: 'Dashboard Initialized', highlight: '', subtitle: 'System event', icon: 'dashboard', iconBg: 'bg-zinc-800 border-zinc-700' }
   ]);
+
+  // Hook into workspace events
+  useEffect(() => {
+    if (workspace.activeFile) {
+      const fileName = workspace.activeFile.split('/').pop();
+      setActivities(prev => {
+        // Prevent duplicate consecutive entries
+        if (prev[0]?.highlight === fileName && prev[0]?.type === 'review') return prev;
+
+        const newAct: ActivityItem = {
+          id: Date.now().toString(),
+          type: 'review',
+          title: 'Opened file',
+          highlight: fileName || workspace.activeFile!,
+          subtitle: 'Just now - Local Workspace',
+          icon: 'description',
+          iconBg: 'bg-indigo-600/20 border-indigo-500/30'
+        };
+        return [newAct, ...prev].slice(0, 10);
+      });
+    }
+  }, [workspace.activeFile]);
+
+  useEffect(() => {
+    if (workspace.unsavedFiles.size > 0) {
+       setPlatforms(prev => prev.map(p =>
+         p.name === 'Local Workspace' ? { ...p, status: 'Building', progress: 50, timestamp: 'Unsaved changes' } : p
+       ));
+    } else {
+       setPlatforms(prev => prev.map(p =>
+         p.name === 'Local Workspace' ? { ...p, status: 'Stable', progress: undefined, timestamp: 'All files saved' } : p
+       ));
+    }
+  }, [workspace.unsavedFiles.size]);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [cpuUsage, setCpuUsage] = useState(42);
