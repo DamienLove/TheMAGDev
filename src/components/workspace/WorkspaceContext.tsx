@@ -682,7 +682,10 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           if (node.path === path) {
             return { ...node, content };
           }
-          if (node.children) {
+          // Optimization: Prune tree traversal for O(log N) updates.
+          // Only traverse children if the target path is inside this folder.
+          const prefix = node.path === '/' ? '/' : `${node.path}/`;
+          if (node.children && path.startsWith(prefix)) {
             return { ...node, children: updateNode(node.children) };
           }
           return node;
@@ -732,7 +735,10 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           if (node.path === parentPath && node.type === 'folder') {
             return { ...node, children: [...(node.children || []), newNode] };
           }
-          if (node.children) {
+          // Optimization: Prune tree traversal for O(log N) updates.
+          // Only traverse children if the target parent path is inside this folder.
+          const prefix = node.path === '/' ? '/' : `${node.path}/`;
+          if (node.children && parentPath.startsWith(prefix)) {
             return { ...node, children: addToParent(node.children) };
           }
           return node;
@@ -751,7 +757,10 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const removeNode = (nodes: FileNode[]): FileNode[] => {
         return nodes.filter(node => {
           if (node.path === path) return false;
-          if (node.children) {
+          // Optimization: Prune tree traversal for O(log N) updates.
+          // Only traverse children if the target path is inside this folder.
+          const prefix = node.path === '/' ? '/' : `${node.path}/`;
+          if (node.children && path.startsWith(prefix)) {
             node.children = removeNode(node.children);
           }
           return true;
@@ -776,7 +785,10 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               language: node.type === 'file' ? getLanguageFromFilename(newName) : undefined,
             };
           }
-          if (node.children) {
+          // Optimization: Prune tree traversal for O(log N) updates.
+          // Only traverse children if the original target path is inside this folder.
+          const prefix = node.path === '/' ? '/' : `${node.path}/`;
+          if (node.children && oldPath.startsWith(prefix)) {
             return { ...node, children: renameNode(node.children) };
           }
           return node;
