@@ -11,3 +11,7 @@
 ## 2026-03-01 - [React Context Object Re-render Trap & Memoization]
 **Learning:** Using an unmemoized object literal as a Context `value` forces *every* consuming component to re-render on every Provider render, bypassing React's bailout mechanisms. This creates massive performance bottlenecks in large component trees (like WorkspaceContext and SettingsContext) because a new object reference is created even if the underlying data hasn't changed.
 **Action:** Always wrap Context Provider `value` objects in `useMemo` with a complete and correctly configured dependency array to ensure referential equality and prevent unnecessary downstream re-renders.
+
+## 2026-03-09 - [Path-based Tree Traversal Pruning in WorkspaceContext]
+**Learning:** React state updates for a nested file tree structure that trigger full O(N) traversal on every keystroke cause severe input latency (e.g., in `WorkspaceContext.updateFileContent`). When dealing with absolute file paths (like `/src/components/App.tsx`), we can prune the traversal by checking if `path.startsWith(node.path + '/')` for folder nodes.
+**Action:** When working with nested tree structures where the target path encodes the hierarchy, always use `startsWith` string checks to short-circuit the traversal of unrelated branches, reducing time complexity from O(N) to O(log N).
