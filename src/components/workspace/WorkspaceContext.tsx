@@ -683,7 +683,11 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             return { ...node, content };
           }
           if (node.children) {
-            return { ...node, children: updateNode(node.children) };
+            // Prune search space: only traverse if target path is within this directory
+            const prefix = node.path === '/' ? '/' : node.path + '/';
+            if (path.startsWith(prefix)) {
+              return { ...node, children: updateNode(node.children) };
+            }
           }
           return node;
         });
@@ -733,7 +737,11 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             return { ...node, children: [...(node.children || []), newNode] };
           }
           if (node.children) {
-            return { ...node, children: addToParent(node.children) };
+            // Prune search space: only traverse if target path is within this directory
+            const prefix = node.path === '/' ? '/' : node.path + '/';
+            if (parentPath.startsWith(prefix)) {
+              return { ...node, children: addToParent(node.children) };
+            }
           }
           return node;
         });
@@ -749,13 +757,21 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const deleteFile = useCallback((path: string) => {
     setFiles(prev => {
       const removeNode = (nodes: FileNode[]): FileNode[] => {
-        return nodes.filter(node => {
-          if (node.path === path) return false;
+        return nodes.reduce<FileNode[]>((acc, node) => {
+          if (node.path === path) return acc;
           if (node.children) {
-            node.children = removeNode(node.children);
+            // Prune search space: only traverse if target path is within this directory
+            const prefix = node.path === '/' ? '/' : node.path + '/';
+            if (path.startsWith(prefix)) {
+              acc.push({ ...node, children: removeNode(node.children) });
+            } else {
+              acc.push(node);
+            }
+          } else {
+            acc.push(node);
           }
-          return true;
-        });
+          return acc;
+        }, []);
       };
       return removeNode(prev);
     });
@@ -777,7 +793,11 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             };
           }
           if (node.children) {
-            return { ...node, children: renameNode(node.children) };
+            // Prune search space: only traverse if target path is within this directory
+            const prefix = node.path === '/' ? '/' : node.path + '/';
+            if (oldPath.startsWith(prefix)) {
+              return { ...node, children: renameNode(node.children) };
+            }
           }
           return node;
         });
