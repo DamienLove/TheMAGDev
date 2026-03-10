@@ -36,7 +36,7 @@ const AppContent: React.FC = () => {
   const [pendingPaywall, setPendingPaywall] = useState(false);
   const [authIntent, setAuthIntent] = useState<'general' | 'pro'| 'admin'>('general');
   const [authUser, setAuthUser] = useState<User | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
 
@@ -88,7 +88,7 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     if (authLoading || profileLoading) return;
     if (!isAuthenticated && !autoAuthShown) {
-      setShowAuth(true);
+      setShowAuth(false);
       setAutoAuthShown(true);
     }
   }, [authLoading, profileLoading, isAuthenticated, autoAuthShown]);
@@ -141,7 +141,7 @@ const AppContent: React.FC = () => {
   const userLabel = isGuest ? 'Guest' : displayName;
   const userAvatar = isGuest ? 'G' : displayAvatar;
 
-  if (authLoading || profileLoading) {
+  if (false) {
     return <LoadingScreen />;
   }
 

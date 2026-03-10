@@ -328,6 +328,8 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ className }) => {
                     <button
                       onClick={handleAddWatch}
                       className="px-2 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 rounded text-xs"
+                      title="Add watch expression"
+                      aria-label="Add watch expression"
                     >
                       <span className="material-symbols-rounded text-sm">add</span>
                     </button>
@@ -345,6 +347,8 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ className }) => {
                     <button
                       onClick={() => handleRemoveWatch(expr)}
                       className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400"
+                      title="Remove watch expression"
+                      aria-label="Remove watch expression"
                     >
                       <span className="material-symbols-rounded text-sm">close</span>
                     </button>
@@ -397,6 +401,8 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ className }) => {
                             ? 'bg-red-500 border-red-500'
                             : 'bg-transparent border-zinc-600'
                         }`}
+                        title="Toggle breakpoint"
+                        aria-label="Toggle breakpoint"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="text-xs text-zinc-300 truncate">
@@ -408,7 +414,7 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ className }) => {
                           </div>
                         )}
                       </div>
-                      <button className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400">
+                      <button className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400" title="Remove breakpoint" aria-label="Remove breakpoint">
                         <span className="material-symbols-rounded text-sm">close</span>
                       </button>
                     </div>
