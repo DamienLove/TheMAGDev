@@ -365,16 +365,28 @@ const CodeEditorContent: React.FC = () => {
     try {
       const tree = await githubService.getTree(gitRepo.owner, gitRepo.name, currentBranch);
       const filesToFetch = tree.filter(item => item.type === 'blob');
+
+      // Bolt: Fetch file contents concurrently but in limited chunks to prevent
+      // rate limiting or network queue exhaustion, speeding up pull time safely.
       const entries: Array<{ path: string; content: string }> = [];
-      for (const item of filesToFetch) {
-        const content = await githubService.getFileContent(
-          gitRepo.owner,
-          gitRepo.name,
-          item.path,
-          currentBranch
+      const CONCURRENCY_LIMIT = 10;
+
+      for (let i = 0; i < filesToFetch.length; i += CONCURRENCY_LIMIT) {
+        const chunk = filesToFetch.slice(i, i + CONCURRENCY_LIMIT);
+        const chunkResults = await Promise.all(
+          chunk.map(async (item) => {
+            const content = await githubService.getFileContent(
+              gitRepo.owner,
+              gitRepo.name,
+              item.path,
+              currentBranch
+            );
+            return { path: item.path, content };
+          })
         );
-        entries.push({ path: item.path, content });
+        entries.push(...chunkResults);
       }
+
       replaceWorkspace(buildFileTree(entries));
       setLastGitSync(Date.now());
       setGitError(null);
