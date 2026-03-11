@@ -748,11 +748,12 @@ export class MainController {
             <input
               className="bg-transparent border-none focus:outline-none text-[12px] w-full p-0 placeholder-[#5f637a] text-white"
               placeholder="Global Search (Ctrl+P)"
+              aria-label="Global Search"
             />
           </div>
           <div className="flex items-center gap-1">
-            <button className="p-1.5 hover:bg-white/5 rounded-md text-[#9da1b9] transition-colors"><span className="material-symbols-rounded text-[18px]">account_circle</span></button>
-            <button className="p-1.5 hover:bg-white/5 rounded-md text-[#9da1b9] transition-colors relative">
+            <button aria-label="Account Profile" title="Account Profile" className="p-1.5 hover:bg-white/5 rounded-md text-[#9da1b9] transition-colors"><span className="material-symbols-rounded text-[18px]">account_circle</span></button>
+            <button aria-label="Notifications" title="Notifications" className="p-1.5 hover:bg-white/5 rounded-md text-[#9da1b9] transition-colors relative">
               <span className="material-symbols-rounded text-[18px]">notifications</span>
               <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
             </button>
