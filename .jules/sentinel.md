@@ -12,3 +12,8 @@
 **Vulnerability:** The local agent server (`scripts/local-agent.js`) did not validate the `Origin` header, allowing any website the user visits to connect to the agent and execute arbitrary shell commands on their machine.
 **Learning:** WebSocket connections initiated from browsers automatically include an `Origin` header, but servers must explicitly validate it. Without this check, the browser's Same-Origin Policy does not protect WebSocket handshakes.
 **Prevention:** Always implement a `verifyClient` callback in `WebSocketServer` configurations that strictly whitelists allowed origins (e.g., `http://localhost:3000`, `https://themag.dev`).
+
+## 2025-03-09 - Overly Permissive WebSocket Origin Whitelist
+**Vulnerability:** The local agent server (`scripts/local-agent.js`) allowed connections from `https://stackblitz.io`. This allowed any malicious StackBlitz project to connect to a user's local agent and execute arbitrary shell commands on their machine.
+**Learning:** Whitelisting third-party origins (especially developer platforms where anyone can host code) entirely bypasses the security benefits of Origin validation for local services.
+**Prevention:** Only whitelist fully controlled and trusted origins. Never whitelist broad third-party platforms for sensitive local connections.

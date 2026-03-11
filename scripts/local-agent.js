@@ -8,8 +8,7 @@ const PORT = Number(process.env.THEMAG_AGENT_PORT || 4477);
 const ALLOWED_ORIGINS = [
   'http://localhost:3000',
   'http://localhost:5173',
-  'https://themag.dev',
-  'https://stackblitz.io'
+  'https://themag.dev'
 ];
 
 const wss = new WebSocketServer({
