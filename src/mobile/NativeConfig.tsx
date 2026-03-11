@@ -13,8 +13,8 @@ export default function App() {
     Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
 
     // Platform-specific API keys
-    const iosApiKey = 'test_BHHkqGNfzPCVziEbXBIwPxupzTJ';
-    const androidApiKey = 'test_BHHkqGNfzPCVziEbXBIwPxupzTJ';
+    const iosApiKey = process.env.EXPO_PUBLIC_RC_IOS_API_KEY || '';
+    const androidApiKey = process.env.EXPO_PUBLIC_RC_ANDROID_API_KEY || '';
 
     if (Platform.OS === 'ios') {
        Purchases.configure({apiKey: iosApiKey});
