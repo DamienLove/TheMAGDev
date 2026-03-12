@@ -169,6 +169,7 @@ const Projects: React.FC<ProjectsProps> = ({ onSelect, onNavigate }) => {
               <input 
                 type="text" 
                 placeholder="Search repository registry..."
+                aria-label="Search repository registry"
                 className="bg-zinc-900 border border-zinc-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all w-full shadow-lg"
               />
            </div>
