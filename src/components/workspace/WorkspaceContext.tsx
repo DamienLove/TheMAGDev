@@ -621,23 +621,30 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, [files, isHydrated, driveEmail, driveStatus.connected, activeDriveFolderId]);
 
-  const fileMap = useMemo(() => {
-    const map = new Map<string, FileNode>();
-    const traverse = (nodes: FileNode[]) => {
-      for (const node of nodes) {
-        map.set(node.path, node);
-        if (node.children) {
-          traverse(node.children);
-        }
-      }
-    };
-    traverse(files);
-    return map;
-  }, [files]);
-
   const getFileByPath = useCallback((path: string): FileNode | undefined => {
-    return fileMap.get(path);
-  }, [fileMap]);
+    if (!path || path === '/') return undefined;
+
+    // Split path into parts (e.g. "/src/components/App.tsx" -> ["src", "components", "App.tsx"])
+    const parts = path.split('/').filter(Boolean);
+    let currentNodes = files;
+    let foundNode: FileNode | undefined;
+
+    // O(depth) path-based tree traversal replaces O(N) map rebuild
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      foundNode = currentNodes.find(n => n.name === part);
+
+      if (!foundNode) return undefined;
+
+      // If not the last part, we must have children to continue
+      if (i < parts.length - 1) {
+        if (!foundNode.children) return undefined;
+        currentNodes = foundNode.children;
+      }
+    }
+
+    return foundNode;
+  }, [files]);
 
   const getFileContent = useCallback((path: string): string | undefined => {
     const file = getFileByPath(path);
