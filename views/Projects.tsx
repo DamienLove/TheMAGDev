@@ -168,6 +168,7 @@ const Projects: React.FC<ProjectsProps> = ({ onSelect, onNavigate }) => {
               <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-rounded text-zinc-500 text-sm">search</span>
               <input 
                 type="text" 
+                aria-label="Search repository registry"
                 placeholder="Search repository registry..."
                 className="bg-zinc-900 border border-zinc-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all w-full shadow-lg"
               />
@@ -177,6 +178,7 @@ const Projects: React.FC<ProjectsProps> = ({ onSelect, onNavigate }) => {
                 <button 
                   key={f}
                   onClick={() => setActiveFilter(f)}
+                  aria-pressed={activeFilter === f}
                   className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap border ${activeFilter === f ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-500/20' : 'bg-zinc-900 text-zinc-500 border-zinc-800 hover:border-zinc-700'}`}
                 >
                   {f}
@@ -243,6 +245,7 @@ const Projects: React.FC<ProjectsProps> = ({ onSelect, onNavigate }) => {
                        </div>
                        <button
                           onClick={() => handleOpenProject(p)}
+                          aria-label={`View implementation of ${p.name}`}
                           className="w-full mt-4 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2"
                         >
                           <span className="material-symbols-rounded text-lg">code</span> View Implementation
