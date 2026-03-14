@@ -85,38 +85,78 @@ const BuildSystem: React.FC = () => {
     };
   }
 
-  const runBuild = (taskName: string) => {
+  const runBuild = async (taskName: string) => {
     if (buildStatus === 'building') return;
 
     setBuildStatus('building');
     setBuildProgress(0);
-    setBuildLogs([`> Executing task: ${taskName}...`, 'Initializing Daemon...', 'Allocating resources...']);
+    setBuildLogs([`> Executing task: ${taskName}...`]);
 
-    const steps = [
-        { progress: 10, msg: '> Configure project :app' },
-        { progress: 25, msg: '> Task :app:preBuild UP-TO-DATE' },
-        { progress: 40, msg: '> Task :app:preDebugBuild UP-TO-DATE' },
-        { progress: 55, msg: '> Task :app:compileDebugAidl NO-SOURCE' },
-        { progress: 70, msg: '> Task :app:compileDebugRenderscript NO-SOURCE' },
-        { progress: 85, msg: '> Task :app:generateDebugBuildConfig' },
-        { progress: 95, msg: '> Task :app:javaPreCompileDebug' },
-        { progress: 100, msg: 'BUILD SUCCESSFUL in 3s' }
-    ];
+    try {
+      const { default: webContainerService } = await import('../src/services/WebContainerService');
 
-    let currentStep = 0;
+      if (!webContainerService.isReady()) {
+        setBuildLogs(prev => [...prev, 'Booting WebContainer...']);
+        await webContainerService.boot();
+      }
 
-    const interval = setInterval(() => {
-        if (currentStep >= steps.length) {
-            clearInterval(interval);
-            setBuildStatus('success');
-            return;
+      const container = webContainerService.getContainer();
+      if (!container) throw new Error('WebContainer not initialized');
+
+      // Sync files first
+      setBuildLogs(prev => [...prev, 'Syncing workspace files...']);
+      const buildTree = (nodes: any[]): any => {
+        const tree: any = {};
+        for (const node of nodes) {
+          if (node.type === 'folder') {
+            tree[node.name] = { directory: buildTree(node.children || []) };
+          } else {
+            tree[node.name] = { file: { contents: node.content || '' } };
+          }
         }
+        return tree;
+      };
 
-        const step = steps[currentStep];
-        setBuildProgress(step.progress);
-        setBuildLogs(prev => [...prev, step.msg]);
-        currentStep++;
-    }, 800);
+      const tree = buildTree(workspaceFiles);
+      await container.mount(tree);
+
+      setBuildProgress(20);
+      setBuildLogs(prev => [...prev, 'Running command...']);
+
+      let cmd = taskName;
+      // If it's an npm script, prefix with npm run
+      if (tasks['npm']?.some(t => t.name === taskName)) {
+        cmd = `npm run ${taskName}`;
+      }
+
+      let output = '';
+      const process = await container.spawn('jsh', ['-c', cmd]);
+
+      process.output.pipeTo(new WritableStream({
+        write(data) {
+          output += data;
+          const newLines = data.split('\\n').filter(l => l.trim().length > 0);
+          setBuildLogs(prev => [...prev, ...newLines]);
+          // Approximate progress
+          setBuildProgress(p => Math.min(95, p + 5));
+        }
+      }));
+
+      const exitCode = await process.exit;
+      setBuildProgress(100);
+
+      if (exitCode === 0) {
+        setBuildStatus('success');
+        setBuildLogs(prev => [...prev, `> BUILD SUCCESSFUL (Exit code: ${exitCode})`]);
+      } else {
+        setBuildStatus('error');
+        setBuildLogs(prev => [...prev, `> BUILD FAILED (Exit code: ${exitCode})`]);
+      }
+
+    } catch (error: any) {
+      setBuildStatus('error');
+      setBuildLogs(prev => [...prev, `> Error: ${error.message}`]);
+    }
   };
 
   return (
