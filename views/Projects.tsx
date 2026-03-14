@@ -26,9 +26,20 @@ const Projects: React.FC<ProjectsProps> = ({ onSelect, onNavigate }) => {
 
   const handleOpenProject = (project: Project) => {
     let template = REACT_TEMPLATE;
-    if (project.id === 'p-2') template = STATIC_TEMPLATE;
-    if (project.id === 'p-3') template = NODE_TEMPLATE;
-    if (project.id === 'p-4') template = NODE_TEMPLATE;
+
+    // Explicit mapping to functional templates for all featured projects
+    switch (project.id) {
+      case 'p-1': template = REACT_TEMPLATE; break;
+      case 'p-2': template = STATIC_TEMPLATE; break;
+      case 'p-3': template = NODE_TEMPLATE; break;
+      case 'p-4': template = NODE_TEMPLATE; break;
+      case 'p-5': template = REACT_TEMPLATE; break;
+      case 'p-6': template = REACT_TEMPLATE; break;
+      case 'p-7': template = STATIC_TEMPLATE; break;
+      case 'p-8': template = REACT_TEMPLATE; break;
+      case 'p-9': template = NODE_TEMPLATE; break;
+      default: template = REACT_TEMPLATE; break;
+    }
 
     if (onSelect) {
       onSelect(template);

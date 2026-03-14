@@ -43,7 +43,7 @@ const CommunitySupport: React.FC = () => {
 
   useEffect(scrollToBottom, [chatMessages]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!chatInput.trim()) return;
 
     const userMessage: ChatMessage = {
@@ -57,24 +57,29 @@ const CommunitySupport: React.FC = () => {
     setChatInput('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const inputLower = chatInput.toLowerCase();
-      let response = aiResponses.default;
-      if (inputLower.includes('build') || inputLower.includes('compile')) response = aiResponses.build;
-      else if (inputLower.includes('deploy') || inputLower.includes('production')) response = aiResponses.deploy;
-      else if (inputLower.includes('error') || inputLower.includes('fail')) response = aiResponses.error;
+    try {
+      const { default: aiProvider } = await import('../src/services/AIProvider');
+      const response = await aiProvider.sendMessage([{ role: 'user', content: userMessage.text }]);
 
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
-        text: response,
+        text: response.content || response.error || 'No response',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
       setChatMessages(prev => [...prev, aiMessage]);
+    } catch (error: any) {
+      const aiMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        sender: 'ai',
+        text: `Error: ${error.message || 'Failed to generate response'}`,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setChatMessages(prev => [...prev, aiMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
   const [questions] = useState<Question[]>([
     {
