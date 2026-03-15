@@ -4,7 +4,8 @@ import { View } from './types';
 import LoadingScreen from './src/components/LoadingScreen';
 import ViewLoading from './src/components/ViewLoading';
 import { SettingsProvider } from './src/contexts/SettingsContext';
-import { WorkspaceProvider } from './src/components/workspace';
+// Bypassing barrel file to prevent eager bundling of heavy components (MonacoEditor, XTerm)
+import { WorkspaceProvider } from './src/components/workspace/WorkspaceContext';
 import './src/services/ModuleRegistryService';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
