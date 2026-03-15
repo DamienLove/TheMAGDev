@@ -15,3 +15,7 @@
 ## 2025-03-09 - [Path Pruning for Recursive React Context Updates]
 **Learning:** In highly nested data structures like `FileNode[]` stored in React state, recursive operations such as mapping (`updateFileContent`, `renameFile`), filtering (`deleteFile`), or adding (`createFile`) can inadvertently trigger full O(N) tree traversals across thousands of nodes. This causes significant UI blocking in features like file explorers when typing or making frequent changes.
 **Action:** Always implement path prefix pruning in recursive state updates (e.g., `if (targetPath.startsWith(node.path + '/'))`). This bypasses unnecessary branches, successfully optimizing the state update logic from O(N) to O(log N).
+
+## 2026-03-10 - [Barrel File Bundle Bloat]
+**Learning:** Importing `WorkspaceProvider` from the `src/components/workspace/index.ts` barrel file caused Vite to eagerly evaluate and include heavy components like `MonacoEditor` and `XTerm` in the main bundle, even though they are only needed in specific lazy-loaded routes. This increased the main bundle size by ~500KB.
+**Action:** Always import large or context-providing components directly from their source files (e.g., `./src/components/workspace/WorkspaceContext`) when used in the root `App.tsx` layout to preserve route-based code splitting and prevent main bundle bloat.
