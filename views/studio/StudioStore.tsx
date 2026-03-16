@@ -133,6 +133,7 @@ const StudioStore: React.FC = () => {
                             onClick={() => handleDownload(item.id)}
                             disabled={downloadingId === item.id}
                             className="size-8 rounded-full bg-zinc-950 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
+                            aria-label="Add to cart"
                         >
                            {downloadingId === item.id ? (
                                <span className="material-symbols-rounded text-sm animate-spin">progress_activity</span>
