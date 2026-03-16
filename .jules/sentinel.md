@@ -17,3 +17,8 @@
 **Vulnerability:** Platform-specific API keys (e.g., RevenueCat `iosApiKey` and `androidApiKey`) were hardcoded directly in `src/mobile/NativeConfig.tsx`, which was commented out for future use.
 **Learning:** Even if code is commented out or currently unused in the web platform, any hardcoded secrets checked into version control are exposed. Attackers or automated scanners can find them in the git history or codebase.
 **Prevention:** Never hardcode secrets in source files, including commented blocks or unused code. Always use environment variable placeholders (e.g., `process.env.EXPO_PUBLIC_RC_IOS_API_KEY`) to ensure secure configuration practices are maintained when the code is eventually reactivated or ported.
+
+## 2025-03-09 - `noopener,noreferrer` on Same-Origin Popouts
+**Vulnerability:** External links opened with `window.open` lacking `noreferrer` are vulnerable to Referrer leakage and Tabnabbing.
+**Learning:** While it is a critical security practice to add `noopener,noreferrer` to all external links, applying these attributes to same-origin popouts where the parent application expects to maintain a reference to the child window (e.g., `DesktopWorkspace.tsx` storing the window in a ref for cross-window communication) will cause functional regressions. The `noopener` (and in some browsers `noreferrer`) attribute severs the connection between the parent and child, causing `window.open` to return a null reference.
+**Prevention:** Always add `noopener,noreferrer` to external links to prevent Tabnabbing and Referrer leakage. However, DO NOT add these attributes to same-origin internal popouts that require cross-window communication or require retaining a window reference to function correctly.
