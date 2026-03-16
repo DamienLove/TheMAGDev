@@ -141,7 +141,7 @@ const AppContent: React.FC = () => {
   const userLabel = isGuest ? 'Guest' : displayName;
   const userAvatar = isGuest ? 'G' : displayAvatar;
 
-  if (false) {
+  if (authLoading || profileLoading) {
     return <LoadingScreen />;
   }
 
