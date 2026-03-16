@@ -1,4 +1,4 @@
-import React, { useState, useCallback, memo, useEffect } from 'react';
+import React, { useState, useCallback, memo, useEffect, useRef } from 'react';
 import { useWorkspace, FileNode } from './WorkspaceContext';
 
 interface FileExplorerProps {
@@ -282,6 +282,34 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
     unsavedFiles
   } = useWorkspace();
 
+  const openFileRef = useRef(openFile);
+  const createFileRef = useRef(createFile);
+  const deleteFileRef = useRef(deleteFile);
+  const renameFileRef = useRef(renameFile);
+
+  useEffect(() => {
+    openFileRef.current = openFile;
+    createFileRef.current = createFile;
+    deleteFileRef.current = deleteFile;
+    renameFileRef.current = renameFile;
+  }, [openFile, createFile, deleteFile, renameFile]);
+
+  const stableOpenFile = useCallback((path: string) => {
+    openFileRef.current(path);
+  }, []);
+
+  const stableCreateFile = useCallback((parentPath: string, name: string, type: 'file' | 'folder') => {
+    createFileRef.current(parentPath, name, type);
+  }, []);
+
+  const stableDeleteFile = useCallback((path: string) => {
+    deleteFileRef.current(path);
+  }, []);
+
+  const stableRenameFile = useCallback((oldPath: string, newName: string) => {
+    renameFileRef.current(oldPath, newName);
+  }, []);
+
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['/src', '/src/components', '/src/hooks']));
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; path: string; type: 'file' | 'folder' } | null>(null);
   const [renaming, setRenaming] = useState<string | null>(null);
@@ -316,10 +344,10 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
 
   const submitRename = useCallback((name: string) => {
     if (renaming && name.trim()) {
-      renameFile(renaming, name.trim());
+      stableRenameFile(renaming, name.trim());
     }
     setRenaming(null);
-  }, [renaming, renameFile]);
+  }, [renaming, stableRenameFile]);
 
   const onRenameCancel = useCallback(() => {
     setRenaming(null);
@@ -327,10 +355,10 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
 
   const handleDelete = useCallback((path: string) => {
     if (confirm('Are you sure you want to delete this item?')) {
-      deleteFile(path);
+      stableDeleteFile(path);
     }
     closeContextMenu();
-  }, [deleteFile, closeContextMenu]);
+  }, [stableDeleteFile, closeContextMenu]);
 
   const handleCreate = useCallback((parentPath: string, type: 'file' | 'folder') => {
     setCreating({ parentPath, type });
@@ -342,10 +370,10 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
 
   const handleCreateSubmit = useCallback((name: string) => {
     if (creating && name.trim()) {
-      createFile(creating.parentPath, name.trim(), creating.type);
+      stableCreateFile(creating.parentPath, name.trim(), creating.type);
     }
     setCreating(null);
-  }, [creating, createFile]);
+  }, [creating, stableCreateFile]);
 
 
   return (
@@ -434,7 +462,7 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
             creating={creating}
             onCreateSubmit={handleCreateSubmit}
             onToggle={toggleFolder}
-            onOpen={openFile}
+            onOpen={stableOpenFile}
             onContextMenu={handleContextMenu}
             onRenameSubmit={submitRename}
             onRenameCancel={onRenameCancel}
