@@ -17,3 +17,8 @@
 **Vulnerability:** Platform-specific API keys (e.g., RevenueCat `iosApiKey` and `androidApiKey`) were hardcoded directly in `src/mobile/NativeConfig.tsx`, which was commented out for future use.
 **Learning:** Even if code is commented out or currently unused in the web platform, any hardcoded secrets checked into version control are exposed. Attackers or automated scanners can find them in the git history or codebase.
 **Prevention:** Never hardcode secrets in source files, including commented blocks or unused code. Always use environment variable placeholders (e.g., `process.env.EXPO_PUBLIC_RC_IOS_API_KEY`) to ensure secure configuration practices are maintained when the code is eventually reactivated or ported.
+
+## 2025-03-09 - Cross-Site WebSocket Hijacking in local-agent/server.js
+**Vulnerability:** Similar to `scripts/local-agent.js`, the secondary agent script `local-agent/server.js` lacked `Origin` header validation in its WebSocketServer setup. This would allow an attacker's website to initiate a WebSocket connection to the local agent running on `localhost:4477` and execute arbitrary shell commands on the developer's machine.
+**Learning:** Developers often copy-paste or maintain multiple similar server entry points (e.g. one for testing, one for production). When applying security patches (like the CSWSH fix), it is critical to search the entire codebase for similar implementations to ensure all endpoints are protected.
+**Prevention:** Always implement origin validation via `verifyClient` on any local WebSocket server. Use tools or linters to detect missing `verifyClient` definitions in WebSocket implementations, and ensure security patches are applied across all similar server configurations.
