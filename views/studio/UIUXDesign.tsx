@@ -172,9 +172,9 @@ const UIUXDesign: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1 bg-zinc-950 border border-zinc-800 rounded-lg p-1">
-             <button onClick={() => setZoom(Math.max(25, zoom - 10))} className="size-6 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-colors"><span className="material-symbols-rounded text-sm">remove</span></button>
-             <span className="text-[9px] font-mono text-zinc-400 w-8 text-center">{zoom}%</span>
-             <button onClick={() => setZoom(Math.min(200, zoom + 10))} className="size-6 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-colors"><span className="material-symbols-rounded text-sm">add</span></button>
+             <button onClick={() => setZoom(Math.max(25, zoom - 10))} className="size-6 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-colors" title="Zoom out" aria-label="Zoom out"><span className="material-symbols-rounded text-sm">remove</span></button>
+             <span className="text-[9px] font-mono text-zinc-400 w-8 text-center" aria-live="polite">{zoom}%</span>
+             <button onClick={() => setZoom(Math.min(200, zoom + 10))} className="size-6 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-colors" title="Zoom in" aria-label="Zoom in"><span className="material-symbols-rounded text-sm">add</span></button>
           </div>
           <button onClick={handleExport} className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-[10px] font-bold uppercase tracking-wider transition-all shadow-lg shadow-indigo-500/20">
             Export UI
