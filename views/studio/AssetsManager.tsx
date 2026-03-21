@@ -182,7 +182,7 @@ const AssetsManager: React.FC = () => {
                              <span className="material-symbols-rounded text-4xl text-zinc-700">{asset.type === 'video' ? 'movie' : 'font_download'}</span>
                            )}
                            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button className="size-6 rounded-full bg-zinc-900/80 backdrop-blur border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white">
+                              <button aria-label="Asset options" className="size-6 rounded-full bg-zinc-900/80 backdrop-blur border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white">
                                  <span className="material-symbols-rounded text-xs">more_vert</span>
                               </button>
                            </div>
@@ -212,7 +212,7 @@ const AssetsManager: React.FC = () => {
                  <div className="flex-1 overflow-y-auto p-4 space-y-6">
                     <div className="aspect-video bg-zinc-950 rounded-lg border border-zinc-800 flex items-center justify-center overflow-hidden relative">
                        <img src={selectedAsset.url} className="max-w-full max-h-full object-contain" />
-                       <button className="absolute bottom-2 right-2 size-8 bg-zinc-900/80 rounded-lg border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white">
+                       <button aria-label="Fullscreen preview" className="absolute bottom-2 right-2 size-8 bg-zinc-900/80 rounded-lg border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white">
                           <span className="material-symbols-rounded text-lg">fullscreen</span>
                        </button>
                     </div>
@@ -247,7 +247,7 @@ const AssetsManager: React.FC = () => {
                              {selectedAsset.tags.map(tag => (
                                 <span key={tag} className="flex items-center gap-1 bg-zinc-900 text-[10px] text-zinc-400 px-2 py-0.5 rounded border border-zinc-800">
                                    {tag}
-                                   <button className="hover:text-red-400"><span className="material-symbols-rounded text-[12px]">close</span></button>
+                                   <button aria-label="Remove tag" className="hover:text-red-400"><span className="material-symbols-rounded text-[12px]">close</span></button>
                                 </span>
                              ))}
                              <button className="text-[10px] text-indigo-400 font-bold hover:underline">+ Add Tag</button>
@@ -318,7 +318,7 @@ const AssetsManager: React.FC = () => {
                       <div className="space-y-2">
                          <div className="flex justify-between items-center">
                             <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Generation Prompt</label>
-                            <button className="text-[9px] text-indigo-400 hover:text-indigo-300 transition-colors" onClick={() => setAiPrompt('')}>Clear</button>
+                            <button aria-label="Clear generation prompt" className="text-[9px] text-indigo-400 hover:text-indigo-300 transition-colors" onClick={() => setAiPrompt('')}>Clear</button>
                          </div>
                          <textarea 
                            value={aiPrompt}
@@ -393,12 +393,14 @@ const AssetsManager: React.FC = () => {
                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Graphic Editor v1.0</span>
                        <div className="flex gap-1">
                           <button 
+                            aria-label="Rotate left"
                             onClick={() => { setRotation(prev => prev - 90); }}
                             className="size-6 flex items-center justify-center text-zinc-500 hover:text-white"
                           >
                               <span className="material-symbols-rounded text-sm">rotate_left</span>
                           </button>
                           <button 
+                             aria-label="Rotate right"
                              onClick={() => { setRotation(prev => prev + 90); }}
                              className="size-6 flex items-center justify-center text-zinc-500 hover:text-white"
                           >
