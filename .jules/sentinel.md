@@ -1,19 +1,4 @@
-## 2024-05-22 - Hardcoded Third-Party API Keys
-**Vulnerability:** Hardcoded RevenueCat API key in React hook.
-**Learning:** Developers often hardcode "public" keys (like RevenueCat or Firebase) directly in components/hooks for convenience, but this prevents environment separation (test vs prod) and makes rotation difficult.
-**Prevention:** Always use environment variables (e.g., `VITE_APP_KEY`) even for public keys, and enforce this via lint rules or code reviews.
-
-## 2024-05-23 - Hardcoded Firebase Config Variables
-**Vulnerability:** Firebase `apiKey` and other configuration values were hardcoded in `firebaseConfig.ts`.
-**Learning:** Hardcoding project configuration secrets/identifiers makes it impossible to separate environments and manage key rotations effectively. Even though some Firebase keys are technically "public", they should not be committed directly to version control.
-**Prevention:** Always use environment variables (e.g., `import.meta.env.VITE_FIREBASE_API_KEY`) for third-party service configuration, and provide examples in an `.env.example` file.
-
-## 2025-03-09 - Cross-Site WebSocket Hijacking in Local Agent
-**Vulnerability:** The local agent server (`scripts/local-agent.js`) did not validate the `Origin` header, allowing any website the user visits to connect to the agent and execute arbitrary shell commands on their machine.
-**Learning:** WebSocket connections initiated from browsers automatically include an `Origin` header, but servers must explicitly validate it. Without this check, the browser's Same-Origin Policy does not protect WebSocket handshakes.
-**Prevention:** Always implement a `verifyClient` callback in `WebSocketServer` configurations that strictly whitelists allowed origins (e.g., `http://localhost:3000`, `https://themag.dev`).
-
-## 2025-03-09 - Hardcoded Secrets in Commented Code
-**Vulnerability:** Platform-specific API keys (e.g., RevenueCat `iosApiKey` and `androidApiKey`) were hardcoded directly in `src/mobile/NativeConfig.tsx`, which was commented out for future use.
-**Learning:** Even if code is commented out or currently unused in the web platform, any hardcoded secrets checked into version control are exposed. Attackers or automated scanners can find them in the git history or codebase.
-**Prevention:** Never hardcode secrets in source files, including commented blocks or unused code. Always use environment variable placeholders (e.g., `process.env.EXPO_PUBLIC_RC_IOS_API_KEY`) to ensure secure configuration practices are maintained when the code is eventually reactivated or ported.
+## 2024-05-24 - Fix Tabnabbing / Referrer Leakage in external window.open calls
+**Vulnerability:** External links opened with `window.open` using only `'noopener'` missed `'noreferrer'`, potentially exposing the `Referer` header (containing internal application context) to third-party sites, which can lead to information disclosure or reverse tabnabbing in older browsers.
+**Learning:** React elements with `target="_blank"` are often linted for both `noopener` and `noreferrer`, but raw `window.open()` calls must explicitly include `noopener,noreferrer` in their features string to achieve the same security posture.
+**Prevention:** Whenever using `window.open` to navigate to an external origin, ensure the third argument contains `'noopener,noreferrer'`. Do *not* apply this to same-origin internal popouts that need to preserve the `window` reference (like IDE panels).
