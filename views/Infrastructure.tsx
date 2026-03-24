@@ -95,7 +95,7 @@ const Infrastructure: React.FC = () => {
   };
 
 
-  const handleDeploy = (id: string) => {
+  const handleDeploy = async (id: string) => {
     setServices(prev => prev.map(s => {
         if (s.id === id) {
             return {
@@ -107,18 +107,41 @@ const Infrastructure: React.FC = () => {
         return s;
     }));
 
-    setTimeout(() => {
-        setServices(prev => prev.map(s => {
-            if (s.id === id) {
+    const service = services.find(s => s.id === id);
+    let success = true;
+
+    // Check configuration
+    if (service?.name === 'Google Firebase') {
+       if (!import.meta.env.VITE_FIREBASE_API_KEY) {
+           success = false;
+       }
+    } else {
+        // Generic wait to simulate check for other providers
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        // Force failure if it is simulated Appwrite or Supabase without config
+        if (service?.name === 'Appwrite' || service?.name === 'Supabase') {
+           success = false;
+        }
+    }
+
+    setServices(prev => prev.map(s => {
+        if (s.id === id) {
+            if (success) {
                 return {
                     ...s,
                     status: 'Active',
                     modules: s.modules.map(m => ({ ...m, status: 'Online' }))
                 };
+            } else {
+                return {
+                    ...s,
+                    status: 'Disconnected',
+                    modules: s.modules.map(m => ({ ...m, status: 'Config Required' }))
+                };
             }
-            return s;
-        }));
-    }, 3000);
+        }
+        return s;
+    }));
   };
 
   const removeService = (id: string) => {
