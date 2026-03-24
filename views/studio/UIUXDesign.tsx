@@ -172,9 +172,9 @@ const UIUXDesign: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1 bg-zinc-950 border border-zinc-800 rounded-lg p-1">
-             <button onClick={() => setZoom(Math.max(25, zoom - 10))} className="size-6 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-colors"><span className="material-symbols-rounded text-sm">remove</span></button>
-             <span className="text-[9px] font-mono text-zinc-400 w-8 text-center">{zoom}%</span>
-             <button onClick={() => setZoom(Math.min(200, zoom + 10))} className="size-6 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-colors"><span className="material-symbols-rounded text-sm">add</span></button>
+             <button onClick={() => setZoom(Math.max(25, zoom - 10))} aria-label="Zoom out" className="size-6 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-colors"><span className="material-symbols-rounded text-sm">remove</span></button>
+             <span className="text-[9px] font-mono text-zinc-400 w-8 text-center" aria-live="polite">{zoom}%</span>
+             <button onClick={() => setZoom(Math.min(200, zoom + 10))} aria-label="Zoom in" className="size-6 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-colors"><span className="material-symbols-rounded text-sm">add</span></button>
           </div>
           <button onClick={handleExport} className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-[10px] font-bold uppercase tracking-wider transition-all shadow-lg shadow-indigo-500/20">
             Export UI
@@ -215,8 +215,8 @@ const UIUXDesign: React.FC = () => {
 
            {/* Canvas Tools */}
            <div className="absolute top-6 left-6 flex flex-col gap-2 bg-zinc-900/80 backdrop-blur p-1 rounded-lg border border-zinc-800 shadow-xl z-20">
-              <button onClick={() => setActiveTool('select')} className={`size-8 flex items-center justify-center rounded transition-all ${activeTool === 'select' ? 'bg-indigo-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}><span className="material-symbols-rounded text-lg">near_me</span></button>
-              <button onClick={() => setActiveTool('move')} className={`size-8 flex items-center justify-center rounded transition-all ${activeTool === 'move' ? 'bg-indigo-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}><span className="material-symbols-rounded text-lg">open_with</span></button>
+              <button onClick={() => setActiveTool('select')} aria-label="Select tool" className={`size-8 flex items-center justify-center rounded transition-all ${activeTool === 'select' ? 'bg-indigo-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}><span className="material-symbols-rounded text-lg">near_me</span></button>
+              <button onClick={() => setActiveTool('move')} aria-label="Move tool" className={`size-8 flex items-center justify-center rounded transition-all ${activeTool === 'move' ? 'bg-indigo-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}><span className="material-symbols-rounded text-lg">open_with</span></button>
            </div>
 
            {/* Device Frame */}
@@ -273,7 +273,7 @@ const UIUXDesign: React.FC = () => {
                         <h3 className="text-xs font-bold text-white uppercase">{selectedComponent.type}</h3>
                         <p className="text-[9px] text-zinc-500 font-mono">{selectedComponent.id}</p>
                      </div>
-                     <button onClick={() => removeComponent(selectedComponent.id)} className="text-zinc-500 hover:text-red-400">
+                     <button onClick={() => removeComponent(selectedComponent.id)} aria-label="Delete component" className="text-zinc-500 hover:text-red-400">
                         <span className="material-symbols-rounded text-sm">delete</span>
                      </button>
                   </div>
