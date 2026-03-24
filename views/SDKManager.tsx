@@ -29,31 +29,34 @@ const SDKManager: React.FC = () => {
     setLoading(true);
     setProgress(0);
     
-    // Simulate progress
+    // Simulate progress while the promise resolves
     const interval = setInterval(() => {
       setProgress(prev => {
-        if (prev === null || prev >= 100) {
-          clearInterval(interval);
-          return 100;
+        if (prev === null || prev >= 90) {
+          return 90;
         }
         return prev + 10;
       });
     }, 200);
 
-    if (sdk.status === 'Update Available') {
-      await sdkService.updateSDK(sdk.id);
-    } else if (sdk.status === 'Not Installed') {
-      await sdkService.installSDK(sdk.id);
-    } else if (sdk.status === 'Installed') {
-      await sdkService.uninstallSDK(sdk.id);
-    }
-
-    setTimeout(() => {
+    try {
+      if (sdk.status === 'Update Available') {
+        await sdkService.updateSDK(sdk.id);
+      } else if (sdk.status === 'Not Installed') {
+        await sdkService.installSDK(sdk.id);
+      } else if (sdk.status === 'Installed') {
+        await sdkService.uninstallSDK(sdk.id);
+      }
+    } finally {
       clearInterval(interval);
+      setProgress(100);
       setLoading(false);
-      setProgress(null);
-      loadData();
-    }, 2000);
+
+      setTimeout(() => {
+        setProgress(null);
+        loadData();
+      }, 500);
+    }
   };
 
   const handleRefresh = async () => {

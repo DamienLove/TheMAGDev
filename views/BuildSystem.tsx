@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import webContainerService from '../src/services/WebContainerService';
 
 interface BuildTask {
   name: string;
@@ -85,12 +86,55 @@ const BuildSystem: React.FC = () => {
     };
   }
 
-  const runBuild = (taskName: string) => {
+  const runBuild = async (taskName: string, group: string) => {
     if (buildStatus === 'building') return;
 
     setBuildStatus('building');
     setBuildProgress(0);
-    setBuildLogs([`> Executing task: ${taskName}...`, 'Initializing Daemon...', 'Allocating resources...']);
+    setBuildLogs([`> Executing task: ${taskName}...`]);
+
+    if (group === 'npm') {
+      try {
+        if (!webContainerService.isReady()) {
+            setBuildLogs(prev => [...prev, 'Booting WebContainer...']);
+            await webContainerService.boot();
+        }
+
+        // intercept output
+        webContainerService.setOutputCallback((data) => {
+            // Very simple line splitting logic, handling carriage returns
+            const lines = data.split(/\r?\n/).filter(line => line.trim() !== '');
+            if (lines.length > 0) {
+               setBuildLogs(prev => [...prev, ...lines]);
+            }
+        });
+
+        setBuildLogs(prev => [...prev, 'Running npm install...']);
+        await webContainerService.runCommand('npm install');
+
+        setBuildLogs(prev => [...prev, `Running npm run ${taskName}...`]);
+        const exitCode = await webContainerService.runCommand(`npm run ${taskName}`);
+
+        setBuildProgress(100);
+        if (exitCode === 0) {
+            setBuildLogs(prev => [...prev, 'BUILD SUCCESSFUL']);
+            setBuildStatus('success');
+        } else {
+            setBuildLogs(prev => [...prev, `BUILD FAILED with code ${exitCode}`]);
+            setBuildStatus('error');
+        }
+
+      } catch (error: any) {
+        setBuildLogs(prev => [...prev, `Build failed: ${error.message}`]);
+        setBuildStatus('error');
+      } finally {
+        webContainerService.setOutputCallback(() => {}); // Clear callback
+      }
+      return;
+    }
+
+    // Mock execution for Gradle/Android tasks
+    setBuildLogs(prev => [...prev, 'Simulation Mode: WebContainer does not support Gradle tasks yet.', 'Initializing Daemon...', 'Allocating resources...']);
 
     const steps = [
         { progress: 10, msg: '> Configure project :app' },
@@ -187,7 +231,7 @@ const BuildSystem: React.FC = () => {
                         <div
                             key={task.name}
                             className={`flex items-center justify-between px-2 py-1.5 rounded hover:bg-zinc-800 group/item transition-all cursor-pointer ${task.isKey ? 'bg-indigo-500/5 border-l border-indigo-500' : ''}`}
-                            onClick={() => runBuild(task.name)}
+                            onClick={() => runBuild(task.name, group)}
                         >
                            <span className={`text-xs ${task.isKey ? 'text-white font-bold' : 'text-zinc-500'}`}>{task.name}</span>
                            <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
