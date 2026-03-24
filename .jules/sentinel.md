@@ -17,3 +17,8 @@
 **Vulnerability:** Platform-specific API keys (e.g., RevenueCat `iosApiKey` and `androidApiKey`) were hardcoded directly in `src/mobile/NativeConfig.tsx`, which was commented out for future use.
 **Learning:** Even if code is commented out or currently unused in the web platform, any hardcoded secrets checked into version control are exposed. Attackers or automated scanners can find them in the git history or codebase.
 **Prevention:** Never hardcode secrets in source files, including commented blocks or unused code. Always use environment variable placeholders (e.g., `process.env.EXPO_PUBLIC_RC_IOS_API_KEY`) to ensure secure configuration practices are maintained when the code is eventually reactivated or ported.
+
+## 2025-03-09 - Tabnabbing and Referrer Leakage via window.open
+**Vulnerability:** Missing `noreferrer` attribute when using `window.open` to open external, user-provided or uncontrolled URLs (e.g., Extension Marketplace, SDK Manager, Settings).
+**Learning:** Using `window.open(url, '_blank', 'noopener')` prevents the newly opened tab from accessing the originating window object (`window.opener`), but it still sends the `Referer` header. This can leak sensitive URLs or query parameters to third-party sites, compromising privacy.
+**Prevention:** Always use `window.open(url, '_blank', 'noopener,noreferrer')` for external links to ensure both process isolation and privacy, while omitting `noreferrer` for internal popouts that require window references.
