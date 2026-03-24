@@ -663,6 +663,9 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return newFiles;
     });
     setUnsavedFiles(prev => {
+      // ⚡ Bolt: Bail out of state update if file is not unsaved.
+      // Prevents WorkspaceContext and consumer re-renders.
+      if (!prev.has(path)) return prev;
       const next = new Set(prev);
       next.delete(path);
       return next;
@@ -694,11 +697,16 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       };
       return updateNode(prev);
     });
-    setUnsavedFiles(prev => new Set(prev).add(path));
+    // ⚡ Bolt: Bail out of state update if file is already unsaved.
+    // Preserves referential equality and prevents downstream re-renders on every keystroke.
+    setUnsavedFiles(prev => prev.has(path) ? prev : new Set(prev).add(path));
   }, []);
 
   const saveFile = useCallback((path: string) => {
     setUnsavedFiles(prev => {
+      // ⚡ Bolt: Bail out of state update if file is not unsaved.
+      // Prevents unnecessary React component invalidation.
+      if (!prev.has(path)) return prev;
       const next = new Set(prev);
       next.delete(path);
       return next;
