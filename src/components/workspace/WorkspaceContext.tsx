@@ -663,6 +663,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return newFiles;
     });
     setUnsavedFiles(prev => {
+      if (!prev.has(path)) return prev;
       const next = new Set(prev);
       next.delete(path);
       return next;
@@ -694,11 +695,13 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       };
       return updateNode(prev);
     });
-    setUnsavedFiles(prev => new Set(prev).add(path));
+    // ⚡ Bolt: preserve referential equality of unsavedFiles Set to prevent unnecessary React renders
+    setUnsavedFiles(prev => prev.has(path) ? prev : new Set(prev).add(path));
   }, []);
 
   const saveFile = useCallback((path: string) => {
     setUnsavedFiles(prev => {
+      if (!prev.has(path)) return prev;
       const next = new Set(prev);
       next.delete(path);
       return next;
