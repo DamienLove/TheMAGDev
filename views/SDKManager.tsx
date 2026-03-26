@@ -86,7 +86,8 @@ const SDKManager: React.FC = () => {
     setDownloadingPluginId(pluginId);
     const url = await sdkService.getPublicPluginBundleUrl(pluginId);
     if (url) {
-      window.open(url, '_blank', 'noopener');
+      // Security: Add noreferrer to prevent Tabnabbing and Referrer leakage
+      window.open(url, '_blank', 'noopener,noreferrer');
     } else {
       alert('Connect Google Drive to download plugin bundles.');
     }
