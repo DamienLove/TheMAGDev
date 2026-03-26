@@ -165,7 +165,8 @@ const ExtensionMarketplace: React.FC = () => {
     setDownloadingId(extensionId);
     const url = await extensionService.getPublicBundleUrl(extensionId);
     if (url) {
-      window.open(url, '_blank', 'noopener');
+      // Security: Add noreferrer to prevent Tabnabbing and Referrer leakage
+      window.open(url, '_blank', 'noopener,noreferrer');
     } else {
       alert('Connect Google Drive to download extension bundles.');
     }
