@@ -848,10 +848,14 @@ export class MainController {
                 <span className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full border border-[#0d0e15]"></span>
               )}
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors" title="Debug" aria-label="Debug">
+            <button
+              onClick={handleRun}
+              className="p-2 text-[#5f637a] hover:text-white transition-colors" title="Debug" aria-label="Debug">
               <span className="material-symbols-rounded text-[24px]">bug_report</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors relative" title="Source Control" aria-label="Source Control">
+            <button
+              onClick={() => togglePanel('git')}
+              className="p-2 text-[#5f637a] hover:text-white transition-colors relative" title="Source Control" aria-label="Source Control">
               <span className="material-symbols-rounded text-[24px]">rebase</span>
               <span className="absolute top-1 right-1 text-[8px] font-bold bg-indigo-500 text-white px-1 rounded-full">3</span>
             </button>
@@ -887,7 +891,9 @@ export class MainController {
             <button onClick={() => setShowExtensions(true)} className="p-2 text-[#5f637a] hover:text-white transition-colors" title="Extensions" aria-label="Extensions">
               <span className="material-symbols-rounded text-[24px]">extension</span>
             </button>
-            <button className="p-2 text-[#5f637a] hover:text-white transition-colors" title="Settings" aria-label="Settings">
+            <button
+              onClick={() => togglePanel('editor')}
+              className="p-2 text-[#5f637a] hover:text-white transition-colors" title="Settings" aria-label="Settings">
               <span className="material-symbols-rounded text-[24px]">settings</span>
             </button>
           </div>

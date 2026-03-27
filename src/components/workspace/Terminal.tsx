@@ -5,6 +5,7 @@ import '@xterm/xterm/css/xterm.css';
 import { useWorkspace } from './WorkspaceContext';
 import webContainerService from '../../services/WebContainerService';
 import localAgentService, { AgentStatus } from '../../services/LocalAgentService';
+import { useSettings } from '../../contexts/SettingsContext';
 
 interface TerminalProps {
   className?: string;
@@ -31,6 +32,7 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
   const [localCwd, setLocalCwd] = useState('~');
   const [agentUrl, setAgentUrl] = useState('ws://localhost:4477');
   const [bootError, setBootError] = useState('');
+  const { settings } = useSettings();
 
   const writeToTerminal = useCallback((data: string) => {
     const term = xtermRef.current;
@@ -380,11 +382,11 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
         brightCyan: '#22d3ee',
         brightWhite: '#fafafa',
       },
-      fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
-      fontSize: 13,
+      fontFamily: settings.terminal.fontFamily || "'JetBrains Mono', 'Fira Code', Consolas, monospace",
+      fontSize: settings.terminal.fontSize || 13,
       lineHeight: 1.4,
-      cursorBlink: true,
-      cursorStyle: 'bar',
+      cursorBlink: settings.terminal.cursorBlink,
+      cursorStyle: settings.terminal.cursorStyle || 'bar',
       allowTransparency: true,
     });
 
@@ -493,7 +495,7 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
       term.dispose();
       xtermRef.current = null;
     };
-  }, []);
+  }, [settings.terminal.fontFamily, settings.terminal.fontSize, settings.terminal.cursorBlink, settings.terminal.cursorStyle]);
 
   // Update prompt when directory changes
   useEffect(() => {
