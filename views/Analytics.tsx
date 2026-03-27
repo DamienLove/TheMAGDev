@@ -1,12 +1,28 @@
 import React, { useState, useEffect } from 'react';
+import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import webContainerService from '../src/services/WebContainerService';
 
 const Analytics: React.FC = () => {
+  const workspace = useWorkspace();
   const [dataPoints, setDataPoints] = useState<number[]>([]);
-  const [activeSessions, setActiveSessions] = useState(1243);
+  const [activeSessions, setActiveSessions] = useState(1);
   const [latency, setLatency] = useState(42);
   const [cpuUsage, setCpuUsage] = useState(24);
 
-  // Simulate real-time data stream
+  // Compute real metrics from workspace
+  const countFiles = (nodes: any[]): number => {
+    return nodes.reduce((acc, n) => {
+      if (n.type === 'file') return acc + 1;
+      return acc + countFiles(n.children || []);
+    }, 0);
+  };
+
+  const totalFiles = countFiles(workspace.files);
+  const openFilesCount = workspace.openFiles.length;
+  const unsavedCount = workspace.unsavedFiles.size;
+  const isWebContainerReady = webContainerService.isReady();
+
+  // Simulate real-time data stream for charting
   useEffect(() => {
     // Initial data
     const initialData = Array.from({ length: 20 }, () => Math.floor(Math.random() * 50) + 50);
@@ -14,7 +30,6 @@ const Analytics: React.FC = () => {
 
     const interval = setInterval(() => {
       // Update metrics
-      setActiveSessions(prev => Math.max(1000, prev + Math.floor(Math.random() * 20) - 10));
       setLatency(prev => Math.max(20, Math.min(100, prev + Math.floor(Math.random() * 10) - 5)));
       setCpuUsage(prev => Math.max(10, Math.min(90, prev + Math.floor(Math.random() * 10) - 5)));
 
@@ -29,9 +44,9 @@ const Analytics: React.FC = () => {
   }, []);
 
   const metrics = [
-    { label: 'Active Sessions', value: activeSessions.toLocaleString(), change: '+12%', trend: 'up', color: 'text-indigo-500', icon: 'group' },
-    { label: 'Conversion Rate', value: '4.8%', change: '+2.1%', trend: 'up', color: 'text-emerald-500', icon: 'shopping_cart' },
-    { label: 'System Load', value: `${cpuUsage}%`, change: cpuUsage > 80 ? 'High' : 'Normal', trend: cpuUsage > 80 ? 'down' : 'neutral', color: cpuUsage > 80 ? 'text-red-500' : 'text-blue-500', icon: 'memory' },
+    { label: 'Tracked Files', value: totalFiles.toString(), change: `${openFilesCount} open`, trend: 'neutral', color: 'text-indigo-500', icon: 'folder' },
+    { label: 'Unsaved Changes', value: unsavedCount.toString(), change: unsavedCount > 0 ? 'Action Needed' : 'All Saved', trend: unsavedCount > 0 ? 'down' : 'up', color: unsavedCount > 0 ? 'text-amber-500' : 'text-emerald-500', icon: 'save' },
+    { label: 'Container Readiness', value: isWebContainerReady ? 'Ready' : 'Booting/Idle', change: isWebContainerReady ? 'Optimal' : 'Wait', trend: isWebContainerReady ? 'up' : 'down', color: isWebContainerReady ? 'text-emerald-500' : 'text-amber-500', icon: 'terminal' },
     { label: 'Avg. Latency', value: `${latency}ms`, change: latency > 60 ? 'Degraded' : 'Optimal', trend: latency < 50 ? 'up' : 'down', color: latency > 60 ? 'text-amber-500' : 'text-emerald-500', icon: 'speed' },
   ];
 

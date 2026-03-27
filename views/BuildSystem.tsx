@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import webContainerService from '../src/services/WebContainerService';
+import type { FileNode } from '../src/components/workspace/WorkspaceContext';
 
 interface BuildTask {
   name: string;
@@ -85,38 +87,93 @@ const BuildSystem: React.FC = () => {
     };
   }
 
-  const runBuild = (taskName: string) => {
+  const syncFilesToWebContainer = async () => {
+    setBuildLogs(prev => [...prev, 'Syncing files to WebContainer...']);
+    if (!webContainerService.isReady()) {
+      await webContainerService.boot();
+    }
+    const container = webContainerService.getContainer();
+    if (!container) throw new Error('WebContainer not initialized');
+
+    const buildTree = (nodes: FileNode[]): any => {
+      const tree: any = {};
+      for (const node of nodes) {
+        if (node.type === 'folder') {
+          tree[node.name] = {
+            directory: buildTree(node.children || [])
+          };
+        } else {
+          tree[node.name] = {
+            file: {
+              contents: node.content || ''
+            }
+          };
+        }
+      }
+      return tree;
+    };
+
+    const tree = buildTree(workspaceFiles);
+    await container.mount(tree);
+    setBuildLogs(prev => [...prev, 'Files synced successfully']);
+  };
+
+  const runBuild = async (taskName: string) => {
     if (buildStatus === 'building') return;
 
     setBuildStatus('building');
-    setBuildProgress(0);
-    setBuildLogs([`> Executing task: ${taskName}...`, 'Initializing Daemon...', 'Allocating resources...']);
+    setBuildProgress(10);
+    setBuildLogs([`> Executing task: ${taskName}...`, 'Initializing environment...']);
 
-    const steps = [
-        { progress: 10, msg: '> Configure project :app' },
-        { progress: 25, msg: '> Task :app:preBuild UP-TO-DATE' },
-        { progress: 40, msg: '> Task :app:preDebugBuild UP-TO-DATE' },
-        { progress: 55, msg: '> Task :app:compileDebugAidl NO-SOURCE' },
-        { progress: 70, msg: '> Task :app:compileDebugRenderscript NO-SOURCE' },
-        { progress: 85, msg: '> Task :app:generateDebugBuildConfig' },
-        { progress: 95, msg: '> Task :app:javaPreCompileDebug' },
-        { progress: 100, msg: 'BUILD SUCCESSFUL in 3s' }
-    ];
+    // Check if it is an npm task
+    const isNpmTask = tasks['npm']?.some(t => t.name === taskName);
 
-    let currentStep = 0;
+    if (isNpmTask) {
+      try {
+        await syncFilesToWebContainer();
+        setBuildProgress(40);
 
-    const interval = setInterval(() => {
-        if (currentStep >= steps.length) {
-            clearInterval(interval);
-            setBuildStatus('success');
-            return;
-        }
+        setBuildLogs(prev => [...prev, 'Running npm install...']);
+        webContainerService.setOutputCallback((output: string) => {
+          setBuildLogs(prev => [...prev, output.trim()]);
+        });
 
-        const step = steps[currentStep];
-        setBuildProgress(step.progress);
-        setBuildLogs(prev => [...prev, step.msg]);
-        currentStep++;
-    }, 800);
+        await webContainerService.runCommand('npm install');
+        setBuildProgress(70);
+
+        setBuildLogs(prev => [...prev, `Running npm run ${taskName}...`]);
+        await webContainerService.runCommand(`npm run ${taskName}`);
+
+        setBuildProgress(100);
+        setBuildStatus('success');
+        setBuildLogs(prev => [...prev, 'BUILD SUCCESSFUL']);
+      } catch (error: any) {
+        setBuildStatus('error');
+        setBuildLogs(prev => [...prev, `BUILD FAILED: ${error.message}`]);
+      }
+    } else {
+      // Fallback for non-npm mock tasks
+      const steps = [
+          { progress: 20, msg: '> Configure project :app' },
+          { progress: 40, msg: '> Task :app:preBuild UP-TO-DATE' },
+          { progress: 60, msg: '> Task :app:compileDebugAidl NO-SOURCE' },
+          { progress: 80, msg: '> Task :app:generateDebugBuildConfig' },
+          { progress: 100, msg: 'BUILD SUCCESSFUL in 3s' }
+      ];
+
+      let currentStep = 0;
+      const interval = setInterval(() => {
+          if (currentStep >= steps.length) {
+              clearInterval(interval);
+              setBuildStatus('success');
+              return;
+          }
+          const step = steps[currentStep];
+          setBuildProgress(step.progress);
+          setBuildLogs(prev => [...prev, step.msg]);
+          currentStep++;
+      }, 800);
+    }
   };
 
   return (

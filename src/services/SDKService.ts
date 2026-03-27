@@ -187,6 +187,36 @@ class SDKService {
       size: 'Varies',
       source: 'Community',
       description: 'Fast, disk-efficient package manager for Node.js.'
+    },
+    {
+      id: 'deno',
+      name: 'Deno',
+      version: 'Stable',
+      platform: 'Web',
+      status: 'Not Installed',
+      size: 'Varies',
+      source: 'Official',
+      description: 'A modern runtime for JavaScript and TypeScript.'
+    },
+    {
+      id: 'bun',
+      name: 'Bun',
+      version: 'Stable',
+      platform: 'Web',
+      status: 'Not Installed',
+      size: 'Varies',
+      source: 'Community',
+      description: 'Fast all-in-one JavaScript runtime.'
+    },
+    {
+      id: 'vite',
+      name: 'Vite',
+      version: 'Stable',
+      platform: 'Web',
+      status: 'Installed',
+      size: 'Varies',
+      source: 'Official',
+      description: 'Next generation frontend tooling.'
     }
   ];
 

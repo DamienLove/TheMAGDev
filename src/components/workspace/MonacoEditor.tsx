@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useCallback } from 'react';
 import Editor, { OnMount, OnChange } from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
 import { useWorkspace } from './WorkspaceContext';
+import { useSettings } from '../../contexts/SettingsContext';
 
 interface MonacoEditorProps {
   className?: string;
@@ -10,6 +11,7 @@ interface MonacoEditorProps {
 const MonacoEditor: React.FC<MonacoEditorProps> = ({ className }) => {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const { activeFile, getFileByPath, getFileContent, updateFileContent, saveFile, unsavedFiles } = useWorkspace();
+  const { settings } = useSettings();
 
   // Ref to track the latest activeFile for the command handler
   const activeFileRef = useRef(activeFile);
@@ -92,15 +94,18 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ className }) => {
 
     // Configure editor settings
     editor.updateOptions({
-      fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
-      fontSize: 13,
+      fontFamily: settings.editor.fontFamily || "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
+      fontSize: settings.editor.fontSize || 13,
+      tabSize: settings.editor.tabSize || 2,
+      wordWrap: settings.editor.wordWrap || 'on',
+      lineNumbers: settings.editor.lineNumbers || 'on',
       lineHeight: 22,
       letterSpacing: 0.3,
       fontLigatures: true,
       cursorBlinking: 'smooth',
       cursorSmoothCaretAnimation: 'on',
       smoothScrolling: true,
-      minimap: { enabled: true, scale: 1 },
+      minimap: { enabled: settings.editor.minimap !== false, scale: 1 },
       scrollbar: {
         vertical: 'visible',
         horizontal: 'visible',
@@ -108,7 +113,7 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ className }) => {
         horizontalScrollbarSize: 10,
       },
       renderWhitespace: 'selection',
-      bracketPairColorization: { enabled: true },
+      bracketPairColorization: { enabled: settings.editor.bracketPairColorization !== false },
       guides: {
         bracketPairs: true,
         indentation: true,
@@ -136,6 +141,28 @@ const MonacoEditor: React.FC<MonacoEditorProps> = ({ className }) => {
       }
     });
   };
+
+  useEffect(() => {
+    if (editorRef.current) {
+      editorRef.current.updateOptions({
+        fontFamily: settings.editor.fontFamily || "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
+        fontSize: settings.editor.fontSize || 13,
+        tabSize: settings.editor.tabSize || 2,
+        wordWrap: settings.editor.wordWrap || 'on',
+        lineNumbers: settings.editor.lineNumbers || 'on',
+        minimap: { enabled: settings.editor.minimap !== false, scale: 1 },
+        bracketPairColorization: { enabled: settings.editor.bracketPairColorization !== false },
+      });
+    }
+  }, [
+    settings.editor.fontFamily,
+    settings.editor.fontSize,
+    settings.editor.tabSize,
+    settings.editor.wordWrap,
+    settings.editor.lineNumbers,
+    settings.editor.minimap,
+    settings.editor.bracketPairColorization
+  ]);
 
   const handleChange: OnChange = useCallback((value) => {
     if (activeFile && value !== undefined) {
