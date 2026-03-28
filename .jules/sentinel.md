@@ -17,3 +17,8 @@
 **Vulnerability:** Platform-specific API keys (e.g., RevenueCat `iosApiKey` and `androidApiKey`) were hardcoded directly in `src/mobile/NativeConfig.tsx`, which was commented out for future use.
 **Learning:** Even if code is commented out or currently unused in the web platform, any hardcoded secrets checked into version control are exposed. Attackers or automated scanners can find them in the git history or codebase.
 **Prevention:** Never hardcode secrets in source files, including commented blocks or unused code. Always use environment variable placeholders (e.g., `process.env.EXPO_PUBLIC_RC_IOS_API_KEY`) to ensure secure configuration practices are maintained when the code is eventually reactivated or ported.
+
+## 2025-03-09 - Missing noreferrer in window.open calls
+**Vulnerability:** Several `window.open` calls opening external links only used `noopener` but omitted `noreferrer`.
+**Learning:** When opening external links with `target="_blank"`, using `noopener,noreferrer` is best practice for defense-in-depth security. Without `noreferrer`, the external site can still access the referring URL via the `Referer` header, which might leak sensitive information (e.g., tokens in the URL or the internal structure of the application).
+**Prevention:** Always use `'noopener,noreferrer'` for the features string in `window.open` when opening external/untrusted links. Note: As per team knowledge, do not use these attributes for same-origin internal popouts that require retaining a window reference.
