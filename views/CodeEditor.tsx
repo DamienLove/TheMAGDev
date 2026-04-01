@@ -644,14 +644,24 @@ const CodeEditorContent: React.FC = () => {
           )}
           <button
             onClick={() => activeFile && saveFile(activeFile)}
+            aria-label="Save File"
+            title="Save File"
             className="flex items-center gap-1.5 px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 rounded text-[10px] font-bold transition-all uppercase tracking-tight"
           >
             <span className="material-symbols-rounded text-sm">save</span> Save
           </button>
-          <button className="flex items-center gap-1.5 px-3 py-1 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-500 border border-emerald-500/30 rounded text-[10px] font-bold transition-all uppercase tracking-tight">
+          <button
+            aria-label="Run Code"
+            title="Run Code"
+            className="flex items-center gap-1.5 px-3 py-1 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-500 border border-emerald-500/30 rounded text-[10px] font-bold transition-all uppercase tracking-tight"
+          >
             <span className="material-symbols-rounded text-sm">play_arrow</span> Run
           </button>
-          <button className="flex items-center gap-1.5 px-3 py-1 bg-amber-600/10 hover:bg-amber-600/20 text-amber-500 border border-amber-500/30 rounded text-[10px] font-bold transition-all uppercase tracking-tight">
+          <button
+            aria-label="Debug Code"
+            title="Debug Code"
+            className="flex items-center gap-1.5 px-3 py-1 bg-amber-600/10 hover:bg-amber-600/20 text-amber-500 border border-amber-500/30 rounded text-[10px] font-bold transition-all uppercase tracking-tight"
+          >
             <span className="material-symbols-rounded text-sm">bug_report</span> Debug
           </button>
         </div>
@@ -683,6 +693,8 @@ const CodeEditorContent: React.FC = () => {
         <aside className="w-12 bg-zinc-950 border-r border-zinc-800 flex flex-col items-center py-4 gap-4 shrink-0 z-40">
           <button
             onClick={() => { setSidebarMode('EXPLORER'); setActiveModuleTab('explorer'); }}
+            aria-label="Explorer"
+            title="Explorer"
             className={`p-2 transition-colors relative ${sidebarMode === 'EXPLORER' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
           >
             <span className="material-symbols-rounded">folder_open</span>
@@ -690,6 +702,8 @@ const CodeEditorContent: React.FC = () => {
           </button>
           <button
             onClick={() => setSidebarMode('SEARCH')}
+            aria-label="Search"
+            title="Search"
             className={`p-2 transition-colors relative ${sidebarMode === 'SEARCH' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
           >
             <span className="material-symbols-rounded">search</span>
@@ -697,6 +711,8 @@ const CodeEditorContent: React.FC = () => {
           </button>
           <button
             onClick={() => setSidebarMode('GIT')}
+            aria-label="Source Control"
+            title="Source Control"
             className={`p-2 transition-colors relative ${sidebarMode === 'GIT' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
           >
             <span className="material-symbols-rounded text-2xl">source_environment</span>
@@ -705,6 +721,8 @@ const CodeEditorContent: React.FC = () => {
           </button>
           <button
             onClick={() => setSidebarMode('EXTENSIONS')}
+            aria-label="Extensions"
+            title="Extensions"
             className={`p-2 transition-colors relative ${sidebarMode === 'EXTENSIONS' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
           >
             <span className="material-symbols-rounded">extension</span>
@@ -718,12 +736,13 @@ const CodeEditorContent: React.FC = () => {
                 setActiveModuleTab('terminal');
               }}
               className={`p-2 transition-colors ${showBottomPanel ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
+              aria-label="Toggle Bottom Panel"
               title="Toggle Bottom Panel"
             >
               <span className="material-symbols-rounded">terminal</span>
             </button>
-            <button className="text-zinc-600 hover:text-zinc-400"><span className="material-symbols-rounded">account_circle</span></button>
-            <button className="text-zinc-600 hover:text-zinc-400 mb-2"><span className="material-symbols-rounded">settings</span></button>
+            <button aria-label="Account Profile" title="Account Profile" className="text-zinc-600 hover:text-zinc-400"><span className="material-symbols-rounded">account_circle</span></button>
+            <button aria-label="Settings" title="Settings" className="text-zinc-600 hover:text-zinc-400 mb-2"><span className="material-symbols-rounded">settings</span></button>
           </div>
         </aside>
 
