@@ -27,33 +27,21 @@ const SDKManager: React.FC = () => {
 
   const handleAction = async (sdk: SDK) => {
     setLoading(true);
-    setProgress(0);
+    setProgress(0); // We keep a minimal loading state so UI feedback is immediate
     
-    // Simulate progress
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev === null || prev >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 200);
-
-    if (sdk.status === 'Update Available') {
-      await sdkService.updateSDK(sdk.id);
-    } else if (sdk.status === 'Not Installed') {
-      await sdkService.installSDK(sdk.id);
-    } else if (sdk.status === 'Installed') {
-      await sdkService.uninstallSDK(sdk.id);
-    }
-
-    setTimeout(() => {
-      clearInterval(interval);
+    try {
+      if (sdk.status === 'Update Available') {
+        await sdkService.updateSDK(sdk.id);
+      } else if (sdk.status === 'Not Installed') {
+        await sdkService.installSDK(sdk.id);
+      } else if (sdk.status === 'Installed') {
+        await sdkService.uninstallSDK(sdk.id);
+      }
+    } finally {
       setLoading(false);
       setProgress(null);
       loadData();
-    }, 2000);
+    }
   };
 
   const handleRefresh = async () => {
