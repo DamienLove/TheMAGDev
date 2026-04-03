@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { REACT_TEMPLATE, NODE_TEMPLATE, STATIC_TEMPLATE } from '../src/data/templates';
+import { REACT_TEMPLATE, NODE_TEMPLATE, STATIC_TEMPLATE, PYTHON_TEMPLATE, RUST_TEMPLATE } from '../src/data/templates';
 import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
 import { View } from '../types';
 
@@ -28,7 +28,8 @@ const Projects: React.FC<ProjectsProps> = ({ onSelect, onNavigate }) => {
     let template = REACT_TEMPLATE;
     if (project.id === 'p-2') template = STATIC_TEMPLATE;
     if (project.id === 'p-3') template = NODE_TEMPLATE;
-    if (project.id === 'p-4') template = NODE_TEMPLATE;
+    if (project.id === 'p-4') template = PYTHON_TEMPLATE;
+    if (project.id === 'p-5') template = RUST_TEMPLATE;
 
     if (onSelect) {
       onSelect(template);
