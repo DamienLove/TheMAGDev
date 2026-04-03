@@ -278,6 +278,65 @@ app.listen(port, () => {
   }
 ];
 
+export const PYTHON_TEMPLATE: FileNode[] = [
+  {
+    name: 'main.py',
+    path: '/main.py',
+    type: 'file',
+    language: 'python',
+    content: `def main():
+    print("Hello from Python!")
+    print("Welcome to TheMAG.dev AI Studio.")
+
+if __name__ == "__main__":
+    main()
+`
+  },
+  {
+    name: 'requirements.txt',
+    path: '/requirements.txt',
+    type: 'file',
+    language: 'plaintext',
+    content: `# Add your dependencies here
+requests==2.31.0
+`
+  }
+];
+
+export const RUST_TEMPLATE: FileNode[] = [
+  {
+    name: 'Cargo.toml',
+    path: '/Cargo.toml',
+    type: 'file',
+    language: 'toml',
+    content: `[package]
+name = "rust-starter"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+`
+  },
+  {
+    name: 'src',
+    path: '/src',
+    type: 'folder',
+    children: [
+      {
+        name: 'main.rs',
+        path: '/src/main.rs',
+        type: 'file',
+        language: 'rust',
+        content: `fn main() {
+    println!("Hello from Rust!");
+    println!("Welcome to TheMAG.dev AI Studio.");
+}
+`
+      }
+    ]
+  }
+];
+
 export const STATIC_TEMPLATE: FileNode[] = [
   {
     name: 'index.html',

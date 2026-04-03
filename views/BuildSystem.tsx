@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
+import webContainerService from '../src/services/WebContainerService';
 
 interface BuildTask {
   name: string;
@@ -85,38 +86,58 @@ const BuildSystem: React.FC = () => {
     };
   }
 
-  const runBuild = (taskName: string) => {
+  const runBuild = async (taskName: string) => {
     if (buildStatus === 'building') return;
 
     setBuildStatus('building');
-    setBuildProgress(0);
+    setBuildProgress(10);
     setBuildLogs([`> Executing task: ${taskName}...`, 'Initializing Daemon...', 'Allocating resources...']);
 
-    const steps = [
-        { progress: 10, msg: '> Configure project :app' },
-        { progress: 25, msg: '> Task :app:preBuild UP-TO-DATE' },
-        { progress: 40, msg: '> Task :app:preDebugBuild UP-TO-DATE' },
-        { progress: 55, msg: '> Task :app:compileDebugAidl NO-SOURCE' },
-        { progress: 70, msg: '> Task :app:compileDebugRenderscript NO-SOURCE' },
-        { progress: 85, msg: '> Task :app:generateDebugBuildConfig' },
-        { progress: 95, msg: '> Task :app:javaPreCompileDebug' },
-        { progress: 100, msg: 'BUILD SUCCESSFUL in 3s' }
-    ];
+    try {
+      // Set output callback for webContainerService to append logs
+      const previousCallback = webContainerService['outputCallback'];
+      webContainerService.setOutputCallback((data: string) => {
+        setBuildLogs(prev => [...prev, data.replace(/\r\n/g, '\n')]);
+      });
 
-    let currentStep = 0;
+      let exitCode = 1;
 
-    const interval = setInterval(() => {
-        if (currentStep >= steps.length) {
-            clearInterval(interval);
-            setBuildStatus('success');
-            return;
+      try {
+        if (!webContainerService['container']) {
+          await webContainerService.boot();
+        }
+        await webContainerService.syncFiles(workspaceFiles);
+        setBuildProgress(40);
+
+        let command = '';
+        if (pkg && pkg.scripts && pkg.scripts[taskName]) {
+          command = `npm run ${taskName}`;
+        } else {
+          command = `echo "Mocking build for ${taskName} (WebContainers might not be available or command unknown)"`;
         }
 
-        const step = steps[currentStep];
-        setBuildProgress(step.progress);
-        setBuildLogs(prev => [...prev, step.msg]);
-        currentStep++;
-    }, 800);
+        setBuildProgress(70);
+        exitCode = await webContainerService.runCommand(command);
+      } catch (err: any) {
+        setBuildLogs(prev => [...prev, `Error: ${err.message || String(err)}`]);
+      } finally {
+        if (previousCallback) {
+          webContainerService.setOutputCallback(previousCallback);
+        }
+      }
+
+      setBuildProgress(100);
+      if (exitCode === 0) {
+        setBuildLogs(prev => [...prev, 'BUILD SUCCESSFUL']);
+        setBuildStatus('success');
+      } else {
+        setBuildLogs(prev => [...prev, `BUILD FAILED with exit code ${exitCode}`]);
+        setBuildStatus('error');
+      }
+    } catch (e: any) {
+      setBuildLogs(prev => [...prev, `Exception: ${e.message}`]);
+      setBuildStatus('error');
+    }
   };
 
   return (

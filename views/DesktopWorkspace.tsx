@@ -553,9 +553,39 @@ export class MainController {
     const prompt = prompts[action] || action;
     setLlmPrompt(prompt);
 
-    // Simulate LLM response (replace with actual API call)
     addTerminalLine(`Running AI ${action}...`);
-    setTimeout(() => {
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': localStorage.getItem('themag_ai_key_claude') || '',
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 1024,
+          messages: [
+            {
+              role: 'user',
+              content: `Please perform a ${action} action on this code:\n\n${activeFileContent}`
+            }
+          ]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API returned ${response.status}: ${await response.text()}`);
+      }
+
+      const data = await response.json();
+      setLlmResponse(data.content[0].text);
+      setLlmLoading(false);
+      addTerminalLine(`AI ${action} complete`, 'success');
+    } catch (e: any) {
+      console.warn("AI call failed, falling back to basic analysis:", e);
       let analysis = '';
       const lowerCode = activeFileContent.toLowerCase();
 
@@ -574,10 +604,10 @@ export class MainController {
          analysis = 'Code structure is clean.\n\nSuggestion: Consider extracting inline logic into separate utility functions if the file grows larger.';
       }
 
-      setLlmResponse(analysis || 'Analysis complete.');
+      setLlmResponse(`${analysis || 'Analysis complete.'}\n\n(Note: Set Anthropic API key in Settings for real AI responses)`);
       setLlmLoading(false);
-      addTerminalLine(`AI ${action} complete`, 'success');
-    }, 1500);
+      addTerminalLine(`AI ${action} complete (fallback)`, 'success');
+    }
   };
 
   const runCustomLLMPrompt = async () => {
