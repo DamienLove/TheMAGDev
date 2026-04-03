@@ -140,13 +140,10 @@ const Marketplace: React.FC = () => {
 
   const handleInstall = (extId: string) => {
     setInstalling(extId);
-    // Simulate network delay
-    setTimeout(() => {
-      setExtensions(prev => prev.map(ext =>
-        ext.id === extId ? { ...ext, installed: !ext.installed } : ext
-      ));
-      setInstalling(null);
-    }, 1000);
+    setExtensions(prev => prev.map(ext =>
+      ext.id === extId ? { ...ext, installed: !ext.installed } : ext
+    ));
+    setInstalling(null);
   };
 
   const filteredExtensions = extensions.filter(ext => {

@@ -43,13 +43,14 @@ const CommunitySupport: React.FC = () => {
 
   useEffect(scrollToBottom, [chatMessages]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!chatInput.trim()) return;
 
+    const currentInput = chatInput;
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       sender: 'user',
-      text: chatInput,
+      text: currentInput,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
@@ -57,24 +58,33 @@ const CommunitySupport: React.FC = () => {
     setChatInput('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const inputLower = chatInput.toLowerCase();
-      let response = aiResponses.default;
-      if (inputLower.includes('build') || inputLower.includes('compile')) response = aiResponses.build;
-      else if (inputLower.includes('deploy') || inputLower.includes('production')) response = aiResponses.deploy;
-      else if (inputLower.includes('error') || inputLower.includes('fail')) response = aiResponses.error;
+    try {
+      const { aiProvider } = await import('../src/services/AIProvider');
+      const response = await aiProvider.sendMessage([
+        { id: Date.now().toString(), role: 'user', content: currentInput, timestamp: Date.now() }
+      ], 'You are the TheMAG.dev AI support assistant, helping users with build errors, deployments, and other developer tasks.');
+
+      const responseText = response.error ? `Error: ${response.error}` : response.content || "I'm sorry, I didn't understand that.";
 
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
-        text: response,
+        text: responseText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
       setChatMessages(prev => [...prev, aiMessage]);
+    } catch (err: any) {
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        sender: 'ai',
+        text: `Error: ${err.message}`,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setChatMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
   const [questions] = useState<Question[]>([
     {

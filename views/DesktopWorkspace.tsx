@@ -553,42 +553,51 @@ export class MainController {
     const prompt = prompts[action] || action;
     setLlmPrompt(prompt);
 
-    // Simulate LLM response (replace with actual API call)
     addTerminalLine(`Running AI ${action}...`);
-    setTimeout(() => {
-      let analysis = '';
-      const lowerCode = activeFileContent.toLowerCase();
 
-      if (action === 'explain') {
-        if (lowerCode.includes('react')) analysis = 'This appears to be a React component structure. It likely manages UI state and rendering logic.';
-        else if (lowerCode.includes('express')) analysis = 'This appears to be an Express server configuration, handling HTTP requests and routing.';
-        else if (lowerCode.includes('class')) analysis = 'This defines a class structure with properties and methods to encapsulate functionality.';
-        else analysis = 'This is a standard TypeScript/JavaScript module defining specific logic units.';
+    try {
+      const response = await import('../src/services/AIProvider').then(m => m.aiProvider.sendMessage([
+        { id: Date.now().toString(), role: 'user', content: `${prompt}\n\nCode:\n${activeFileContent}`, timestamp: Date.now() }
+      ], `You are analyzing the file: ${activeTab}`));
 
-        analysis += `\n\nFile: ${activeTab}\nLength: ${activeFileContent.length} chars`;
-      } else if (action === 'fix') {
-         analysis = 'No critical syntax errors detected by static analysis.\n\nSuggestion: Ensure all imported modules are installed in package.json.';
-      } else if (action === 'optimize') {
-         analysis = 'Performance looks good for this scope.\n\nTip: Use memoization for expensive calculations if this code runs frequently.';
-      } else if (action === 'refactor') {
-         analysis = 'Code structure is clean.\n\nSuggestion: Consider extracting inline logic into separate utility functions if the file grows larger.';
+      if (response.error) {
+        setLlmResponse(`Error: ${response.error}`);
+        addTerminalLine(`AI ${action} failed: ${response.error}`, 'error');
+      } else {
+        setLlmResponse(response.content || 'Analysis complete.');
+        addTerminalLine(`AI ${action} complete`, 'success');
       }
-
-      setLlmResponse(analysis || 'Analysis complete.');
+    } catch (err: any) {
+      setLlmResponse(`Error: ${err.message}`);
+      addTerminalLine(`AI ${action} failed: ${err.message}`, 'error');
+    } finally {
       setLlmLoading(false);
-      addTerminalLine(`AI ${action} complete`, 'success');
-    }, 1500);
+    }
   };
 
   const runCustomLLMPrompt = async () => {
     if (!llmPrompt.trim()) return;
     setLlmLoading(true);
     addTerminalLine('Processing custom prompt...');
-    setTimeout(() => {
-      setLlmResponse(`Based on your prompt "${llmPrompt.slice(0, 50)}...", here's my analysis:\n\nThe code structure follows standard patterns. Consider implementing additional error boundaries and type guards for improved reliability.`);
+
+    try {
+      const response = await import('../src/services/AIProvider').then(m => m.aiProvider.sendMessage([
+        { id: Date.now().toString(), role: 'user', content: `${llmPrompt}\n\nCode context (if applicable):\n${activeFileContent}`, timestamp: Date.now() }
+      ], `You are analyzing the file: ${activeTab}`));
+
+      if (response.error) {
+        setLlmResponse(`Error: ${response.error}`);
+        addTerminalLine(`Custom prompt failed: ${response.error}`, 'error');
+      } else {
+        setLlmResponse(response.content || 'Analysis complete.');
+        addTerminalLine('Custom prompt complete', 'success');
+      }
+    } catch (err: any) {
+      setLlmResponse(`Error: ${err.message}`);
+      addTerminalLine(`Custom prompt failed: ${err.message}`, 'error');
+    } finally {
       setLlmLoading(false);
-      addTerminalLine('Custom prompt complete', 'success');
-    }, 2000);
+    }
   };
 
   const openFile = async (file: FileNode) => {
