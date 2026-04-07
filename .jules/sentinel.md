@@ -17,3 +17,8 @@
 **Vulnerability:** Platform-specific API keys (e.g., RevenueCat `iosApiKey` and `androidApiKey`) were hardcoded directly in `src/mobile/NativeConfig.tsx`, which was commented out for future use.
 **Learning:** Even if code is commented out or currently unused in the web platform, any hardcoded secrets checked into version control are exposed. Attackers or automated scanners can find them in the git history or codebase.
 **Prevention:** Never hardcode secrets in source files, including commented blocks or unused code. Always use environment variable placeholders (e.g., `process.env.EXPO_PUBLIC_RC_IOS_API_KEY`) to ensure secure configuration practices are maintained when the code is eventually reactivated or ported.
+
+## 2025-03-01 - Local WebSocket Server Origin Bypass
+**Vulnerability:** The local WebSocket server `local-agent/server.js` was missing an explicit `verifyClient` function, meaning any origin could connect to port 4477 via WebSocket.
+**Learning:** The 'ws' library does not check the `Origin` header by default. Since the local agent spawns a raw shell (bash/powershell) and evaluates arbitrary data over the WebSocket connection, failure to restrict origins opens the agent up to Cross-Site WebSocket Hijacking (CSWSH) and resulting Remote Code Execution (RCE) by malicious websites accessing localhost.
+**Prevention:** When creating local WebSocket servers that interact with the system or act on behalf of a frontend, always explicitly configure `verifyClient` to restrict allowed origins to trusted domains and localhost boundaries.
