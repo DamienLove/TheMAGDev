@@ -45,3 +45,14 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+Palette Micro-UX Improvement (CodeEditor)
+Last updated: 2026-04-07 06:14
+
+Current objectives:
+- Add accessible tooltips and ARIA labels to icon-only action buttons in IDE layout.
+
+Status:
+- Completed.
+- Added 'title' and 'aria-label' attributes to Account, Settings, Add Terminal, Expand Panel, Collapse Panel, and Close Panel buttons in views/CodeEditor.tsx.
+- Documented UX learning in .Jules/palette.md for screen reader compliance in editor toolbars.
