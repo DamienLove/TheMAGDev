@@ -1,6 +1,14 @@
 TheMAG.dev Task Status
 =======================
-Last updated: 2026-01-30 00:08
+Last updated: 2026-01-30 00:22
+
+Performance Optimization (WorkspaceContext Set State)
+Last updated: 2026-01-30 00:22:00
+
+Status:
+- Completed.
+- Optimized `unsavedFiles` Set state operations in `WorkspaceContext` to use early returns, preventing unnecessary referential equality breaks and component re-renders during high-frequency text editing.
+- Added corresponding learnings to Bolt's journal.
 
 Performance Optimization (WorkspaceContext)
 Last updated: 2026-01-30 00:08:00
