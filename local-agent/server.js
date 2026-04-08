@@ -3,7 +3,28 @@ const { spawn } = require('child_process');
 const os = require('os');
 
 const PORT = 4477;
-const wss = new WebSocketServer({ port: PORT });
+const wss = new WebSocketServer({
+    port: PORT,
+    verifyClient: (info, cb) => {
+        const origin = info.origin;
+
+        // Allow non-browser clients (like wscat or node scripts) that don't send Origin
+        if (origin === undefined) {
+            return cb(true);
+        }
+
+        const isLocalhost = origin.startsWith('http://localhost:');
+        const isTheMag = origin === 'https://themag.dev';
+        const isStackBlitz = origin.endsWith('.stackblitz.io');
+
+        if (isLocalhost || isTheMag || isStackBlitz) {
+            cb(true);
+        } else {
+            console.warn(`[Security] Blocked unauthorized connection attempt from origin: ${origin}`);
+            cb(false, 403, 'Forbidden');
+        }
+    }
+});
 
 console.log(`Local Agent running on ws://localhost:${PORT}`);
 console.log('Waiting for connection...');
