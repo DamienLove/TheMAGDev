@@ -1,6 +1,17 @@
 TheMAG.dev Task Status
 =======================
-Last updated: 2026-01-30 00:08
+Last updated: 2026-04-09 06:33
+
+Current objectives:
+- Identify and implement ONE small performance improvement that makes the application measurably faster or more efficient.
+- Record any critical learnings in .jules/bolt.md.
+- Ensure the optimization is safe, measurable, and documented.
+
+Status:
+- Completed.
+- Optimized setUnsavedFiles in WorkspaceContext.tsx to use early returns, preventing referential equality breakage and unnecessary downstream re-renders.
+- Recorded learning in .jules/bolt.md.
+- Verified build and logic.
 
 Performance Optimization (WorkspaceContext)
 Last updated: 2026-01-30 00:08:00
@@ -35,8 +46,7 @@ Last updated: 2026-01-27 11:30:00
 Status:
 - Reduced splash logo brightness/contrast in index.html.
 - Rebuilt and deployed to InfinityFree FTP (magstack.rf.gd/htdocs).
-- Firebase Hosting deploy failed: credentials invalid. Needs irebase login --reauth then irebase deploy --only hosting.
-
+- Firebase Hosting deploy failed: credentials invalid. Needs \`firebase login --reauth\` then \`firebase deploy --only hosting\`.
 
 Drive OAuth header update
 Last updated: 2026-01-27 12:22:43
