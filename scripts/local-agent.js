@@ -16,12 +16,14 @@ const wss = new WebSocketServer({
   port: PORT,
   verifyClient: (info, cb) => {
     const origin = info.origin;
-    if (ALLOWED_ORIGINS.includes(origin)) {
-      cb(true);
-    } else {
-      console.warn(`[Security] Blocked unauthorized connection attempt from origin: ${origin}`);
-      cb(false, 403, 'Forbidden');
+    if (origin === undefined) {
+      return cb(true);
     }
+    if (origin.startsWith('http://localhost:') || ALLOWED_ORIGINS.includes(origin)) {
+      return cb(true);
+    }
+    console.warn(`[Security] Blocked unauthorized connection attempt from origin: ${origin}`);
+    cb(false, 403, 'Forbidden');
   }
 });
 
