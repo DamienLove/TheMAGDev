@@ -345,7 +345,7 @@ const Settings: React.FC = () => {
                   <div className="flex items-center gap-2">
                     {driveStatus.connected && driveFolderLink && (
                       <button
-                        onClick={() => window.open(driveFolderLink, '_blank', 'noopener')}
+                        onClick={() => window.open(driveFolderLink, '_blank', 'noopener,noreferrer')}
                         className="px-3 py-1.5 rounded text-xs font-medium border border-zinc-700 text-zinc-200 bg-zinc-800 hover:bg-zinc-700 transition-colors"
                       >
                         Open Folder
