@@ -15,3 +15,7 @@
 ## 2025-03-09 - [Path Pruning for Recursive React Context Updates]
 **Learning:** In highly nested data structures like `FileNode[]` stored in React state, recursive operations such as mapping (`updateFileContent`, `renameFile`), filtering (`deleteFile`), or adding (`createFile`) can inadvertently trigger full O(N) tree traversals across thousands of nodes. This causes significant UI blocking in features like file explorers when typing or making frequent changes.
 **Action:** Always implement path prefix pruning in recursive state updates (e.g., `if (targetPath.startsWith(node.path + '/'))`). This bypasses unnecessary branches, successfully optimizing the state update logic from O(N) to O(log N).
+
+## 2024-05-22 - [React State Set/Map Mutations]
+**Learning:** React state updates for structures like Set and Map (such as `unsavedFiles` in `WorkspaceContext`) must avoid mutating existing sets and creating new references unconditionally when no change has occurred. Unconditional creation (`new Set(prev)`) triggers unnecessary downstream React component invalidations during high-frequency events like typing, breaking `React.memo` and referential equality checks.
+**Action:** Always implement early returns when updating Set or Map states (e.g., `prev.has(x) ? prev : new Set(prev).add(x)` or `if (!prev.has(x)) return prev;`) to preserve referential equality when the state has not actually changed.
