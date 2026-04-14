@@ -47,6 +47,18 @@ const CodeEditorContent: React.FC = () => {
   const dragState = useRef<{ id: ModuleId; startX: number; startY: number; startLeft: number; startTop: number } | null>(null);
   const gitRefreshTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Global Save Shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        if (activeFile) saveFile(activeFile);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeFile, saveFile]);
+
   // Google Drive status (toolbar access)
   const [driveStatus, setDriveStatus] = useState<DriveSyncStatus>(() => googleDriveService.getSyncStatus());
   const [driveUser, setDriveUser] = useState<DriveUserInfo | null>(null);

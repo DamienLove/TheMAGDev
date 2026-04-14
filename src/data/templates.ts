@@ -278,6 +278,50 @@ app.listen(port, () => {
   }
 ];
 
+export const NEXTJS_TEMPLATE: FileNode[] = [
+  {
+    name: 'package.json',
+    path: '/package.json',
+    type: 'file',
+    language: 'json',
+    content: `{
+  "name": "next-app",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  }
+}`
+  },
+  {
+    name: 'pages',
+    path: '/pages',
+    type: 'folder',
+    children: [
+      {
+        name: 'index.js',
+        path: '/pages/index.js',
+        type: 'file',
+        language: 'javascript',
+        content: `export default function Home() {
+  return (
+    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
+      <h1>Next.js Functional Base</h1>
+      <p>Start building your app here.</p>
+    </div>
+  );
+}`
+      }
+    ]
+  }
+];
+
 export const STATIC_TEMPLATE: FileNode[] = [
   {
     name: 'index.html',

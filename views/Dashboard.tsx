@@ -130,6 +130,15 @@ const Dashboard: React.FC = () => {
     }
   }, [platforms]);
 
+  // Live monitor simulation for CPU and Memory
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCpuUsage(prev => Math.max(10, Math.min(100, prev + (Math.random() * 10 - 5))));
+      setMemoryUsage(prev => Math.max(20, Math.min(100, prev + (Math.random() * 6 - 3))));
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleRefreshMetrics = () => {
     setIsRefreshing(true);
     setTimeout(() => {
