@@ -621,23 +621,24 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, [files, isHydrated, driveEmail, driveStatus.connected, activeDriveFolderId]);
 
-  const fileMap = useMemo(() => {
-    const map = new Map<string, FileNode>();
-    const traverse = (nodes: FileNode[]) => {
+  // ⚡ Bolt: Removed O(N) map generation on every state change and replaced with O(depth) recursive search
+  // with path pruning. Avoids re-computing map on every file content update (like typing in editor).
+  const getFileByPath = useCallback((targetPath: string): FileNode | undefined => {
+    const searchNode = (nodes: FileNode[]): FileNode | undefined => {
       for (const node of nodes) {
-        map.set(node.path, node);
+        if (node.path === targetPath) return node;
         if (node.children) {
-          traverse(node.children);
+          const prefix = node.path === '/' ? '/' : node.path + '/';
+          if (targetPath.startsWith(prefix)) {
+            const found = searchNode(node.children);
+            if (found) return found;
+          }
         }
       }
+      return undefined;
     };
-    traverse(files);
-    return map;
+    return searchNode(files);
   }, [files]);
-
-  const getFileByPath = useCallback((path: string): FileNode | undefined => {
-    return fileMap.get(path);
-  }, [fileMap]);
 
   const getFileContent = useCallback((path: string): string | undefined => {
     const file = getFileByPath(path);
@@ -662,7 +663,9 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
       return newFiles;
     });
+    // ⚡ Bolt: Avoid creating a new Set if path doesn't exist to preserve referential equality and avoid re-renders
     setUnsavedFiles(prev => {
+      if (!prev.has(path)) return prev;
       const next = new Set(prev);
       next.delete(path);
       return next;
@@ -694,11 +697,14 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       };
       return updateNode(prev);
     });
-    setUnsavedFiles(prev => new Set(prev).add(path));
+    // ⚡ Bolt: Early return if path exists to preserve referential equality
+    setUnsavedFiles(prev => prev.has(path) ? prev : new Set(prev).add(path));
   }, []);
 
   const saveFile = useCallback((path: string) => {
+    // ⚡ Bolt: Early return if path doesn't exist to preserve referential equality
     setUnsavedFiles(prev => {
+      if (!prev.has(path)) return prev;
       const next = new Set(prev);
       next.delete(path);
       return next;
