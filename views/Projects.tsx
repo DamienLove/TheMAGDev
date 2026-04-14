@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { REACT_TEMPLATE, NODE_TEMPLATE, STATIC_TEMPLATE } from '../src/data/templates';
+import { REACT_TEMPLATE, NODE_TEMPLATE, STATIC_TEMPLATE, NEXTJS_TEMPLATE } from '../src/data/templates';
 import { useWorkspace } from '../src/components/workspace/WorkspaceContext';
 import { View } from '../types';
 
@@ -29,6 +29,7 @@ const Projects: React.FC<ProjectsProps> = ({ onSelect, onNavigate }) => {
     if (project.id === 'p-2') template = STATIC_TEMPLATE;
     if (project.id === 'p-3') template = NODE_TEMPLATE;
     if (project.id === 'p-4') template = NODE_TEMPLATE;
+    if (project.id === 'p-10') template = NEXTJS_TEMPLATE;
 
     if (onSelect) {
       onSelect(template);
@@ -41,6 +42,17 @@ const Projects: React.FC<ProjectsProps> = ({ onSelect, onNavigate }) => {
   };
 
   const projects: Project[] = [
+    {
+      id: 'p-10',
+      name: 'Next.js SSR Base',
+      description: 'Functional Next.js template to start building robust React apps.',
+      author: '@vercel',
+      authorAvatar: 'V',
+      stars: '15k',
+      thumbnail: './assets/store/icon_web.svg',
+      platforms: ['web'],
+      status: 'New'
+    },
     {
       id: 'p-1',
       name: 'TheMAG.dev FinTrack',
