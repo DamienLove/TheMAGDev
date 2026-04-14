@@ -288,6 +288,8 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
   const [creating, setCreating] = useState<{ parentPath: string; type: 'file' | 'folder' } | null>(null);
 
   const toggleFolder = useCallback((path: string) => {
+    // ⚡ Bolt: No early return possible here because toggle always modifies the set,
+    // but added to document performance considerations.
     setExpandedFolders(prev => {
       const next = new Set(prev);
       if (next.has(path)) {
@@ -335,7 +337,8 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
   const handleCreate = useCallback((parentPath: string, type: 'file' | 'folder') => {
     setCreating({ parentPath, type });
     if (!expandedFolders.has(parentPath)) {
-      setExpandedFolders(prev => new Set(prev).add(parentPath));
+      // ⚡ Bolt: Early return if path exists to preserve referential equality
+      setExpandedFolders(prev => prev.has(parentPath) ? prev : new Set(prev).add(parentPath));
     }
     closeContextMenu();
   }, [expandedFolders, closeContextMenu]);
