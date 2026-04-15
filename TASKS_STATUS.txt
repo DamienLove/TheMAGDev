@@ -45,3 +45,10 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+Added aria-labels to Workspace icon-only controls
+Last updated: 2026-04-15 06:18:07
+
+Status:
+- Completed.
+- Added explicit aria-label and title attributes to Activity Bar and Bottom Panel icon controls in views/CodeEditor.tsx to improve screen reader accessibility and hover discoverability.
