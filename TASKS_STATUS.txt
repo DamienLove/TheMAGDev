@@ -45,3 +45,12 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+Performance Optimization (WorkspaceContext Set States)
+Last updated: $(date +'%Y-%m-%d %H:%M:%S')
+
+Status:
+- Completed.
+- Optimized `unsavedFiles` Set updates in WorkspaceContext to use early returns, preserving referential equality when contents do not change.
+- Prevented unnecessary React re-renders on high-frequency events (e.g., typing).
+- Clean build verified.
