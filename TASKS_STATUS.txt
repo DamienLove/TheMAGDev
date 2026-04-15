@@ -45,3 +45,9 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+Desktop Workspace LLM Integration update
+Last updated: 2026-04-15 06:25:04
+
+Status:
+- Replaced mock setTimeout with real aiProvider integration in DesktopWorkspace.tsx for runLLMCommand and runCustomLLMPrompt.

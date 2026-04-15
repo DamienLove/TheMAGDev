@@ -4,6 +4,7 @@ import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '.
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
 import Editor from '@monaco-editor/react';
 import webContainerService from '../src/services/WebContainerService';
+import aiProvider from '../src/services/AIProvider';
 import ExtensionMarketplace from './ExtensionMarketplace';
 import Projects from './Projects';
 
@@ -553,42 +554,52 @@ export class MainController {
     const prompt = prompts[action] || action;
     setLlmPrompt(prompt);
 
-    // Simulate LLM response (replace with actual API call)
+    // Perform LLM API call
     addTerminalLine(`Running AI ${action}...`);
-    setTimeout(() => {
-      let analysis = '';
-      const lowerCode = activeFileContent.toLowerCase();
+    try {
+      const response = await aiProvider.sendMessage(
+        [{
+          id: Date.now().toString(),
+          role: 'user',
+          content: prompt,
+          timestamp: Date.now()
+        }],
+        `File: ${activeTab}\n\n${activeFileContent}`
+      );
 
-      if (action === 'explain') {
-        if (lowerCode.includes('react')) analysis = 'This appears to be a React component structure. It likely manages UI state and rendering logic.';
-        else if (lowerCode.includes('express')) analysis = 'This appears to be an Express server configuration, handling HTTP requests and routing.';
-        else if (lowerCode.includes('class')) analysis = 'This defines a class structure with properties and methods to encapsulate functionality.';
-        else analysis = 'This is a standard TypeScript/JavaScript module defining specific logic units.';
-
-        analysis += `\n\nFile: ${activeTab}\nLength: ${activeFileContent.length} chars`;
-      } else if (action === 'fix') {
-         analysis = 'No critical syntax errors detected by static analysis.\n\nSuggestion: Ensure all imported modules are installed in package.json.';
-      } else if (action === 'optimize') {
-         analysis = 'Performance looks good for this scope.\n\nTip: Use memoization for expensive calculations if this code runs frequently.';
-      } else if (action === 'refactor') {
-         analysis = 'Code structure is clean.\n\nSuggestion: Consider extracting inline logic into separate utility functions if the file grows larger.';
-      }
-
-      setLlmResponse(analysis || 'Analysis complete.');
+      setLlmResponse(response.error ? `Error: ${response.error}` : (response.content || 'Analysis complete.'));
+      addTerminalLine(response.error ? `AI ${action} failed` : `AI ${action} complete`, response.error ? 'error' : 'success');
+    } catch (error: any) {
+      setLlmResponse(`Error: ${error.message || 'Failed to communicate with AI provider.'}`);
+      addTerminalLine(`AI ${action} failed: ${error.message}`, 'error');
+    } finally {
       setLlmLoading(false);
-      addTerminalLine(`AI ${action} complete`, 'success');
-    }, 1500);
+    }
   };
 
   const runCustomLLMPrompt = async () => {
     if (!llmPrompt.trim()) return;
     setLlmLoading(true);
     addTerminalLine('Processing custom prompt...');
-    setTimeout(() => {
-      setLlmResponse(`Based on your prompt "${llmPrompt.slice(0, 50)}...", here's my analysis:\n\nThe code structure follows standard patterns. Consider implementing additional error boundaries and type guards for improved reliability.`);
+    try {
+      const response = await aiProvider.sendMessage(
+        [{
+          id: Date.now().toString(),
+          role: 'user',
+          content: llmPrompt,
+          timestamp: Date.now()
+        }],
+        activeFileContent ? `File: ${activeTab}\n\n${activeFileContent}` : undefined
+      );
+
+      setLlmResponse(response.error ? `Error: ${response.error}` : (response.content || 'Analysis complete.'));
+      addTerminalLine(response.error ? 'Custom prompt failed' : 'Custom prompt complete', response.error ? 'error' : 'success');
+    } catch (error: any) {
+      setLlmResponse(`Error: ${error.message || 'Failed to communicate with AI provider.'}`);
+      addTerminalLine(`Custom prompt failed: ${error.message}`, 'error');
+    } finally {
       setLlmLoading(false);
-      addTerminalLine('Custom prompt complete', 'success');
-    }, 2000);
+    }
   };
 
   const openFile = async (file: FileNode) => {
