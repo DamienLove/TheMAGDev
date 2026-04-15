@@ -16,7 +16,9 @@ const wss = new WebSocketServer({
   port: PORT,
   verifyClient: (info, cb) => {
     const origin = info.origin;
-    if (ALLOWED_ORIGINS.includes(origin)) {
+    if (origin === undefined) {
+      cb(true);
+    } else if (origin.startsWith('http://localhost:') || ALLOWED_ORIGINS.includes(origin)) {
       cb(true);
     } else {
       console.warn(`[Security] Blocked unauthorized connection attempt from origin: ${origin}`);
