@@ -45,3 +45,10 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+TheMAG.dev UX improvement update
+Last updated: 2026-04-16 06:31:55
+
+Status:
+- Completed adding aria-labels and titles to the icon-only layout controls in CodeEditor.tsx.
+- Verified build with pnpm build.
+- Appended accessibility learning to .Jules/palette.md.
