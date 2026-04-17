@@ -45,3 +45,15 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+Performance Optimization (WorkspaceContext Set Equality)
+Last updated: $(date +"%Y-%m-%d %H:%M:%S")
+
+Current objectives:
+- Optimize setUnsavedFiles calls in WorkspaceContext by adding early returns (prev.has(path) ? prev : ...) to preserve referential equality and prevent unnecessary React context re-renders.
+
+Status:
+- Completed.
+- Added early returns (prev.size === 0 ? prev : new Set(), and prev.has(path) ? prev : ...) to all setUnsavedFiles calls in WorkspaceContext.tsx.
+- This prevents unnecessary referential changes to the Set, avoiding downstream re-renders in components consuming WorkspaceContext when the unsaved files state hasn't semantically changed.
+- Build verified successfully.
