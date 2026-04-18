@@ -1,1 +1,4 @@
 ## 2024-03-09 - Initialization
+## 2024-05-19 - Adding title and aria-label to CodeEditor Activity Bar
+**Learning:** Found multiple icon-only buttons (`Explorer`, `Search`, `Source Control`, `Extensions`, `Account`, `Settings`) in the Activity Bar of `CodeEditor.tsx` missing critical accessibility attributes (`aria-label`) and visual feedback tooltips (`title`). When a design has an activity bar or icon navigation panel without text labels, adding these simple attributes is an essential pattern for ensuring usability for both mouse users and screen reader users.
+**Action:** Always scan for icon-only navigation bars or buttons (specifically checking elements grouped inside `<aside>` and wrapping `<span className="material-symbols-rounded">`) and apply `title` and `aria-label` simultaneously to improve UX and a11y compliance.
