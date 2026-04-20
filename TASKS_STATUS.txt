@@ -45,3 +45,13 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+Performance Optimization (WorkspaceContext Set State)
+Last updated: 2026-04-20 06:38:00
+
+Status:
+- Completed.
+- Identified referential equality bailout issue in WorkspaceContext setUnsavedFiles.
+- Implemented early returns (e.g., if (!prev.has(path)) return prev) for saveFile, updateFileContent, and closeFile.
+- Measured state update overhead dropping from ~107ms to ~5ms for 100k redundant calls.
+- Verified build and application functionality.

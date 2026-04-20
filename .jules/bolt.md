@@ -15,3 +15,7 @@
 ## 2025-03-09 - [Path Pruning for Recursive React Context Updates]
 **Learning:** In highly nested data structures like `FileNode[]` stored in React state, recursive operations such as mapping (`updateFileContent`, `renameFile`), filtering (`deleteFile`), or adding (`createFile`) can inadvertently trigger full O(N) tree traversals across thousands of nodes. This causes significant UI blocking in features like file explorers when typing or making frequent changes.
 **Action:** Always implement path prefix pruning in recursive state updates (e.g., `if (targetPath.startsWith(node.path + '/'))`). This bypasses unnecessary branches, successfully optimizing the state update logic from O(N) to O(log N).
+
+## 2026-03-02 - [React State Object/Set Re-render Trap & Memoization]
+**Learning:** Using an unmemoized object or Set as a state update payload forces *every* consuming component to re-render, bypassing React's bailout mechanisms. This happens even if the data itself hasn't changed. In `WorkspaceContext`, recreating a `Set` for `unsavedFiles` without an early return triggered re-renders across the entire context tree on every interaction, causing significant UI lag in features like file saving and closing.
+**Action:** Always implement early returns for Set and Map structures in state updates (e.g., `prev.has(x) ? prev : new Set(prev).add(x)`). This preserves referential equality and prevents unnecessary downstream React component invalidations during high-frequency events.
