@@ -45,3 +45,11 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+UX Optimization (CodeEditor Accessibility)
+Last updated: 2026-04-21 09:00:35
+
+Status:
+- Completed.
+- Added missing aria-label and title attributes to all icon-only buttons in the CodeEditor view (Explorer, Search, Git, Extensions, Account, Settings, toggle panel, bottom panel controls, file tab close buttons, floating panel controls).
+- Verified build passes successfully.
