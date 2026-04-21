@@ -1,1 +1,3 @@
 ## 2024-03-09 - Initialization
+**Learning:** Found multiple icon-only buttons in `views/CodeEditor.tsx` lacking `aria-label` or `title` attributes, making them inaccessible to screen readers and difficult to discover for sighted users. The memory explicitly mentions: "All newly introduced or existing icon-only buttons in the workspace layout (such as conditionally rendered activity bar components and bottom panel controls in views/CodeEditor.tsx) must utilize explicit aria-label and title attributes to ensure screen reader accessibility compliance and visual hover discoverability."
+**Action:** Add `aria-label` and `title` to all icon-only buttons in the `CodeEditor` view to improve accessibility and discoverability.
