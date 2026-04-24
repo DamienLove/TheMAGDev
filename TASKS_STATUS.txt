@@ -45,3 +45,8 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+Objective: Fix Cross-Site WebSocket Hijacking (CSWSH) vulnerability in local-agent/server.js.
+Progress: Completed.
+Completion Notes: Added verifyClient logic to WebSocketServer initialization in local-agent/server.js and enhanced the existing logic in scripts/local-agent.js to prevent arbitrary websites from connecting and executing shell commands. Documented the finding in .jules/sentinel.md.
+Timestamp: $(date -u)
