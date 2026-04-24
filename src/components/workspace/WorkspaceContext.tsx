@@ -663,6 +663,9 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return newFiles;
     });
     setUnsavedFiles(prev => {
+      // PERFORMANCE: Early return preserves referential equality and prevents
+      // costly downstream component re-renders if the state doesn't need to change.
+      if (!prev.has(path)) return prev;
       const next = new Set(prev);
       next.delete(path);
       return next;
@@ -694,11 +697,16 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       };
       return updateNode(prev);
     });
-    setUnsavedFiles(prev => new Set(prev).add(path));
+    // PERFORMANCE: Early return preserves referential equality and prevents
+    // costly downstream component re-renders if the state doesn't need to change.
+    setUnsavedFiles(prev => prev.has(path) ? prev : new Set(prev).add(path));
   }, []);
 
   const saveFile = useCallback((path: string) => {
     setUnsavedFiles(prev => {
+      // PERFORMANCE: Early return preserves referential equality and prevents
+      // costly downstream component re-renders if the state doesn't need to change.
+      if (!prev.has(path)) return prev;
       const next = new Set(prev);
       next.delete(path);
       return next;

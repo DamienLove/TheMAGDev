@@ -45,3 +45,14 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+Performance Optimization (WorkspaceContext unsavedFiles)
+Last updated: 2026-04-24 06:36:29
+
+Current objectives:
+- Optimize `unsavedFiles` state updates in `WorkspaceContext.tsx` by implementing early returns.
+
+Status:
+- Completed.
+- Modified `setUnsavedFiles` in `closeFile`, `updateFileContent`, and `saveFile` to verify if a state change is genuinely required (e.g., via `prev.has(path)` checking).
+- This ensures referential equality is preserved when there is no actual change, preventing costly and unnecessary downstream re-renders.
