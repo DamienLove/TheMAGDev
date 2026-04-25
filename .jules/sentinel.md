@@ -17,3 +17,8 @@
 **Vulnerability:** Platform-specific API keys (e.g., RevenueCat `iosApiKey` and `androidApiKey`) were hardcoded directly in `src/mobile/NativeConfig.tsx`, which was commented out for future use.
 **Learning:** Even if code is commented out or currently unused in the web platform, any hardcoded secrets checked into version control are exposed. Attackers or automated scanners can find them in the git history or codebase.
 **Prevention:** Never hardcode secrets in source files, including commented blocks or unused code. Always use environment variable placeholders (e.g., `process.env.EXPO_PUBLIC_RC_IOS_API_KEY`) to ensure secure configuration practices are maintained when the code is eventually reactivated or ported.
+
+## 2024-05-18 - Local Agent CSWSH & RCE Fix
+**Vulnerability:** Cross-Site WebSocket Hijacking (CSWSH) and Remote Code Execution (RCE) in `local-agent/server.js` and `scripts/local-agent.js` due to missing origin validation when setting up raw WebSockets via `ws`.
+**Learning:** Using the `ws` package without explicitly providing a `verifyClient` callback does not check HTTP `Origin` headers by default. When the WebSocket passes raw payloads directly to spawned shell commands (`bash` or `powershell.exe`), an attacker can craft a malicious website (e.g., `https://evil.com`) to connect to `ws://localhost:4477`, bypassing browser CORS policies to execute arbitrary commands locally.
+**Prevention:** Always implement `verifyClient` for local WebSocket servers to strictly whitelist allowed origins, such as `http://localhost:*` or known trusted production domains, and handle script execution (`origin === undefined`) safely.
