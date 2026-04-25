@@ -45,3 +45,10 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+Add ARIA labels to workspace icon buttons
+Last updated: 2026-01-30 00:20:00
+
+Status:
+- Completed.
+- Added missing `aria-label`s to purely icon-based buttons in DesktopWorkspace, DebugPanel, and AIAssistant for better screen reader and automated test accessibility.
