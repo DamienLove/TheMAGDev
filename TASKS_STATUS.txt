@@ -45,3 +45,12 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+Performance Optimization (WorkspaceContext Set updates)
+Last updated: $(date '+%Y-%m-%d %H:%M:%S')
+
+Status:
+- Completed.
+- Implemented early returns for `unsavedFiles` Set updates in `WorkspaceContext.tsx` (`updateFileContent`, `saveFile`, `closeFile`).
+- Preserves referential equality and prevents unnecessary downstream re-renders during high-frequency events.
+- Updated Bolt journal with Set/Map re-render trap learning.
