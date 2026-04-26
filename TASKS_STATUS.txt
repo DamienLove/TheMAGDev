@@ -45,3 +45,8 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+## 2025-04-26 06:40 UTC
+**Objective**: Fix CSWSH vulnerability in local agent servers
+**Progress**: Completed
+**Notes**: Added Origin validation using `verifyClient` in `local-agent/server.js` and `scripts/local-agent.js`. Validated fix with local test scripts and recorded learning in `.jules/sentinel.md`. Verification via `pnpm build` succeeded. Code review approved.
