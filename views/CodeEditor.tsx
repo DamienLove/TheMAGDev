@@ -237,17 +237,25 @@ const CodeEditorContent: React.FC = () => {
       const localMap = flattenWorkspaceFiles(files);
 
       const nextChanges: GitChange[] = [];
-      for (const [path, content] of localMap) {
+
+      // Parallelize local vs remote SHA comparisons
+      const localEntries = Array.from(localMap.entries());
+      const comparisonResults = await Promise.all(localEntries.map(async ([path, content]) => {
         const remoteSha = remoteMap.get(path);
         if (!remoteSha) {
-          nextChanges.push({ file: path, status: 'A', staged: false });
+          return { file: path, status: 'A' as const, staged: false };
         } else {
           const localSha = await computeGitBlobSha(content);
+          remoteMap.delete(path); // Safe because we map first and wait for all
           if (localSha !== remoteSha) {
-            nextChanges.push({ file: path, status: 'M', staged: false, sha: remoteSha });
+            return { file: path, status: 'M' as const, staged: false, sha: remoteSha };
           }
-          remoteMap.delete(path);
         }
+        return null;
+      }));
+
+      for (const change of comparisonResults) {
+        if (change) nextChanges.push(change);
       }
 
       for (const [path, sha] of remoteMap) {
