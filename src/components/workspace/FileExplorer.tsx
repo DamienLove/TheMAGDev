@@ -334,11 +334,9 @@ const FileExplorer: React.FC<FileExplorerProps> = ({
 
   const handleCreate = useCallback((parentPath: string, type: 'file' | 'folder') => {
     setCreating({ parentPath, type });
-    if (!expandedFolders.has(parentPath)) {
-      setExpandedFolders(prev => new Set(prev).add(parentPath));
-    }
+    setExpandedFolders(prev => prev.has(parentPath) ? prev : new Set(prev).add(parentPath));
     closeContextMenu();
-  }, [expandedFolders, closeContextMenu]);
+  }, [closeContextMenu]);
 
   const handleCreateSubmit = useCallback((name: string) => {
     if (creating && name.trim()) {
