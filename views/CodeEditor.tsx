@@ -722,8 +722,8 @@ const CodeEditorContent: React.FC = () => {
             >
               <span className="material-symbols-rounded">terminal</span>
             </button>
-            <button className="text-zinc-600 hover:text-zinc-400"><span className="material-symbols-rounded">account_circle</span></button>
-            <button className="text-zinc-600 hover:text-zinc-400 mb-2"><span className="material-symbols-rounded">settings</span></button>
+            <button className="text-zinc-600 hover:text-zinc-400" aria-label="Account Profile" title="Account Profile"><span className="material-symbols-rounded">account_circle</span></button>
+            <button className="text-zinc-600 hover:text-zinc-400 mb-2" aria-label="Settings" title="Settings"><span className="material-symbols-rounded">settings</span></button>
           </div>
         </aside>
 
@@ -1057,16 +1057,20 @@ const CodeEditorContent: React.FC = () => {
                         {floatingPanels[bottomPanelMode].floating ? 'call_to_action' : 'open_in_new'}
                       </span>
                     </button>
-                    <button className="text-zinc-500 hover:text-white"><span className="material-symbols-rounded text-sm">add</span></button>
+                    <button className="text-zinc-500 hover:text-white" aria-label="Add Panel" title="Add Panel"><span className="material-symbols-rounded text-sm">add</span></button>
                     <button
                       onClick={() => setBottomPanelHeight(h => h === 200 ? 350 : 200)}
                       className="text-zinc-500 hover:text-white"
+                      aria-label={bottomPanelHeight === 200 ? 'Expand Panel' : 'Collapse Panel'}
+                      title={bottomPanelHeight === 200 ? 'Expand Panel' : 'Collapse Panel'}
                     >
                       <span className="material-symbols-rounded text-sm">{bottomPanelHeight === 200 ? 'expand_less' : 'expand_more'}</span>
                     </button>
                     <button
                       onClick={() => setShowBottomPanel(false)}
                       className="text-zinc-500 hover:text-white"
+                      aria-label="Close Panel"
+                      title="Close Panel"
                     >
                       <span className="material-symbols-rounded text-sm">close</span>
                     </button>
