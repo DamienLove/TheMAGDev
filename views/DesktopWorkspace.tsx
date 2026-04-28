@@ -819,7 +819,7 @@ export class MainController {
             <div className="text-[9px] text-[#5f637a] leading-none mb-1 uppercase">Last Sync</div>
             <div className="text-[10px] text-white font-mono leading-none">{formatSyncTime(syncStatus.lastSync)}</div>
           </div>
-          <button onClick={loadProjects} className="p-1 text-[#5f637a] hover:text-white">
+          <button onClick={loadProjects} className="p-1 text-[#5f637a] hover:text-white" aria-label="Refresh Projects" title="Refresh Projects">
             <span className="material-symbols-rounded text-[18px]">refresh</span>
           </button>
         </div>
@@ -958,6 +958,8 @@ export class MainController {
                               onClick={createProject}
                               disabled={isCreatingProject || !newProjectName.trim()}
                               className="px-2 py-1 bg-indigo-600 text-white text-[10px] rounded hover:bg-indigo-500 disabled:opacity-50"
+                              aria-label="Create Project"
+                              title="Create Project"
                             >
                               <span className="material-symbols-rounded text-[14px]">add</span>
                             </button>
