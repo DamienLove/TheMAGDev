@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import aiProvider from '../src/services/AIProvider';
 
 interface Question {
   id: string;
@@ -43,7 +44,7 @@ const CommunitySupport: React.FC = () => {
 
   useEffect(scrollToBottom, [chatMessages]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!chatInput.trim()) return;
 
     const userMessage: ChatMessage = {
@@ -53,28 +54,40 @@ const CommunitySupport: React.FC = () => {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setChatMessages(prev => [...prev, userMessage]);
+    const newMessages = [...chatMessages, userMessage];
+    setChatMessages(newMessages);
     setChatInput('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const inputLower = chatInput.toLowerCase();
-      let response = aiResponses.default;
-      if (inputLower.includes('build') || inputLower.includes('compile')) response = aiResponses.build;
-      else if (inputLower.includes('deploy') || inputLower.includes('production')) response = aiResponses.deploy;
-      else if (inputLower.includes('error') || inputLower.includes('fail')) response = aiResponses.error;
+    const apiMessages = newMessages.map(m => ({
+      id: m.id,
+      role: m.sender === 'user' ? 'user' : 'assistant',
+      content: m.text,
+      timestamp: m.timestamp
+    }));
+
+    try {
+      const response = await aiProvider.sendMessage(apiMessages as any);
 
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
-        text: response,
+        text: response.content || 'Error generating response',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
       setChatMessages(prev => [...prev, aiMessage]);
+    } catch (e) {
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        sender: 'ai',
+        text: 'Sorry, I encountered an error. Please try again.',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setChatMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
   const [questions] = useState<Question[]>([
     {

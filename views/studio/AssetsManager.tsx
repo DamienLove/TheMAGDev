@@ -84,21 +84,35 @@ const AssetsManager: React.FC = () => {
   const handleAiGenerate = async () => {
     if (!aiPrompt) return;
     setIsGenerating(true);
-    setTimeout(() => {
+
+    try {
+      const messages = [{
+        id: '1',
+        role: 'user',
+        content: "Return an image URL or description for: " + aiPrompt,
+        timestamp: new Date().toISOString()
+      }];
+
+      const response = await aiProvider.sendMessage(messages as any);
+      const content = response.content || '/branding/STLOGO.png';
+
       const newAsset: StudioAsset = {
         id: Date.now().toString(),
         name: `AI Generated ${assets.length + 1}`,
         type: 'image',
-        url: '/branding/STLOGO.png',
+        url: content,
         tags: ['ai-generated'],
         size: '256KB',
         source: 'local',
       };
-      assetLibraryService.addAsset(newAsset).catch(() => {});
+      await assetLibraryService.addAsset(newAsset);
+    } catch (error) {
+      console.error("Error generating asset:", error);
+    } finally {
       setIsGenerating(false);
       setAiPrompt('');
       setActiveTab('explorer');
-    }, 3000);
+    }
   };
 
   const handleDownloadEdited = () => {
