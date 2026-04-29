@@ -237,16 +237,32 @@ const CodeEditorContent: React.FC = () => {
       const localMap = flattenWorkspaceFiles(files);
 
       const nextChanges: GitChange[] = [];
-      for (const [path, content] of localMap) {
+
+      // Parallelize git blob sha computations for performance
+      const localEntries = Array.from(localMap.entries());
+      const shaPromises = localEntries.map(async ([path, content]) => {
         const remoteSha = remoteMap.get(path);
         if (!remoteSha) {
-          nextChanges.push({ file: path, status: 'A', staged: false });
-        } else {
-          const localSha = await computeGitBlobSha(content);
-          if (localSha !== remoteSha) {
-            nextChanges.push({ file: path, status: 'M', staged: false, sha: remoteSha });
-          }
-          remoteMap.delete(path);
+          return { path, status: 'A' as const, staged: false };
+        }
+
+        const localSha = await computeGitBlobSha(content);
+        if (localSha !== remoteSha) {
+          return { path, status: 'M' as const, staged: false, sha: remoteSha };
+        }
+        return { path, status: 'unchanged' as const };
+      });
+
+      const computedLocalChanges = await Promise.all(shaPromises);
+
+      for (const result of computedLocalChanges) {
+        if (result.status === 'A') {
+          nextChanges.push({ file: result.path, status: 'A', staged: false });
+        } else if (result.status === 'M') {
+          nextChanges.push({ file: result.path, status: 'M', staged: false, sha: result.sha });
+          remoteMap.delete(result.path);
+        } else if (result.status === 'unchanged') {
+          remoteMap.delete(result.path);
         }
       }
 
