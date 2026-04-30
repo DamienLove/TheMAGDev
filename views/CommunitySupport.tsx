@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import aiProvider from '../src/services/AIProvider';
 
 interface Question {
   id: string;
@@ -43,13 +44,14 @@ const CommunitySupport: React.FC = () => {
 
   useEffect(scrollToBottom, [chatMessages]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!chatInput.trim()) return;
 
+    const currentInput = chatInput;
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       sender: 'user',
-      text: chatInput,
+      text: currentInput,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
@@ -57,24 +59,44 @@ const CommunitySupport: React.FC = () => {
     setChatInput('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const inputLower = chatInput.toLowerCase();
-      let response = aiResponses.default;
-      if (inputLower.includes('build') || inputLower.includes('compile')) response = aiResponses.build;
-      else if (inputLower.includes('deploy') || inputLower.includes('production')) response = aiResponses.deploy;
-      else if (inputLower.includes('error') || inputLower.includes('fail')) response = aiResponses.error;
+    try {
+      const aiProviderMessages = chatMessages.map(msg => ({
+        id: msg.id,
+        role: msg.sender === 'user' ? 'user' as const : 'assistant' as const,
+        content: msg.text,
+        timestamp: Date.now()
+      }));
+
+      aiProviderMessages.push({
+        id: userMessage.id,
+        role: 'user',
+        content: userMessage.text,
+        timestamp: Date.now()
+      });
+
+      const systemContext = "You are TheMAG.dev AI, a helpful development assistant for a cloud-based IDE platform. You help users with build errors, configuration issues, platform questions, and development tasks.";
+
+      const response = await aiProvider.sendMessage(aiProviderMessages, systemContext);
 
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
-        text: response,
+        text: response.error ? `Error: ${response.error}` : (response.content || "I couldn't process that request."),
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
       setChatMessages(prev => [...prev, aiMessage]);
+    } catch (err: any) {
+      const aiMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        sender: 'ai',
+        text: `Error: ${err.message}`,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setChatMessages(prev => [...prev, aiMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
   const [questions] = useState<Question[]>([
     {
