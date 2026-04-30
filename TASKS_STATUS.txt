@@ -45,3 +45,10 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+TheMAG.dev Remove mock setTimeout integrations
+Last updated: 2026-04-30 08:19:00
+
+Status:
+- Partially completed: replaced mock AI responses with real `aiProvider.sendMessage` in `DesktopWorkspace.tsx` and `CommunitySupport.tsx`.
+- Missing implementations for remaining `setTimeout` mocks across other views (e.g. Marketplace, SDKManager, Dashboard, StudioStore, etc).
