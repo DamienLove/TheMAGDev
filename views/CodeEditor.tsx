@@ -236,19 +236,23 @@ const CodeEditorContent: React.FC = () => {
       const remoteMap = new Map(tree.map(item => [item.path, item.sha]));
       const localMap = flattenWorkspaceFiles(files);
 
-      const nextChanges: GitChange[] = [];
+      // ⚡ Bolt: Parallelize SHA computations for faster git change detection
+      const changePromises = [];
       for (const [path, content] of localMap) {
         const remoteSha = remoteMap.get(path);
         if (!remoteSha) {
-          nextChanges.push({ file: path, status: 'A', staged: false });
+          changePromises.push(Promise.resolve({ file: path, status: 'A' as const, staged: false }));
         } else {
-          const localSha = await computeGitBlobSha(content);
-          if (localSha !== remoteSha) {
-            nextChanges.push({ file: path, status: 'M', staged: false, sha: remoteSha });
-          }
           remoteMap.delete(path);
+          changePromises.push(
+            computeGitBlobSha(content).then(localSha =>
+              localSha !== remoteSha ? { file: path, status: 'M' as const, staged: false, sha: remoteSha } : null
+            )
+          );
         }
       }
+      const results = await Promise.all(changePromises);
+      const nextChanges: GitChange[] = results.filter((c): c is GitChange => c !== null);
 
       for (const [path, sha] of remoteMap) {
         nextChanges.push({ file: path, status: 'D', staged: false, sha });
