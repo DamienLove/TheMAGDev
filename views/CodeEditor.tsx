@@ -236,19 +236,22 @@ const CodeEditorContent: React.FC = () => {
       const remoteMap = new Map(tree.map(item => [item.path, item.sha]));
       const localMap = flattenWorkspaceFiles(files);
 
-      const nextChanges: GitChange[] = [];
-      for (const [path, content] of localMap) {
+      const changePromises = Array.from(localMap.entries()).map(async ([path, content]) => {
         const remoteSha = remoteMap.get(path);
         if (!remoteSha) {
-          nextChanges.push({ file: path, status: 'A', staged: false });
+          return { file: path, status: 'A', staged: false } as GitChange;
         } else {
+          remoteMap.delete(path);
           const localSha = await computeGitBlobSha(content);
           if (localSha !== remoteSha) {
-            nextChanges.push({ file: path, status: 'M', staged: false, sha: remoteSha });
+            return { file: path, status: 'M', staged: false, sha: remoteSha } as GitChange;
           }
-          remoteMap.delete(path);
+          return null;
         }
-      }
+      });
+
+      const results = await Promise.all(changePromises);
+      const nextChanges = results.filter((res): res is GitChange => res !== null);
 
       for (const [path, sha] of remoteMap) {
         nextChanges.push({ file: path, status: 'D', staged: false, sha });
