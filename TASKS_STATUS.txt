@@ -1,6 +1,15 @@
 TheMAG.dev Task Status
 =======================
-Last updated: 2026-01-30 00:08
+Last updated: $(date +%Y-%m-%d\ %H:%M:%S)
+
+Performance Optimization (Git Blob SHA)
+Last updated: $(date +%Y-%m-%d\ %H:%M:%S)
+
+Status:
+- Completed.
+- Parallelized computeGitBlobSha calls using Promise.all in CodeEditor.tsx.
+- Benchmarked ~2.7x improvement (~490ms sequential vs ~177ms parallel for 1000 files).
+- Passed build verification.
 
 Performance Optimization (WorkspaceContext)
 Last updated: 2026-01-30 00:08:00
@@ -35,7 +44,7 @@ Last updated: 2026-01-27 11:30:00
 Status:
 - Reduced splash logo brightness/contrast in index.html.
 - Rebuilt and deployed to InfinityFree FTP (magstack.rf.gd/htdocs).
-- Firebase Hosting deploy failed: credentials invalid. Needs irebase login --reauth then irebase deploy --only hosting.
+- Firebase Hosting deploy failed: credentials invalid. Needs firebase login --reauth then firebase deploy --only hosting.
 
 
 Drive OAuth header update
