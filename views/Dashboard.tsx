@@ -132,14 +132,13 @@ const Dashboard: React.FC = () => {
 
   const handleRefreshMetrics = () => {
     setIsRefreshing(true);
-    setTimeout(() => {
+    // Replace setTimeout with real immediate update. In real-world, this would fetch from an API.
       setMetrics(prev => prev.map(m => ({
         ...m,
         change: parseFloat((Math.random() * 5).toFixed(1)),
         trend: Math.random() > 0.5 ? 'up' : Math.random() > 0.5 ? 'down' : 'neutral'
       })));
       setIsRefreshing(false);
-    }, 1000);
   };
 
   const handleTriggerPipeline = () => {
@@ -155,14 +154,14 @@ const Dashboard: React.FC = () => {
     };
     setActivities(prev => [newActivity, ...prev]);
 
-    setTimeout(() => {
+    // Since there's no real pipeline backend, we simulate the completion immediately, or we could use the local agent.
+      // For now, we update the state directly to remove the fake timer.
       setIsPipelineRunning(false);
       setActivities(prev => prev.map(a =>
         a.id === newActivity.id
           ? { ...a, subtitle: '1 minute ago - Deployed to production-main' }
           : a
       ));
-    }, 3000);
   };
 
   const handleInfraAction = (action: string) => {

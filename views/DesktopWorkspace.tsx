@@ -4,6 +4,7 @@ import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '.
 import githubService, { GitHubUser, GitHubRepo, GitHubBranch } from '../src/services/GitHubService';
 import Editor from '@monaco-editor/react';
 import webContainerService from '../src/services/WebContainerService';
+import aiProvider from '../src/services/AIProvider';
 import ExtensionMarketplace from './ExtensionMarketplace';
 import Projects from './Projects';
 
@@ -552,43 +553,39 @@ export class MainController {
 
     const prompt = prompts[action] || action;
     setLlmPrompt(prompt);
-
-    // Simulate LLM response (replace with actual API call)
     addTerminalLine(`Running AI ${action}...`);
-    setTimeout(() => {
-      let analysis = '';
-      const lowerCode = activeFileContent.toLowerCase();
 
-      if (action === 'explain') {
-        if (lowerCode.includes('react')) analysis = 'This appears to be a React component structure. It likely manages UI state and rendering logic.';
-        else if (lowerCode.includes('express')) analysis = 'This appears to be an Express server configuration, handling HTTP requests and routing.';
-        else if (lowerCode.includes('class')) analysis = 'This defines a class structure with properties and methods to encapsulate functionality.';
-        else analysis = 'This is a standard TypeScript/JavaScript module defining specific logic units.';
+    const response = await aiProvider.sendMessage([
+      { id: Date.now().toString(), role: 'user', content: `${prompt}\n\n\`\`\`\n${activeFileContent}\n\`\`\``, timestamp: Date.now() }
+    ], 'You are an expert developer assistant.');
 
-        analysis += `\n\nFile: ${activeTab}\nLength: ${activeFileContent.length} chars`;
-      } else if (action === 'fix') {
-         analysis = 'No critical syntax errors detected by static analysis.\n\nSuggestion: Ensure all imported modules are installed in package.json.';
-      } else if (action === 'optimize') {
-         analysis = 'Performance looks good for this scope.\n\nTip: Use memoization for expensive calculations if this code runs frequently.';
-      } else if (action === 'refactor') {
-         analysis = 'Code structure is clean.\n\nSuggestion: Consider extracting inline logic into separate utility functions if the file grows larger.';
-      }
-
-      setLlmResponse(analysis || 'Analysis complete.');
-      setLlmLoading(false);
+    if (response.error) {
+      setLlmResponse('Error: ' + response.error);
+      addTerminalLine(`AI ${action} failed: ${response.error}`, 'error');
+    } else {
+      setLlmResponse(response.content);
       addTerminalLine(`AI ${action} complete`, 'success');
-    }, 1500);
+    }
+    setLlmLoading(false);
   };
 
   const runCustomLLMPrompt = async () => {
     if (!llmPrompt.trim()) return;
     setLlmLoading(true);
     addTerminalLine('Processing custom prompt...');
-    setTimeout(() => {
-      setLlmResponse(`Based on your prompt "${llmPrompt.slice(0, 50)}...", here's my analysis:\n\nThe code structure follows standard patterns. Consider implementing additional error boundaries and type guards for improved reliability.`);
-      setLlmLoading(false);
+
+    const response = await aiProvider.sendMessage([
+      { id: Date.now().toString(), role: 'user', content: llmPrompt, timestamp: Date.now() }
+    ], 'You are an expert developer assistant.');
+
+    if (response.error) {
+      setLlmResponse('Error: ' + response.error);
+      addTerminalLine('Custom prompt failed: ' + response.error, 'error');
+    } else {
+      setLlmResponse(response.content);
       addTerminalLine('Custom prompt complete', 'success');
-    }, 2000);
+    }
+    setLlmLoading(false);
   };
 
   const openFile = async (file: FileNode) => {

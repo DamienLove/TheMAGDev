@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import aiProvider from '../src/services/AIProvider';
 
 interface Question {
   id: string;
@@ -43,7 +44,7 @@ const CommunitySupport: React.FC = () => {
 
   useEffect(scrollToBottom, [chatMessages]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!chatInput.trim()) return;
 
     const userMessage: ChatMessage = {
@@ -57,24 +58,19 @@ const CommunitySupport: React.FC = () => {
     setChatInput('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const inputLower = chatInput.toLowerCase();
-      let response = aiResponses.default;
-      if (inputLower.includes('build') || inputLower.includes('compile')) response = aiResponses.build;
-      else if (inputLower.includes('deploy') || inputLower.includes('production')) response = aiResponses.deploy;
-      else if (inputLower.includes('error') || inputLower.includes('fail')) response = aiResponses.error;
+    const response = await aiProvider.sendMessage([
+      { id: Date.now().toString(), role: 'user', content: userMessage.text, timestamp: Date.now() }
+    ], 'You are the Community Support AI assistant for TheMAG.dev, helping users with questions about building, deploying, and troubleshooting.');
 
-      const aiMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        sender: 'ai',
-        text: response,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
+    const aiMessage: ChatMessage = {
+      id: (Date.now() + 1).toString(),
+      sender: 'ai',
+      text: response.error || response.content || 'No response from AI',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
 
-      setChatMessages(prev => [...prev, aiMessage]);
-      setIsTyping(false);
-    }, 1500);
+    setChatMessages(prev => [...prev, aiMessage]);
+    setIsTyping(false);
   };
   const [questions] = useState<Question[]>([
     {

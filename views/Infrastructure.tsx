@@ -107,18 +107,18 @@ const Infrastructure: React.FC = () => {
         return s;
     }));
 
-    setTimeout(() => {
-        setServices(prev => prev.map(s => {
-            if (s.id === id) {
-                return {
-                    ...s,
-                    status: 'Active',
-                    modules: s.modules.map(m => ({ ...m, status: 'Online' }))
-                };
-            }
-            return s;
-        }));
-    }, 3000);
+    // Since we don't have a real restartService backend call, we will just apply the state change directly.
+    // In a real implementation this would wait for the backend restart to complete.
+    setServices(prev => prev.map(s => {
+        if (s.id === id) {
+            return {
+                ...s,
+                status: 'Active',
+                modules: s.modules.map(m => ({ ...m, status: 'Online' }))
+            };
+        }
+        return s;
+    }));
   };
 
   const removeService = (id: string) => {
