@@ -916,7 +916,7 @@ const CodeEditorContent: React.FC = () => {
                             </div>
                             <div className="flex items-center gap-2">
                               <span className={`text-[10px] font-bold uppercase ${c.status === 'A' ? 'text-emerald-500' : c.status === 'D' ? 'text-red-500' : 'text-amber-500'}`}>{c.status}</span>
-                              <button onClick={() => toggleStage(c.file)} className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400">
+                              <button onClick={() => toggleStage(c.file)} className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400" title="Unstage file" aria-label="Unstage file">
                                 <span className="material-symbols-rounded text-sm">remove</span>
                               </button>
                             </div>
@@ -940,7 +940,7 @@ const CodeEditorContent: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={`text-[10px] font-bold uppercase ${c.status === 'A' ? 'text-emerald-500' : c.status === 'D' ? 'text-red-500' : c.status === 'U' ? 'text-blue-500' : 'text-amber-500'}`}>{c.status}</span>
-                          <button onClick={() => toggleStage(c.file)} className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-emerald-400">
+                          <button onClick={() => toggleStage(c.file)} className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-emerald-400" title="Stage file" aria-label="Stage file">
                             <span className="material-symbols-rounded text-sm">add</span>
                           </button>
                         </div>
@@ -1057,7 +1057,7 @@ const CodeEditorContent: React.FC = () => {
                         {floatingPanels[bottomPanelMode].floating ? 'call_to_action' : 'open_in_new'}
                       </span>
                     </button>
-                    <button className="text-zinc-500 hover:text-white"><span className="material-symbols-rounded text-sm">add</span></button>
+                    <button className="text-zinc-500 hover:text-white" title="Add" aria-label="Add"><span className="material-symbols-rounded text-sm">add</span></button>
                     <button
                       onClick={() => setBottomPanelHeight(h => h === 200 ? 350 : 200)}
                       className="text-zinc-500 hover:text-white"

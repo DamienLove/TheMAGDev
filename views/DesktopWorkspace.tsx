@@ -958,6 +958,8 @@ export class MainController {
                               onClick={createProject}
                               disabled={isCreatingProject || !newProjectName.trim()}
                               className="px-2 py-1 bg-indigo-600 text-white text-[10px] rounded hover:bg-indigo-500 disabled:opacity-50"
+                              title="Create Project"
+                              aria-label="Create Project"
                             >
                               <span className="material-symbols-rounded text-[14px]">add</span>
                             </button>

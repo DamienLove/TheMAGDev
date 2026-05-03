@@ -14,6 +14,8 @@ const Paywall: React.FC<PaywallProps> = ({ packages, onPurchase, onClose }) => {
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 text-zinc-500 hover:text-white"
+          title="Close Paywall"
+          aria-label="Close Paywall"
         >
           <span className="material-symbols-rounded">close</span>
         </button>
