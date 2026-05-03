@@ -84,21 +84,48 @@ const AssetsManager: React.FC = () => {
   const handleAiGenerate = async () => {
     if (!aiPrompt) return;
     setIsGenerating(true);
-    setTimeout(() => {
+
+    // In a real scenario, this would call an image generation API.
+    // Since AIProvider is currently only for chat, we'll simulate the generation
+    // but maybe we can use AI to generate the description/tags.
+    try {
+      const response = await aiProvider.sendMessage([
+        { id: Date.now().toString(), role: 'user', content: `Generate tags and a title for an image of: ${aiPrompt}. Return only JSON format like: {"title": "Image Title", "tags": ["tag1", "tag2"]}`, timestamp: Date.now() }
+      ]);
+
+      let title = `AI Generated ${assets.length + 1}`;
+      let tags = ['ai-generated'];
+
+      try {
+          if (response.content) {
+              const jsonStr = response.content.replace(/\n/g, '').match(/\{.*\}/);
+              if (jsonStr) {
+                 const parsed = JSON.parse(jsonStr[0]);
+                 title = parsed.title || title;
+                 if (parsed.tags) tags = [...parsed.tags, 'ai-generated'];
+              }
+          }
+      } catch (e) {
+          // Ignore parsing errors and fallback
+      }
+
       const newAsset: StudioAsset = {
         id: Date.now().toString(),
-        name: `AI Generated ${assets.length + 1}`,
+        name: title,
         type: 'image',
-        url: '/branding/STLOGO.png',
-        tags: ['ai-generated'],
+        url: '/branding/STLOGO.png', // Fallback URL
+        tags: tags,
         size: '256KB',
         source: 'local',
       };
-      assetLibraryService.addAsset(newAsset).catch(() => {});
+      await assetLibraryService.addAsset(newAsset);
+    } catch (e) {
+      console.error(e);
+    } finally {
       setIsGenerating(false);
       setAiPrompt('');
       setActiveTab('explorer');
-    }, 3000);
+    }
   };
 
   const handleDownloadEdited = () => {

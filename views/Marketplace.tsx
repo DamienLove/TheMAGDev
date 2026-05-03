@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import extensionService from '../src/services/ExtensionService';
 import { MODULE_CATALOG } from '../src/data/moduleCatalog';
 
 interface Extension {
@@ -138,15 +139,25 @@ const Marketplace: React.FC = () => {
     { name: 'Modules', icon: 'view_quilt' }
   ];
 
-  const handleInstall = (extId: string) => {
+  const handleInstall = async (extId: string) => {
     setInstalling(extId);
-    // Simulate network delay
-    setTimeout(() => {
-      setExtensions(prev => prev.map(ext =>
-        ext.id === extId ? { ...ext, installed: !ext.installed } : ext
-      ));
-      setInstalling(null);
-    }, 1000);
+    try {
+        const ext = extensions.find(e => e.id === extId);
+        if (ext) {
+            if (ext.installed) {
+                await extensionService.uninstallExtension(extId);
+            } else {
+                await extensionService.installExtension(extId);
+            }
+            setExtensions(prev => prev.map(e =>
+                e.id === extId ? { ...e, installed: !e.installed } : e
+            ));
+        }
+    } catch (e) {
+        console.error(e);
+    } finally {
+        setInstalling(null);
+    }
   };
 
   const filteredExtensions = extensions.filter(ext => {
