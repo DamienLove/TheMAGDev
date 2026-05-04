@@ -130,16 +130,26 @@ const Dashboard: React.FC = () => {
     }
   }, [platforms]);
 
-  const handleRefreshMetrics = () => {
+  const handleRefreshMetrics = async () => {
     setIsRefreshing(true);
-    setTimeout(() => {
-      setMetrics(prev => prev.map(m => ({
-        ...m,
-        change: parseFloat((Math.random() * 5).toFixed(1)),
-        trend: Math.random() > 0.5 ? 'up' : Math.random() > 0.5 ? 'down' : 'neutral'
-      })));
+    try {
+      // In a real environment, this would call analytics API
+      // Since this is a local IDE dashboard without a metrics backend, we calculate real local storage/workspace stats instead
+      const { sdkService } = await import('../src/services/SDKService');
+      const installedSDKs = await sdkService.getInstalledSDKs();
+      const plugins = await sdkService.getInstalledPlugins();
+
+      setMetrics(prev => [
+         { id: '1', name: 'Active Projects', value: '1', change: 0, trend: 'neutral', icon: 'folder_open' },
+         { id: '2', name: 'Installed SDKs', value: installedSDKs.length.toString(), change: installedSDKs.length, trend: installedSDKs.length > 0 ? 'up' : 'neutral', icon: 'developer_board' },
+         { id: '3', name: 'Installed Plugins', value: plugins.length.toString(), change: plugins.length, trend: plugins.length > 0 ? 'up' : 'neutral', icon: 'extension' },
+         { id: '4', name: 'System Load', value: 'Local', change: 0, trend: 'neutral', icon: 'memory' }
+      ]);
+    } catch(err) {
+      console.error(err);
+    } finally {
       setIsRefreshing(false);
-    }, 1000);
+    }
   };
 
   const handleTriggerPipeline = () => {

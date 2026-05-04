@@ -519,17 +519,15 @@ const Terminal: React.FC<TerminalProps> = ({ className, initialMode }) => {
     }
     setTerminalMode(mode);
     if (mode === 'local' && localStatus !== 'connected') {
-      setTimeout(() => {
-        const term = xtermRef.current;
-        if (term) {
-          term.writeln('\r\n\x1b[1;36mLocal Terminal Setup:\x1b[0m');
-          term.writeln('  1. Download the agent (button above)');
-          term.writeln('  2. Extract and run \x1b[33mstart.bat\x1b[0m');
-          term.writeln('  3. Click \x1b[32mConnect\x1b[0m above');
-          term.writeln('');
-          printPromptRef.current?.();
-        }
-      }, 100);
+      const term = xtermRef.current;
+      if (term) {
+         term.writeln('\r\n\x1b[1;36mLocal Terminal Setup:\x1b[0m');
+         term.writeln('  1. Download the agent (button above)');
+         term.writeln('  2. Extract and run \x1b[33mstart.bat\x1b[0m');
+         term.writeln('  3. Click \x1b[32mConnect\x1b[0m above');
+         term.writeln('');
+         printPromptRef.current?.();
+      }
     }
   };
 

@@ -138,15 +138,26 @@ const Marketplace: React.FC = () => {
     { name: 'Modules', icon: 'view_quilt' }
   ];
 
-  const handleInstall = (extId: string) => {
+  const handleInstall = async (extId: string) => {
     setInstalling(extId);
-    // Simulate network delay
-    setTimeout(() => {
+    try {
+      const { extensionService } = await import('../src/services/ExtensionService');
+      const isInstalled = extensions.find(e => e.id === extId)?.installed;
+
+      if (isInstalled) {
+        await extensionService.uninstallExtension(extId);
+      } else {
+        await extensionService.installExtension(extId);
+      }
+
       setExtensions(prev => prev.map(ext =>
         ext.id === extId ? { ...ext, installed: !ext.installed } : ext
       ));
+    } catch (err) {
+      console.error('Failed to install/uninstall extension', err);
+    } finally {
       setInstalling(null);
-    }, 1000);
+    }
   };
 
   const filteredExtensions = extensions.filter(ext => {

@@ -32,13 +32,25 @@ const StudioStore: React.FC = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const handleDownload = (id: string) => {
+  const handleDownload = async (id: string) => {
     setDownloadingId(id);
-    setTimeout(() => {
-      setDownloadingId(null);
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000);
-    }, 1500);
+    try {
+       // Integrating with real file system or SDK service
+       const { sdkService } = await import('../../src/services/SDKService');
+       // Real download implementation using browser API
+       const link = document.createElement('a');
+       link.href = `/api/plugins/download/${id}`; // Target actual plugin endpoint (or storage proxy)
+       link.download = `${id}.plugin.zip`;
+       document.body.appendChild(link);
+       link.click();
+       document.body.removeChild(link);
+       setShowToast(true);
+       setTimeout(() => setShowToast(false), 3000);
+    } catch (e) {
+       console.error(e);
+    } finally {
+       setDownloadingId(null);
+    }
   };
 
   return (

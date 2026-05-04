@@ -48,12 +48,10 @@ const SDKManager: React.FC = () => {
       await sdkService.uninstallSDK(sdk.id);
     }
 
-    setTimeout(() => {
-      clearInterval(interval);
-      setLoading(false);
-      setProgress(null);
-      loadData();
-    }, 2000);
+    clearInterval(interval);
+    setLoading(false);
+    setProgress(null);
+    await loadData();
   };
 
   const handleRefresh = async () => {

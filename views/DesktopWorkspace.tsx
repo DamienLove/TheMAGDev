@@ -584,11 +584,28 @@ export class MainController {
     if (!llmPrompt.trim()) return;
     setLlmLoading(true);
     addTerminalLine('Processing custom prompt...');
-    setTimeout(() => {
-      setLlmResponse(`Based on your prompt "${llmPrompt.slice(0, 50)}...", here's my analysis:\n\nThe code structure follows standard patterns. Consider implementing additional error boundaries and type guards for improved reliability.`);
-      setLlmLoading(false);
-      addTerminalLine('Custom prompt complete', 'success');
-    }, 2000);
+    const runCustomAI = async () => {
+       try {
+          const { aiProvider } = await import('../src/services/AIProvider');
+          const response = await aiProvider.sendMessage([
+             { id: '1', role: 'system', content: 'You are an expert coding assistant helping the user with their codebase.', timestamp: new Date().toISOString() },
+             { id: '2', role: 'user', content: `Context File: ${activeTab}\n\nCode:\n${activeFileContent}\n\nUser Request: ${llmPrompt}`, timestamp: new Date().toISOString() }
+          ]);
+          if (response.error) {
+             setLlmResponse(`Error: ${response.error}`);
+             addTerminalLine('Custom prompt failed', 'error');
+          } else {
+             setLlmResponse(response.content);
+             addTerminalLine('Custom prompt complete', 'success');
+          }
+       } catch (err) {
+          setLlmResponse('An error occurred while calling the AI provider.');
+          addTerminalLine('Custom prompt failed', 'error');
+       } finally {
+          setLlmLoading(false);
+       }
+    };
+    runCustomAI();
   };
 
   const openFile = async (file: FileNode) => {
