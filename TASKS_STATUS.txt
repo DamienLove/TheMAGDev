@@ -45,3 +45,13 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+Sentinel: Local Agent CSWSH Fix
+Last updated: $(date +'%Y-%m-%d %H:%M:%S')
+
+Status:
+- Completed.
+- Identified and fixed Cross-Site WebSocket Hijacking (CSWSH) vulnerability in `local-agent/server.js`.
+- Implemented `verifyClient` to restrict allowed origins to trusted domains (`localhost`, `themag.dev`, `stackblitz.io`), allowing `undefined` for local node script connections.
+- Verified fix by attempting unauthorized connection, confirming a 403 Forbidden rejection.
+- Updated `.jules/sentinel.md` journal with learning and prevention strategy.
