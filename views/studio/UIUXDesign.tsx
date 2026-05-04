@@ -51,10 +51,25 @@ const UIUXDesign: React.FC = () => {
   const filteredDevices = DEVICES.filter(d => d.category === selectedCategory);
   const selectedComponent = components.find(c => c.id === selectedComponentId);
 
-  const handleExport = () => {
+  const handleExport = async () => {
     setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
-    console.log('Exporting Schema:', JSON.stringify(components, null, 2));
+    // Instead of mock timeout, integrate real schema export
+    try {
+        // Trigger real file download since we do not have direct file system write access in this browser context
+        const blob = new Blob([JSON.stringify(components, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ui-schema.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (e) {
+        console.error('Export failed', e);
+    } finally {
+        setTimeout(() => setShowToast(false), 3000);
+    }
   };
 
   const addComponent = (type: ComponentType) => {
