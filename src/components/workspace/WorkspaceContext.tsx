@@ -621,23 +621,26 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, [files, isHydrated, driveEmail, driveStatus.connected, activeDriveFolderId]);
 
-  const fileMap = useMemo(() => {
-    const map = new Map<string, FileNode>();
-    const traverse = (nodes: FileNode[]) => {
+  const getFileByPath = useCallback((targetPath: string): FileNode | undefined => {
+    let result: FileNode | undefined = undefined;
+    const findNode = (nodes: FileNode[]) => {
       for (const node of nodes) {
-        map.set(node.path, node);
+        if (node.path === targetPath) {
+          result = node;
+          return;
+        }
         if (node.children) {
-          traverse(node.children);
+          const prefix = node.path === '/' ? '/' : node.path + '/';
+          if (targetPath.startsWith(prefix)) {
+            findNode(node.children);
+            if (result) return;
+          }
         }
       }
     };
-    traverse(files);
-    return map;
+    findNode(files);
+    return result;
   }, [files]);
-
-  const getFileByPath = useCallback((path: string): FileNode | undefined => {
-    return fileMap.get(path);
-  }, [fileMap]);
 
   const getFileContent = useCallback((path: string): string | undefined => {
     const file = getFileByPath(path);
