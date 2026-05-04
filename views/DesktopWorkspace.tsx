@@ -819,7 +819,7 @@ export class MainController {
             <div className="text-[9px] text-[#5f637a] leading-none mb-1 uppercase">Last Sync</div>
             <div className="text-[10px] text-white font-mono leading-none">{formatSyncTime(syncStatus.lastSync)}</div>
           </div>
-          <button onClick={loadProjects} className="p-1 text-[#5f637a] hover:text-white">
+          <button aria-label="Refresh Projects" title="Refresh Projects" onClick={loadProjects} className="p-1 text-[#5f637a] hover:text-white">
             <span className="material-symbols-rounded text-[18px]">refresh</span>
           </button>
         </div>
@@ -955,6 +955,8 @@ export class MainController {
                               onKeyDown={(e) => e.key === 'Enter' && createProject()}
                             />
                             <button
+                              aria-label="Create Project"
+                              title="Create Project"
                               onClick={createProject}
                               disabled={isCreatingProject || !newProjectName.trim()}
                               className="px-2 py-1 bg-indigo-600 text-white text-[10px] rounded hover:bg-indigo-500 disabled:opacity-50"
@@ -1449,6 +1451,7 @@ export class MainController {
                     </button>
                   )}
                   <button
+                    aria-label="Close terminal"
                     onClick={toggleTerminal}
                     className="p-1 hover:bg-white/10 rounded text-[#5f637a]"
                     title="Close terminal (click Terminal icon to reopen)"

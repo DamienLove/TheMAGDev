@@ -181,6 +181,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ className, onClose, onPopOut,
               onClick={onClose}
               className="text-zinc-600 hover:text-zinc-400"
               aria-label="Close assistant"
+              title="Close assistant"
             >
               <span className="material-symbols-rounded text-sm">close</span>
             </button>
@@ -290,6 +291,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ className, onClose, onPopOut,
             disabled={!input.trim() || !isProviderReady || isLoading}
             className="absolute right-2 bottom-3 text-indigo-500 hover:text-indigo-400 disabled:opacity-30 disabled:cursor-not-allowed"
             aria-label="Send message"
+            title="Send message"
           >
             <span className="material-symbols-rounded">send</span>
           </button>
