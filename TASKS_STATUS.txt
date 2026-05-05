@@ -45,3 +45,11 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+
+Add accessibility labels to icon-only buttons in the Code Editor Activity Bar.
+Last updated: Tue May  5 06:11:33 UTC 2026
+
+Status:
+- Completed.
+- Updated views/CodeEditor.tsx to include aria-label and title properties on sidebar controls.

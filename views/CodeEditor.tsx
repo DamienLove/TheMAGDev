@@ -683,6 +683,8 @@ const CodeEditorContent: React.FC = () => {
         <aside className="w-12 bg-zinc-950 border-r border-zinc-800 flex flex-col items-center py-4 gap-4 shrink-0 z-40">
           <button
             onClick={() => { setSidebarMode('EXPLORER'); setActiveModuleTab('explorer'); }}
+            aria-label="Explorer"
+            title="Explorer"
             className={`p-2 transition-colors relative ${sidebarMode === 'EXPLORER' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
           >
             <span className="material-symbols-rounded">folder_open</span>
@@ -690,6 +692,8 @@ const CodeEditorContent: React.FC = () => {
           </button>
           <button
             onClick={() => setSidebarMode('SEARCH')}
+            aria-label="Search"
+            title="Search"
             className={`p-2 transition-colors relative ${sidebarMode === 'SEARCH' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
           >
             <span className="material-symbols-rounded">search</span>
@@ -697,6 +701,8 @@ const CodeEditorContent: React.FC = () => {
           </button>
           <button
             onClick={() => setSidebarMode('GIT')}
+            aria-label="Source Control"
+            title="Source Control"
             className={`p-2 transition-colors relative ${sidebarMode === 'GIT' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
           >
             <span className="material-symbols-rounded text-2xl">source_environment</span>
@@ -705,6 +711,8 @@ const CodeEditorContent: React.FC = () => {
           </button>
           <button
             onClick={() => setSidebarMode('EXTENSIONS')}
+            aria-label="Extensions"
+            title="Extensions"
             className={`p-2 transition-colors relative ${sidebarMode === 'EXTENSIONS' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
           >
             <span className="material-symbols-rounded">extension</span>
@@ -717,13 +725,15 @@ const CodeEditorContent: React.FC = () => {
                 setBottomPanelMode('terminal');
                 setActiveModuleTab('terminal');
               }}
+              aria-label="Toggle Terminal"
+              title="Toggle Terminal"
               className={`p-2 transition-colors ${showBottomPanel ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
-              title="Toggle Bottom Panel"
+
             >
               <span className="material-symbols-rounded">terminal</span>
             </button>
-            <button className="text-zinc-600 hover:text-zinc-400"><span className="material-symbols-rounded">account_circle</span></button>
-            <button className="text-zinc-600 hover:text-zinc-400 mb-2"><span className="material-symbols-rounded">settings</span></button>
+            <button className="text-zinc-600 hover:text-zinc-400" aria-label="Accounts" title="Accounts"><span className="material-symbols-rounded">account_circle</span></button>
+            <button className="text-zinc-600 hover:text-zinc-400 mb-2" aria-label="Settings" title="Settings"><span className="material-symbols-rounded">settings</span></button>
           </div>
         </aside>
 
