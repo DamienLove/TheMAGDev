@@ -237,17 +237,27 @@ const CodeEditorContent: React.FC = () => {
       const localMap = flattenWorkspaceFiles(files);
 
       const nextChanges: GitChange[] = [];
+      // ⚡ Bolt: Parallelize SHA computation to prevent blocking loop
+      const promises: Promise<GitChange | null>[] = [];
       for (const [path, content] of localMap) {
         const remoteSha = remoteMap.get(path);
         if (!remoteSha) {
           nextChanges.push({ file: path, status: 'A', staged: false });
         } else {
-          const localSha = await computeGitBlobSha(content);
-          if (localSha !== remoteSha) {
-            nextChanges.push({ file: path, status: 'M', staged: false, sha: remoteSha });
-          }
+          promises.push((async () => {
+            const localSha = await computeGitBlobSha(content);
+            if (localSha !== remoteSha) {
+              return { file: path, status: 'M', staged: false, sha: remoteSha };
+            }
+            return null;
+          })());
           remoteMap.delete(path);
         }
+      }
+
+      const results = await Promise.all(promises);
+      for (const res of results) {
+        if (res) nextChanges.push(res);
       }
 
       for (const [path, sha] of remoteMap) {
