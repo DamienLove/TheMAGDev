@@ -45,3 +45,7 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+[2024-05-06] Bolt Optimization Task:
+- Objective: Identify and implement a single measurable performance improvement.
+- Progress: Identified O(N) map rebuild overhead in `getFileByPath` within `WorkspaceContext`. Replaced it with a lazy O(log N) tree search with prefix pruning.
+- Completion Notes: Added optimization comments and verified successfully via `pnpm build`. Logged learning to `.jules/bolt.md`.
