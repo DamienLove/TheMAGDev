@@ -45,3 +45,15 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+---
+Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+Objective: Identify and fix the Cross-Site WebSocket Hijacking (CSWSH) vulnerability in the local agent scripts.
+Progress: Starting.
+Timestamp: 2025-03-09
+Objective: Identify and fix the Cross-Site WebSocket Hijacking (CSWSH) vulnerability in the local agent scripts.
+Progress: Starting.
+Status:
+- Completed.
+- Added strict origin validation (verifyClient) to both local-agent servers (scripts/local-agent.js and local-agent/server.js) to prevent Cross-Site WebSocket Hijacking.
+- Verified validation by mocking an unauthorized request returning 403 Forbidden.
