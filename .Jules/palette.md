@@ -1,1 +1,4 @@
 ## 2024-03-09 - Initialization
+## 2024-03-09 - Initialization
+**Learning:** The Workspace layout uses `views/CodeEditor.tsx` with several sidebars. The main activity bar contained multiple icon-only buttons missing both `title` and `aria-label` attributes. Missing these attributes severely harms screen reader accessibility and makes the UI less discoverable. I fixed them, which aligns with memory requirement: "All newly introduced or existing icon-only buttons in the workspace layout (such as views/CodeEditor.tsx...) must utilize explicit aria-label and title attributes to ensure screen reader accessibility compliance and visual hover discoverability."
+**Action:** Add explicit `aria-label` and `title` to all icon-only buttons representing sidebar views or common tools, enhancing screen-reader compliance and tooltip discoverability.
