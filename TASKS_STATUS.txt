@@ -45,3 +45,10 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+Palette UX Task
+Last updated: 2024-03-09
+
+Status:
+- Identified missing aria-labels and titles on icon-only buttons in the workspace layout (views/CodeEditor.tsx).
+- Added aria-labels and titles to the main sidebar buttons (Explorer, Search, Source Control, Extensions, Terminal, Account, Settings).
