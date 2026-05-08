@@ -691,12 +691,14 @@ export class MainController {
             <button
               onClick={() => setShowDrivePanel(!showDrivePanel)}
               className={`text-[12px] font-medium transition-colors flex items-center gap-1 ${showDrivePanel ? 'text-indigo-400' : 'hover:text-white'}`}
+              title="Drive panel"
+              aria-label="Drive panel"
             >
               <span className="material-symbols-rounded text-[14px]">cloud</span>
               Drive
             </button>
             <div className="relative group">
-              <button className="text-[12px] font-medium transition-colors flex items-center gap-1 hover:text-white">
+              <button className="text-[12px] font-medium transition-colors flex items-center gap-1 hover:text-white" title="Popout" aria-label="Popout">
                 <span className="material-symbols-rounded text-[14px]">open_in_new</span>
                 Popout
               </button>
@@ -704,6 +706,8 @@ export class MainController {
                 <button
                   onClick={() => openPopoutWindow('editor')}
                   className="w-full px-3 py-2 text-left text-[11px] text-[#9da1b9] hover:text-white hover:bg-[#282b39] flex items-center gap-2"
+                  title="Open Editor in new window"
+                  aria-label="Open Editor in new window"
                 >
                   <span className="material-symbols-rounded text-[14px]">code</span>
                   Editor Window
@@ -711,6 +715,8 @@ export class MainController {
                 <button
                   onClick={() => openPopoutWindow('terminal')}
                   className="w-full px-3 py-2 text-left text-[11px] text-[#9da1b9] hover:text-white hover:bg-[#282b39] flex items-center gap-2"
+                  title="Open Terminal in new window"
+                  aria-label="Open Terminal in new window"
                 >
                   <span className="material-symbols-rounded text-[14px]">terminal</span>
                   Terminal Window
@@ -718,6 +724,8 @@ export class MainController {
                 <button
                   onClick={() => openPopoutWindow('ai')}
                   className="w-full px-3 py-2 text-left text-[11px] text-[#9da1b9] hover:text-white hover:bg-[#282b39] flex items-center gap-2"
+                  title="Open AI Assistant in new window"
+                  aria-label="Open AI Assistant in new window"
                 >
                   <span className="material-symbols-rounded text-[14px]">smart_toy</span>
                   AI Assistant
@@ -725,6 +733,8 @@ export class MainController {
                 <button
                   onClick={() => openPopoutWindow('git')}
                   className="w-full px-3 py-2 text-left text-[11px] text-[#9da1b9] hover:text-white hover:bg-[#282b39] flex items-center gap-2"
+                  title="Open Git Panel in new window"
+                  aria-label="Open Git Panel in new window"
                 >
                   <span className="material-symbols-rounded text-[14px]">merge</span>
                   Git Panel
@@ -819,7 +829,7 @@ export class MainController {
             <div className="text-[9px] text-[#5f637a] leading-none mb-1 uppercase">Last Sync</div>
             <div className="text-[10px] text-white font-mono leading-none">{formatSyncTime(syncStatus.lastSync)}</div>
           </div>
-          <button onClick={loadProjects} className="p-1 text-[#5f637a] hover:text-white">
+          <button onClick={loadProjects} className="p-1 text-[#5f637a] hover:text-white" title="Refresh Projects" aria-label="Refresh Projects">
             <span className="material-symbols-rounded text-[18px]">refresh</span>
           </button>
         </div>
@@ -903,6 +913,8 @@ export class MainController {
               <button
                 onClick={() => createNewFile(prompt('File name:') || '')}
                 className="material-symbols-rounded text-[16px] text-[#5f637a] cursor-pointer hover:text-white"
+                title="Create New File"
+                aria-label="Create New File"
               >
                 note_add
               </button>
@@ -958,6 +970,8 @@ export class MainController {
                               onClick={createProject}
                               disabled={isCreatingProject || !newProjectName.trim()}
                               className="px-2 py-1 bg-indigo-600 text-white text-[10px] rounded hover:bg-indigo-500 disabled:opacity-50"
+                              title="Create Project"
+                              aria-label="Create Project"
                             >
                               <span className="material-symbols-rounded text-[14px]">add</span>
                             </button>
@@ -1052,6 +1066,7 @@ export class MainController {
                                     onClick={(e) => { e.stopPropagation(); openFolderAsProject(item); }}
                                     className="p-1 hover:bg-indigo-500/20 rounded text-indigo-400 hover:text-indigo-300"
                                     title="Open folder as active project"
+                                    aria-label="Open folder as active project"
                                   >
                                     <span className="material-symbols-rounded text-[14px]">folder_open</span>
                                   </button>
@@ -1444,6 +1459,7 @@ export class MainController {
                       onClick={() => setTerminalOutput([])}
                       className="p-1 hover:bg-white/10 rounded text-[#5f637a]"
                       title="Clear logs"
+                      aria-label="Clear logs"
                     >
                       <span className="material-symbols-rounded text-[18px]">delete</span>
                     </button>
@@ -1452,6 +1468,7 @@ export class MainController {
                     onClick={toggleTerminal}
                     className="p-1 hover:bg-white/10 rounded text-[#5f637a]"
                     title="Close terminal (click Terminal icon to reopen)"
+                    aria-label="Close terminal"
                   >
                     <span className="material-symbols-rounded text-[18px]">close</span>
                   </button>
@@ -1559,6 +1576,8 @@ export class MainController {
             <button
               onClick={() => setShowProjects(false)}
               className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full hover:bg-white/20 text-white transition-colors"
+              title="Close Projects"
+              aria-label="Close Projects"
             >
               <span className="material-symbols-rounded">close</span>
             </button>
@@ -1579,6 +1598,8 @@ export class MainController {
             <button
               onClick={() => setShowExtensions(false)}
               className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full hover:bg-white/20 text-white transition-colors"
+              title="Close Extensions"
+              aria-label="Close Extensions"
             >
               <span className="material-symbols-rounded">close</span>
             </button>
