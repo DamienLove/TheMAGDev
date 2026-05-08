@@ -237,18 +237,23 @@ const CodeEditorContent: React.FC = () => {
       const localMap = flattenWorkspaceFiles(files);
 
       const nextChanges: GitChange[] = [];
+      const shaPromises: Promise<void>[] = [];
       for (const [path, content] of localMap) {
         const remoteSha = remoteMap.get(path);
         if (!remoteSha) {
           nextChanges.push({ file: path, status: 'A', staged: false });
         } else {
-          const localSha = await computeGitBlobSha(content);
-          if (localSha !== remoteSha) {
-            nextChanges.push({ file: path, status: 'M', staged: false, sha: remoteSha });
-          }
+          shaPromises.push(
+            computeGitBlobSha(content).then(localSha => {
+              if (localSha !== remoteSha) {
+                nextChanges.push({ file: path, status: 'M', staged: false, sha: remoteSha });
+              }
+            })
+          );
           remoteMap.delete(path);
         }
       }
+      await Promise.all(shaPromises);
 
       for (const [path, sha] of remoteMap) {
         nextChanges.push({ file: path, status: 'D', staged: false, sha });
@@ -366,14 +371,18 @@ const CodeEditorContent: React.FC = () => {
       const tree = await githubService.getTree(gitRepo.owner, gitRepo.name, currentBranch);
       const filesToFetch = tree.filter(item => item.type === 'blob');
       const entries: Array<{ path: string; content: string }> = [];
-      for (const item of filesToFetch) {
-        const content = await githubService.getFileContent(
-          gitRepo.owner,
-          gitRepo.name,
-          item.path,
-          currentBranch
-        );
-        entries.push({ path: item.path, content });
+      const CONCURRENCY_LIMIT = 10;
+      for (let i = 0; i < filesToFetch.length; i += CONCURRENCY_LIMIT) {
+        const chunk = filesToFetch.slice(i, i + CONCURRENCY_LIMIT);
+        await Promise.all(chunk.map(async (item) => {
+          const content = await githubService.getFileContent(
+            gitRepo.owner,
+            gitRepo.name,
+            item.path,
+            currentBranch
+          );
+          entries.push({ path: item.path, content });
+        }));
       }
       replaceWorkspace(buildFileTree(entries));
       setLastGitSync(Date.now());
