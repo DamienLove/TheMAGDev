@@ -45,3 +45,4 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+2024-05-08 Task completed: Added ARIA labels and titles to all icon-only buttons across workspace layout components. Tested via build and Playwright.
