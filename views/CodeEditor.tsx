@@ -682,6 +682,7 @@ const CodeEditorContent: React.FC = () => {
         {/* Activity Bar */}
         <aside className="w-12 bg-zinc-950 border-r border-zinc-800 flex flex-col items-center py-4 gap-4 shrink-0 z-40">
           <button
+            title="Explorer" aria-label="Explorer"
             onClick={() => { setSidebarMode('EXPLORER'); setActiveModuleTab('explorer'); }}
             className={`p-2 transition-colors relative ${sidebarMode === 'EXPLORER' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
           >
@@ -689,6 +690,7 @@ const CodeEditorContent: React.FC = () => {
             {sidebarMode === 'EXPLORER' && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-6 bg-indigo-500 rounded-r-full"></div>}
           </button>
           <button
+            title="Search" aria-label="Search"
             onClick={() => setSidebarMode('SEARCH')}
             className={`p-2 transition-colors relative ${sidebarMode === 'SEARCH' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
           >
@@ -696,6 +698,7 @@ const CodeEditorContent: React.FC = () => {
             {sidebarMode === 'SEARCH' && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-6 bg-indigo-500 rounded-r-full"></div>}
           </button>
           <button
+            title="Source Control" aria-label="Source Control"
             onClick={() => setSidebarMode('GIT')}
             className={`p-2 transition-colors relative ${sidebarMode === 'GIT' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
           >
@@ -704,6 +707,7 @@ const CodeEditorContent: React.FC = () => {
             {sidebarMode === 'GIT' && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-6 bg-indigo-500 rounded-r-full"></div>}
           </button>
           <button
+            title="Extensions" aria-label="Extensions"
             onClick={() => setSidebarMode('EXTENSIONS')}
             className={`p-2 transition-colors relative ${sidebarMode === 'EXTENSIONS' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
           >
@@ -722,8 +726,8 @@ const CodeEditorContent: React.FC = () => {
             >
               <span className="material-symbols-rounded">terminal</span>
             </button>
-            <button className="text-zinc-600 hover:text-zinc-400"><span className="material-symbols-rounded">account_circle</span></button>
-            <button className="text-zinc-600 hover:text-zinc-400 mb-2"><span className="material-symbols-rounded">settings</span></button>
+            <button title="Account" aria-label="Account" className="text-zinc-600 hover:text-zinc-400"><span className="material-symbols-rounded">account_circle</span></button>
+            <button title="Settings" aria-label="Settings" className="text-zinc-600 hover:text-zinc-400 mb-2"><span className="material-symbols-rounded">settings</span></button>
           </div>
         </aside>
 
