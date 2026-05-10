@@ -648,10 +648,10 @@ const CodeEditorContent: React.FC = () => {
           >
             <span className="material-symbols-rounded text-sm">save</span> Save
           </button>
-          <button className="flex items-center gap-1.5 px-3 py-1 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-500 border border-emerald-500/30 rounded text-[10px] font-bold transition-all uppercase tracking-tight">
+          <button className="flex items-center gap-1.5 px-3 py-1 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-500 border border-emerald-500/30 rounded text-[10px] font-bold transition-all uppercase tracking-tight" aria-label="Run Code" title="Run Code">
             <span className="material-symbols-rounded text-sm">play_arrow</span> Run
           </button>
-          <button className="flex items-center gap-1.5 px-3 py-1 bg-amber-600/10 hover:bg-amber-600/20 text-amber-500 border border-amber-500/30 rounded text-[10px] font-bold transition-all uppercase tracking-tight">
+          <button className="flex items-center gap-1.5 px-3 py-1 bg-amber-600/10 hover:bg-amber-600/20 text-amber-500 border border-amber-500/30 rounded text-[10px] font-bold transition-all uppercase tracking-tight" aria-label="Debug Code" title="Debug Code">
             <span className="material-symbols-rounded text-sm">bug_report</span> Debug
           </button>
         </div>
@@ -722,8 +722,8 @@ const CodeEditorContent: React.FC = () => {
             >
               <span className="material-symbols-rounded">terminal</span>
             </button>
-            <button className="text-zinc-600 hover:text-zinc-400"><span className="material-symbols-rounded">account_circle</span></button>
-            <button className="text-zinc-600 hover:text-zinc-400 mb-2"><span className="material-symbols-rounded">settings</span></button>
+            <button className="text-zinc-600 hover:text-zinc-400" aria-label="Account Profile" title="Account Profile"><span className="material-symbols-rounded">account_circle</span></button>
+            <button className="text-zinc-600 hover:text-zinc-400 mb-2" aria-label="Settings" title="Settings"><span className="material-symbols-rounded">settings</span></button>
           </div>
         </aside>
 
@@ -980,6 +980,8 @@ const CodeEditorContent: React.FC = () => {
                     <button
                       onClick={(e) => handleCloseTab(filePath, e)}
                       className="ml-1 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                      aria-label="Close tab"
+                      title="Close tab"
                     >
                       <span className="material-symbols-rounded text-xs">close</span>
                     </button>
@@ -1057,16 +1059,20 @@ const CodeEditorContent: React.FC = () => {
                         {floatingPanels[bottomPanelMode].floating ? 'call_to_action' : 'open_in_new'}
                       </span>
                     </button>
-                    <button className="text-zinc-500 hover:text-white"><span className="material-symbols-rounded text-sm">add</span></button>
+                    <button className="text-zinc-500 hover:text-white" aria-label="New Panel" title="New Panel"><span className="material-symbols-rounded text-sm">add</span></button>
                     <button
                       onClick={() => setBottomPanelHeight(h => h === 200 ? 350 : 200)}
                       className="text-zinc-500 hover:text-white"
+                      aria-label={bottomPanelHeight === 200 ? 'Expand panel' : 'Collapse panel'}
+                      title={bottomPanelHeight === 200 ? 'Expand panel' : 'Collapse panel'}
                     >
                       <span className="material-symbols-rounded text-sm">{bottomPanelHeight === 200 ? 'expand_less' : 'expand_more'}</span>
                     </button>
                     <button
                       onClick={() => setShowBottomPanel(false)}
                       className="text-zinc-500 hover:text-white"
+                      aria-label="Close panel"
+                      title="Close panel"
                     >
                       <span className="material-symbols-rounded text-sm">close</span>
                     </button>
