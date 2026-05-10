@@ -45,3 +45,8 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+
+[2026-05-10T06:33:04Z]
+Objective: Fix CSWSH vulnerability in local-agent/server.js
+Status: Complete
+Notes: Added Origin header validation to the WebSocket server in local-agent/server.js to prevent Cross-Site WebSocket Hijacking. Cleaned up test scripts.
