@@ -1559,6 +1559,8 @@ export class MainController {
             <button
               onClick={() => setShowProjects(false)}
               className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full hover:bg-white/20 text-white transition-colors"
+              aria-label="Close Projects"
+              title="Close Projects"
             >
               <span className="material-symbols-rounded">close</span>
             </button>
@@ -1579,6 +1581,8 @@ export class MainController {
             <button
               onClick={() => setShowExtensions(false)}
               className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full hover:bg-white/20 text-white transition-colors"
+              aria-label="Close Extensions"
+              title="Close Extensions"
             >
               <span className="material-symbols-rounded">close</span>
             </button>

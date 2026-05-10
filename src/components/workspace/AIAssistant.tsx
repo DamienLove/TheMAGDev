@@ -152,6 +152,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ className, onClose, onPopOut,
           <button
             onClick={() => setShowProviderSelect(!showProviderSelect)}
             className="flex items-center gap-1 px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded text-xs text-zinc-300"
+            aria-label="Select AI Provider"
+            title="Select AI Provider"
           >
             {activeProvider?.name.split(' ')[0] || 'Select'}
             <span className="material-symbols-rounded text-sm">expand_more</span>
@@ -306,6 +308,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ className, onClose, onPopOut,
           <button
             onClick={clearChat}
             className="text-[9px] font-bold text-indigo-500 hover:underline uppercase tracking-tight"
+            aria-label="Clear Thread"
+            title="Clear Thread"
           >
             Clear Thread
           </button>
