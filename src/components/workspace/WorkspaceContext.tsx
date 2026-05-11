@@ -621,23 +621,27 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, [files, isHydrated, driveEmail, driveStatus.connected, activeDriveFolderId]);
 
-  const fileMap = useMemo(() => {
-    const map = new Map<string, FileNode>();
-    const traverse = (nodes: FileNode[]) => {
+  // ⚡ Bolt: Replaced eager O(N) map generation with lazy O(log N) path pruning traversal.
+  // This prevents freezing the main thread on every keystroke by avoiding full tree iterations.
+  const getFileByPath = useCallback((targetPath: string): FileNode | undefined => {
+    const findNode = (nodes: FileNode[]): FileNode | undefined => {
       for (const node of nodes) {
-        map.set(node.path, node);
+        if (node.path === targetPath) {
+          return node;
+        }
         if (node.children) {
-          traverse(node.children);
+          // Prune search space: only traverse if target path is within this directory
+          const prefix = node.path === '/' ? '/' : node.path + '/';
+          if (targetPath.startsWith(prefix)) {
+            const found = findNode(node.children);
+            if (found) return found;
+          }
         }
       }
+      return undefined;
     };
-    traverse(files);
-    return map;
+    return findNode(files);
   }, [files]);
-
-  const getFileByPath = useCallback((path: string): FileNode | undefined => {
-    return fileMap.get(path);
-  }, [fileMap]);
 
   const getFileContent = useCallback((path: string): string | undefined => {
     const file = getFileByPath(path);
