@@ -45,3 +45,4 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+- [Bolt] 2025-05-12: Optimized WorkspaceContext tree state. Replaced eager O(N) map build on file change with lazy O(log N) tree traversal path pruning.
