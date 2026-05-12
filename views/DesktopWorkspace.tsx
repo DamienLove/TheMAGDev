@@ -819,7 +819,7 @@ export class MainController {
             <div className="text-[9px] text-[#5f637a] leading-none mb-1 uppercase">Last Sync</div>
             <div className="text-[10px] text-white font-mono leading-none">{formatSyncTime(syncStatus.lastSync)}</div>
           </div>
-          <button onClick={loadProjects} className="p-1 text-[#5f637a] hover:text-white">
+          <button onClick={loadProjects} className="p-1 text-[#5f637a] hover:text-white" title="Refresh projects" aria-label="Refresh projects">
             <span className="material-symbols-rounded text-[18px]">refresh</span>
           </button>
         </div>
@@ -1052,6 +1052,7 @@ export class MainController {
                                     onClick={(e) => { e.stopPropagation(); openFolderAsProject(item); }}
                                     className="p-1 hover:bg-indigo-500/20 rounded text-indigo-400 hover:text-indigo-300"
                                     title="Open folder as active project"
+                                    aria-label="Open folder as active project"
                                   >
                                     <span className="material-symbols-rounded text-[14px]">folder_open</span>
                                   </button>
@@ -1444,6 +1445,7 @@ export class MainController {
                       onClick={() => setTerminalOutput([])}
                       className="p-1 hover:bg-white/10 rounded text-[#5f637a]"
                       title="Clear logs"
+                      aria-label="Clear logs"
                     >
                       <span className="material-symbols-rounded text-[18px]">delete</span>
                     </button>
@@ -1452,6 +1454,7 @@ export class MainController {
                     onClick={toggleTerminal}
                     className="p-1 hover:bg-white/10 rounded text-[#5f637a]"
                     title="Close terminal (click Terminal icon to reopen)"
+                    aria-label="Close terminal"
                   >
                     <span className="material-symbols-rounded text-[18px]">close</span>
                   </button>
@@ -1559,6 +1562,8 @@ export class MainController {
             <button
               onClick={() => setShowProjects(false)}
               className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full hover:bg-white/20 text-white transition-colors"
+              title="Close"
+              aria-label="Close"
             >
               <span className="material-symbols-rounded">close</span>
             </button>
@@ -1579,6 +1584,8 @@ export class MainController {
             <button
               onClick={() => setShowExtensions(false)}
               className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full hover:bg-white/20 text-white transition-colors"
+              title="Close"
+              aria-label="Close"
             >
               <span className="material-symbols-rounded">close</span>
             </button>
