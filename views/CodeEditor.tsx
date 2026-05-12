@@ -690,6 +690,8 @@ const CodeEditorContent: React.FC = () => {
           </button>
           <button
             onClick={() => setSidebarMode('SEARCH')}
+            title="Search"
+            aria-label="Search"
             className={`p-2 transition-colors relative ${sidebarMode === 'SEARCH' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
           >
             <span className="material-symbols-rounded">search</span>
@@ -697,6 +699,8 @@ const CodeEditorContent: React.FC = () => {
           </button>
           <button
             onClick={() => setSidebarMode('GIT')}
+            title="Source Control"
+            aria-label="Source Control"
             className={`p-2 transition-colors relative ${sidebarMode === 'GIT' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
           >
             <span className="material-symbols-rounded text-2xl">source_environment</span>
@@ -705,6 +709,8 @@ const CodeEditorContent: React.FC = () => {
           </button>
           <button
             onClick={() => setSidebarMode('EXTENSIONS')}
+            title="Extensions"
+            aria-label="Extensions"
             className={`p-2 transition-colors relative ${sidebarMode === 'EXTENSIONS' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
           >
             <span className="material-symbols-rounded">extension</span>
@@ -717,13 +723,14 @@ const CodeEditorContent: React.FC = () => {
                 setBottomPanelMode('terminal');
                 setActiveModuleTab('terminal');
               }}
+              title="Toggle Panel"
+              aria-label="Toggle Panel"
               className={`p-2 transition-colors ${showBottomPanel ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
-              title="Toggle Bottom Panel"
             >
               <span className="material-symbols-rounded">terminal</span>
             </button>
-            <button className="text-zinc-600 hover:text-zinc-400"><span className="material-symbols-rounded">account_circle</span></button>
-            <button className="text-zinc-600 hover:text-zinc-400 mb-2"><span className="material-symbols-rounded">settings</span></button>
+            <button className="text-zinc-600 hover:text-zinc-400" title="Account" aria-label="Account"><span className="material-symbols-rounded">account_circle</span></button>
+            <button className="text-zinc-600 hover:text-zinc-400 mb-2" title="Settings" aria-label="Settings"><span className="material-symbols-rounded">settings</span></button>
           </div>
         </aside>
 
@@ -916,7 +923,7 @@ const CodeEditorContent: React.FC = () => {
                             </div>
                             <div className="flex items-center gap-2">
                               <span className={`text-[10px] font-bold uppercase ${c.status === 'A' ? 'text-emerald-500' : c.status === 'D' ? 'text-red-500' : 'text-amber-500'}`}>{c.status}</span>
-                              <button onClick={() => toggleStage(c.file)} className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400">
+                              <button onClick={() => toggleStage(c.file)} className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400" title="Unstage file" aria-label="Unstage file">
                                 <span className="material-symbols-rounded text-sm">remove</span>
                               </button>
                             </div>
@@ -940,7 +947,7 @@ const CodeEditorContent: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={`text-[10px] font-bold uppercase ${c.status === 'A' ? 'text-emerald-500' : c.status === 'D' ? 'text-red-500' : c.status === 'U' ? 'text-blue-500' : 'text-amber-500'}`}>{c.status}</span>
-                          <button onClick={() => toggleStage(c.file)} className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-emerald-400">
+                          <button onClick={() => toggleStage(c.file)} className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-emerald-400" title="Stage file" aria-label="Stage file">
                             <span className="material-symbols-rounded text-sm">add</span>
                           </button>
                         </div>
@@ -980,6 +987,8 @@ const CodeEditorContent: React.FC = () => {
                     <button
                       onClick={(e) => handleCloseTab(filePath, e)}
                       className="ml-1 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Close tab"
+                      aria-label="Close tab"
                     >
                       <span className="material-symbols-rounded text-xs">close</span>
                     </button>
@@ -1045,6 +1054,7 @@ const CodeEditorContent: React.FC = () => {
                       onClick={() => openModuleWindow(bottomPanelMode)}
                       className="text-zinc-500 hover:text-white"
                       title="Open in new window"
+                      aria-label="Open in new window"
                     >
                       <span className="material-symbols-rounded text-sm">launch</span>
                     </button>
@@ -1052,21 +1062,26 @@ const CodeEditorContent: React.FC = () => {
                       onClick={() => toggleFloating(bottomPanelMode)}
                       className="text-zinc-500 hover:text-white"
                       title={floatingPanels[bottomPanelMode].floating ? 'Dock panel' : 'Pop out panel'}
+                      aria-label={floatingPanels[bottomPanelMode].floating ? 'Dock panel' : 'Pop out panel'}
                     >
                       <span className="material-symbols-rounded text-sm">
                         {floatingPanels[bottomPanelMode].floating ? 'call_to_action' : 'open_in_new'}
                       </span>
                     </button>
-                    <button className="text-zinc-500 hover:text-white"><span className="material-symbols-rounded text-sm">add</span></button>
+                    <button className="text-zinc-500 hover:text-white" title="Add" aria-label="Add"><span className="material-symbols-rounded text-sm">add</span></button>
                     <button
                       onClick={() => setBottomPanelHeight(h => h === 200 ? 350 : 200)}
                       className="text-zinc-500 hover:text-white"
+                      title={bottomPanelHeight === 200 ? 'Expand panel' : 'Collapse panel'}
+                      aria-label={bottomPanelHeight === 200 ? 'Expand panel' : 'Collapse panel'}
                     >
                       <span className="material-symbols-rounded text-sm">{bottomPanelHeight === 200 ? 'expand_less' : 'expand_more'}</span>
                     </button>
                     <button
                       onClick={() => setShowBottomPanel(false)}
                       className="text-zinc-500 hover:text-white"
+                      title="Close panel"
+                      aria-label="Close panel"
                     >
                       <span className="material-symbols-rounded text-sm">close</span>
                     </button>
@@ -1164,6 +1179,7 @@ const CodeEditorContent: React.FC = () => {
                   onClick={() => openModuleWindow(tab.id)}
                   className="text-zinc-500 hover:text-zinc-200"
                   title="Open in new window"
+                  aria-label="Open in new window"
                 >
                   <span className="material-symbols-rounded text-sm">launch</span>
                 </button>
@@ -1171,6 +1187,7 @@ const CodeEditorContent: React.FC = () => {
                   onClick={() => toggleFloating(tab.id)}
                   className="text-zinc-500 hover:text-zinc-200"
                   title="Dock panel"
+                  aria-label="Dock panel"
                 >
                   <span className="material-symbols-rounded text-sm">call_to_action</span>
                 </button>
@@ -1178,6 +1195,7 @@ const CodeEditorContent: React.FC = () => {
                   onClick={() => hideFloating(tab.id)}
                   className="text-zinc-500 hover:text-zinc-200"
                   title="Hide panel"
+                  aria-label="Hide panel"
                 >
                   <span className="material-symbols-rounded text-sm">close</span>
                 </button>
