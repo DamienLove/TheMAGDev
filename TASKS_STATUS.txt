@@ -45,3 +45,5 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+>> Wed May 13 06:29:29 UTC 2026: Starting Palette UX enhancement task.
+>> Wed May 13 06:58:28 UTC 2026: Finished Palette UX enhancement task (added ARIA labels to workspace buttons).
