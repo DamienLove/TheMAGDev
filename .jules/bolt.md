@@ -15,3 +15,7 @@
 ## 2025-03-09 - [Path Pruning for Recursive React Context Updates]
 **Learning:** In highly nested data structures like `FileNode[]` stored in React state, recursive operations such as mapping (`updateFileContent`, `renameFile`), filtering (`deleteFile`), or adding (`createFile`) can inadvertently trigger full O(N) tree traversals across thousands of nodes. This causes significant UI blocking in features like file explorers when typing or making frequent changes.
 **Action:** Always implement path prefix pruning in recursive state updates (e.g., `if (targetPath.startsWith(node.path + '/'))`). This bypasses unnecessary branches, successfully optimizing the state update logic from O(N) to O(log N).
+
+## 2024-05-14 - [Path Pruning for Workspace File Lookups]
+**Learning:** Rebuilding a deeply nested lookup map on every React state change via `useMemo` causes massive O(N) allocation overhead. Replacing the eager `useMemo` Map with a lazy O(log N) tree traversal that prunes branches (`targetPath.startsWith(prefix)`) inside a `useCallback` significantly improves performance during frequent updates like typing.
+**Action:** When searching deep, frequently updated hierarchical React state (like a file tree), prefer lazy, pruned tree traversal on-demand instead of eagerly maintaining an $O(N)$ lookup map that gets invalidated on every parent state change.
