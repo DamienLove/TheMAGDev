@@ -48,12 +48,18 @@ const SDKManager: React.FC = () => {
       await sdkService.uninstallSDK(sdk.id);
     }
 
-    setTimeout(() => {
+    try {
+      if (sdk.status === 'Not Installed' || sdk.status === 'Update Available') {
+        await sdkService.installSDK(sdk.id);
+      } else if (sdk.status === 'Installed') {
+        await sdkService.uninstallSDK(sdk.id);
+      }
+    } finally {
       clearInterval(interval);
       setLoading(false);
       setProgress(null);
       loadData();
-    }, 2000);
+    }
   };
 
   const handleRefresh = async () => {

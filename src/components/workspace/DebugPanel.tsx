@@ -94,9 +94,15 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ className }) => {
   const handleContinue = () => {
     if (session) {
       setSession({ ...session, status: 'running' });
-      setTimeout(() => {
-        setSession(prev => prev ? { ...prev, status: 'paused', currentLine: 23 } : null);
-      }, 500);
+      try {
+        if (typeof (window as any).localAgentService !== 'undefined' && (window as any).localAgentService.isConnected()) {
+          (window as any).localAgentService.sendCommand('debugger continue');
+        } else if (typeof (window as any).webContainerService !== 'undefined' && (window as any).webContainerService.process) {
+          (window as any).webContainerService.process.input.write('c\n');
+        }
+      } catch (e) {
+        console.error('Debug continue failed', e);
+      }
     }
   };
 
