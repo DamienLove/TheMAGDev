@@ -685,18 +685,19 @@ export class MainController {
             <h1 className="text-sm font-bold tracking-tight">DevStudio <span className="text-indigo-500">Master</span></h1>
           </div>
           <nav className="hidden md:flex items-center gap-4 text-[#9da1b9]">
-            <button onClick={() => setShowProjects(true)} className="hover:text-white text-[12px] font-medium transition-colors">Project</button>
-            <button onClick={handleBuild} className="hover:text-white text-[12px] font-medium transition-colors">Build</button>
-            <button onClick={handleRun} className="hover:text-white text-[12px] font-medium transition-colors">Debug</button>
+            <button onClick={() => setShowProjects(true)} className="hover:text-white text-[12px] font-medium transition-colors" aria-label="Open Projects">Project</button>
+            <button onClick={handleBuild} className="hover:text-white text-[12px] font-medium transition-colors" aria-label="Build Project">Build</button>
+            <button onClick={handleRun} className="hover:text-white text-[12px] font-medium transition-colors" aria-label="Debug Project">Debug</button>
             <button
               onClick={() => setShowDrivePanel(!showDrivePanel)}
               className={`text-[12px] font-medium transition-colors flex items-center gap-1 ${showDrivePanel ? 'text-indigo-400' : 'hover:text-white'}`}
+              aria-label="Toggle Google Drive Integration"
             >
               <span className="material-symbols-rounded text-[14px]">cloud</span>
               Drive
             </button>
             <div className="relative group">
-              <button className="text-[12px] font-medium transition-colors flex items-center gap-1 hover:text-white">
+              <button className="text-[12px] font-medium transition-colors flex items-center gap-1 hover:text-white" aria-label="Popout Options" title="Popout Options">
                 <span className="material-symbols-rounded text-[14px]">open_in_new</span>
                 Popout
               </button>
@@ -819,7 +820,7 @@ export class MainController {
             <div className="text-[9px] text-[#5f637a] leading-none mb-1 uppercase">Last Sync</div>
             <div className="text-[10px] text-white font-mono leading-none">{formatSyncTime(syncStatus.lastSync)}</div>
           </div>
-          <button onClick={loadProjects} className="p-1 text-[#5f637a] hover:text-white">
+          <button onClick={loadProjects} className="p-1 text-[#5f637a] hover:text-white" aria-label="Refresh Projects" title="Refresh Projects">
             <span className="material-symbols-rounded text-[18px]">refresh</span>
           </button>
         </div>
