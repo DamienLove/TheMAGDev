@@ -45,3 +45,12 @@ Status:
 - Switched COOP to same-origin-allow-popups to support Google OAuth + WebContainer.
 - Rebuilt and deployed Firebase Hosting.
 - FTP deploy failing with ECONNRESET from ftpupload.net; needs retry or alternate FTP client.
+TheMAG.dev Task Status Update
+=============================
+Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+Security Fix (Sentinel): Fixed Cross-Site WebSocket Hijacking (CSWSH) in local-agent/server.js.
+Status:
+- Completed.
+- Implemented Origin validation (verifyClient) in local-agent/server.js WebSocketServer.
+- Tested to ensure malicious origins (e.g., evil.com) are rejected (403) while local scripts and allowed origins are permitted.
