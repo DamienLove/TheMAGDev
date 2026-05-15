@@ -1,3 +1,4 @@
+import aiProvider from '../src/services/AIProvider';
 import React, { useState, useRef, useEffect } from 'react';
 
 interface Question {
@@ -43,7 +44,7 @@ const CommunitySupport: React.FC = () => {
 
   useEffect(scrollToBottom, [chatMessages]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!chatInput.trim()) return;
 
     const userMessage: ChatMessage = {
@@ -58,23 +59,26 @@ const CommunitySupport: React.FC = () => {
     setIsTyping(true);
 
     // Simulate AI response
-    setTimeout(() => {
-      const inputLower = chatInput.toLowerCase();
-      let response = aiResponses.default;
-      if (inputLower.includes('build') || inputLower.includes('compile')) response = aiResponses.build;
-      else if (inputLower.includes('deploy') || inputLower.includes('production')) response = aiResponses.deploy;
-      else if (inputLower.includes('error') || inputLower.includes('fail')) response = aiResponses.error;
-
+    try {
+      const aiResponse = await aiProvider.sendMessage(chatMessages.map(m => ({ id: m.id, role: m.sender === 'ai' ? 'assistant' : 'user', content: m.text, timestamp: Date.now() })).concat([{ id: userMessage.id, role: 'user', content: userMessage.text, timestamp: Date.now() }]));
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
-        text: response,
+        text: aiResponse || 'No response from AI.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
-
       setChatMessages(prev => [...prev, aiMessage]);
+    } catch (e: any) {
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        sender: 'ai',
+        text: 'Error connecting to AI: ' + e.message,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setChatMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
   const [questions] = useState<Question[]>([
     {

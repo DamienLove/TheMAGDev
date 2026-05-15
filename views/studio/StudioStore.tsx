@@ -32,13 +32,15 @@ const StudioStore: React.FC = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const handleDownload = (id: string) => {
+  const handleDownload = async (id: string) => {
     setDownloadingId(id);
-    setTimeout(() => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    } finally {
       setDownloadingId(null);
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
-    }, 1500);
+    }
   };
 
   return (

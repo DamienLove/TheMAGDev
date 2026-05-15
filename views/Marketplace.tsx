@@ -138,15 +138,21 @@ const Marketplace: React.FC = () => {
     { name: 'Modules', icon: 'view_quilt' }
   ];
 
-  const handleInstall = (extId: string) => {
+  const handleInstall = async (extId: string) => {
     setInstalling(extId);
     // Simulate network delay
-    setTimeout(() => {
+    try {
+      if (extId.startsWith('module-')) {
+        // Real installation logic for modules goes here if applicable
+      } else {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
       setExtensions(prev => prev.map(ext =>
         ext.id === extId ? { ...ext, installed: !ext.installed } : ext
       ));
+    } finally {
       setInstalling(null);
-    }, 1000);
+    }
   };
 
   const filteredExtensions = extensions.filter(ext => {

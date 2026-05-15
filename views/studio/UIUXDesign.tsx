@@ -53,8 +53,17 @@ const UIUXDesign: React.FC = () => {
 
   const handleExport = () => {
     setShowToast(true);
+    const schemaStr = JSON.stringify(components, null, 2);
+    const blob = new Blob([schemaStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ui-schema.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
     setTimeout(() => setShowToast(false), 3000);
-    console.log('Exporting Schema:', JSON.stringify(components, null, 2));
   };
 
   const addComponent = (type: ComponentType) => {
