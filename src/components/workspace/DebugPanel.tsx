@@ -189,6 +189,8 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ className }) => {
           <button
             onClick={handleStartDebug}
             className="flex items-center gap-1.5 px-3 py-1 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-500 border border-emerald-500/30 rounded text-[10px] font-bold transition-all uppercase tracking-tight"
+            aria-label="Start Debug"
+            title="Start Debug"
           >
             <span className="material-symbols-rounded text-sm">play_arrow</span>
             Start Debug
