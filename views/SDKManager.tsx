@@ -40,20 +40,22 @@ const SDKManager: React.FC = () => {
       });
     }, 200);
 
-    if (sdk.status === 'Update Available') {
-      await sdkService.updateSDK(sdk.id);
-    } else if (sdk.status === 'Not Installed') {
-      await sdkService.installSDK(sdk.id);
-    } else if (sdk.status === 'Installed') {
-      await sdkService.uninstallSDK(sdk.id);
-    }
-
-    setTimeout(() => {
+    try {
+      if (sdk.status === 'Update Available') {
+        await sdkService.updateSDK(sdk.id);
+      } else if (sdk.status === 'Not Installed') {
+        await sdkService.installSDK(sdk.id);
+      } else if (sdk.status === 'Installed') {
+        await sdkService.uninstallSDK(sdk.id);
+      }
+    } catch (err) {
+      console.error('Failed to process SDK:', err);
+    } finally {
       clearInterval(interval);
       setLoading(false);
       setProgress(null);
       loadData();
-    }, 2000);
+    }
   };
 
   const handleRefresh = async () => {

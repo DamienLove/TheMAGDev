@@ -792,10 +792,8 @@ class ExtensionService {
 
     this.marketplaceExtensions.set(upload.manifest.id, marketplaceExt);
 
-    // Simulate LLM safety scan (in real app, this would be async server-side)
-    setTimeout(() => {
-      this.performSafetyScan(upload.manifest.id, upload.sourceCode);
-    }, 2000);
+    // Call safety scan asynchronously without artificial delay
+    this.performSafetyScan(upload.manifest.id, upload.sourceCode).catch(console.error);
 
     this.saveMarketplaceExtensions();
     await this.storeExtensionBundle(upload.manifest, upload.sourceCode);

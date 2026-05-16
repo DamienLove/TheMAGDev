@@ -480,48 +480,37 @@ class SDKService {
     }
   }
 
-  installSDK(id: string): Promise<void> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const sdk = this.sdks.find(s => s.id === id);
-        if (sdk) {
-          sdk.status = 'Installed';
-          this.saveState();
-          this.storeSDKBundle(sdk).catch(() => {});
-          this.notify();
-        }
-        resolve();
-      }, 2000);
-    });
+  async installSDK(id: string): Promise<void> {
+    const sdk = this.sdks.find(s => s.id === id);
+    if (sdk) {
+      // Typically this would download and extract actual SDK files
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate download time
+      sdk.status = 'Installed';
+      this.saveState();
+      await this.storeSDKBundle(sdk).catch(() => {});
+      this.notify();
+    }
   }
 
-  updateSDK(id: string): Promise<void> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const sdk = this.sdks.find(s => s.id === id);
-        if (sdk) {
-          sdk.status = 'Installed';
-          this.saveState();
-          this.storeSDKBundle(sdk).catch(() => {});
-          this.notify();
-        }
-        resolve();
-      }, 2000);
-    });
+  async updateSDK(id: string): Promise<void> {
+    const sdk = this.sdks.find(s => s.id === id);
+    if (sdk) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      sdk.status = 'Installed';
+      this.saveState();
+      await this.storeSDKBundle(sdk).catch(() => {});
+      this.notify();
+    }
   }
 
-  uninstallSDK(id: string): Promise<void> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const sdk = this.sdks.find(s => s.id === id);
-        if (sdk) {
-          sdk.status = 'Not Installed';
-          this.saveState();
-          this.notify();
-        }
-        resolve();
-      }, 1000);
-    });
+  async uninstallSDK(id: string): Promise<void> {
+    const sdk = this.sdks.find(s => s.id === id);
+    if (sdk) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      sdk.status = 'Not Installed';
+      this.saveState();
+      this.notify();
+    }
   }
 
   uninstallPlugin(id: string): void {
@@ -537,17 +526,16 @@ class SDKService {
     this.notify();
   }
 
-  checkForUpdates(): Promise<number> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Simulate finding updates
-        const updates = this.sdks.filter(s => s.status === 'Installed' && Math.random() > 0.7);
-        updates.forEach(s => s.status = 'Update Available');
-        this.saveState();
-        this.notify();
-        resolve(updates.length);
-      }, 1500);
-    });
+  async checkForUpdates(): Promise<number> {
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Simulate finding updates
+    const updates = this.sdks.filter(s => s.status === 'Installed' && Math.random() > 0.7);
+    updates.forEach(s => s.status = 'Update Available');
+    this.saveState();
+    if (updates.length > 0) {
+      this.notify();
+    }
+    return updates.length;
   }
 }
 

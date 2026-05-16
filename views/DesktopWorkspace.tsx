@@ -1,3 +1,4 @@
+import aiProvider from '../src/services/AIProvider';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Terminal, useWorkspace, FileNode as WorkspaceFileNode, FileExplorer } from '../src/components/workspace';
 import googleDriveService, { DriveFile, DriveSyncStatus, DriveUserInfo } from '../src/services/GoogleDriveService';
@@ -584,11 +585,24 @@ export class MainController {
     if (!llmPrompt.trim()) return;
     setLlmLoading(true);
     addTerminalLine('Processing custom prompt...');
-    setTimeout(() => {
-      setLlmResponse(`Based on your prompt "${llmPrompt.slice(0, 50)}...", here's my analysis:\n\nThe code structure follows standard patterns. Consider implementing additional error boundaries and type guards for improved reliability.`);
+    try {
+      const response = await aiProvider.sendMessage(
+        [{ id: Date.now().toString(), role: 'user', content: llmPrompt, timestamp: Date.now() }],
+        `You are analyzing the file ${activeTab} which contains the following code:\n\n${activeFileContent}`
+      );
+      if (response.error) {
+        setLlmResponse(`Error: ${response.error}`);
+        addTerminalLine('Custom prompt failed', 'error');
+      } else {
+        setLlmResponse(response.content);
+        addTerminalLine('Custom prompt complete', 'success');
+      }
+    } catch (err) {
+      setLlmResponse('An unexpected error occurred.');
+      addTerminalLine('Custom prompt failed', 'error');
+    } finally {
       setLlmLoading(false);
-      addTerminalLine('Custom prompt complete', 'success');
-    }, 2000);
+    }
   };
 
   const openFile = async (file: FileNode) => {

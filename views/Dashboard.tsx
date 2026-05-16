@@ -130,19 +130,21 @@ const Dashboard: React.FC = () => {
     }
   }, [platforms]);
 
-  const handleRefreshMetrics = () => {
+  const handleRefreshMetrics = async () => {
     setIsRefreshing(true);
-    setTimeout(() => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
       setMetrics(prev => prev.map(m => ({
         ...m,
         change: parseFloat((Math.random() * 5).toFixed(1)),
         trend: Math.random() > 0.5 ? 'up' : Math.random() > 0.5 ? 'down' : 'neutral'
       })));
+    } finally {
       setIsRefreshing(false);
-    }, 1000);
+    }
   };
 
-  const handleTriggerPipeline = () => {
+  const handleTriggerPipeline = async () => {
     setIsPipelineRunning(true);
     const newActivity: ActivityItem = {
       id: Date.now().toString(),
@@ -155,14 +157,16 @@ const Dashboard: React.FC = () => {
     };
     setActivities(prev => [newActivity, ...prev]);
 
-    setTimeout(() => {
-      setIsPipelineRunning(false);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 3000));
       setActivities(prev => prev.map(a =>
         a.id === newActivity.id
           ? { ...a, subtitle: '1 minute ago - Deployed to production-main' }
           : a
       ));
-    }, 3000);
+    } finally {
+      setIsPipelineRunning(false);
+    }
   };
 
   const handleInfraAction = (action: string) => {
