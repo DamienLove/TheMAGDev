@@ -52,9 +52,19 @@ const UIUXDesign: React.FC = () => {
   const selectedComponent = components.find(c => c.id === selectedComponentId);
 
   const handleExport = () => {
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
-    console.log('Exporting Schema:', JSON.stringify(components, null, 2));
+    try {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(components, null, 2));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", "ui_schema.json");
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000); // this timeout is fine for toast hide
+    } catch (err) {
+      console.error('Failed to export schema:', err);
+    }
   };
 
   const addComponent = (type: ComponentType) => {

@@ -1,3 +1,5 @@
+import { webContainerService } from '../../services/WebContainerService';
+import localAgentService from '../../services/LocalAgentService';
 import React, { useState } from 'react';
 
 export interface Breakpoint {
@@ -94,9 +96,11 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ className }) => {
   const handleContinue = () => {
     if (session) {
       setSession({ ...session, status: 'running' });
-      setTimeout(() => {
-        setSession(prev => prev ? { ...prev, status: 'paused', currentLine: 23 } : null);
-      }, 500);
+      if (localAgentService.isConnected) {
+         localAgentService.sendCommand('debugger continue');
+      } else if (webContainerService.process) {
+         webContainerService.process.input.write('c\n');
+      }
     }
   };
 

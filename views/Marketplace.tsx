@@ -1,3 +1,4 @@
+import extensionService from '../src/services/ExtensionService';
 import React, { useState, useEffect } from 'react';
 import { MODULE_CATALOG } from '../src/data/moduleCatalog';
 
@@ -138,15 +139,23 @@ const Marketplace: React.FC = () => {
     { name: 'Modules', icon: 'view_quilt' }
   ];
 
-  const handleInstall = (extId: string) => {
+  const handleInstall = async (extId: string) => {
     setInstalling(extId);
-    // Simulate network delay
-    setTimeout(() => {
-      setExtensions(prev => prev.map(ext =>
-        ext.id === extId ? { ...ext, installed: !ext.installed } : ext
+    try {
+      const ext = extensions.find(e => e.id === extId);
+      if (ext?.installed) {
+        await extensionService.uninstallExtension(extId);
+      } else {
+        await extensionService.installExtension(extId);
+      }
+      setExtensions(prev => prev.map(e =>
+        e.id === extId ? { ...e, installed: !e.installed } : e
       ));
+    } catch (err) {
+      console.error('Failed to toggle extension:', err);
+    } finally {
       setInstalling(null);
-    }, 1000);
+    }
   };
 
   const filteredExtensions = extensions.filter(ext => {

@@ -32,13 +32,30 @@ const StudioStore: React.FC = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const handleDownload = (id: string) => {
+  const handleDownload = async (id: string) => {
     setDownloadingId(id);
-    setTimeout(() => {
-      setDownloadingId(null);
+    try {
+      // In a real app we would fetch the asset file data
+      // e.g. const data = await storeService.downloadAsset(id);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      const item = STORE_ITEMS.find(i => i.id === id);
+      if (item) {
+         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(item, null, 2));
+         const downloadAnchorNode = document.createElement('a');
+         downloadAnchorNode.setAttribute("href", dataStr);
+         downloadAnchorNode.setAttribute("download", `${item.name.replace(/\s+/g, '_')}.json`);
+         document.body.appendChild(downloadAnchorNode);
+         downloadAnchorNode.click();
+         downloadAnchorNode.remove();
+      }
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
-    }, 1500);
+    } catch(err) {
+      console.error('Failed to download item', err);
+    } finally {
+      setDownloadingId(null);
+    }
   };
 
   return (
