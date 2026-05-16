@@ -6,8 +6,6 @@ import os from 'os';
 const PORT = Number(process.env.THEMAG_AGENT_PORT || 4477);
 
 const ALLOWED_ORIGINS = [
-  'http://localhost:3000',
-  'http://localhost:5173',
   'https://themag.dev',
   'https://stackblitz.io'
 ];
@@ -16,7 +14,7 @@ const wss = new WebSocketServer({
   port: PORT,
   verifyClient: (info, cb) => {
     const origin = info.origin;
-    if (ALLOWED_ORIGINS.includes(origin)) {
+    if (!origin || ALLOWED_ORIGINS.includes(origin) || origin?.startsWith('http://localhost:')) {
       cb(true);
     } else {
       console.warn(`[Security] Blocked unauthorized connection attempt from origin: ${origin}`);
