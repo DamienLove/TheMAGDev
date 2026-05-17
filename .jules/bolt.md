@@ -15,3 +15,6 @@
 ## 2025-03-09 - [Path Pruning for Recursive React Context Updates]
 **Learning:** In highly nested data structures like `FileNode[]` stored in React state, recursive operations such as mapping (`updateFileContent`, `renameFile`), filtering (`deleteFile`), or adding (`createFile`) can inadvertently trigger full O(N) tree traversals across thousands of nodes. This causes significant UI blocking in features like file explorers when typing or making frequent changes.
 **Action:** Always implement path prefix pruning in recursive state updates (e.g., `if (targetPath.startsWith(node.path + '/'))`). This bypasses unnecessary branches, successfully optimizing the state update logic from O(N) to O(log N).
+## 2026-05-17 - [Parallelizing Async Iteration in Loops]
+**Learning:** Sequential `await` calls inside `for...of` loops for independent, highly-repetitive operations (like computing SHA hashes for many files during git status checks) create significant UI blocking and performance bottlenecks.
+**Action:** When mapping over collections to perform independent async tasks, always construct an array of promises using `.map()` and resolve them concurrently with `Promise.all()` to maximize parallel execution, preserving order if needed by filtering the results afterward.
