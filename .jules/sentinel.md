@@ -17,3 +17,8 @@
 **Vulnerability:** Platform-specific API keys (e.g., RevenueCat `iosApiKey` and `androidApiKey`) were hardcoded directly in `src/mobile/NativeConfig.tsx`, which was commented out for future use.
 **Learning:** Even if code is commented out or currently unused in the web platform, any hardcoded secrets checked into version control are exposed. Attackers or automated scanners can find them in the git history or codebase.
 **Prevention:** Never hardcode secrets in source files, including commented blocks or unused code. Always use environment variable placeholders (e.g., `process.env.EXPO_PUBLIC_RC_IOS_API_KEY`) to ensure secure configuration practices are maintained when the code is eventually reactivated or ported.
+
+## 2025-03-09 - CSWSH in Raw WebContainer Backends
+**Vulnerability:** The local agent server in `local-agent/server.js` spawned shells directly without any Origin validation on the WebSocket, allowing arbitrary command execution from any website.
+**Learning:** Raw spawned shells via WebSockets are extremely vulnerable to Cross-Site WebSocket Hijacking if Origin headers aren't explicitly verified.
+**Prevention:** Always implement `verifyClient` to check the Origin header when creating a `WebSocketServer`, allowing only explicit whitelists and safe patterns (like `localhost`).
