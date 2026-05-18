@@ -819,7 +819,7 @@ export class MainController {
             <div className="text-[9px] text-[#5f637a] leading-none mb-1 uppercase">Last Sync</div>
             <div className="text-[10px] text-white font-mono leading-none">{formatSyncTime(syncStatus.lastSync)}</div>
           </div>
-          <button onClick={loadProjects} className="p-1 text-[#5f637a] hover:text-white">
+          <button onClick={loadProjects} aria-label="Refresh Projects" title="Refresh Projects" className="p-1 text-[#5f637a] hover:text-white">
             <span className="material-symbols-rounded text-[18px]">refresh</span>
           </button>
         </div>
