@@ -17,3 +17,8 @@
 **Vulnerability:** Platform-specific API keys (e.g., RevenueCat `iosApiKey` and `androidApiKey`) were hardcoded directly in `src/mobile/NativeConfig.tsx`, which was commented out for future use.
 **Learning:** Even if code is commented out or currently unused in the web platform, any hardcoded secrets checked into version control are exposed. Attackers or automated scanners can find them in the git history or codebase.
 **Prevention:** Never hardcode secrets in source files, including commented blocks or unused code. Always use environment variable placeholders (e.g., `process.env.EXPO_PUBLIC_RC_IOS_API_KEY`) to ensure secure configuration practices are maintained when the code is eventually reactivated or ported.
+
+## $(date +%Y-%m-%d) - Re-appearance of CSWSH Vulnerability
+**Vulnerability:** The local agent server (\`local-agent/server.js\`) lacked validation of the \`Origin\` header despite a previous fix in \`scripts/local-agent.js\`. This allowed arbitrary shell command execution via Cross-Site WebSocket Hijacking.
+**Learning:** Security fixes often need to be applied uniformly across all implementations of a service within a codebase (e.g. multiple entrypoints for the local agent). Fixing one script while leaving another vulnerable negates the protection.
+**Prevention:** Always audit the codebase for similar patterns or duplicate service endpoints when patching a vulnerability to ensure comprehensive coverage.
