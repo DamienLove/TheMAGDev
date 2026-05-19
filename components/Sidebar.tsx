@@ -34,6 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, user }) =>
             key={item.id}
             onClick={() => onChangeView(item.id)}
             aria-label={item.label}
+            title={item.label}
             aria-current={currentView === item.id ? 'page' : undefined}
             className={`group relative flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 shrink-0 ${
               currentView === item.id
@@ -54,6 +55,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, user }) =>
         <button
           onClick={() => onChangeView(View.Support)}
           aria-label="Support"
+          title="Support"
           className={`group relative flex items-center justify-center w-12 h-12 rounded-xl transition-all ${
             currentView === View.Support ? 'bg-slate-800 text-indigo-400' : 'text-slate-400 hover:text-slate-200'
           }`}
@@ -66,6 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, user }) =>
         <button 
           onClick={() => onChangeView(View.Settings)}
           aria-label="Settings"
+          title="Settings"
           className={`group relative flex items-center justify-center w-12 h-12 rounded-xl transition-all ${
             currentView === View.Settings ? 'bg-slate-800 text-indigo-400' : 'text-slate-400 hover:text-slate-200'
           }`}
@@ -78,6 +81,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, user }) =>
         <button
           className="w-10 h-10 mx-auto rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-xs font-bold border-2 border-slate-950 shadow-lg cursor-pointer hover:scale-110 transition-transform"
           aria-label="User profile"
+          title="User profile"
         >
           {user?.avatar || 'JD'}
         </button>

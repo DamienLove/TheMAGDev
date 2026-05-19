@@ -83,6 +83,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, childr
             <button
               onClick={() => setShowNotifications(!showNotifications)}
               aria-label="View notifications"
+              title="View notifications"
               className={`relative p-2 rounded-lg transition-colors ${showNotifications ? 'bg-indigo-500/10 text-indigo-400' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900'}`}
             >
               <span className="material-symbols-rounded text-xl">notifications</span>
@@ -108,7 +109,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, childr
             <div className="absolute top-2 right-4 w-80 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="px-4 py-3 border-b border-zinc-800 flex justify-between items-center bg-zinc-950/50">
                 <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Platform Events</span>
-                <button className="text-[9px] font-bold text-indigo-400 hover:underline uppercase">Clear all</button>
+                <button className="text-[9px] font-bold text-indigo-400 hover:underline uppercase" aria-label="Clear all notifications" title="Clear all notifications">Clear all</button>
               </div>
               <div className="max-h-[400px] overflow-y-auto">
                 {notifications.length > 0 ? notifications.map(n => (
@@ -128,7 +129,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ currentView, onChangeView, childr
                   </div>
                 )}
               </div>
-              <button className="w-full py-3 bg-zinc-950/50 text-center text-[10px] font-bold text-zinc-500 hover:text-zinc-300 transition-colors uppercase tracking-widest">View system audit log</button>
+              <button className="w-full py-3 bg-zinc-950/50 text-center text-[10px] font-bold text-zinc-500 hover:text-zinc-300 transition-colors uppercase tracking-widest" aria-label="View system audit log" title="View system audit log">View system audit log</button>
             </div>
           )}
         </main>
