@@ -247,7 +247,7 @@ const AssetsManager: React.FC = () => {
                              {selectedAsset.tags.map(tag => (
                                 <span key={tag} className="flex items-center gap-1 bg-zinc-900 text-[10px] text-zinc-400 px-2 py-0.5 rounded border border-zinc-800">
                                    {tag}
-                                   <button className="hover:text-red-400"><span className="material-symbols-rounded text-[12px]">close</span></button>
+                                   <button aria-label="Remove tag" title="Remove tag" className="hover:text-red-400"><span className="material-symbols-rounded text-[12px]">close</span></button>
                                 </span>
                              ))}
                              <button className="text-[10px] text-indigo-400 font-bold hover:underline">+ Add Tag</button>
